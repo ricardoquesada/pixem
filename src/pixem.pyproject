@@ -1,0 +1,11 @@
+{
+    "files": [
+        "about_dialog.py",
+        "font.py",
+        "font_dialog.py",
+        "myproperty.py",
+        "pixem.py",
+        "preference_dialog.py",
+        "resources_rc.py"
+    ]
+}

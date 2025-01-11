@@ -1,0 +1,7 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/">
+    <file>res/fonts/petscii-charset.bin</file>
+    <file>res/fonts/atascii-charset.bin</file>
+    <file>res/logo512.png</file>
+</qresource>
+</RCC>
