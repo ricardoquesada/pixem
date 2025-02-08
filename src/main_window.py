@@ -334,7 +334,16 @@ class MainWindow(QMainWindow):
         pass
 
     def open_project(self) -> None:
-        pass
+        options = QFileDialog.Options()  # For more options if needed
+        filename, _ = QFileDialog.getOpenFileName(
+            self,
+            "Open Pixem Project File",
+            "",
+            "Pixem Project Files (*.toml *.pixemproj);;All Files (*)",
+            options=options,
+        )
+        if filename:
+            self.state.load_from_filename(filename)
 
     def save_project(self) -> None:
         filename = self.state.filename

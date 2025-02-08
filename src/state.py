@@ -57,6 +57,7 @@ class State:
             toml.dump(d, f)
 
     def load_from_filename(self, filename: str) -> None:
+        logger.info(f"Loading project from filename {filename}")
         with open(filename, "r", encoding="utf-8") as f:
             d = toml.load(f)
             print(d)
