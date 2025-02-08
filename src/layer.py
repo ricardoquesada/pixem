@@ -1,3 +1,5 @@
+import image_utils
+
 from PySide6.QtCore import (
     QPointF,
     QSizeF,
@@ -23,6 +25,19 @@ class Layer:
             f"name: {self.name}, visible: {self.visible}, opacity: {self.opacity}, "
             f"pixel size: {self.pixel_size}, position: {self.position}, rotation: {self.rotation}"
         )
+
+    def get_dict(self) -> dict:
+        """Converts to Layer to a dictionary"""
+        d = {
+            "name": self.name,
+            "position": {"x": self.position.x(), "y": self.position.y()},
+            "rotation": self.rotation,
+            "pixel_size": {"width": self.pixel_size.width(), "height": self.pixel_size.height()},
+            "visible": self.visible,
+            "opacity": self.opacity,
+            "image": image_utils.qimage_to_base64_string(self.image),
+        }
+        return d
 
 
 class ImageLayer(Layer):
