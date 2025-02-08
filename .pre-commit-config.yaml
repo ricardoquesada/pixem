@@ -9,19 +9,19 @@ repos:
     -   id: check-yaml
     -   id: check-added-large-files
 -   repo: https://github.com/python/black
-    rev: 24.10.0
+    rev: 25.1.0
     hooks:
     -   id: black
         exclude: "^(pixem/resources_rc.py)"
         args: [--line-length, '100']
 -   repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: v19.1.6
+    rev: v19.1.7
     hooks:
     -   id: clang-format
         exclude: "^(design/|pixel/|setup.py$|pixem/resources_rc.py)"
 -   repo: https://github.com/astral-sh/ruff-pre-commit
     # Ruff version.
-    rev: v0.9.1
+    rev: v0.9.5
     hooks:
     # Run the linter.
     -   id: ruff

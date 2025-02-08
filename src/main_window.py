@@ -337,12 +337,16 @@ class MainWindow(QMainWindow):
         pass
 
     def save_project(self) -> None:
-        file_name, _ = QFileDialog.getSaveFileName(self, "Save Project", "", "pixem (*.toml)")
-        if file_name:
-            pass
+        filename = self.state.filename
+        if filename is None:
+            self.save_project_as()
+            return
+        self.state.save_to_filename(filename)
 
     def save_project_as(self) -> None:
-        pass
+        filename, _ = QFileDialog.getSaveFileName(self, "Save Project", "", "pixem (*.toml)")
+        if filename:
+            self.state.save_to_filename(filename)
 
     def export_project(self) -> None:
         pass

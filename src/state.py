@@ -15,3 +15,12 @@ class State:
         self.pen_color = QColor(Qt.black)
         self.scale_factor = 1.0
         self.hoop_visible = False
+        self.filename = None
+
+    def save_to_filename(self, filename: str) -> None:
+        if filename is None:
+            return
+        self.filename = filename
+
+    def load_from_filename(self, filename: str) -> None:
+        pass
