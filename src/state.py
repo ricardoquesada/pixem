@@ -1,3 +1,4 @@
+import logging
 from layer import Layer
 from PySide6.QtCore import (
     Qt,
@@ -6,6 +7,8 @@ from PySide6.QtCore import (
 from PySide6.QtGui import (
     QColor,
 )
+
+logger = logging.getLogger(__name__)  # __name__ gets the current module's name
 
 
 class State:
@@ -18,6 +21,7 @@ class State:
         self.filename = None
 
     def save_to_filename(self, filename: str) -> None:
+        logger.info(f"Saving project to filename {filename}")
         if filename is None:
             return
         self.filename = filename
