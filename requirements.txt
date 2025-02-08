@@ -6,10 +6,10 @@ click==8.1.8
 dill==0.3.9
 distlib==0.3.9
 docstring-to-markdown==0.15
-filelock==3.16.1
+filelock==3.17.0
 flake8==7.1.1
 greenlet==3.1.1
-identify==2.6.5
+identify==2.6.6
 isort==5.13.2
 jedi==0.19.2
 mccabe==0.7.0
@@ -22,7 +22,7 @@ parso==0.8.4
 pathspec==0.12.1
 platformdirs==4.3.6
 pluggy==1.5.0
-pre_commit==4.0.1
+pre_commit==4.1.0
 pycodestyle==2.12.1
 pydocstyle==6.3.0
 pyflakes==3.2.0
@@ -41,6 +41,6 @@ shiboken6==6.8.1
 snowballstemmer==2.2.0
 tomlkit==0.13.2
 ujson==5.10.0
-virtualenv==20.28.1
+virtualenv==20.29.1
 whatthepatch==1.0.7
 yapf==0.43.0
