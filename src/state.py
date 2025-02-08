@@ -1,5 +1,5 @@
 import logging
-import tomlkit
+import toml
 from layer import Layer
 from PySide6.QtCore import (
     Qt,
@@ -53,9 +53,10 @@ class State:
 
         d = self.get_dict()
 
-        with open(filename, "w", encoding="utf-8") as f:  # Use utf-8 encoding
-            tomlkit.dump(d, f)
+        with open(filename, "w", encoding="utf-8") as f:
+            toml.dump(d, f)
 
-
-def load_from_filename(self, filename: str) -> None:
-    pass
+    def load_from_filename(self, filename: str) -> None:
+        with open(filename, "r", encoding="utf-8") as f:
+            d = toml.load(f)
+            print(d)

@@ -39,7 +39,7 @@ rope==1.13.0
 ruff==0.8.6
 shiboken6==6.8.1
 snowballstemmer==2.2.0
-tomlkit==0.13.2
+toml==0.10.2
 ujson==5.10.0
 virtualenv==20.29.1
 whatthepatch==1.0.7
