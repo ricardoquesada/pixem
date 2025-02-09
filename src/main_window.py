@@ -8,7 +8,7 @@ import sys
 import resources_rc  # noqa: F401
 
 from about_dialog import AboutDialog
-from settings import Settings
+from preferences import Settings
 from preference_dialog import PreferenceDialog
 from state import State
 from layer import ImageLayer
@@ -64,6 +64,10 @@ class Canvas(QWidget):
     def __init__(self, state: State) -> None:
         super().__init__()
         self.state: State = state
+        self.preferences = {
+            "size": (5, 7),
+            "visible": True,
+        }
 
     def paintEvent(self, event: QPaintEvent) -> None:
         if not self.state.layers:
@@ -405,6 +409,7 @@ class MainWindow(QMainWindow):
         if dialog.exec() == QDialog.Accepted:
             selected_options = dialog.get_selected_options()
             print("Selected options:", selected_options)
+            self.canvas.preferences = selected_options
 
     def layer_add_image(self) -> None:
         file_name, _ = QFileDialog.getOpenFileName(

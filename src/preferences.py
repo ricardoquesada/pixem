@@ -6,7 +6,7 @@ from PySide6.QtCore import (
 )
 
 
-class Settings:
+class Preferences:
     STATE_VERSION = 1
 
     def __init__(self):
@@ -42,11 +42,26 @@ class Settings:
     def get_hoop_visible(self) -> bool:
         return bool(self.settings.value("hoop/visible", defaultValue=True))
 
+    def set_hoop_size(self, size: tuple) -> None:
+        self.settings.setValue("hoop/size_x", size[0])
+        self.settings.setValue("hoop/size_y", size[1])
+
+    def get_hoop_size(self) -> tuple:
+        x = int(self.settings.value("hoop/size_x", defaultValue=4))
+        y = int(self.settings.value("hoop/size_y", defaultValue=4))
+        return x, y
+
+
+# Singleton
+global_preferences = Preferences()
 
 if __name__ == "__main__":
-    settings = Settings()
-    print(f"State: {settings.get_window_state()}")
-    print(f"Geometry: {settings.get_window_geometry()}")
-    print(f"Default State: {settings.get_default_window_state()}")
-    print(f"Default Geometry: {settings.get_default_window_geometry()}")
-    print(f"Hoop visible: {settings.get_hoop_visible()}")
+    preferences = global_preferences
+    preferences.set_hoop_size((5, 8))
+
+    print(f"State: {preferences.get_window_state()}")
+    print(f"Geometry: {preferences.get_window_geometry()}")
+    print(f"Default State: {preferences.get_default_window_state()}")
+    print(f"Default Geometry: {preferences.get_default_window_geometry()}")
+    print(f"Hoop visible: {preferences.get_hoop_visible()}")
+    print(f"Hoop size: {preferences.get_hoop_size()}")

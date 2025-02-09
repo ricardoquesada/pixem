@@ -1,4 +1,5 @@
 import sys
+import preferences
 
 from PySide6.QtWidgets import (
     QApplication,
@@ -65,35 +66,58 @@ class PreferenceDialog(QDialog):
 
         self.setLayout(main_layout)
 
-    def get_selected_options(self):
-        """Returns a dictionary of selected options."""
-        selected_size = None
+        # Populate from global preferences
+        hoop_visible = preferences.global_preferences.get_hoop_visible()
+        hoop_size = preferences.global_preferences.get_hoop_size()
+        print(hoop_visible)
+        print(hoop_size)
+        self.visibility_checkbox.setChecked(hoop_visible)
+
+        d = {
+            (4, 4): self.hoop_4_4_radio,
+            (5, 7): self.hoop_5_7_radio,
+            (7, 5): self.hoop_7_5_radio,
+            (6, 10): self.hoop_6_10_radio,
+            (10, 6): self.hoop_10_6_radio,
+        }
+        radio_button = None
+        if hoop_size in d:
+            radio_button = d[hoop_size]
+        else:
+            radio_button = self.hoop_custom_radio
+        radio_button.setChecked(True)
+
+    def accept(self) -> None:
+        super().accept()
+
+        hoop_size = (0, 0)
         if self.hoop_4_4_radio.isChecked():
-            selected_size = (4, 4)
+            hoop_size = (4, 4)
         elif self.hoop_5_7_radio.isChecked():
-            selected_size = (5, 7)
+            hoop_size = (5, 7)
         elif self.hoop_7_5_radio.isChecked():
-            selected_size = (7, 5)
+            hoop_size = (7, 5)
         elif self.hoop_6_10_radio.isChecked():
-            selected_size = (6, 10)
+            hoop_size = (6, 10)
         elif self.hoop_10_6_radio.isChecked():
-            selected_size = (10, 6)
+            hoop_size = (10, 6)
         elif self.hoop_custom_radio.isChecked():
-            selected_size = (
+            hoop_size = (
                 self.custom_size_x_spinbox.value(),
                 self.custom_size_y_spinbox.value(),
             )
-
-        return {
-            "size": selected_size,
-            "visible": self.visibility_checkbox.isChecked(),
-        }
+        hoop_visible = self.visibility_checkbox.isChecked()
+        preferences.global_preferences.set_hoop_size(hoop_size)
+        preferences.global_preferences.set_hoop_visible(hoop_visible)
+        print(hoop_visible)
+        print(hoop_size)
 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     dialog = PreferenceDialog()
     if dialog.exec() == QDialog.Accepted:
-        selected_options = dialog.get_selected_options()
-        print("Selected options:", selected_options)
+        print("Dialog was accepted")
+    elif dialog.exec() == QDialog.Rejected:
+        print("Dialog was rejected")
     sys.exit(app.exec())
