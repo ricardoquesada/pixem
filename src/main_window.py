@@ -415,6 +415,7 @@ class MainWindow(QMainWindow):
             self.state.layers.append(layer)
             self.layer_list.addItem(layer.name)
             self.layer_list.setCurrentRow(len(self.state.layers) - 1)
+            self.update()
 
     def layer_add_text(self) -> None:
         file = QFile(":/res/fonts/petscii-charset.bin")
