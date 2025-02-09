@@ -351,7 +351,7 @@ class MainWindow(QMainWindow):
                 logger.warning(f"Failed to load state from filename {filename}")
                 return
 
-            # hack
+            # FIXME: Add a method that sets the new state
             self.state = state
             self.canvas.state = state
 
