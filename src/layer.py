@@ -1,10 +1,10 @@
 import image_utils
+from typing import Self
 
 from PySide6.QtCore import (
     QPointF,
     QSizeF,
 )
-
 from PySide6.QtGui import (
     QImage,
 )
@@ -20,14 +20,30 @@ class Layer:
         self.visible = True
         self.opacity = 1.0
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         return (
-            f"name: {self.name}, visible: {self.visible}, opacity: {self.opacity}, "
-            f"pixel size: {self.pixel_size}, position: {self.position}, rotation: {self.rotation}"
+            f"Layer(name: {self.name}, visible: {self.visible}, opacity: {self.opacity}, "
+            f"pixel size: {self.pixel_size}, position: {self.position}, rotation: {self.rotation})"
         )
 
-    def get_dict(self) -> dict:
-        """Converts to Layer to a dictionary"""
+    @classmethod
+    def from_dict(cls, d: dict) -> Self:
+        """Creates a Layer from a dict"""
+        name = d["name"]
+        image = image_utils.base64_string_to_qimage(d["image"])
+        layer = Layer(image, name)
+
+        pos = d["position"]
+        layer.position = QPointF(pos["x"], pos["y"])
+        layer.rotation = d["rotation"]
+        pixel_size = d["pixel_size"]
+        layer.pixel_size = QSizeF(pixel_size["width"], pixel_size["height"])
+        layer.visible = d["visible"]
+        layer.opacity = d["opacity"]
+        return layer
+
+    def to_dict(self) -> dict:
+        """Returns a dictionary that represents the Layer"""
         d = {
             "name": self.name,
             "position": {"x": self.position.x(), "y": self.position.y()},

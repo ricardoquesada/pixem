@@ -2,6 +2,7 @@
 # Copyright 2024 Ricardo Quesada
 
 import copy
+import logging
 import sys
 
 import resources_rc  # noqa: F401
@@ -53,6 +54,8 @@ from PySide6.QtWidgets import (
     QUndoView,
     QWidget,
 )
+
+logger = logging.getLogger(__name__)  # __name__ gets the current module's name
 
 DEFAULT_SCALE_FACTOR = 5.0
 
@@ -343,7 +346,19 @@ class MainWindow(QMainWindow):
             options=options,
         )
         if filename:
-            self.state.load_from_filename(filename)
+            state = State.load_from_filename(filename)
+            if state is None:
+                logger.warning(f"Failed to load state from filename {filename}")
+                return
+
+            # hack
+            self.state = state
+            self.canvas.state = state
+
+            self.layer_list.clear()
+            for layer in self.state.layers:
+                self.layer_list.addItem(layer.name)
+            self.update()
 
     def save_project(self) -> None:
         filename = self.state.filename
@@ -423,9 +438,9 @@ class MainWindow(QMainWindow):
         enabled = current is not None
         self.property_editor.setEnabled(enabled)
         if enabled:
-            self.state.current_layer = self.state.layers[self.layer_list.row(current)]
+            self.state.current_layer_idx = self.layer_list.row(current)
             # Cache all variables first
-            clone = copy.copy(self.state.current_layer)
+            clone = copy.copy(self.state.layers[self.state.current_layer_idx])
             # And then update widgets.
             # This is updating the widgets will trigger the "value changed", that will
             # update the current layer based on the self.current.
@@ -438,23 +453,24 @@ class MainWindow(QMainWindow):
             self.visible_checkbox.setChecked(clone.visible)
             self.opacity_slider.setValue(round(clone.opacity * 100))
         else:
-            self.state.current_layer = None
+            self.state.current_layer_idx = -1
 
     def update_layer_property(self) -> None:
-        enabled = self.state.current_layer is not None
+        enabled = self.state.current_layer_idx is not -1
         self.property_editor.setEnabled(enabled)
         if enabled:
-            self.state.current_layer.name = self.name_edit.text()
-            self.state.current_layer.position = QPointF(
+            current_layer = self.state.layers[self.state.current_layer_idx]
+            current_layer.name = self.name_edit.text()
+            current_layer.position = QPointF(
                 self.position_x_spinbox.value(), self.position_y_spinbox.value()
             )
-            self.state.current_layer.rotation = self.rotation_slider.value()
-            self.state.current_layer.pixel_size = QSizeF(
+            current_layer.rotation = self.rotation_slider.value()
+            current_layer.pixel_size = QSizeF(
                 self.pixel_width_spinbox.value(), self.pixel_height_spinbox.value()
             )
-            self.state.current_layer.visible = self.visible_checkbox.isChecked()
-            self.state.current_layer.opacity = self.opacity_slider.value() / 100.0
-            self.layer_list.currentItem().setText(self.state.current_layer.name)
+            current_layer.visible = self.visible_checkbox.isChecked()
+            current_layer.opacity = self.opacity_slider.value() / 100.0
+            self.layer_list.currentItem().setText(current_layer.name)
             self.update()
 
     def show_about_dialog(self) -> None:
