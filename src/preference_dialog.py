@@ -69,8 +69,6 @@ class PreferenceDialog(QDialog):
         # Populate from global preferences
         hoop_visible = preferences.global_preferences.get_hoop_visible()
         hoop_size = preferences.global_preferences.get_hoop_size()
-        print(hoop_visible)
-        print(hoop_size)
         self.visibility_checkbox.setChecked(hoop_visible)
 
         d = {

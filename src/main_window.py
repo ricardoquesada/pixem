@@ -187,6 +187,7 @@ class MainWindow(QMainWindow):
         show_hoop_action.setCheckable(True)
         show_hoop_action.triggered.connect(lambda: self.show_hoop_size(show_hoop_action))
         view_menu.addAction(show_hoop_action)
+        show_hoop_action.setChecked(global_preferences.get_hoop_visible())
 
         view_menu.addSeparator()
 
@@ -398,7 +399,8 @@ class MainWindow(QMainWindow):
     def show_hoop_size(self, action: QAction) -> None:
         is_checked = action.isChecked()
         global_preferences.set_hoop_visible(is_checked)
-        print(is_checked)
+        self.canvas.on_preferences_updated()
+        self.update()
 
     def reset_layout(self) -> None:
         default_geometry = global_preferences.get_default_window_geometry()
@@ -419,6 +421,7 @@ class MainWindow(QMainWindow):
         dialog = PreferenceDialog()
         if dialog.exec() == QDialog.Accepted:
             self.canvas.on_preferences_updated()
+            self.update()
 
     def layer_add_image(self) -> None:
         file_name, _ = QFileDialog.getOpenFileName(
