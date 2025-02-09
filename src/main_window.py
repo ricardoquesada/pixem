@@ -7,9 +7,10 @@ import sys
 
 import resources_rc  # noqa: F401
 
+
 from about_dialog import AboutDialog
-from preferences import Settings
 from preference_dialog import PreferenceDialog
+from preferences import global_preferences
 from state import State
 from layer import ImageLayer
 
@@ -58,16 +59,16 @@ from PySide6.QtWidgets import (
 logger = logging.getLogger(__name__)  # __name__ gets the current module's name
 
 DEFAULT_SCALE_FACTOR = 5.0
+INCHES_TO_MM = 25.4
 
 
 class Canvas(QWidget):
     def __init__(self, state: State) -> None:
         super().__init__()
         self.state: State = state
-        self.preferences = {
-            "size": (5, 7),
-            "visible": True,
-        }
+
+        self.cached_hoop_visible = global_preferences.get_hoop_visible()
+        self.cached_hoop_size = global_preferences.get_hoop_size()
 
     def paintEvent(self, event: QPaintEvent) -> None:
         if not self.state.layers:
@@ -103,17 +104,26 @@ class Canvas(QWidget):
                 painter.drawImage(layer.position, transformed_image)
                 painter.restore()
 
-        painter.setPen(QPen(Qt.gray, 1, Qt.DashDotDotLine))
-        path = QPainterPath()
-        path.moveTo(0, 0)
-        path.lineTo(0.0, 0.0)
-        path.lineTo(0.0, 101.6)
-        path.lineTo(101.6, 101.6)
-        path.lineTo(101.6, 0)
-        path.lineTo(0.0, 0.0)
+        # Draw hoop
+        if self.cached_hoop_visible:
+            painter.setPen(QPen(Qt.gray, 1, Qt.DashDotDotLine))
+            path = QPainterPath()
+            path.moveTo(0, 0)
+            path.lineTo(0.0, 0.0)
+            path.lineTo(0.0, self.cached_hoop_size[1] * INCHES_TO_MM)
+            path.lineTo(
+                self.cached_hoop_size[0] * INCHES_TO_MM, self.cached_hoop_size[1] * INCHES_TO_MM
+            )
+            path.lineTo(self.cached_hoop_size[0] * INCHES_TO_MM, 0.0)
+            path.lineTo(0.0, 0.0)
 
-        painter.drawPath(path)
+            painter.drawPath(path)
         painter.end()
+
+    def on_preferences_updated(self):
+        """Updates the preference cache"""
+        self.cached_hoop_visible = global_preferences.get_hoop_visible()
+        self.cached_hoop_size = global_preferences.get_hoop_size()
 
 
 class MainWindow(QMainWindow):
@@ -308,7 +318,6 @@ class MainWindow(QMainWindow):
         self.canvas = Canvas(self.state)
         self.setCentralWidget(self.canvas)
 
-        self.settings = Settings()
         self.load_settings()
 
         self.setWindowTitle("Pixem")
@@ -316,19 +325,21 @@ class MainWindow(QMainWindow):
     def load_settings(self):
         # Save defaults before restoring saved settings
         # FIXME: Probably there is a more efficient way to do it.
-        self.settings.set_default_window_geometry(self.saveGeometry())
-        self.settings.set_default_window_state(self.saveState(self.settings.STATE_VERSION))
+        global_preferences.set_default_window_geometry(self.saveGeometry())
+        global_preferences.set_default_window_state(
+            self.saveState(global_preferences.STATE_VERSION)
+        )
 
-        geometry = self.settings.get_window_geometry()
+        geometry = global_preferences.get_window_geometry()
         if geometry is not None:
             self.restoreGeometry(geometry)
-        state = self.settings.get_window_state()
+        state = global_preferences.get_window_state()
         if state is not None:
             self.restoreState(state)
 
     def save_settings(self):
-        self.settings.set_window_geometry(self.saveGeometry())
-        self.settings.set_window_state(self.saveState(self.settings.STATE_VERSION))
+        global_preferences.set_window_geometry(self.saveGeometry())
+        global_preferences.set_window_state(self.saveState(global_preferences.STATE_VERSION))
 
     def closeEvent(self, event: QCloseEvent):
         self.save_settings()
@@ -386,14 +397,14 @@ class MainWindow(QMainWindow):
 
     def show_hoop_size(self, action: QAction) -> None:
         is_checked = action.isChecked()
-        self.settings.set_hoop_visible(is_checked)
+        global_preferences.set_hoop_visible(is_checked)
         print(is_checked)
 
     def reset_layout(self) -> None:
-        default_geometry = self.settings.get_default_window_geometry()
-        default_state = self.settings.get_default_window_state()
+        default_geometry = global_preferences.get_default_window_geometry()
+        default_state = global_preferences.get_default_window_state()
         self.restoreGeometry(default_geometry)
-        self.restoreState(default_state, self.settings.STATE_VERSION)
+        self.restoreState(default_state, global_preferences.STATE_VERSION)
 
         self.setGeometry(
             QStyle.alignedRect(
@@ -407,9 +418,7 @@ class MainWindow(QMainWindow):
     def preferences(self) -> None:
         dialog = PreferenceDialog()
         if dialog.exec() == QDialog.Accepted:
-            selected_options = dialog.get_selected_options()
-            print("Selected options:", selected_options)
-            self.canvas.preferences = selected_options
+            self.canvas.on_preferences_updated()
 
     def layer_add_image(self) -> None:
         file_name, _ = QFileDialog.getOpenFileName(
