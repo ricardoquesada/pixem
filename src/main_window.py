@@ -499,7 +499,7 @@ class MainWindow(QMainWindow):
             self.state.current_layer_idx = -1
 
     def update_layer_property(self) -> None:
-        enabled = self.state.current_layer_idx is not -1
+        enabled = self.state.current_layer_idx != -1
         self.property_editor.setEnabled(enabled)
         if enabled:
             current_layer = self.state.layers[self.state.current_layer_idx]
