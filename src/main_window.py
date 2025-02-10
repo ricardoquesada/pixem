@@ -7,7 +7,6 @@ import sys
 
 import resources_rc  # noqa: F401
 
-
 from about_dialog import AboutDialog
 from preference_dialog import PreferenceDialog
 from preferences import global_preferences
@@ -209,6 +208,12 @@ class MainWindow(QMainWindow):
         delete_layer_action = QAction(QIcon.fromTheme("edit-delete"), "Delete Layer", self)
         delete_layer_action.triggered.connect(self.layer_delete)
         layer_menu.addAction(delete_layer_action)
+
+        layer_menu.addSeparator()
+
+        analyze_layer_action = QAction("&Analyze Layer", self)
+        analyze_layer_action.triggered.connect(self.layer_analyze)
+        layer_menu.addAction(analyze_layer_action)
 
         help_menu = QMenu("&Help", self)
         menu_bar.addMenu(help_menu)
@@ -429,9 +434,9 @@ class MainWindow(QMainWindow):
         )
         if file_name:
             layer = ImageLayer(file_name, f"Layer {len(self.state.layers) + 1}")
-            self.state.layers.append(layer)
+            self.state.add_layer(layer)
             self.layer_list.addItem(layer.name)
-            self.layer_list.setCurrentRow(len(self.state.layers) - 1)
+            self.layer_list.setCurrentRow(self.state.current_layer_idx)
             self.update()
 
     def layer_add_text(self) -> None:
@@ -443,6 +448,24 @@ class MainWindow(QMainWindow):
         print(data)
 
     def layer_delete(self) -> None:
+        selected_items = self.layer_list.selectedItems()
+        layer = self.state.get_selected_layer()
+
+        if not selected_items or not layer:
+            logger.warning("Cannot delete layer, no layers selected")
+            return
+
+        # Remove it from the widget
+        for item in selected_items:
+            row = self.layer_list.row(item)
+            self.layer_list.takeItem(row)
+
+        # Remove it from the state
+        self.state.delete_layer(layer)
+
+        self.update()
+
+    def layer_analyze(self) -> None:
         pass
 
     def choose_color(self) -> None:

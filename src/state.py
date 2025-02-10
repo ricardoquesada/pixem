@@ -75,3 +75,21 @@ class State:
 
         with open(filename, "w", encoding="utf-8") as f:
             toml.dump(d, f)
+
+    def add_layer(self, layer: Layer) -> None:
+        self.layers.append(layer)
+        self.current_layer_idx = len(self.layers) - 1
+
+    def delete_layer(self, layer: Layer) -> None:
+        try:
+            self.layers.remove(layer)
+        except ValueError:
+            logger.warning(f"Failed to remove layer, not  found {layer.name}")
+
+        # if there are no elements left, idx = -1
+        self.current_layer_idx = len(self.layers) - 1
+
+    def get_selected_layer(self) -> Layer | None:
+        if self.current_layer_idx == -1:
+            return None
+        return self.layers[self.current_layer_idx]
