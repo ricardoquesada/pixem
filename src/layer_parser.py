@@ -10,26 +10,18 @@ import networkx as nx
 import toml
 
 # Argument Defaults
-DEFAULT_ASPECT_RATIO = "pal"
-DEFAULT_FILL_MODE = "satin_s"
-DEFAULT_HOOP_SIZE_IN = (5, 7)
-DEFAULT_PIXEL_SIZE_MM = 2.65
 DEFAULT_ROTATION = 0
 DEFAULT_SAW_THRESHOLD = 40
 
 # Conf dictionary Keys
-KEY_ASPECT_RATIO = "aspect_ratio"
-KEY_FILL_MODE = "fill_mode"
 KEY_GROUPS = "groups"
-KEY_HOOP_SIZE_IN = "hoop_size"
 KEY_INPUT_PNG_FILENAME = "input_png_filename"
 KEY_INPUT_PNG_SIZE = "input_png_size"
 KEY_NODES_JUMP_STITCHES = "nodes_jump_stitches"
 KEY_NODES_PATH = "nodes_path"
 KEY_NODES_PATH_SIZE = "nodes_path_size"
-KEY_PIXEL_SIZE_MM = "pixel_size"
 KEY_ROTATION = "rotation"
-KEY_SAW_THRESHOLD = "saw_threshold"
+KEY_SAW_THRESHOLD = "saw_threshold" # SAW = Self Avoidance Walk
 KEY_STARTING_NODE = "starting_node"
 
 INCHES_TO_MM = 25.4
@@ -157,29 +149,6 @@ def find_jump_stitches(nodes):
 
 class PixelToSVG:
     VERSION = "0.1"
-    # Pixels are not square in PAL:
-    # https://hitmen.c02.at/temp/palstuff/
-    # Aspect ratio: 0,936:1
-    ASPECT_RATIO = {
-        "square": 1.0,
-        "pal": 0.936,
-        "ntsc": 0.750,
-    }
-
-    FILL_PARAMS = {
-        "autofill": {
-            "fillmode": "auto_fill",
-            "max_stitch_len": 2.5,
-        },
-        "satin_s": {
-            "fillmode": "auto_fill",
-            "max_stitch_len": 1000,
-        },
-        "legacy": {
-            "fillmode": "legacy_fill",
-            "max_stitch_len": 2.5,
-        },
-    }
 
     OFFSETS = {
         "NW": (-1, -1),
@@ -195,10 +164,6 @@ class PixelToSVG:
     def __init__(
         self,
         input_png,
-        hoop_size,
-        pixel_size,
-        aspect_ratio,
-        fill_mode,
         rotation,
         saw_threshold,
         configuration_filename,
@@ -208,10 +173,6 @@ class PixelToSVG:
 
         Args:
             input_png: The path to the PNG image.
-            hoop_size: Tuple that defines the hoop size in inches.
-            pixel_size: Represents the pixel size in mm.
-            aspect_ratio: Pixel aspect ratio
-            fill_mode: Fill mode to use
         """
 
         try:
@@ -241,11 +202,7 @@ class PixelToSVG:
 
         args = [
             (rotation, KEY_ROTATION, DEFAULT_ROTATION),
-            (pixel_size, KEY_PIXEL_SIZE_MM, DEFAULT_PIXEL_SIZE_MM),
-            (hoop_size, KEY_HOOP_SIZE_IN, DEFAULT_HOOP_SIZE_IN),
             (saw_threshold, KEY_SAW_THRESHOLD, DEFAULT_SAW_THRESHOLD),
-            (fill_mode, KEY_FILL_MODE, DEFAULT_FILL_MODE),
-            (aspect_ratio, KEY_ASPECT_RATIO, DEFAULT_ASPECT_RATIO),
         ]
         for arg in args:
             self.set_conf_value(arg[0], arg[1], arg[2])
@@ -254,10 +211,6 @@ class PixelToSVG:
         self._conf[KEY_INPUT_PNG_SIZE] = (width, height)
 
         # Backward compatible
-        self._fill_mode = self.FILL_PARAMS[self._conf[KEY_FILL_MODE]]
-        self._aspect_ratio = 1.0 / self.ASPECT_RATIO[self._conf[KEY_ASPECT_RATIO]]
-        self._pixel_size = self._conf[KEY_PIXEL_SIZE_MM]
-        self._hoop_size = self._conf[KEY_HOOP_SIZE_IN]
         self._rotation = self._conf[KEY_ROTATION]
         self._saw_threshold = self._conf[KEY_SAW_THRESHOLD]
 
@@ -314,7 +267,7 @@ class PixelToSVG:
         print(f"Jump stitches: {jump_stitches}")
         self._jump_stitches = jump_stitches
 
-    def create_solution_graph(self, image_graph, color):
+    def create_solution_graph(self, image_graph, color) -> list[list]:
         # image_graph is a dict of:
         #   key: node
         #   value: edges
@@ -380,7 +333,7 @@ class PixelToSVG:
         print(f"  Starting node: {node}")
         return node
 
-    def create_color_graph(self, width, height):
+    def create_color_graph(self, width, height) -> dict:
         # Creates a dictionary of key=color, value=dict of nodes and its edges
         # Each color is a list of nodes
         d = {}
