@@ -21,7 +21,7 @@ KEY_NODES_JUMP_STITCHES = "nodes_jump_stitches"
 KEY_NODES_PATH = "nodes_path"
 KEY_NODES_PATH_SIZE = "nodes_path_size"
 KEY_ROTATION = "rotation"
-KEY_SAW_THRESHOLD = "saw_threshold" # SAW = Self Avoidance Walk
+KEY_SAW_THRESHOLD = "saw_threshold"  # SAW = Self Avoidance Walk
 KEY_STARTING_NODE = "starting_node"
 
 INCHES_TO_MM = 25.4
@@ -363,21 +363,6 @@ class PixelToSVG:
                 d[color][(x, y)] = neighbors
         return d
 
-    def write_rect_svg(self, file, x, y, pixel_size, color, angle):
-        fill_method = self._fill_mode["fillmode"]
-        max_stitch_len = self._fill_mode["max_stitch_len"]
-        file.write(
-            f'<rect x="{x * pixel_size}" y="{y * pixel_size}" '
-            f'width="{pixel_size}" height="{pixel_size}" '
-            f'fill="{color}" '
-            f'id="pixel_{x}_{y}_{angle}" '
-            f'style="display:inline;stroke:none" '
-            f'inkstitch:fill_method="{fill_method}" '
-            f'inkstitch:angle="{angle}" '
-            f'inkstitch:max_stitch_length_mm="{max_stitch_len}" '
-            "/>\n"
-        )
-
     def write_conf(self):
         filename = os.path.basename(self._input_png_filename)
         filename_no_ext = os.path.splitext(filename)[0]
@@ -386,99 +371,11 @@ class PixelToSVG:
             # json.dump(self._conf, output_file, indent=4)
             toml.dump(self._conf, output_file)
 
-    def write_to_svg(self, output_path):
-        with open(output_path, "w") as f:
-            f.write('<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n')
-            f.write(
-                f"<svg\n"
-                f'  width="{round(self._hoop_size[0] * INCHES_TO_MM)}mm"\n'
-                f'  height="{round(self._hoop_size[1] * INCHES_TO_MM)}mm"\n'
-                f'  viewBox="0 0 {round(self._hoop_size[0] * INCHES_TO_MM)}'
-                f' {round(self._hoop_size[1] * INCHES_TO_MM)}"\n'
-                f'  version="1.1"\n'
-                f'  id="{output_path}"\n'
-                f'  xmlns="http://www.w3.org/2000/svg"\n'
-                f'  xmlns:svg="http://www.w3.org/2000/svg"\n'
-                f'  xmlns:inkstitch="http://inkstitch.org/namespace"\n'
-                ">\n"
-            )
-            f.write(
-                "<sodipodi:namedview\n"
-                '  inkscape:document-units="mm"\n'
-                '  inkscape:pagecheckerboard="true"\n'
-                '  showgrid="true"\n'
-                ">\n"
-            )
-            f.write(
-                "<inkscape:grid\n"
-                '  id="grid1"\n'
-                '  units="mm"\n'
-                '  originx="0"\n'
-                '  originy="0"\n'
-                f'  spacingx="{self._pixel_size}"\n'
-                f'  spacingy="{self._pixel_size * self._aspect_ratio}"\n'
-                '  enabled="true"\n'
-                '  visible="true"\n'
-                "/>\n"
-            )
-            f.write("</sodipodi:namedview>\n")
-            f.write("<defs\n" '  id="defs1"\n' "/>\n")
-            f.write(
-                "<!-- pixem:params\n"
-                f'  pixel_size="{self._pixel_size}"\n'
-                f'  hoop_size="{self._hoop_size}"\n'
-                f'  aspect_ratio="{self._aspect_ratio}"\n'
-                f'  fill_mode="{self._fill_mode}"\n'
-                f'  version="{self.VERSION}"\n'
-                "-->\n"
-            )
-
-            f.write(f'<g id="image" transform="scale(1, {self._aspect_ratio})">\n')
-            for color in self._pixel_groups:
-                f.write(f"<!-- color {color} -->\n")
-
-                it = 0
-                # Each color is a list of list. Each list is a connected graph.
-                for pixels in self._pixel_groups[color]:
-                    # pixels is [(1,0), (1,2)], [(3,4), (3,5)]
-                    f.write(f'<g id="layer_{color}_{it}" inkscape:label="color_{color}_{it}">\n')
-                    for pixel in pixels:
-                        # pixel is a tuple (x,y)
-                        x, y = pixel
-                        angle = 0 if ((x + y) % 2 == 0) else 90
-                        self.write_rect_svg(f, x, y, self._pixel_size, color, angle)
-
-                    f.write("</g>\n")
-                    it = it + 1
-            f.write("</g>\n")
-            f.write("</svg>\n")
-
 
 def main():
     parser = argparse.ArgumentParser(description="Convert a PNG image to an Ink/Stitch SVG file")
     parser.add_argument("input_image", help="Path to the input PNG image.")
     parser.add_argument("output_svg", help="Path to save the output SVG file.")
-    parser.add_argument(
-        "-s",
-        "--hoop_size",
-        metavar="WIDTHxHEIGHT",
-        help="Hoop size in the format WIDTHxHEIGHT in inches (e.g., 5x7)",
-    )
-    parser.add_argument("-p", "--pixel_size", metavar="SIZE", type=float, help="Pixel size in mm")
-    parser.add_argument(
-        "-a",
-        "--aspect_ratio",
-        type=str,
-        choices=["pal", "ntsc", "square"],
-        help="Pixel aspect ratio",
-    )
-    parser.add_argument(
-        "-f",
-        "--fill_mode",
-        type=str,
-        choices=["satin_s", "autofill", "legacy"],
-        help="Defines the fill mode to use",
-    )
     parser.add_argument(
         "-r",
         "--rotation",
@@ -491,24 +388,14 @@ def main():
 
     args = parser.parse_args()
 
-    hoop_size = None
-    if args.hoop_size is not None:
-        x, y = map(int, args.hoop_size.split("x"))
-        hoop_size = (x, y)
-
     print(args)
     tosvg = PixelToSVG(
         args.input_image,
-        hoop_size,
-        args.pixel_size,
-        args.aspect_ratio,
-        args.fill_mode,
         args.rotation,
         args.saw_threshold,
         args.conf,
     )
     tosvg.write_conf()
-    tosvg.write_to_svg(args.output_svg)
 
 
 if __name__ == "__main__":
