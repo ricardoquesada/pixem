@@ -1,13 +1,12 @@
 # Pixem
 # Copyright 2024 - Ricardo Quesada
-import os.path
 
-from PIL import Image
 import argparse
 import json
 import matplotlib.pyplot as plt
 import networkx as nx
-import toml
+from layer import Layer
+from PySide6.QtGui import QImage, QColor
 
 # Argument Defaults
 DEFAULT_ROTATION = 0
@@ -15,7 +14,6 @@ DEFAULT_SAW_THRESHOLD = 40
 
 # Conf dictionary Keys
 KEY_GROUPS = "groups"
-KEY_INPUT_PNG_FILENAME = "input_png_filename"
 KEY_INPUT_PNG_SIZE = "input_png_size"
 KEY_NODES_JUMP_STITCHES = "nodes_jump_stitches"
 KEY_NODES_PATH = "nodes_path"
@@ -147,7 +145,7 @@ def find_jump_stitches(nodes):
     return jump_stitches
 
 
-class PixelToSVG:
+class LayerParser:
     VERSION = "0.1"
 
     OFFSETS = {
@@ -163,29 +161,12 @@ class PixelToSVG:
 
     def __init__(
         self,
-        input_png,
-        rotation,
-        saw_threshold,
-        configuration_filename,
+        layer: Layer,
+        rotation=0,
+        saw_threshold=40,
+        configuration_filename=None,
     ):
-        """
-        Creates an SVG file from a PNG image, representing each pixel as a rectangle.
-
-        Args:
-            input_png: The path to the PNG image.
-        """
-
-        try:
-            img = Image.open(input_png)
-        except FileNotFoundError as e:
-            print(f"Error: Image file not found at {input_png}")
-            raise e
-        except Exception as e:
-            print(f"An error occurred: {e}")
-            raise e
-
-        img = img.convert("RGBA")
-        width, height = img.size
+        width, height = layer.image.width(), layer.image.height()
 
         self._jump_stitches = 0
         self._image = [[-1 for _ in range(height)] for _ in range(width)]
@@ -195,7 +176,6 @@ class PixelToSVG:
         self._pixel_groups = {}
 
         self._conf = {KEY_GROUPS: {}}
-        self._input_png_filename = input_png
 
         if configuration_filename is not None:
             self.validate_configuration_filename(configuration_filename)
@@ -207,7 +187,6 @@ class PixelToSVG:
         for arg in args:
             self.set_conf_value(arg[0], arg[1], arg[2])
 
-        self._conf[KEY_INPUT_PNG_FILENAME] = input_png
         self._conf[KEY_INPUT_PNG_SIZE] = (width, height)
 
         # Backward compatible
@@ -215,7 +194,7 @@ class PixelToSVG:
         self._saw_threshold = self._conf[KEY_SAW_THRESHOLD]
 
         # Put all pixels in matrix
-        self.put_pixels_in_matrix(img, width, height)
+        self.put_pixels_in_matrix(layer.image, width, height)
         # Group the ones that are touching/same-color together
         g = self.create_color_graph(width, height)
 
@@ -242,11 +221,12 @@ class PixelToSVG:
         with open(filename, "r") as f:
             self._conf = json.load(f)
 
-    def put_pixels_in_matrix(self, img, width, height):
+    def put_pixels_in_matrix(self, img: QImage, width, height):
         # Put all pixels in matrix
         for y in range(height):
             for x in range(width):
-                r, g, b, a = img.getpixel((x, y))
+                color: QColor = img.pixelColor(x, y)
+                r, g, b, a = color.getRgb()
                 if a != 255:
                     # Skip transparent pixels
                     continue
@@ -363,19 +343,14 @@ class PixelToSVG:
                 d[color][(x, y)] = neighbors
         return d
 
-    def write_conf(self):
-        filename = os.path.basename(self._input_png_filename)
-        filename_no_ext = os.path.splitext(filename)[0]
-        conf_filename = os.path.join("conf", f"{filename_no_ext}.toml")
-        with open(conf_filename, "w") as output_file:
-            # json.dump(self._conf, output_file, indent=4)
-            toml.dump(self._conf, output_file)
+    @property
+    def conf(self):
+        return self._conf
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Convert a PNG image to an Ink/Stitch SVG file")
+    parser = argparse.ArgumentParser(description="Something something")
     parser.add_argument("input_image", help="Path to the input PNG image.")
-    parser.add_argument("output_svg", help="Path to save the output SVG file.")
     parser.add_argument(
         "-r",
         "--rotation",
@@ -389,13 +364,13 @@ def main():
     args = parser.parse_args()
 
     print(args)
-    tosvg = PixelToSVG(
+    tosvg = LayerParser(
         args.input_image,
         args.rotation,
         args.saw_threshold,
         args.conf,
     )
-    tosvg.write_conf()
+    print(tosvg.conf)
 
 
 if __name__ == "__main__":

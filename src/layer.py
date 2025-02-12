@@ -12,13 +12,13 @@ from PySide6.QtGui import (
 
 class Layer:
     def __init__(self, image: QImage, name: str) -> None:
-        self.image = image
-        self.name = name
-        self.position = QPointF(0.0, 0.0)
-        self.rotation = 0.0
-        self.pixel_size = QSizeF(2.5, 2.5)
-        self.visible = True
-        self.opacity = 1.0
+        self.image: QImage = image
+        self.name: str = name
+        self.position: QPointF = QPointF(0.0, 0.0)
+        self.rotation: float = 0.0
+        self.pixel_size: QSizeF = QSizeF(2.5, 2.5)
+        self.visible: bool = True
+        self.opacity: float = 1.0
 
     def __repr__(self) -> str:
         return (

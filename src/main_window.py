@@ -11,7 +11,8 @@ from about_dialog import AboutDialog
 from preference_dialog import PreferenceDialog
 from preferences import global_preferences
 from state import State
-from layer import ImageLayer
+from layer import Layer, ImageLayer
+from layer_parser import LayerParser
 
 from PySide6.QtCore import (
     QCoreApplication,
@@ -466,7 +467,13 @@ class MainWindow(QMainWindow):
         self.update()
 
     def layer_analyze(self) -> None:
-        pass
+        layer: Layer = self.state.get_selected_layer()
+        if layer is None:
+            logger.warning("Cannot analyze layer. Invalid")
+            return
+
+        parser = LayerParser(layer)
+        print(parser.conf)
 
     def choose_color(self) -> None:
         color = QColorDialog.getColor(self.state.pen_color, self)
