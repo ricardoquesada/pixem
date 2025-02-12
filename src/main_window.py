@@ -380,6 +380,7 @@ class MainWindow(QMainWindow):
             self.layer_list.clear()
             for layer in self.state.layers:
                 self.layer_list.addItem(layer.name)
+            self.layer_list.setCurrentRow(state.current_layer_idx)
             self.update()
 
     def save_project(self) -> None:

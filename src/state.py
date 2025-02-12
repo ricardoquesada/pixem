@@ -28,11 +28,12 @@ class State:
         pen_color = d["pen_color"]
         state.pen_color = QColor(pen_color["r"], pen_color["g"], pen_color["b"], pen_color["a"])
         state.scale_factor = d["scale_factor"]
-        state.hoop_visible = ["hoop_visible"]
+        state.hoop_visible = d["hoop_visible"]
         dict_layers = d["layers"]
         for dict_layer in dict_layers:
             layer = Layer.from_dict(dict_layer)
             state.layers.append(layer)
+        state.current_layer_idx = d["current_layer_idx"]
         return state
 
     def to_dict(self) -> dict:
