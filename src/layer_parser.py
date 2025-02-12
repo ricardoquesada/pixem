@@ -216,23 +216,23 @@ class LayerParser:
         if key not in self._conf or self._conf[key] is None:
             self._conf[key] = default
 
-    def validate_configuration_filename(self, filename):
+    def validate_configuration_filename(self, filename: str):
         # Don't catch the exception, propagate it.
         with open(filename, "r") as f:
             self._conf = json.load(f)
 
-    def put_pixels_in_matrix(self, img: QImage, width, height):
+    def put_pixels_in_matrix(self, img: QImage, width: int, height: int):
         # Put all pixels in matrix
         for y in range(height):
             for x in range(width):
                 color: QColor = img.pixelColor(x, y)
-                r, g, b, a = color.getRgb()
+                # Returns a qRgb which is ARGB instead of RGBA
+                argb = color.rgba()
+                a = (argb >> 24) & 0xFF
                 if a != 255:
                     # Skip transparent pixels
                     continue
-                color = (r << 16) + (g << 8) + b
-                color = "#" + format(color, "06x")
-                self._image[x][y] = color
+                self._image[x][y] = argb & 0xFFFFFF
 
     def find_all_jump_stitches(self):
         # print number of jump stitches
@@ -273,7 +273,7 @@ class LayerParser:
             # plt.show()
             nodes = list(s.nodes())
 
-            key = f"{color}_{idx}"
+            key = f"#{color:06x}_{idx}"
             if key not in self._conf[KEY_GROUPS]:
                 self._conf[KEY_GROUPS][key] = {}
 
