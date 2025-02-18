@@ -20,6 +20,7 @@ class State:
         self.hoop_visible = False
         self.layers: list[Layer] = []
         self.current_layer_idx: int = -1
+        self.current_nodes_path: [] = None
 
     @classmethod
     def from_dict(cls, d: dict) -> Self:

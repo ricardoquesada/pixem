@@ -8,11 +8,12 @@ import sys
 import resources_rc  # noqa: F401
 
 from about_dialog import AboutDialog
+from canvas import Canvas
+from layer import Layer, ImageLayer
+from layer_parser import LayerParser
 from preference_dialog import PreferenceDialog
 from preferences import global_preferences
 from state import State
-from layer import Layer, ImageLayer
-from layer_parser import LayerParser
 
 from PySide6.QtCore import (
     QCoreApplication,
@@ -29,10 +30,6 @@ from PySide6.QtGui import (
     QCloseEvent,
     QGuiApplication,
     QIcon,
-    QPaintEvent,
-    QPainter,
-    QPainterPath,
-    QPen,
     QUndoStack,
 )
 from PySide6.QtWidgets import (
@@ -57,73 +54,6 @@ from PySide6.QtWidgets import (
 )
 
 logger = logging.getLogger(__name__)  # __name__ gets the current module's name
-
-DEFAULT_SCALE_FACTOR = 5.0
-INCHES_TO_MM = 25.4
-
-
-class Canvas(QWidget):
-    def __init__(self, state: State) -> None:
-        super().__init__()
-        self.state: State = state
-
-        self.cached_hoop_visible = global_preferences.get_hoop_visible()
-        self.cached_hoop_size = global_preferences.get_hoop_size()
-
-    def paintEvent(self, event: QPaintEvent) -> None:
-        if not self.state.layers:
-            return
-
-        painter = QPainter(self)
-        painter.scale(
-            self.state.scale_factor * DEFAULT_SCALE_FACTOR,
-            self.state.scale_factor * DEFAULT_SCALE_FACTOR,
-        )
-
-        for i, layer in enumerate(self.state.layers):
-            if layer.visible:
-                painter.save()
-                painter.setOpacity(layer.opacity)
-                # Scale the image based on pixel size
-                scaled_x = layer.image.width() * layer.pixel_size.width()
-                scaled_y = layer.image.height() * layer.pixel_size.height()
-                transformed_image = layer.image.scaled(
-                    round(scaled_x),
-                    round(scaled_y),
-                    Qt.IgnoreAspectRatio,
-                    Qt.FastTransformation,
-                )
-                painter.translate(
-                    scaled_x / 2 + layer.position.x(), scaled_y / 2 + layer.position.y()
-                )
-                painter.rotate(layer.rotation)
-                painter.translate(
-                    -(scaled_x / 2 + layer.position.x()),
-                    -(scaled_y / 2 + layer.position.y()),
-                )
-                painter.drawImage(layer.position, transformed_image)
-                painter.restore()
-
-        # Draw hoop
-        if self.cached_hoop_visible:
-            painter.setPen(QPen(Qt.gray, 1, Qt.DashDotDotLine))
-            path = QPainterPath()
-            path.moveTo(0, 0)
-            path.lineTo(0.0, 0.0)
-            path.lineTo(0.0, self.cached_hoop_size[1] * INCHES_TO_MM)
-            path.lineTo(
-                self.cached_hoop_size[0] * INCHES_TO_MM, self.cached_hoop_size[1] * INCHES_TO_MM
-            )
-            path.lineTo(self.cached_hoop_size[0] * INCHES_TO_MM, 0.0)
-            path.lineTo(0.0, 0.0)
-
-            painter.drawPath(path)
-        painter.end()
-
-    def on_preferences_updated(self):
-        """Updates the preference cache"""
-        self.cached_hoop_visible = global_preferences.get_hoop_visible()
-        self.cached_hoop_size = global_preferences.get_hoop_size()
 
 
 class MainWindow(QMainWindow):
@@ -520,7 +450,16 @@ class MainWindow(QMainWindow):
             self.state.current_layer_idx = -1
 
     def change_layer_groups(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
-        pass
+        enabled = current is not None
+        if enabled:
+            idx = self.layer_groups_list.row(current)
+            self.state.get_selected_layer().current_groups_idx = idx
+            key = self.layer_groups_list.item(idx).text()
+            pixels = self.state.get_selected_layer().groups[key]["nodes_path"]
+            self.state.selected_nodes_path = pixels
+            self.update()
+        else:
+            self.state.get_selected_layer().current_groups_idx = -1
 
     def update_layer_property(self) -> None:
         enabled = self.state.current_layer_idx != -1

@@ -20,6 +20,7 @@ class Layer:
         self.visible: bool = True
         self.opacity: float = 1.0
         self.groups: dict = {}
+        self.current_groups_idx: int = -1
 
     def __repr__(self) -> str:
         return (
