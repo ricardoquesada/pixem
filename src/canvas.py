@@ -2,13 +2,13 @@
 # Copyright 2024 Ricardo Quesada
 
 import logging
-import math
 
 from preferences import global_preferences
 from state import State
 
 from PySide6.QtCore import (
-    QRect,
+    QPointF,
+    QSize,
     Qt,
 )
 
@@ -90,8 +90,8 @@ class Canvas(QWidget):
                 -(scaled_y / 2 + layer.position.y()),
             )
 
-            # Set the pen (outline)
-            painter.setPen(Qt.NoPen)
+            # painter.setPen(Qt.NoPen)
+            painter.setPen(QPen(Qt.gray, 0.2, Qt.SolidLine))
 
             # Set the brush (fill)
             brush = painter.brush()
@@ -99,25 +99,22 @@ class Canvas(QWidget):
             brush.setStyle(Qt.BrushStyle.SolidPattern)  # Solid fill
             painter.setBrush(brush)
 
-            rects = []
             W = layer.pixel_size.width()
             H = layer.pixel_size.height()
             for x, y in self.state.current_nodes_path:
-                rects.append(
-                    QRect(
-                        math.ceil(layer.position.x() + x * W),
-                        math.ceil(layer.position.y() + y * H),
-                        math.ceil(W),
-                        math.ceil(H),
-                    )
-                )
-            painter.drawRects(rects)
-            print(rects)
+                polygon = [
+                    QPointF(layer.position.x() + x * W, layer.position.y() + y * H),
+                    QPointF(layer.position.x() + (x + 1) * W, layer.position.y() + y * H),
+                    QPointF(layer.position.x() + (x + 1) * W, layer.position.y() + (y + 1) * H),
+                    QPointF(layer.position.x() + x * W, layer.position.y() + (y + 1) * H),
+                ]
+                # Use drawPolygon instead of drawRects because drawPolygon supports floats
+                painter.drawPolygon(polygon)
             painter.restore()
 
-            # Draw hoop
-            if self.cached_hoop_visible:
-                painter.save()
+        # Draw hoop
+        if self.cached_hoop_visible:
+            painter.save()
             painter.setPen(QPen(Qt.gray, 1, Qt.DashDotDotLine))
             path = QPainterPath()
             path.moveTo(0, 0)
@@ -131,10 +128,15 @@ class Canvas(QWidget):
 
             painter.drawPath(path)
             painter.restore()
-
-            painter.end()
+        painter.end()
 
     def on_preferences_updated(self):
         """Updates the preference cache"""
         self.cached_hoop_visible = global_preferences.get_hoop_visible()
         self.cached_hoop_size = global_preferences.get_hoop_size()
+
+    def sizeHint(self) -> QSize:
+        # FIXME: Return size of drawing, not hoop
+        return QSize(
+            self.cached_hoop_size[0] * INCHES_TO_MM, self.cached_hoop_size[1] * INCHES_TO_MM
+        )

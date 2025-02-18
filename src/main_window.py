@@ -262,6 +262,9 @@ class MainWindow(QMainWindow):
         )
 
         self.canvas = Canvas(self.state)
+        # self.scroll_area = QScrollArea()
+        # self.scroll_area.setWidgetResizable(True)
+        # self.scroll_area.setWidget(self.canvas)
         self.setCentralWidget(self.canvas)
 
         self.load_settings()
