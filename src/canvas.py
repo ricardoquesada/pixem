@@ -2,15 +2,18 @@
 # Copyright 2024 Ricardo Quesada
 
 import logging
+import math
 
 from preferences import global_preferences
 from state import State
 
 from PySide6.QtCore import (
+    QRect,
     Qt,
 )
 
 from PySide6.QtGui import (
+    QColor,
     QPaintEvent,
     QPainter,
     QPainterPath,
@@ -68,8 +71,53 @@ class Canvas(QWidget):
                 painter.drawImage(layer.position, transformed_image)
                 painter.restore()
 
-        # Draw hoop
-        if self.cached_hoop_visible:
+        # Draw selected pixels
+        if len(self.state.current_nodes_path) > 0:
+            painter.save()
+            # Scale the image based on pixel size
+            scaled_x = layer.image.width() * layer.pixel_size.width()
+            scaled_y = layer.image.height() * layer.pixel_size.height()
+            transformed_image = layer.image.scaled(
+                round(scaled_x),
+                round(scaled_y),
+                Qt.IgnoreAspectRatio,
+                Qt.FastTransformation,
+            )
+            painter.translate(scaled_x / 2 + layer.position.x(), scaled_y / 2 + layer.position.y())
+            painter.rotate(layer.rotation)
+            painter.translate(
+                -(scaled_x / 2 + layer.position.x()),
+                -(scaled_y / 2 + layer.position.y()),
+            )
+
+            # Set the pen (outline)
+            painter.setPen(Qt.NoPen)
+
+            # Set the brush (fill)
+            brush = painter.brush()
+            brush.setColor(QColor(255, 0, 0, 128))  # Red, semi-transparent fill
+            brush.setStyle(Qt.BrushStyle.SolidPattern)  # Solid fill
+            painter.setBrush(brush)
+
+            rects = []
+            W = layer.pixel_size.width()
+            H = layer.pixel_size.height()
+            for x, y in self.state.current_nodes_path:
+                rects.append(
+                    QRect(
+                        math.ceil(layer.position.x() + x * W),
+                        math.ceil(layer.position.y() + y * H),
+                        math.ceil(W),
+                        math.ceil(H),
+                    )
+                )
+            painter.drawRects(rects)
+            print(rects)
+            painter.restore()
+
+            # Draw hoop
+            if self.cached_hoop_visible:
+                painter.save()
             painter.setPen(QPen(Qt.gray, 1, Qt.DashDotDotLine))
             path = QPainterPath()
             path.moveTo(0, 0)
@@ -82,9 +130,8 @@ class Canvas(QWidget):
             path.lineTo(0.0, 0.0)
 
             painter.drawPath(path)
+            painter.restore()
 
-        # Draw selected pixels
-        for x, y in self.state.current_nodes_path:
             painter.end()
 
     def on_preferences_updated(self):

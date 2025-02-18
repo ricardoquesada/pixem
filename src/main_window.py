@@ -456,10 +456,11 @@ class MainWindow(QMainWindow):
             self.state.get_selected_layer().current_groups_idx = idx
             key = self.layer_groups_list.item(idx).text()
             pixels = self.state.get_selected_layer().groups[key]["nodes_path"]
-            self.state.selected_nodes_path = pixels
-            self.update()
+            self.state.current_nodes_path = pixels
         else:
             self.state.get_selected_layer().current_groups_idx = -1
+            self.state.current_nodes_path = []
+        self.update()
 
     def update_layer_property(self) -> None:
         enabled = self.state.current_layer_idx != -1
