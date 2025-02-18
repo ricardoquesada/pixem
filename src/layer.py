@@ -19,6 +19,7 @@ class Layer:
         self.pixel_size: QSizeF = QSizeF(2.5, 2.5)
         self.visible: bool = True
         self.opacity: float = 1.0
+        self.groups: dict = {}
 
     def __repr__(self) -> str:
         return (

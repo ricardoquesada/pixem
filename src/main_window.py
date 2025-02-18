@@ -258,6 +258,14 @@ class MainWindow(QMainWindow):
         layer_dock.setWidget(self.layer_list)
         self.addDockWidget(Qt.RightDockWidgetArea, layer_dock)
 
+        # Layer colors Dock
+        self.layer_groups_list = QListWidget()
+        self.layer_groups_list.currentItemChanged.connect(self.change_layer_groups)
+        layer_groups_dock = QDockWidget("Layer Groups", self)
+        layer_groups_dock.setObjectName("layer_groups_dock")
+        layer_groups_dock.setWidget(self.layer_groups_list)
+        self.addDockWidget(Qt.RightDockWidgetArea, layer_groups_dock)
+
         # Undo Dock
         undo_view = QUndoView(self.undo_stack)
         undo_dock = QDockWidget("Undo List", self)
@@ -317,6 +325,7 @@ class MainWindow(QMainWindow):
             show_hoop_separator_action,
             [
                 layer_dock.toggleViewAction(),
+                layer_groups_dock.toggleViewAction(),
                 property_dock.toggleViewAction(),
                 undo_dock.toggleViewAction(),
             ],
@@ -474,7 +483,11 @@ class MainWindow(QMainWindow):
             return
 
         parser = LayerParser(layer)
-        print(parser.conf)
+        groups = parser.conf["groups"]
+        layer.groups = groups
+        for group in groups:
+            print(group)
+            self.layer_groups_list.addItem(group)
 
     def choose_color(self) -> None:
         color = QColorDialog.getColor(self.state.pen_color, self)
@@ -505,6 +518,9 @@ class MainWindow(QMainWindow):
             self.opacity_slider.setValue(round(clone.opacity * 100))
         else:
             self.state.current_layer_idx = -1
+
+    def change_layer_groups(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
+        pass
 
     def update_layer_property(self) -> None:
         enabled = self.state.current_layer_idx != -1
