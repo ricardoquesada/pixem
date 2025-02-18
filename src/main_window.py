@@ -53,25 +53,25 @@ class MainWindow(QMainWindow):
         menu_bar.addMenu(file_menu)
 
         open_action = QAction(QIcon.fromTheme("document-open"), "&Open Project", self)
-        open_action.triggered.connect(self.open_project)
+        open_action.triggered.connect(self.on_open_project)
         file_menu.addAction(open_action)
 
         save_action = QAction(QIcon.fromTheme("document-save"), "Save Project", self)
-        save_action.triggered.connect(self.save_project)
+        save_action.triggered.connect(self.on_save_project)
         file_menu.addAction(save_action)
 
         save_as_action = QAction(QIcon.fromTheme("document-save-as"), "Save Project As...", self)
-        save_as_action.triggered.connect(self.save_project_as)
+        save_as_action.triggered.connect(self.on_save_project_as)
         file_menu.addAction(save_as_action)
 
         file_menu.addSeparator()
 
         export_action = QAction("Export Project", self)
-        export_action.triggered.connect(self.export_project)
+        export_action.triggered.connect(self.on_export_project)
         file_menu.addAction(export_action)
 
         export_as_action = QAction("Export Project As...", self)
-        export_as_action.triggered.connect(self.export_project_as)
+        export_as_action.triggered.connect(self.on_export_project_as)
         file_menu.addAction(export_as_action)
 
         edit_menu = QMenu("&Edit", self)
@@ -88,7 +88,7 @@ class MainWindow(QMainWindow):
         edit_menu.addSeparator()
 
         preferences_action = QAction("&Preferences", self)
-        preferences_action.triggered.connect(self.preferences)
+        preferences_action.triggered.connect(self.on_preferences)
         edit_menu.addAction(preferences_action)
 
         view_menu = QMenu("&View", self)
@@ -99,42 +99,42 @@ class MainWindow(QMainWindow):
 
         show_hoop_action = QAction("&Show hoop size", self)
         show_hoop_action.setCheckable(True)
-        show_hoop_action.triggered.connect(lambda: self.show_hoop_size(show_hoop_action))
+        show_hoop_action.triggered.connect(lambda: self.on_show_hoop_size(show_hoop_action))
         view_menu.addAction(show_hoop_action)
         show_hoop_action.setChecked(global_preferences.get_hoop_visible())
 
         view_menu.addSeparator()
 
         reset_layout_action = QAction("&Reset Layout", self)
-        reset_layout_action.triggered.connect(self.reset_layout)
+        reset_layout_action.triggered.connect(self.on_reset_layout)
         view_menu.addAction(reset_layout_action)
 
         layer_menu = QMenu("&Layer", self)
         menu_bar.addMenu(layer_menu)
 
         add_image_action = QAction(QIcon.fromTheme("insert-image"), "Add Image Layer", self)
-        add_image_action.triggered.connect(self.layer_add_image)
+        add_image_action.triggered.connect(self.on_layer_add_image)
         layer_menu.addAction(add_image_action)
 
         add_text_action = QAction(QIcon.fromTheme("insert-text"), "Add Text Layer", self)
-        add_text_action.triggered.connect(self.layer_add_text)
+        add_text_action.triggered.connect(self.on_layer_add_text)
         layer_menu.addAction(add_text_action)
 
         delete_layer_action = QAction(QIcon.fromTheme("edit-delete"), "Delete Layer", self)
-        delete_layer_action.triggered.connect(self.layer_delete)
+        delete_layer_action.triggered.connect(self.on_layer_delete)
         layer_menu.addAction(delete_layer_action)
 
         layer_menu.addSeparator()
 
         analyze_layer_action = QAction("&Analyze Layer", self)
-        analyze_layer_action.triggered.connect(self.layer_analyze)
+        analyze_layer_action.triggered.connect(self.on_layer_analyze)
         layer_menu.addAction(analyze_layer_action)
 
         help_menu = QMenu("&Help", self)
         menu_bar.addMenu(help_menu)
 
         about_action = QAction("&About", self)
-        about_action.triggered.connect(self.show_about_dialog)
+        about_action.triggered.connect(self.on_show_about_dialog)
         help_menu.addAction(about_action)
 
         self.toolbar = QToolBar("Tools")
@@ -155,18 +155,18 @@ class MainWindow(QMainWindow):
         self.toolbar.addSeparator()
 
         color_action = QAction("Pen Color", self)
-        color_action.triggered.connect(self.choose_color)
+        color_action.triggered.connect(self.on_choose_color)
         self.toolbar.addAction(color_action)
 
         zoom_slider = QSlider(Qt.Horizontal)
         zoom_slider.setRange(1, 500)
         zoom_slider.setValue(100)
-        zoom_slider.valueChanged.connect(self.zoom)
+        zoom_slider.valueChanged.connect(self.on_zoom_changed)
         self.toolbar.addWidget(zoom_slider)
 
         # Layers Dock
         self.layer_list = QListWidget()
-        self.layer_list.currentItemChanged.connect(self.change_layer)
+        self.layer_list.currentItemChanged.connect(self.on_change_layer)
         layer_dock = QDockWidget("Layers", self)
         layer_dock.setObjectName("layer_dock")
         layer_dock.setWidget(self.layer_list)
@@ -174,7 +174,7 @@ class MainWindow(QMainWindow):
 
         # Layer colors Dock
         self.layer_groups_list = QListWidget()
-        self.layer_groups_list.currentItemChanged.connect(self.change_layer_groups)
+        self.layer_groups_list.currentItemChanged.connect(self.on_change_layer_groups)
         layer_groups_dock = QDockWidget("Layer Groups", self)
         layer_groups_dock.setObjectName("layer_groups_dock")
         layer_groups_dock.setWidget(self.layer_groups_list)
@@ -225,14 +225,14 @@ class MainWindow(QMainWindow):
         property_dock.setWidget(self.property_editor)
         self.addDockWidget(Qt.RightDockWidgetArea, property_dock)
 
-        self.name_edit.editingFinished.connect(self.update_layer_property)
-        self.position_x_spinbox.valueChanged.connect(self.update_layer_property)
-        self.position_y_spinbox.valueChanged.connect(self.update_layer_property)
-        self.rotation_slider.valueChanged.connect(self.update_layer_property)
-        self.pixel_width_spinbox.valueChanged.connect(self.update_layer_property)
-        self.pixel_height_spinbox.valueChanged.connect(self.update_layer_property)
-        self.visible_checkbox.stateChanged.connect(self.update_layer_property)
-        self.opacity_slider.valueChanged.connect(self.update_layer_property)
+        self.name_edit.editingFinished.connect(self.on_update_layer_property)
+        self.position_x_spinbox.valueChanged.connect(self.on_update_layer_property)
+        self.position_y_spinbox.valueChanged.connect(self.on_update_layer_property)
+        self.rotation_slider.valueChanged.connect(self.on_update_layer_property)
+        self.pixel_width_spinbox.valueChanged.connect(self.on_update_layer_property)
+        self.pixel_height_spinbox.valueChanged.connect(self.on_update_layer_property)
+        self.visible_checkbox.stateChanged.connect(self.on_update_layer_property)
+        self.opacity_slider.valueChanged.connect(self.on_update_layer_property)
 
         # Insert all docks in Menu
         view_menu.insertActions(
@@ -246,9 +246,6 @@ class MainWindow(QMainWindow):
         )
 
         self.canvas = Canvas(self.state)
-        # self.scroll_area = QScrollArea()
-        # self.scroll_area.setWidgetResizable(True)
-        # self.scroll_area.setWidget(self.canvas)
         self.setCentralWidget(self.canvas)
 
         self.load_settings()
@@ -284,7 +281,7 @@ class MainWindow(QMainWindow):
     def mouseMoveEvent(self, event) -> None:
         pass
 
-    def open_project(self) -> None:
+    def on_open_project(self) -> None:
         options = QFileDialog.Options()  # For more options if needed
         filename, _ = QFileDialog.getOpenFileName(
             self,
@@ -309,33 +306,33 @@ class MainWindow(QMainWindow):
             self.layer_list.setCurrentRow(state.current_layer_idx)
             self.update()
 
-    def save_project(self) -> None:
+    def on_save_project(self) -> None:
         filename = self.state.filename
         if filename is None:
-            self.save_project_as()
+            self.on_save_project_as()
             return
         self.state.save_to_filename(filename)
 
-    def save_project_as(self) -> None:
+    def on_save_project_as(self) -> None:
         filename, _ = QFileDialog.getSaveFileName(
             self, "Save Project", "", "pixem (*.pixemproj *.toml)"
         )
         if filename:
             self.state.save_to_filename(filename)
 
-    def export_project(self) -> None:
+    def on_export_project(self) -> None:
         pass
 
-    def export_project_as(self) -> None:
+    def on_export_project_as(self) -> None:
         pass
 
-    def show_hoop_size(self, action: QAction) -> None:
+    def on_show_hoop_size(self, action: QAction) -> None:
         is_checked = action.isChecked()
         global_preferences.set_hoop_visible(is_checked)
         self.canvas.on_preferences_updated()
         self.update()
 
-    def reset_layout(self) -> None:
+    def on_reset_layout(self) -> None:
         default_geometry = global_preferences.get_default_window_geometry()
         default_state = global_preferences.get_default_window_state()
         self.restoreGeometry(default_geometry)
@@ -350,13 +347,13 @@ class MainWindow(QMainWindow):
             )
         )
 
-    def preferences(self) -> None:
+    def on_preferences(self) -> None:
         dialog = PreferenceDialog()
         if dialog.exec() == QDialog.Accepted:
             self.canvas.on_preferences_updated()
             self.update()
 
-    def layer_add_image(self) -> None:
+    def on_layer_add_image(self) -> None:
         file_name, _ = QFileDialog.getOpenFileName(
             self, "Open Image", "", "Image Files (*.png *.jpg *.bmp)"
         )
@@ -367,7 +364,7 @@ class MainWindow(QMainWindow):
             self.layer_list.setCurrentRow(self.state.current_layer_idx)
             self.update()
 
-    def layer_add_text(self) -> None:
+    def on_layer_add_text(self) -> None:
         file = QFile(":/res/fonts/petscii-charset.bin")
         if not file.open(QIODevice.OpenModeFlag.ReadOnly):
             print(f"Could not load file: {file.errorString()}")
@@ -375,7 +372,7 @@ class MainWindow(QMainWindow):
         data = file.readAll()
         print(data)
 
-    def layer_delete(self) -> None:
+    def on_layer_delete(self) -> None:
         selected_items = self.layer_list.selectedItems()
         layer = self.state.get_selected_layer()
 
@@ -393,7 +390,7 @@ class MainWindow(QMainWindow):
 
         self.update()
 
-    def layer_analyze(self) -> None:
+    def on_layer_analyze(self) -> None:
         layer: Layer = self.state.get_selected_layer()
         if layer is None:
             logger.warning("Cannot analyze layer. Invalid")
@@ -406,16 +403,17 @@ class MainWindow(QMainWindow):
             print(group)
             self.layer_groups_list.addItem(group)
 
-    def choose_color(self) -> None:
+    def on_choose_color(self) -> None:
         color = QColorDialog.getColor(self.state.pen_color, self)
         if color.isValid():
             self.state.pen_color = color
 
-    def zoom(self, value: int) -> None:
+    def on_zoom_changed(self, value: int) -> None:
         self.state.scale_factor = value / 100.0
+        self.canvas.updateGeometry()
         self.update()
 
-    def change_layer(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
+    def on_change_layer(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
         enabled = current is not None
         self.property_editor.setEnabled(enabled)
         if enabled:
@@ -436,7 +434,7 @@ class MainWindow(QMainWindow):
         else:
             self.state.current_layer_idx = -1
 
-    def change_layer_groups(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
+    def on_change_layer_groups(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
         enabled = current is not None
         if enabled:
             idx = self.layer_groups_list.row(current)
@@ -449,7 +447,7 @@ class MainWindow(QMainWindow):
             self.state.current_nodes_path = []
         self.update()
 
-    def update_layer_property(self) -> None:
+    def on_update_layer_property(self) -> None:
         enabled = self.state.current_layer_idx != -1
         self.property_editor.setEnabled(enabled)
         if enabled:
@@ -467,7 +465,7 @@ class MainWindow(QMainWindow):
             self.layer_list.currentItem().setText(current_layer.name)
             self.update()
 
-    def show_about_dialog(self) -> None:
+    def on_show_about_dialog(self) -> None:
         dialog = AboutDialog()
         dialog.exec()
 
