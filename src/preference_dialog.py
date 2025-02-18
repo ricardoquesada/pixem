@@ -1,5 +1,4 @@
 import sys
-import preferences
 
 from PySide6.QtWidgets import (
     QApplication,
@@ -12,6 +11,8 @@ from PySide6.QtWidgets import (
     QRadioButton,
     QVBoxLayout,
 )
+
+import preferences
 
 
 class PreferenceDialog(QDialog):

@@ -5,33 +5,8 @@ import copy
 import logging
 import sys
 
-import resources_rc  # noqa: F401
-
-from about_dialog import AboutDialog
-from canvas import Canvas
-from layer import Layer, ImageLayer
-from layer_parser import LayerParser
-from preference_dialog import PreferenceDialog
-from preferences import global_preferences
-from state import State
-
-from PySide6.QtCore import (
-    QCoreApplication,
-    QFile,
-    QIODevice,
-    QPointF,
-    QSize,
-    QSizeF,
-    Qt,
-)
-
-from PySide6.QtGui import (
-    QAction,
-    QCloseEvent,
-    QGuiApplication,
-    QIcon,
-    QUndoStack,
-)
+from PySide6.QtCore import QCoreApplication, QFile, QIODevice, QPointF, QSize, QSizeF, Qt
+from PySide6.QtGui import QAction, QCloseEvent, QGuiApplication, QIcon, QUndoStack
 from PySide6.QtWidgets import (
     QApplication,
     QCheckBox,
@@ -52,6 +27,15 @@ from PySide6.QtWidgets import (
     QUndoView,
     QWidget,
 )
+
+import resources_rc  # noqa: F401
+from about_dialog import AboutDialog
+from canvas import Canvas
+from layer import ImageLayer, Layer
+from layer_parser import LayerParser
+from preference_dialog import PreferenceDialog
+from preferences import global_preferences
+from state import State
 
 logger = logging.getLogger(__name__)  # __name__ gets the current module's name
 

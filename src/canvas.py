@@ -3,25 +3,12 @@
 
 import logging
 
+from PySide6.QtCore import QPointF, QSize, Qt
+from PySide6.QtGui import QColor, QPainter, QPainterPath, QPaintEvent, QPen
+from PySide6.QtWidgets import QWidget
+
 from preferences import global_preferences
 from state import State
-
-from PySide6.QtCore import (
-    QPointF,
-    QSize,
-    Qt,
-)
-
-from PySide6.QtGui import (
-    QColor,
-    QPaintEvent,
-    QPainter,
-    QPainterPath,
-    QPen,
-)
-from PySide6.QtWidgets import (
-    QWidget,
-)
 
 logger = logging.getLogger(__name__)  # __name__ gets the current module's name
 

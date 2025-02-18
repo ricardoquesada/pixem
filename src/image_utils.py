@@ -1,8 +1,8 @@
-from PySide6.QtGui import QImage
-from PySide6.QtCore import QByteArray, QBuffer, QIODevice
-
 import base64
 import logging
+
+from PySide6.QtCore import QBuffer, QByteArray, QIODevice
+from PySide6.QtGui import QImage
 
 logger = logging.getLogger(__name__)  # __name__ gets the current module's name
 

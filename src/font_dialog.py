@@ -1,12 +1,12 @@
 from PySide6.QtWidgets import (
     QApplication,
+    QComboBox,
     QDialog,
-    QVBoxLayout,
     QHBoxLayout,
     QLabel,
     QLineEdit,
     QPushButton,
-    QComboBox,
+    QVBoxLayout,
 )
 
 

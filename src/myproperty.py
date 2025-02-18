@@ -4,15 +4,15 @@ from PySide6.QtCore import Signal
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import (
     QApplication,
+    QCheckBox,
+    QColorDialog,
+    QDoubleSpinBox,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QSpinBox,
     QVBoxLayout,
     QWidget,
-    QLineEdit,
-    QLabel,
-    QPushButton,
-    QColorDialog,
-    QSpinBox,
-    QDoubleSpinBox,
-    QCheckBox,
 )
 
 

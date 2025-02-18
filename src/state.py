@@ -1,13 +1,11 @@
 import logging
-import toml
-from layer import Layer
 from typing import Self
-from PySide6.QtCore import (
-    Qt,
-)
-from PySide6.QtGui import (
-    QColor,
-)
+
+import toml
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QColor
+
+from layer import Layer
 
 logger = logging.getLogger(__name__)  # __name__ gets the current module's name
 

@@ -3,10 +3,12 @@
 
 import argparse
 import json
+
 import matplotlib.pyplot as plt
 import networkx as nx
+from PySide6.QtGui import QColor, QImage
+
 from layer import Layer
-from PySide6.QtGui import QImage, QColor
 
 # Argument Defaults
 DEFAULT_ROTATION = 0

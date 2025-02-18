@@ -1,13 +1,9 @@
-import image_utils
 from typing import Self
 
-from PySide6.QtCore import (
-    QPointF,
-    QSizeF,
-)
-from PySide6.QtGui import (
-    QImage,
-)
+from PySide6.QtCore import QPointF, QSizeF
+from PySide6.QtGui import QImage
+
+import image_utils
 
 
 class Layer:

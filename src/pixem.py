@@ -1,16 +1,11 @@
 # Pixem
 # Copyright 2024 Ricardo Quesada
 
-import sys
 import logging
+import sys
 
-from PySide6.QtCore import (
-    QCoreApplication,
-)
-
-from PySide6.QtWidgets import (
-    QApplication,
-)
+from PySide6.QtCore import QCoreApplication
+from PySide6.QtWidgets import QApplication
 
 from main_window import MainWindow
 

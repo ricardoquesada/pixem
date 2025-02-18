@@ -1,9 +1,7 @@
 # Copyright 2025 Ricardo Quesada
 import typing
 
-from PySide6.QtCore import (
-    QSettings,
-)
+from PySide6.QtCore import QSettings
 
 
 class Preferences:

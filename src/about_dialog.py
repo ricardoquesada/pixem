@@ -1,17 +1,10 @@
 import sys
 
-import resources_rc  # noqa: F401
-
 from PySide6.QtCore import Qt
-
-from PySide6.QtWidgets import (
-    QApplication,
-    QDialog,
-    QVBoxLayout,
-    QLabel,
-    QDialogButtonBox,
-)
 from PySide6.QtGui import QPixmap
+from PySide6.QtWidgets import QApplication, QDialog, QDialogButtonBox, QLabel, QVBoxLayout
+
+import resources_rc  # noqa: F401
 
 
 class AboutDialog(QDialog):

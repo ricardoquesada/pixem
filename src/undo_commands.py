@@ -1,9 +1,6 @@
-from main_window import MainWindow
+from PySide6.QtGui import QImage, QUndoCommand
 
-from PySide6.QtGui import (
-    QImage,
-    QUndoCommand,
-)
+from main_window import MainWindow
 
 
 class DrawCommand(QUndoCommand):
