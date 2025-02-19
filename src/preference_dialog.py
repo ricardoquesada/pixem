@@ -55,9 +55,7 @@ class PreferenceDialog(QDialog):
         self.visibility_checkbox = QCheckBox("Show Hoop Frame")
 
         # Buttons
-        button_box = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
-        )
+        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
 
@@ -117,8 +115,8 @@ class PreferenceDialog(QDialog):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     dialog = PreferenceDialog()
-    if dialog.exec() == QDialog.DialogCode.Accepted:
+    if dialog.exec() == QDialog.Accepted:
         print("Dialog was accepted")
-    elif dialog.exec() == QDialog.DialogCode.Rejected:
+    elif dialog.exec() == QDialog.Rejected:
         print("Dialog was rejected")
     sys.exit(app.exec())
