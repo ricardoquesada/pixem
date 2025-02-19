@@ -160,7 +160,7 @@ class MainWindow(QMainWindow):
         color_action.triggered.connect(self.on_choose_color)
         self.toolbar.addAction(color_action)
 
-        zoom_slider = QSlider(Qt.Horizontal)
+        zoom_slider = QSlider(Qt.Orientation.Horizontal)
         zoom_slider.setRange(1, 500)
         zoom_slider.setValue(100)
         zoom_slider.valueChanged.connect(self.on_zoom_changed)
@@ -172,7 +172,7 @@ class MainWindow(QMainWindow):
         layer_dock = QDockWidget("Layers", self)
         layer_dock.setObjectName("layer_dock")
         layer_dock.setWidget(self.layer_list)
-        self.addDockWidget(Qt.RightDockWidgetArea, layer_dock)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, layer_dock)
 
         # Layer colors Dock
         self.layer_groups_list = QListWidget()
@@ -180,14 +180,14 @@ class MainWindow(QMainWindow):
         layer_groups_dock = QDockWidget("Layer Groups", self)
         layer_groups_dock.setObjectName("layer_groups_dock")
         layer_groups_dock.setWidget(self.layer_groups_list)
-        self.addDockWidget(Qt.RightDockWidgetArea, layer_groups_dock)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, layer_groups_dock)
 
         # Undo Dock
         undo_view = QUndoView(self.undo_stack)
         undo_dock = QDockWidget("Undo List", self)
         undo_dock.setObjectName("undo_dock")
         undo_dock.setWidget(undo_view)
-        self.addDockWidget(Qt.RightDockWidgetArea, undo_dock)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, undo_dock)
 
         # Property Dock
         self.property_editor = QWidget()
@@ -210,14 +210,14 @@ class MainWindow(QMainWindow):
         self.pixel_height_spinbox.setMinimum(1.0)
         self.property_layout.addRow("Pixel Height:", self.pixel_height_spinbox)
 
-        self.rotation_slider = QSlider(Qt.Horizontal)
+        self.rotation_slider = QSlider(Qt.Orientation.Horizontal)
         self.rotation_slider.setRange(0, 360)
         self.rotation_slider.setValue(0)
         self.property_layout.addRow("Rotation:", self.rotation_slider)
 
         self.visible_checkbox = QCheckBox()
         self.property_layout.addRow("Visible:", self.visible_checkbox)
-        self.opacity_slider = QSlider(Qt.Horizontal)
+        self.opacity_slider = QSlider(Qt.Orientation.Horizontal)
         self.opacity_slider.setRange(0, 100)
         self.opacity_slider.setValue(100)
         self.property_layout.addRow("Opacity:", self.opacity_slider)
@@ -225,7 +225,7 @@ class MainWindow(QMainWindow):
         property_dock = QDockWidget("Properties", self)
         property_dock.setObjectName("property_dock")
         property_dock.setWidget(self.property_editor)
-        self.addDockWidget(Qt.RightDockWidgetArea, property_dock)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, property_dock)
 
         self.name_edit.editingFinished.connect(self.on_update_layer_property)
         self.position_x_spinbox.valueChanged.connect(self.on_update_layer_property)
@@ -254,8 +254,6 @@ class MainWindow(QMainWindow):
 
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
-        # scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
-        # scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
         scroll_area.setWidget(self.canvas)
 
         central_layout = QVBoxLayout(central_widget)
@@ -366,7 +364,7 @@ class MainWindow(QMainWindow):
 
     def on_preferences(self) -> None:
         dialog = PreferenceDialog()
-        if dialog.exec() == QDialog.Accepted:
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             self.canvas.on_preferences_updated()
             self.canvas.update()
             self.update()
