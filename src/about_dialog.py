@@ -17,7 +17,7 @@ class AboutDialog(QDialog):
         icon_label = QLabel()
         pixmap = QPixmap(":/res/logo512.png")  # Replace with your icon path
         icon_label.setPixmap(pixmap)
-        icon_label.setAlignment(Qt.AlignCenter)  # Center the icon
+        icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # Center the icon
 
         # Create a label for the description
         description_label = QLabel(
@@ -31,7 +31,7 @@ class AboutDialog(QDialog):
         description_label.setWordWrap(True)  # Enable word wrap
 
         # Create an "OK" button
-        button_box = QDialogButtonBox(QDialogButtonBox.Ok)
+        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok)
         button_box.accepted.connect(self.accept)
 
         # Create layout and add widgets

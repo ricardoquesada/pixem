@@ -23,6 +23,8 @@ class Canvas(QWidget):
 
         self.cached_hoop_visible = global_preferences.get_hoop_visible()
         self.cached_hoop_size = global_preferences.get_hoop_size()
+        # FIXME: must be set according to layer size
+        self.setFixedSize(QSize(1000, 1000))
 
     def paintEvent(self, event: QPaintEvent) -> None:
         if not self.state.layers:
@@ -44,8 +46,8 @@ class Canvas(QWidget):
                 transformed_image = layer.image.scaled(
                     round(scaled_x),
                     round(scaled_y),
-                    Qt.IgnoreAspectRatio,
-                    Qt.FastTransformation,
+                    Qt.AspectRatioMode.IgnoreAspectRatio,
+                    Qt.TransformationMode.FastTransformation,
                 )
                 painter.translate(
                     scaled_x / 2 + layer.position.x(), scaled_y / 2 + layer.position.y()
@@ -67,8 +69,8 @@ class Canvas(QWidget):
             transformed_image = layer.image.scaled(
                 round(scaled_x),
                 round(scaled_y),
-                Qt.IgnoreAspectRatio,
-                Qt.FastTransformation,
+                Qt.AspectRatioMode.IgnoreAspectRatio,
+                Qt.TransformationMode.FastTransformation,
             )
             painter.translate(scaled_x / 2 + layer.position.x(), scaled_y / 2 + layer.position.y())
             painter.rotate(layer.rotation)
@@ -78,7 +80,7 @@ class Canvas(QWidget):
             )
 
             # painter.setPen(Qt.NoPen)
-            painter.setPen(QPen(Qt.gray, 0.2, Qt.SolidLine))
+            painter.setPen(QPen(Qt.GlobalColor.gray, 0.2, Qt.PenStyle.SolidLine))
 
             # Set the brush (fill)
             brush = painter.brush()
@@ -102,7 +104,7 @@ class Canvas(QWidget):
         # Draw hoop
         if self.cached_hoop_visible:
             painter.save()
-            painter.setPen(QPen(Qt.gray, 1, Qt.DashDotDotLine))
+            painter.setPen(QPen(Qt.GlobalColor.gray, 1, Qt.PenStyle.DashDotDotLine))
             path = QPainterPath()
             path.moveTo(0, 0)
             path.lineTo(0.0, 0.0)
@@ -123,7 +125,21 @@ class Canvas(QWidget):
         self.cached_hoop_size = global_preferences.get_hoop_size()
 
     def sizeHint(self) -> QSize:
-        # FIXME: Return size of drawing, not hoop
-        return QSize(
-            self.cached_hoop_size[0] * INCHES_TO_MM, self.cached_hoop_size[1] * INCHES_TO_MM
+        logger.info("sizeHint()")
+        max_w = 0
+        max_h = 0
+        if len(self.state.layers) == 0:
+            max_w = self.cached_hoop_size[0] * INCHES_TO_MM
+            max_h = self.cached_hoop_size[1] * INCHES_TO_MM
+        else:
+            for layer in self.state.layers:
+                w = layer.image.width() * layer.pixel_size.width()
+                h = layer.image.width() * layer.pixel_size.width()
+                if w > max_w:
+                    max_w = w
+                if h > max_h:
+                    max_h = h
+        logger.info(
+            f"size: {max_w * self.state.scale_factor}, {max_h * self.state.scale_factor}, scale={self.state.scale_factor} "
         )
+        return QSize(max_w * self.state.scale_factor, max_h * self.state.scale_factor)

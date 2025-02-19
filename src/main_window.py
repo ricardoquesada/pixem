@@ -21,10 +21,12 @@ from PySide6.QtWidgets import (
     QListWidgetItem,
     QMainWindow,
     QMenu,
+    QScrollArea,
     QSlider,
     QStyle,
     QToolBar,
     QUndoView,
+    QVBoxLayout,
     QWidget,
 )
 
@@ -245,8 +247,19 @@ class MainWindow(QMainWindow):
             ],
         )
 
+        central_widget = QWidget()
+        self.setCentralWidget(central_widget)
+
         self.canvas = Canvas(self.state)
-        self.setCentralWidget(self.canvas)
+
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        # scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
+        # scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
+        scroll_area.setWidget(self.canvas)
+
+        central_layout = QVBoxLayout(central_widget)
+        central_layout.addWidget(scroll_area)
 
         self.load_settings()
 
@@ -304,6 +317,9 @@ class MainWindow(QMainWindow):
             for layer in self.state.layers:
                 self.layer_list.addItem(layer.name)
             self.layer_list.setCurrentRow(state.current_layer_idx)
+
+            self.canvas.updateGeometry()
+            self.canvas.update()
             self.update()
 
     def on_save_project(self) -> None:
@@ -330,6 +346,7 @@ class MainWindow(QMainWindow):
         is_checked = action.isChecked()
         global_preferences.set_hoop_visible(is_checked)
         self.canvas.on_preferences_updated()
+        self.canvas.update()
         self.update()
 
     def on_reset_layout(self) -> None:
@@ -351,6 +368,7 @@ class MainWindow(QMainWindow):
         dialog = PreferenceDialog()
         if dialog.exec() == QDialog.Accepted:
             self.canvas.on_preferences_updated()
+            self.canvas.update()
             self.update()
 
     def on_layer_add_image(self) -> None:
@@ -362,6 +380,8 @@ class MainWindow(QMainWindow):
             self.state.add_layer(layer)
             self.layer_list.addItem(layer.name)
             self.layer_list.setCurrentRow(self.state.current_layer_idx)
+            self.canvas.updateGeometry()
+            self.canvas.update()
             self.update()
 
     def on_layer_add_text(self) -> None:
@@ -388,6 +408,8 @@ class MainWindow(QMainWindow):
         # Remove it from the state
         self.state.delete_layer(layer)
 
+        self.canvas.updateGeometry()
+        self.canvas.update()
         self.update()
 
     def on_layer_analyze(self) -> None:
@@ -411,6 +433,7 @@ class MainWindow(QMainWindow):
     def on_zoom_changed(self, value: int) -> None:
         self.state.scale_factor = value / 100.0
         self.canvas.updateGeometry()
+        self.canvas.update()
         self.update()
 
     def on_change_layer(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
@@ -445,6 +468,7 @@ class MainWindow(QMainWindow):
         else:
             self.state.get_selected_layer().current_groups_idx = -1
             self.state.current_nodes_path = []
+        self.canvas.update()
         self.update()
 
     def on_update_layer_property(self) -> None:
@@ -463,6 +487,8 @@ class MainWindow(QMainWindow):
             current_layer.visible = self.visible_checkbox.isChecked()
             current_layer.opacity = self.opacity_slider.value() / 100.0
             self.layer_list.currentItem().setText(current_layer.name)
+            self.canvas.updateGeometry()
+            self.canvas.update()
             self.update()
 
     def on_show_about_dialog(self) -> None:
