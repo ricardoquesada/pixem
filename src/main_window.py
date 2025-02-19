@@ -26,7 +26,6 @@ from PySide6.QtWidgets import (
     QStyle,
     QToolBar,
     QUndoView,
-    QVBoxLayout,
     QWidget,
 )
 
@@ -247,19 +246,13 @@ class MainWindow(QMainWindow):
             ],
         )
 
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
-
         self.canvas = Canvas(self.state)
 
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
-        # scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
-        # scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
         scroll_area.setWidget(self.canvas)
 
-        central_layout = QVBoxLayout(central_widget)
-        central_layout.addWidget(scroll_area)
+        self.setCentralWidget(scroll_area)
 
         self.load_settings()
 
