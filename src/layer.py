@@ -38,6 +38,8 @@ class Layer:
         layer.pixel_size = QSizeF(pixel_size["width"], pixel_size["height"])
         layer.visible = d["visible"]
         layer.opacity = d["opacity"]
+        if "groups" in d:
+            layer.groups = d["groups"]
         return layer
 
     def to_dict(self) -> dict:
@@ -50,6 +52,7 @@ class Layer:
             "visible": self.visible,
             "opacity": self.opacity,
             "image": image_utils.qimage_to_base64_string(self.image),
+            "groups": self.groups,
         }
         return d
 

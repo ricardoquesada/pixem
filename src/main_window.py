@@ -307,9 +307,17 @@ class MainWindow(QMainWindow):
             self.canvas.state = state
 
             self.layer_list.clear()
+            self.layer_groups_list.clear()
+
             for layer in self.state.layers:
                 self.layer_list.addItem(layer.name)
             self.layer_list.setCurrentRow(state.current_layer_idx)
+
+            layer: Layer = self.state.get_selected_layer()
+            if layer is not None:
+                for group in layer.groups:
+                    self.layer_groups_list.addItem(group)
+                self.layer_groups_list.setCurrentRow(0)
 
             self.canvas.updateGeometry()
             self.canvas.update()

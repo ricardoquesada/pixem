@@ -24,7 +24,7 @@ class Canvas(QWidget):
         self.cached_hoop_visible = global_preferences.get_hoop_visible()
         self.cached_hoop_size = global_preferences.get_hoop_size()
         # FIXME: must be set according to layer size
-        self.setFixedSize(QSize(800, 800))
+        self.setFixedSize(QSize(152 * 2, 254 * 2))
 
     def paintEvent(self, event: QPaintEvent) -> None:
         if not self.state.layers:
@@ -117,6 +117,10 @@ class Canvas(QWidget):
 
             painter.drawPath(path)
             painter.restore()
+            logger.info(
+                f"DRAW HOOP: {self.cached_hoop_size[0] * INCHES_TO_MM} x {self.cached_hoop_size[1] * INCHES_TO_MM}"
+            )
+
         painter.end()
 
     def on_preferences_updated(self):
