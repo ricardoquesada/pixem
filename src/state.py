@@ -5,6 +5,7 @@ import toml
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor
 
+from export import ExportToSVG
 from layer import Layer
 
 logger = logging.getLogger(__name__)  # __name__ gets the current module's name
@@ -12,7 +13,8 @@ logger = logging.getLogger(__name__)  # __name__ gets the current module's name
 
 class State:
     def __init__(self) -> None:
-        self.filename = None
+        self.project_filename = None
+        self.export_filename = None
         self.pen_color = QColor(Qt.black)
         self.scale_factor = 1.0
         self.hoop_visible = False
@@ -23,7 +25,9 @@ class State:
     @classmethod
     def from_dict(cls, d: dict) -> Self:
         state = State()
-        state.filename = d["filename"]
+        state.project_filename = d["project_filename"]
+        if "export_filename" in d:
+            state.export_filename = d["export_filename"]
         pen_color = d["pen_color"]
         state.pen_color = QColor(pen_color["r"], pen_color["g"], pen_color["b"], pen_color["a"])
         state.scale_factor = d["scale_factor"]
@@ -37,7 +41,8 @@ class State:
 
     def to_dict(self) -> dict:
         project = {
-            "filename": self.filename,
+            "project_filename": self.project_filename,
+            "export_filename": self.export_filename,
             "pen_color": {
                 "r": self.pen_color.red(),
                 "g": self.pen_color.green(),
@@ -69,12 +74,18 @@ class State:
         logger.info(f"Saving project to filename {filename}")
         if filename is None:
             return
-        self.filename = filename
+        self.project_filename = filename
 
         d = self.to_dict()
 
         with open(filename, "w", encoding="utf-8") as f:
             toml.dump(d, f)
+
+    def export_to_filename(self, filename: str) -> None:
+        logger.info(f"Export project to filename {filename}")
+        export = ExportToSVG(self.layers[0].groups)
+        export.write_to_svg(filename)
+        self.export_filename = filename
 
     def add_layer(self, layer: Layer) -> None:
         self.layers.append(layer)

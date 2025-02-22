@@ -319,12 +319,13 @@ class MainWindow(QMainWindow):
                     self.layer_groups_list.addItem(group)
                 self.layer_groups_list.setCurrentRow(0)
 
+            # FIXME: update state should be done in one method
             self.canvas.updateGeometry()
             self.canvas.update()
             self.update()
 
     def on_save_project(self) -> None:
-        filename = self.state.filename
+        filename = self.state.project_filename
         if filename is None:
             self.on_save_project_as()
             return
@@ -338,10 +339,16 @@ class MainWindow(QMainWindow):
             self.state.save_to_filename(filename)
 
     def on_export_project(self) -> None:
-        pass
+        export_filename = self.state.export_filename
+        if export_filename is None:
+            self.on_export_project_as()
+            return
+        self.state.export_to_filename(export_filename)
 
     def on_export_project_as(self) -> None:
-        pass
+        export_filename, _ = QFileDialog.getSaveFileName(self, "Export Project", "", "SVG (*.svg)")
+        if export_filename:
+            self.state.export_to_filename(export_filename)
 
     def on_show_hoop_size(self, action: QAction) -> None:
         is_checked = action.isChecked()
