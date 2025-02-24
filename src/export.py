@@ -10,7 +10,6 @@ DEFAULT_HOOP_SIZE_IN = (5, 7)
 DEFAULT_PIXEL_SIZE_MM = (2.65, 2.65)
 
 # Conf dictionary Keys
-KEY_ASPECT_RATIO = "aspect_ratio"
 KEY_FILL_MODE = "fill_mode"
 KEY_GROUPS = "groups"
 KEY_HOOP_SIZE_IN = "hoop_size"
@@ -24,14 +23,6 @@ logger = logging.getLogger(__name__)  # __name__ gets the current module's name
 
 class ExportToSVG:
     VERSION = "0.1"
-    # Pixels are not square in PAL:
-    # https://hitmen.c02.at/temp/palstuff/
-    # Aspect ratio: 0,936:1
-    ASPECT_RATIO = {
-        "square": 1.0,
-        "pal": 0.936,
-        "ntsc": 0.750,
-    }
 
     FILL_PARAMS = {
         "autofill": {
@@ -53,8 +44,10 @@ class ExportToSVG:
         groups: dict,
         hoop_size: tuple,
         pixel_size: tuple,
-        aspect_ratio: str,
         fill_mode: str,
+        translate: tuple = (0.0, 0.0),
+        scale: tuple = (1.0, 1.0),
+        rotation: float = 0,
     ):
         """
         Creates an SVG file from a PNG image, representing each pixel as a rectangle.
@@ -62,7 +55,6 @@ class ExportToSVG:
         Args:
             hoop_size: Tuple that defines the hoop size in inches.
             pixel_size: Represents the pixel size in mm.
-            aspect_ratio: Pixel aspect ratio
             fill_mode: Fill mode to use
         """
 
@@ -76,16 +68,18 @@ class ExportToSVG:
             (pixel_size, KEY_PIXEL_SIZE_MM, DEFAULT_PIXEL_SIZE_MM),
             (hoop_size, KEY_HOOP_SIZE_IN, DEFAULT_HOOP_SIZE_IN),
             (fill_mode, KEY_FILL_MODE, DEFAULT_FILL_MODE),
-            (aspect_ratio, KEY_ASPECT_RATIO, DEFAULT_ASPECT_RATIO),
         ]
         for arg in args:
             self.set_conf_value(arg[0], arg[1], arg[2])
 
         # Backward compatible
         self._fill_mode = self.FILL_PARAMS[self._conf[KEY_FILL_MODE]]
-        self._aspect_ratio = 1.0 / self.ASPECT_RATIO[self._conf[KEY_ASPECT_RATIO]]
         self._pixel_size = self._conf[KEY_PIXEL_SIZE_MM]
         self._hoop_size = self._conf[KEY_HOOP_SIZE_IN]
+
+        self._translate = translate
+        self._scale = scale
+        self._rotation = rotation
 
         self._pixel_groups = groups
 
@@ -146,7 +140,7 @@ class ExportToSVG:
                 '  originx="0"\n'
                 '  originy="0"\n'
                 f'  spacingx="{self._pixel_size[0]}"\n'
-                f'  spacingy="{self._pixel_size[1] * self._aspect_ratio}"\n'
+                f'  spacingy="{self._pixel_size[1]}"\n'
                 '  enabled="true"\n'
                 '  visible="true"\n'
                 "/>\n"
@@ -157,13 +151,17 @@ class ExportToSVG:
                 "<!-- pixem:params\n"
                 f'  pixel_size="{self._pixel_size}"\n'
                 f'  hoop_size="{self._hoop_size}"\n'
-                f'  aspect_ratio="{self._aspect_ratio}"\n'
                 f'  fill_mode="{self._fill_mode}"\n'
+                f'  translate={self._translate}"\n'
+                f'  scale={self._scale}"\n'
+                f'  rotation={self._rotation}"\n'
                 f'  version="{self.VERSION}"\n'
                 "-->\n"
             )
 
-            f.write(f'<g id="image" transform="scale(1, {self._aspect_ratio})">\n')
+            f.write(
+                f'<g id="image" transform="translate({self._translate[0]} {self._translate[1]}) rotate({self._rotation }) scale({self._scale[0]} {self._scale[1]})">\n'
+            )
 
             for color in self._pixel_groups:
                 # Each color is a list of list. Each list is a connected graph.
@@ -192,13 +190,6 @@ def main():
         "-p", "--pixel_size", metavar="WIDTHxHEIGHT", help="Pixel size in mm (e.g., 3.25x3.25"
     )
     parser.add_argument(
-        "-a",
-        "--aspect_ratio",
-        type=str,
-        choices=["pal", "ntsc", "square"],
-        help="Pixel aspect ratio",
-    )
-    parser.add_argument(
         "-f",
         "--fill_mode",
         type=str,
@@ -222,7 +213,6 @@ def main():
     tosvg = ExportToSVG(
         hoop_size,
         pixel_size,
-        args.aspect_ratio,
         args.fill_mode,
     )
     tosvg.write_to_svg(args.output_svg)

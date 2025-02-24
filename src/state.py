@@ -88,13 +88,15 @@ class State:
             logger.warning("No layers found. Cannot export file")
             return
 
+        # FIXME: Support more than one layer
         layer = self.layers[0]
         export = ExportToSVG(
             self.layers[0].groups,
             preferences.global_preferences.get_hoop_size(),
             (layer.pixel_size.width(), layer.pixel_size.height()),
-            "square",
             "satin_s",
+            translate=(layer.position.x(), layer.position.y()),
+            rotation=layer.rotation,
         )
 
         export.write_to_svg(filename)
