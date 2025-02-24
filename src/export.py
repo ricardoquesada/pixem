@@ -8,8 +8,6 @@ DEFAULT_ASPECT_RATIO = "pal"
 DEFAULT_FILL_MODE = "satin_s"
 DEFAULT_HOOP_SIZE_IN = (5, 7)
 DEFAULT_PIXEL_SIZE_MM = (2.65, 2.65)
-DEFAULT_ROTATION = 0
-DEFAULT_SAW_THRESHOLD = 40
 
 # Conf dictionary Keys
 KEY_ASPECT_RATIO = "aspect_ratio"
@@ -17,7 +15,6 @@ KEY_FILL_MODE = "fill_mode"
 KEY_GROUPS = "groups"
 KEY_HOOP_SIZE_IN = "hoop_size"
 KEY_NODES_PATH = "nodes_path"
-KEY_NODES_PATH_SIZE = "nodes_path_size"
 KEY_PIXEL_SIZE_MM = "pixel_size"
 
 INCHES_TO_MM = 25.4
@@ -169,10 +166,9 @@ class ExportToSVG:
             f.write(f'<g id="image" transform="scale(1, {self._aspect_ratio})">\n')
 
             for color in self._pixel_groups:
-                it = 0
                 # Each color is a list of list. Each list is a connected graph.
-                pixels = self._pixel_groups[color]["nodes_path"]
-                f.write(f'<g id="layer_{color}_{it}" inkscape:label="color_{color}_{it}">\n')
+                pixels = self._pixel_groups[color][KEY_NODES_PATH]
+                f.write(f'<g id="layer_{color}" inkscape:label="color_{color}">\n')
                 for pixel in pixels:
                     # pixel is a tuple (x,y)
                     x, y = pixel

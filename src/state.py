@@ -94,7 +94,7 @@ class State:
             preferences.global_preferences.get_hoop_size(),
             (layer.pixel_size.width(), layer.pixel_size.height()),
             "square",
-            "autofill",
+            "satin_s",
         )
 
         export.write_to_svg(filename)
