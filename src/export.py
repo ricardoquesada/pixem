@@ -1,12 +1,13 @@
 # Pixem
 # Copyright 2024 - Ricardo Quesada
 import argparse
+import logging
 
 # Argument Defaults
 DEFAULT_ASPECT_RATIO = "pal"
 DEFAULT_FILL_MODE = "satin_s"
 DEFAULT_HOOP_SIZE_IN = (5, 7)
-DEFAULT_PIXEL_SIZE_MM = 2.65
+DEFAULT_PIXEL_SIZE_MM = (2.65, 2.65)
 DEFAULT_ROTATION = 0
 DEFAULT_SAW_THRESHOLD = 40
 
@@ -15,23 +16,13 @@ KEY_ASPECT_RATIO = "aspect_ratio"
 KEY_FILL_MODE = "fill_mode"
 KEY_GROUPS = "groups"
 KEY_HOOP_SIZE_IN = "hoop_size"
-KEY_NODES_JUMP_STITCHES = "nodes_jump_stitches"
 KEY_NODES_PATH = "nodes_path"
 KEY_NODES_PATH_SIZE = "nodes_path_size"
 KEY_PIXEL_SIZE_MM = "pixel_size"
 
 INCHES_TO_MM = 25.4
 
-
-def find_jump_stitches(nodes):
-    jump_stitches = 0
-    if len(nodes) > 1:
-        prev = nodes[0]
-        for node in nodes[1:]:
-            if (abs(prev[0] - node[0]) > 1) or (abs(prev[1] - node[1]) > 1):
-                jump_stitches = jump_stitches + 1
-            prev = node
-    return jump_stitches
+logger = logging.getLogger(__name__)  # __name__ gets the current module's name
 
 
 class ExportToSVG:
@@ -62,11 +53,11 @@ class ExportToSVG:
 
     def __init__(
         self,
-        groups,
-        hoop_size,
-        pixel_size,
-        aspect_ratio,
-        fill_mode,
+        groups: dict,
+        hoop_size: tuple,
+        pixel_size: tuple,
+        aspect_ratio: str,
+        fill_mode: str,
     ):
         """
         Creates an SVG file from a PNG image, representing each pixel as a rectangle.
@@ -98,10 +89,8 @@ class ExportToSVG:
         self._aspect_ratio = 1.0 / self.ASPECT_RATIO[self._conf[KEY_ASPECT_RATIO]]
         self._pixel_size = self._conf[KEY_PIXEL_SIZE_MM]
         self._hoop_size = self._conf[KEY_HOOP_SIZE_IN]
-        self._jump_stitches = 0
 
         self._pixel_groups = groups
-        self.find_all_jump_stitches()
 
     def set_conf_value(self, arg_value, key, default):
         # Priority:
@@ -114,25 +103,12 @@ class ExportToSVG:
         if key not in self._conf or self._conf[key] is None:
             self._conf[key] = default
 
-    def find_all_jump_stitches(self):
-        # print number of jump stitches
-        jump_stitches = 0
-        for color in self._pixel_groups:
-            # each color is a jump stitch
-            # jump_stitches = jump_stitches + 1
-            for nodes in self._pixel_groups[color]:
-                # each group of neighbors has a jump stitch
-                # jump_stitches = jump_stitches + 1
-                jump_stitches = jump_stitches + find_jump_stitches(nodes)
-        print(f"Jump stitches: {jump_stitches}")
-        self._jump_stitches = jump_stitches
-
     def write_rect_svg(self, file, x, y, pixel_size, color, angle):
         fill_method = self._fill_mode["fillmode"]
         max_stitch_len = self._fill_mode["max_stitch_len"]
         file.write(
-            f'<rect x="{x * pixel_size}" y="{y * pixel_size}" '
-            f'width="{pixel_size}" height="{pixel_size}" '
+            f'<rect x="{x * pixel_size[0]}" y="{y * pixel_size[1]}" '
+            f'width="{pixel_size[0]}" height="{pixel_size[1]}" '
             f'fill="{color}" '
             f'id="pixel_{x}_{y}_{angle}" '
             f'style="display:inline;stroke:none" '
@@ -143,6 +119,7 @@ class ExportToSVG:
         )
 
     def write_to_svg(self, output_path):
+        logger.info(f"writing SVG {output_path}")
         with open(output_path, "w") as f:
             f.write('<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n')
             f.write(
@@ -171,8 +148,8 @@ class ExportToSVG:
                 '  units="mm"\n'
                 '  originx="0"\n'
                 '  originy="0"\n'
-                f'  spacingx="{self._pixel_size}"\n'
-                f'  spacingy="{self._pixel_size * self._aspect_ratio}"\n'
+                f'  spacingx="{self._pixel_size[0]}"\n'
+                f'  spacingy="{self._pixel_size[1] * self._aspect_ratio}"\n'
                 '  enabled="true"\n'
                 '  visible="true"\n'
                 "/>\n"
@@ -190,23 +167,19 @@ class ExportToSVG:
             )
 
             f.write(f'<g id="image" transform="scale(1, {self._aspect_ratio})">\n')
-            for color in self._pixel_groups:
-                f.write(f"<!-- color {color} -->\n")
 
+            for color in self._pixel_groups:
                 it = 0
                 # Each color is a list of list. Each list is a connected graph.
-                for pixels in self._pixel_groups[color]:
-                    # pixels is [(1,0), (1,2)], [(3,4), (3,5)]
-                    f.write(f'<g id="layer_{color}_{it}" inkscape:label="color_{color}_{it}">\n')
-                    for pixel in pixels:
-                        # pixel is a tuple (x,y)
-                        x, y = pixel
-                        angle = 0 if ((x + y) % 2 == 0) else 90
-                        self.write_rect_svg(f, x, y, self._pixel_size, color, angle)
+                pixels = self._pixel_groups[color]["nodes_path"]
+                f.write(f'<g id="layer_{color}_{it}" inkscape:label="color_{color}_{it}">\n')
+                for pixel in pixels:
+                    # pixel is a tuple (x,y)
+                    x, y = pixel
+                    angle = 0 if ((x + y) % 2 == 0) else 90
+                    self.write_rect_svg(f, x, y, self._pixel_size, color, angle)
 
-                    f.write("</g>\n")
-                    it = it + 1
-            f.write("</g>\n")
+                f.write("</g>\n")
             f.write("</svg>\n")
 
 
@@ -219,7 +192,9 @@ def main():
         metavar="WIDTHxHEIGHT",
         help="Hoop size in the format WIDTHxHEIGHT in inches (e.g., 5x7)",
     )
-    parser.add_argument("-p", "--pixel_size", metavar="SIZE", type=float, help="Pixel size in mm")
+    parser.add_argument(
+        "-p", "--pixel_size", metavar="WIDTHxHEIGHT", help="Pixel size in mm (e.g., 3.25x3.25"
+    )
     parser.add_argument(
         "-a",
         "--aspect_ratio",
@@ -242,10 +217,15 @@ def main():
         x, y = map(int, args.hoop_size.split("x"))
         hoop_size = (x, y)
 
+    pixel_size = None
+    if args.pixel_size is not None:
+        x, y = map(float, args.hoop_size.split("x"))
+        pixel_size = (x, y)
+
     print(args)
     tosvg = ExportToSVG(
         hoop_size,
-        args.pixel_size,
+        pixel_size,
         args.aspect_ratio,
         args.fill_mode,
     )

@@ -5,6 +5,7 @@ import toml
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor
 
+import preferences
 from export import ExportToSVG
 from layer import Layer
 
@@ -83,7 +84,19 @@ class State:
 
     def export_to_filename(self, filename: str) -> None:
         logger.info(f"Export project to filename {filename}")
-        export = ExportToSVG(self.layers[0].groups)
+        if len(self.layers) == 0:
+            logger.warning("No layers found. Cannot export file")
+            return
+
+        layer = self.layers[0]
+        export = ExportToSVG(
+            self.layers[0].groups,
+            preferences.global_preferences.get_hoop_size(),
+            (layer.pixel_size.width(), layer.pixel_size.height()),
+            "square",
+            "autofill",
+        )
+
         export.write_to_svg(filename)
         self.export_filename = filename
 

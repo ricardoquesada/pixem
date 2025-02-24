@@ -340,7 +340,7 @@ class MainWindow(QMainWindow):
 
     def on_export_project(self) -> None:
         export_filename = self.state.export_filename
-        if export_filename is None:
+        if export_filename is None or len(export_filename) == 0:
             self.on_export_project_as()
             return
         self.state.export_to_filename(export_filename)
