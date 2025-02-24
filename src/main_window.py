@@ -462,6 +462,8 @@ class MainWindow(QMainWindow):
             self.pixel_height_spinbox.setValue(clone.pixel_size.height())
             self.visible_checkbox.setChecked(clone.visible)
             self.opacity_slider.setValue(round(clone.opacity * 100))
+
+            self.refresh_layer_groups()
         else:
             self.state.current_layer_idx = -1
 
@@ -502,6 +504,14 @@ class MainWindow(QMainWindow):
     def on_show_about_dialog(self) -> None:
         dialog = AboutDialog()
         dialog.exec()
+
+    def refresh_layer_groups(self):
+        layer = self.state.get_selected_layer()
+        self.layer_groups_list.clear()
+
+        for group in layer.groups:
+            print(group)
+            self.layer_groups_list.addItem(group)
 
 
 if __name__ == "__main__":

@@ -41,31 +41,20 @@ class ExportToSVG:
 
     def __init__(
         self,
-        groups: dict,
         hoop_size: tuple,
-        pixel_size: tuple,
         fill_mode: str,
-        translate: tuple = (0.0, 0.0),
-        scale: tuple = (1.0, 1.0),
-        rotation: tuple = (0, 0, 0),  # angle, anchor_point_x, anchor_point_y
     ):
         """
         Creates an SVG file from a PNG image, representing each pixel as a rectangle.
 
         Args:
             hoop_size: Tuple that defines the hoop size in inches.
-            pixel_size: Represents the pixel size in mm.
             fill_mode: Fill mode to use
         """
-
-        # key: color
-        # value: lists of neighboring pixels
-        self._pixel_groups = {}
 
         self._conf = {KEY_GROUPS: {}}
 
         args = [
-            (pixel_size, KEY_PIXEL_SIZE_MM, DEFAULT_PIXEL_SIZE_MM),
             (hoop_size, KEY_HOOP_SIZE_IN, DEFAULT_HOOP_SIZE_IN),
             (fill_mode, KEY_FILL_MODE, DEFAULT_FILL_MODE),
         ]
@@ -74,14 +63,28 @@ class ExportToSVG:
 
         # Backward compatible
         self._fill_mode = self.FILL_PARAMS[self._conf[KEY_FILL_MODE]]
-        self._pixel_size = self._conf[KEY_PIXEL_SIZE_MM]
         self._hoop_size = self._conf[KEY_HOOP_SIZE_IN]
 
-        self._translate = translate
-        self._scale = scale
-        self._rotation = rotation
+        self._layers = []
 
-        self._pixel_groups = groups
+    def add_layer(
+        self,
+        name: str,
+        colors: dict,
+        pixel_size: tuple,
+        translate: tuple,
+        scale: tuple,
+        rotation: tuple,
+    ) -> None:
+        entry = {
+            "name": name,
+            "colors": colors,
+            "pixel_size": pixel_size,
+            "translate": translate,
+            "scale": scale,
+            "rotation": rotation,
+        }
+        self._layers.append(entry)
 
     def set_conf_value(self, arg_value, key, default):
         # Priority:
@@ -139,8 +142,8 @@ class ExportToSVG:
                 '  units="mm"\n'
                 '  originx="0"\n'
                 '  originy="0"\n'
-                f'  spacingx="{self._pixel_size[0]}"\n'
-                f'  spacingy="{self._pixel_size[1]}"\n'
+                f'  spacingx="{self._layers[0]["pixel_size"][0]}"\n'
+                f'  spacingy="{self._layers[0]["pixel_size"][1]}"\n'
                 '  enabled="true"\n'
                 '  visible="true"\n'
                 "/>\n"
@@ -149,34 +152,42 @@ class ExportToSVG:
             f.write("<defs\n" '  id="defs1"\n' "/>\n")
             f.write(
                 "<!-- pixem:params\n"
-                f'  pixel_size="{self._pixel_size}"\n'
                 f'  hoop_size="{self._hoop_size}"\n'
                 f'  fill_mode="{self._fill_mode}"\n'
-                f'  translate={self._translate}"\n'
-                f'  scale={self._scale}"\n'
-                f'  rotation={self._rotation}"\n'
                 f'  version="{self.VERSION}"\n'
                 "-->\n"
             )
 
-            f.write(
-                f'<g id="image" transform="'
-                f"translate({self._translate[0]} {self._translate[1]}) "
-                f"rotate({self._rotation[0]} {self._rotation[1]} {self._rotation[2]}) "
-                f"scale({self._scale[0]} {self._scale[1]})"
-                '">\n'
-            )
+            for layer_idx, layer in enumerate(self._layers):
+                name = layer["name"]
+                pixel_size = layer["pixel_size"]
+                translate = layer["translate"]
+                rotation = layer["rotation"]
+                scale = layer["scale"]
+                colors = layer["colors"]
+                f.write(
+                    f'<g id="{name}" transform="'
+                    f"translate({translate[0]} {translate[1]}) "
+                    f"rotate({rotation[0]} {rotation[1]} {rotation[2]}) "
+                    f"scale({scale[0]} {scale[1]})"
+                    '">\n'
+                )
 
-            for color in self._pixel_groups:
-                # Each color is a list of list. Each list is a connected graph.
-                pixels = self._pixel_groups[color][KEY_NODES_PATH]
-                f.write(f'<g id="layer_{color}" inkscape:label="color_{color}">\n')
-                for pixel in pixels:
-                    # pixel is a tuple (x,y)
-                    x, y = pixel
-                    angle = 0 if ((x + y) % 2 == 0) else 90
-                    self.write_rect_svg(f, x, y, self._pixel_size, color, angle)
+                for color in colors:
+                    # Each color is a list of list. Each list is a connected graph.
+                    pixels = colors[color][KEY_NODES_PATH]
+                    f.write(
+                        f'<g id="layer_{layer_idx}_{color}" inkscape:label="color_{layer_idx}_{color}">\n'
+                    )
+                    for pixel in pixels:
+                        # pixel is a tuple (x,y)
+                        x, y = pixel
+                        angle = 0 if ((x + y) % 2 == 0) else 90
+                        self.write_rect_svg(f, x, y, pixel_size, color, angle)
 
+                    # color
+                    f.write("</g>\n")
+                # layer
                 f.write("</g>\n")
             f.write("</svg>\n")
 
