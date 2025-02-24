@@ -47,7 +47,7 @@ class ExportToSVG:
         fill_mode: str,
         translate: tuple = (0.0, 0.0),
         scale: tuple = (1.0, 1.0),
-        rotation: float = 0,
+        rotation: tuple = (0, 0, 0),  # angle, anchor_point_x, anchor_point_y
     ):
         """
         Creates an SVG file from a PNG image, representing each pixel as a rectangle.
@@ -160,7 +160,11 @@ class ExportToSVG:
             )
 
             f.write(
-                f'<g id="image" transform="translate({self._translate[0]} {self._translate[1]}) rotate({self._rotation }) scale({self._scale[0]} {self._scale[1]})">\n'
+                f'<g id="image" transform="'
+                f"translate({self._translate[0]} {self._translate[1]}) "
+                f"rotate({self._rotation[0]} {self._rotation[1]} {self._rotation[2]}) "
+                f"scale({self._scale[0]} {self._scale[1]})"
+                '">\n'
             )
 
             for color in self._pixel_groups:

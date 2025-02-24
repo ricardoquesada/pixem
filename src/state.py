@@ -96,7 +96,11 @@ class State:
             (layer.pixel_size.width(), layer.pixel_size.height()),
             "satin_s",
             translate=(layer.position.x(), layer.position.y()),
-            rotation=layer.rotation,
+            rotation=(
+                layer.rotation,  # degrees
+                layer.image.width() * layer.pixel_size.width() / 2,  # anchor point x
+                layer.image.height() * layer.pixel_size.height() / 2,
+            ),  # anchor point y
         )
 
         export.write_to_svg(filename)
