@@ -30,7 +30,7 @@ from PySide6.QtWidgets import (
 import resources_rc  # noqa: F401
 from about_dialog import AboutDialog
 from canvas import Canvas
-from layer import ImageLayer, Layer
+from layer import ImageLayer
 from layer_parser import LayerParser
 from preference_dialog import PreferenceDialog
 from preferences import global_preferences
@@ -146,8 +146,8 @@ class MainWindow(QMainWindow):
 
         layer_menu.addSeparator()
 
-        self.analyze_layer_action = QAction("Analyze Layer", self)
-        self.analyze_layer_action.triggered.connect(self.on_layer_analyze)
+        self.analyze_layer_action = QAction("Find Partitions", self)
+        self.analyze_layer_action.triggered.connect(self.on_find_partitions)
         layer_menu.addAction(self.analyze_layer_action)
 
         help_menu = QMenu("&Help", self)
@@ -191,13 +191,13 @@ class MainWindow(QMainWindow):
         self.addDockWidget(Qt.RightDockWidgetArea, layer_dock)
 
         # Layer colors Dock
-        self.layer_groups_list = QListWidget()
-        self.layer_groups_list.currentItemChanged.connect(self.on_change_group)
-        self.layer_groups_list.itemDoubleClicked.connect(self.on_double_click_group)
-        layer_groups_dock = QDockWidget("Layer Groups", self)
-        layer_groups_dock.setObjectName("layer_groups_dock")
-        layer_groups_dock.setWidget(self.layer_groups_list)
-        self.addDockWidget(Qt.RightDockWidgetArea, layer_groups_dock)
+        self.layer_partitions_list = QListWidget()
+        self.layer_partitions_list.currentItemChanged.connect(self.on_change_partition)
+        self.layer_partitions_list.itemDoubleClicked.connect(self.on_double_click_partition)
+        layer_partitions_dock = QDockWidget("Layer partitions", self)
+        layer_partitions_dock.setObjectName("layer_partitions_dock")
+        layer_partitions_dock.setWidget(self.layer_partitions_list)
+        self.addDockWidget(Qt.RightDockWidgetArea, layer_partitions_dock)
 
         # Undo Dock
         undo_view = QUndoView(self.undo_stack)
@@ -251,7 +251,7 @@ class MainWindow(QMainWindow):
             show_hoop_separator_action,
             [
                 layer_dock.toggleViewAction(),
-                layer_groups_dock.toggleViewAction(),
+                layer_partitions_dock.toggleViewAction(),
                 property_dock.toggleViewAction(),
                 undo_dock.toggleViewAction(),
             ],
@@ -336,7 +336,7 @@ class MainWindow(QMainWindow):
         self.state = State()
         self.canvas.state = self.state
         self.layer_list.clear()
-        self.layer_groups_list.clear()
+        self.layer_partitions_list.clear()
 
         # FIXME: update state should be done in one method
         self.update_qactions()
@@ -365,12 +365,12 @@ class MainWindow(QMainWindow):
             self.canvas.state = state
 
             self.layer_list.clear()
-            self.layer_groups_list.clear()
+            self.layer_partitions_list.clear()
 
             selected_layer = self.state.get_selected_layer()
 
             selected_layer_idx = -1
-            selected_group_idx = -1
+            selected_partition_idx = -1
 
             for i, layer in enumerate(self.state.layers):
                 self.layer_list.addItem(layer.name)
@@ -378,17 +378,17 @@ class MainWindow(QMainWindow):
                     selected_layer_idx = i
 
             if selected_layer is not None:
-                selected_group = selected_layer.current_group_key
-                for i, group in enumerate(selected_layer.groups):
-                    self.layer_groups_list.addItem(group)
-                    if group == selected_group:
-                        selected_group_idx = i
+                selected_partition = selected_layer.current_partition_key
+                for i, partition in enumerate(selected_layer.partitions):
+                    self.layer_partitions_list.addItem(partition)
+                    if partition == selected_partition:
+                        selected_partition_idx = i
 
             # This will trigger "on_" callback
             if selected_layer_idx >= 0:
                 self.layer_list.setCurrentRow(selected_layer_idx)
-            if selected_group_idx >= 0:
-                self.layer_groups_list.setCurrentRow(selected_group_idx)
+            if selected_partition_idx >= 0:
+                self.layer_partitions_list.setCurrentRow(selected_partition_idx)
 
             # FIXME: update state should be done in one method
             self.update_qactions()
@@ -415,7 +415,7 @@ class MainWindow(QMainWindow):
         self.state = None
         self.canvas.state = self.state
         self.layer_list.clear()
-        self.layer_groups_list.clear()
+        self.layer_partitions_list.clear()
 
         # FIXME: update state should be done in one method
         self.update_qactions()
@@ -494,8 +494,8 @@ class MainWindow(QMainWindow):
             logger.warning("Cannot delete layer, no layers selected")
             return
 
-        # Clear the "groups"
-        self.layer_groups_list.clear()
+        # Clear the "partitions"
+        self.layer_partitions_list.clear()
 
         # Remove it from the widget
         for item in selected_items:
@@ -505,25 +505,24 @@ class MainWindow(QMainWindow):
         # Remove it from the state
         self.state.delete_layer(layer)
 
-        # layer_groups_list should get auto-populated
+        # layer_partitions_list should get auto-populated
         # because a "on_change_layer" should be triggered
 
         self.canvas.updateGeometry()
         self.canvas.update()
         self.update()
 
-    def on_layer_analyze(self) -> None:
-        layer: Layer = self.state.get_selected_layer()
+    def on_find_partitions(self) -> None:
+        layer = self.state.get_selected_layer()
         if layer is None:
-            logger.warning("Cannot analyze layer. Invalid")
+            logger.warning("Cannot find partitions. Layer not selected")
             return
 
         parser = LayerParser(layer)
-        groups = parser.conf["groups"]
-        layer.groups = groups
-        for group in groups:
-            print(group)
-            self.layer_groups_list.addItem(group)
+        layer.partitions = parser.get_partitions()
+        for partition in layer.partitions:
+            logger.info(f"Partition {partition}")
+            self.layer_partitions_list.addItem(partition)
 
     def on_zoom_changed(self, value: int) -> None:
         self.state.scale_factor = value / 100.0
@@ -554,28 +553,30 @@ class MainWindow(QMainWindow):
 
             self.state.current_layer_key = layer.name
 
-            self.refresh_layer_groups()
+            self.refresh_layer_partitions()
         else:
             if self.state is not None:
                 self.state.current_layer_key = None
 
-    def on_change_group(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
-        logger.info(f"on_change_group: {current} {current.text() if current is not None else None}")
+    def on_change_partition(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
+        logger.info(
+            f"on_change_partition: {current} {current.text() if current is not None else None}"
+        )
         enabled = current is not None
         if enabled:
-            idx = self.layer_groups_list.row(current)
-            key = self.layer_groups_list.item(idx).text()
-            self.state.get_selected_layer().current_group_key = key
+            idx = self.layer_partitions_list.row(current)
+            key = self.layer_partitions_list.item(idx).text()
+            self.state.get_selected_layer().current_partition_key = key
         else:
             layer = self.state.get_selected_layer()
             if layer is not None:
-                layer.current_groups_key = None
+                layer.current_partitions_key = None
         self.canvas.update()
         self.update()
 
-    def on_double_click_group(self, current: QListWidgetItem) -> None:
+    def on_double_click_partition(self, current: QListWidgetItem) -> None:
         logger.info(
-            f"on_double_click_group: {current} {current.text() if current is not None else None}"
+            f"on_double_click_partition: {current} {current.text() if current is not None else None}"
         )
 
     def on_update_layer_property(self, value) -> None:
@@ -604,8 +605,8 @@ class MainWindow(QMainWindow):
         dialog = AboutDialog()
         dialog.exec()
 
-    def refresh_layer_groups(self):
-        self.layer_groups_list.clear()
+    def refresh_layer_partitions(self):
+        self.layer_partitions_list.clear()
 
         if self.state is None:
             return
@@ -614,21 +615,21 @@ class MainWindow(QMainWindow):
         if layer is None:
             return
 
-        selected_group_idx = -1
+        selected_partition_idx = -1
         # First: add all items
-        for i, group in enumerate(layer.groups):
-            self.layer_groups_list.addItem(group)
-            if layer.current_group_key == group:
-                selected_group_idx = i
+        for i, partition in enumerate(layer.partitions):
+            self.layer_partitions_list.addItem(partition)
+            if layer.current_partition_key == partition:
+                selected_partition_idx = i
 
         # Second: select the correct one if present
-        if selected_group_idx >= 0:
-            self.layer_groups_list.setCurrentRow(selected_group_idx)
+        if selected_partition_idx >= 0:
+            self.layer_partitions_list.setCurrentRow(selected_partition_idx)
 
-        if len(layer.groups) == 0:
+        if len(layer.partitions) == 0:
             # Sanity check
-            layer.current_group_key = None
-            logger.info("Failed to select group, perhaps layer has not been analyzed yet")
+            layer.current_partition_key = None
+            logger.info("Failed to select partition, perhaps layer has not been analyzed yet")
 
 
 if __name__ == "__main__":

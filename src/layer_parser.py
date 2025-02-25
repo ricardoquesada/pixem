@@ -2,9 +2,7 @@
 # Copyright 2024 - Ricardo Quesada
 
 import argparse
-import json
 
-import matplotlib.pyplot as plt
 import networkx as nx
 from PySide6.QtGui import QColor, QImage
 
@@ -15,42 +13,12 @@ DEFAULT_ROTATION = 0
 DEFAULT_SAW_THRESHOLD = 40
 
 # Conf dictionary Keys
-KEY_GROUPS = "groups"
-KEY_INPUT_PNG_SIZE = "input_png_size"
-KEY_NODES_JUMP_STITCHES = "nodes_jump_stitches"
+KEY_PARTITIONS = "partitions"
 KEY_NODES_PATH = "nodes_path"
 KEY_NODES_PATH_SIZE = "nodes_path_size"
 KEY_ROTATION = "rotation"
 KEY_SAW_THRESHOLD = "saw_threshold"  # SAW = Self Avoidance Walk
 KEY_STARTING_NODE = "starting_node"
-
-INCHES_TO_MM = 25.4
-
-
-def visualize_tsp(graph):
-    nodes = graph.keys()
-    edges = []
-    for i in graph:
-        for j in graph[i]:
-            edges.append((i, j))
-
-    G = nx.Graph()
-    nx.kamada_kawai_layout(G)
-    G.add_nodes_from(nodes)
-    G.add_edges_from(edges)
-
-    # Draw the graph
-    nx.draw(
-        G,
-        with_labels=True,
-        node_color="skyblue",
-        node_size=1500,
-        font_size=10,
-        font_color="black",
-        edge_color="gray",
-        width=2,
-    )
-    plt.show()
 
 
 def get_node_with_one_neighbor(G):
@@ -166,7 +134,6 @@ class LayerParser:
         layer: Layer,
         rotation=0,
         saw_threshold=40,
-        configuration_filename=None,
     ):
         width, height = layer.image.width(), layer.image.height()
 
@@ -177,10 +144,7 @@ class LayerParser:
         # value: lists of neighboring pixels
         self._pixel_groups = {}
 
-        self._conf = {KEY_GROUPS: {}}
-
-        if configuration_filename is not None:
-            self.validate_configuration_filename(configuration_filename)
+        self._conf = {KEY_PARTITIONS: {}}
 
         args = [
             (rotation, KEY_ROTATION, DEFAULT_ROTATION),
@@ -188,8 +152,6 @@ class LayerParser:
         ]
         for arg in args:
             self.set_conf_value(arg[0], arg[1], arg[2])
-
-        self._conf[KEY_INPUT_PNG_SIZE] = (width, height)
 
         # Backward compatible
         self._rotation = self._conf[KEY_ROTATION]
@@ -205,7 +167,6 @@ class LayerParser:
             subgraph = self.create_solution_graph(g[color], color)
             solution[color] = subgraph
         self._pixel_groups = solution
-        self.find_all_jump_stitches()
 
     def set_conf_value(self, arg_value, key, default):
         # Priority:
@@ -217,11 +178,6 @@ class LayerParser:
 
         if key not in self._conf or self._conf[key] is None:
             self._conf[key] = default
-
-    def validate_configuration_filename(self, filename: str):
-        # Don't catch the exception, propagate it.
-        with open(filename, "r") as f:
-            self._conf = json.load(f)
 
     def put_pixels_in_matrix(self, img: QImage, width: int, height: int):
         # Put all pixels in matrix
@@ -236,24 +192,10 @@ class LayerParser:
                     continue
                 self._image[x][y] = argb & 0xFFFFFF
 
-    def find_all_jump_stitches(self):
-        # print number of jump stitches
-        jump_stitches = 0
-        for color in self._pixel_groups:
-            # each color is a jump stitch
-            # jump_stitches = jump_stitches + 1
-            for nodes in self._pixel_groups[color]:
-                # each group of neighbors has a jump stitch
-                # jump_stitches = jump_stitches + 1
-                jump_stitches = jump_stitches + find_jump_stitches(nodes)
-        print(f"Jump stitches: {jump_stitches}")
-        self._jump_stitches = jump_stitches
-
     def create_solution_graph(self, image_graph, color) -> list[list]:
         # image_graph is a dict of:
         #   key: node
         #   value: edges
-        # visualize_tsp(image_graph)
         nodes = image_graph.keys()
         edges = []
         for node in image_graph:
@@ -276,8 +218,8 @@ class LayerParser:
             nodes = list(s.nodes())
 
             key = f"#{color:06x}_{idx}"
-            if key not in self._conf[KEY_GROUPS]:
-                self._conf[KEY_GROUPS][key] = {}
+            if key not in self._conf[KEY_PARTITIONS]:
+                self._conf[KEY_PARTITIONS][key] = {}
 
             if len(nodes) > 1:
                 start_node = self.get_starting_node(s, key)
@@ -292,18 +234,15 @@ class LayerParser:
                 if nodes is None or len(s.nodes) >= self._saw_threshold:
                     print(f", trying DFS ({len(s.nodes)})")
                     nodes = iterative_dfs(s, start_node)
-            self._conf[KEY_GROUPS][key][KEY_NODES_PATH] = nodes
-            self._conf[KEY_GROUPS][key][KEY_NODES_PATH_SIZE] = len(nodes)
-            jump_stitches = find_jump_stitches(nodes)
-            self._conf[KEY_GROUPS][key][KEY_NODES_JUMP_STITCHES] = jump_stitches
-            print(f"Jump stitches: {jump_stitches} / {len(nodes)}")
+            self._conf[KEY_PARTITIONS][key][KEY_NODES_PATH] = nodes
+            self._conf[KEY_PARTITIONS][key][KEY_NODES_PATH_SIZE] = len(nodes)
             ret.append(nodes)
         return ret
 
     def get_starting_node(self, G, key):
         print(f"Processing key: {key}:")
         node = None
-        if KEY_STARTING_NODE in self._conf[KEY_GROUPS][key]:
+        if KEY_STARTING_NODE in self._conf[KEY_PARTITIONS][key]:
             node = self._conf[key][KEY_STARTING_NODE]
             # Returns a list. Convert it to tuple.
             node = tuple(node)
@@ -348,6 +287,9 @@ class LayerParser:
     @property
     def conf(self):
         return self._conf
+
+    def get_partitions(self) -> dict:
+        return self.conf[KEY_PARTITIONS]
 
 
 def main():

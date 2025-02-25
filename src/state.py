@@ -96,7 +96,7 @@ class State:
         for i, layer in enumerate(self.layers):
             export.add_layer(
                 f"layer_{i}",
-                layer.groups,
+                layer.partitions,
                 (layer.pixel_size.width(), layer.pixel_size.height()),
                 (layer.position.x(), layer.position.y()),
                 (1.0, 1.0),

@@ -18,8 +18,8 @@ class Layer:
         self.pixel_size: QSizeF = QSizeF(2.5, 2.5)
         self.visible: bool = True
         self.opacity: float = 1.0
-        self.groups: dict = {}
-        self.current_group_key = None
+        self.partitions: dict = {}
+        self.current_partition_key = None
 
     def __repr__(self) -> str:
         return (
@@ -41,10 +41,10 @@ class Layer:
         layer.pixel_size = QSizeF(pixel_size["width"], pixel_size["height"])
         layer.visible = d["visible"]
         layer.opacity = d["opacity"]
-        if "groups" in d:
-            layer.groups = d["groups"]
-        if "current_group_key" in d:
-            layer.current_group_key = d["current_group_key"]
+        if "partitions" in d:
+            layer.partitions = d["partitions"]
+        if "current_partition_key" in d:
+            layer.current_partition_key = d["current_partition_key"]
         return layer
 
     def to_dict(self) -> dict:
@@ -57,19 +57,19 @@ class Layer:
             "visible": self.visible,
             "opacity": self.opacity,
             "image": image_utils.qimage_to_base64_string(self.image),
-            "groups": self.groups,
-            "current_group_key": self.current_group_key,
+            "partitions": self.partitions,
+            "current_partition_key": self.current_partition_key,
         }
         return d
 
-    def get_selected_group(self) -> dict | None:
-        if self.current_group_key is None:
+    def get_selected_partition(self) -> dict | None:
+        if self.current_partition_key is None:
             return None
 
-        if self.current_group_key not in self.groups:
-            logger.warning(f"Group {self.current_group_key} not found")
+        if self.current_partition_key not in self.partitions:
+            logger.warning(f"partition {self.current_partition_key} not found")
             return None
-        return self.groups[self.current_group_key]
+        return self.partitions[self.current_partition_key]
 
 
 class ImageLayer(Layer):

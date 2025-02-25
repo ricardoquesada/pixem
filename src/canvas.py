@@ -60,9 +60,9 @@ class Canvas(QWidget):
                 painter.drawImage(layer.position, transformed_image)
                 painter.restore()
 
-        # Draw selected group pixels
+        # Draw selected partition pixels
         layer = self.state.get_selected_layer()
-        if layer is not None and layer.current_group_key is not None:
+        if layer is not None and layer.current_partition_key is not None:
             painter.save()
             # Scale the image based on pixel size
             scaled_x = layer.image.width() * layer.pixel_size.width()
@@ -91,10 +91,10 @@ class Canvas(QWidget):
 
             W = layer.pixel_size.width()
             H = layer.pixel_size.height()
-            if layer.current_group_key in layer.groups:
-                group = layer.groups[layer.current_group_key]
+            if layer.current_partition_key in layer.partitions:
+                partition = layer.partitions[layer.current_partition_key]
 
-                for x, y in group["nodes_path"]:
+                for x, y in partition["nodes_path"]:
                     polygon = [
                         QPointF(layer.position.x() + x * W, layer.position.y() + y * H),
                         QPointF(layer.position.x() + (x + 1) * W, layer.position.y() + y * H),
@@ -104,7 +104,7 @@ class Canvas(QWidget):
                     # Use drawPolygon instead of drawRects because drawPolygon supports floats
                     painter.drawPolygon(polygon)
             else:
-                logger.warning(f"paintEvent: key {layer.current_group_key} not found")
+                logger.warning(f"paintEvent: key {layer.current_partition_key} not found")
             painter.restore()
 
         # Draw hoop
