@@ -21,8 +21,8 @@ class Canvas(QWidget):
         super().__init__()
         self.state = state
 
-        self.cached_hoop_visible = global_preferences.get_hoop_visible()
-        self.cached_hoop_size = global_preferences.get_hoop_size()
+        self._cached_hoop_visible = global_preferences.get_hoop_visible()
+        self._cached_hoop_size = global_preferences.get_hoop_size()
         # FIXME: must be set according to layer size
         self.setFixedSize(QSize(152 * 2, 254 * 2))
 
@@ -108,17 +108,17 @@ class Canvas(QWidget):
             painter.restore()
 
         # Draw hoop
-        if self.cached_hoop_visible:
+        if self._cached_hoop_visible:
             painter.save()
             painter.setPen(QPen(Qt.GlobalColor.gray, 1, Qt.PenStyle.DashDotDotLine))
             path = QPainterPath()
             path.moveTo(0, 0)
             path.lineTo(0.0, 0.0)
-            path.lineTo(0.0, self.cached_hoop_size[1] * INCHES_TO_MM)
+            path.lineTo(0.0, self._cached_hoop_size[1] * INCHES_TO_MM)
             path.lineTo(
-                self.cached_hoop_size[0] * INCHES_TO_MM, self.cached_hoop_size[1] * INCHES_TO_MM
+                self._cached_hoop_size[0] * INCHES_TO_MM, self._cached_hoop_size[1] * INCHES_TO_MM
             )
-            path.lineTo(self.cached_hoop_size[0] * INCHES_TO_MM, 0.0)
+            path.lineTo(self._cached_hoop_size[0] * INCHES_TO_MM, 0.0)
             path.lineTo(0.0, 0.0)
 
             painter.drawPath(path)
@@ -128,25 +128,32 @@ class Canvas(QWidget):
 
     def on_preferences_updated(self):
         """Updates the preference cache"""
-        self.cached_hoop_visible = global_preferences.get_hoop_visible()
-        self.cached_hoop_size = global_preferences.get_hoop_size()
+        self._cached_hoop_visible = global_preferences.get_hoop_visible()
+        self._cached_hoop_size = global_preferences.get_hoop_size()
+
+    def recalculate_fixed_size(self):
+        self.updateGeometry()
+        new_size = self.sizeHint()
+        self.setFixedSize(new_size)
+        self.update()
 
     def sizeHint(self) -> QSize:
+        max_w = self._cached_hoop_size[0] * INCHES_TO_MM
+        max_h = self._cached_hoop_size[1] * INCHES_TO_MM
         if self.state is None:
-            return QSize(400, 400)
+            return QSize(max_w * DEFAULT_SCALE_FACTOR, max_h * DEFAULT_SCALE_FACTOR)
 
-        max_w = 0
-        max_h = 0
+        for layer in self.state.layers:
+            w = layer.image.width() * layer.pixel_size.width()
+            h = layer.image.height() * layer.pixel_size.height()
+            if w > max_w:
+                max_w = w
+            if h > max_h:
+                max_h = h
 
-        if len(self.state.layers) == 0:
-            max_w = self.cached_hoop_size[0] * INCHES_TO_MM
-            max_h = self.cached_hoop_size[1] * INCHES_TO_MM
-        else:
-            for layer in self.state.layers:
-                w = layer.image.width() * layer.pixel_size.width()
-                h = layer.image.width() * layer.pixel_size.width()
-                if w > max_w:
-                    max_w = w
-                if h > max_h:
-                    max_h = h
-        return QSize(max_w * self.state.zoom_factor, max_h * self.state.zoom_factor)
+        margin = 5
+        ret = QSize(
+            (max_w + margin) * self.state.zoom_factor * DEFAULT_SCALE_FACTOR,
+            (max_h + margin) * self.state.zoom_factor * DEFAULT_SCALE_FACTOR,
+        )
+        return ret

@@ -344,8 +344,7 @@ class MainWindow(QMainWindow):
 
         # FIXME: update state should be done in one method
         self._update_qactions()
-        self._canvas.updateGeometry()
-        self._canvas.update()
+        self._canvas.recalculate_fixed_size()
         self.update()
 
     def _on_open_project(self) -> None:
@@ -400,8 +399,7 @@ class MainWindow(QMainWindow):
 
             # FIXME: update state should be done in one method
             self._update_qactions()
-            self._canvas.updateGeometry()
-            self._canvas.update()
+            self._canvas.recalculate_fixed_size()
             self.update()
 
     def _on_save_project(self) -> None:
@@ -427,8 +425,7 @@ class MainWindow(QMainWindow):
 
         # FIXME: update state should be done in one method
         self._update_qactions()
-        self._canvas.updateGeometry()
-        self._canvas.update()
+        self._canvas.recalculate_fixed_size()
         self.update()
 
     def _on_export_project(self) -> None:
@@ -483,8 +480,7 @@ class MainWindow(QMainWindow):
             self._state.add_layer(layer)
             self._layer_list.addItem(layer.name)
             self._layer_list.setCurrentRow(len(self._state.layers) - 1)
-            self._canvas.updateGeometry()
-            self._canvas.update()
+            self._canvas.recalculate_fixed_size()
             self.update()
 
     def _on_layer_add_text(self) -> None:
@@ -518,8 +514,7 @@ class MainWindow(QMainWindow):
         # _partition_list should get auto-populated
         # because a "on_change_layer" should be triggered
 
-        self._canvas.updateGeometry()
-        self._canvas.update()
+        self._canvas.recalculate_fixed_size()
         self.update()
 
     def _on_find_partitions(self) -> None:
@@ -536,7 +531,7 @@ class MainWindow(QMainWindow):
 
     def _on_zoom_changed(self, value: int) -> None:
         self._state.zoom_factor = value / 100.0
-        self._canvas.updateGeometry()
+        self._canvas.recalculate_fixed_size()
         self._canvas.update()
         self.update()
 
@@ -607,8 +602,7 @@ class MainWindow(QMainWindow):
 
             self._layer_list.currentItem().setText(current_layer.name)
 
-            self._canvas.updateGeometry()
-            self._canvas.update()
+            self._canvas.recalculate_fixed_size()
             self.update()
 
     def _on_show_about_dialog(self) -> None:
