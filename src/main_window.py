@@ -9,7 +9,6 @@ from PySide6.QtGui import QAction, QCloseEvent, QGuiApplication, QIcon, QKeySequ
 from PySide6.QtWidgets import (
     QApplication,
     QCheckBox,
-    QColorDialog,
     QDialog,
     QDockWidget,
     QDoubleSpinBox,
@@ -44,7 +43,7 @@ class MainWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
 
-        self.state = State()
+        self.state = None
 
         self.undo_stack = QUndoStack(self)
 
@@ -52,124 +51,136 @@ class MainWindow(QMainWindow):
         file_menu = QMenu("&File", self)
         menu_bar.addMenu(file_menu)
 
-        open_action = QAction(QIcon.fromTheme("document-open"), "&Open Project", self)
-        open_action.setShortcut(QKeySequence("Ctrl+O"))
-        open_action.triggered.connect(self.on_open_project)
-        file_menu.addAction(open_action)
+        self.new_action = QAction(QIcon.fromTheme("document-new"), "New Project", self)
+        self.new_action.setShortcut(QKeySequence("Ctrl+N"))
+        self.new_action.triggered.connect(self.on_new_project)
+        file_menu.addAction(self.new_action)
 
-        save_action = QAction(QIcon.fromTheme("document-save"), "Save Project", self)
-        save_action.setShortcut(QKeySequence("Ctrl+S"))
-        save_action.triggered.connect(self.on_save_project)
-        file_menu.addAction(save_action)
+        self.open_action = QAction(QIcon.fromTheme("document-open"), "Open Project", self)
+        self.open_action.setShortcut(QKeySequence("Ctrl+O"))
+        self.open_action.triggered.connect(self.on_open_project)
+        file_menu.addAction(self.open_action)
 
-        save_as_action = QAction(QIcon.fromTheme("document-save-as"), "Save Project As...", self)
-        save_as_action.setShortcut(QKeySequence("Ctrl+Shift+S"))
-        save_as_action.triggered.connect(self.on_save_project_as)
-        file_menu.addAction(save_as_action)
+        self.save_action = QAction(QIcon.fromTheme("document-save"), "Save Project", self)
+        self.save_action.setShortcut(QKeySequence("Ctrl+S"))
+        self.save_action.triggered.connect(self.on_save_project)
+        file_menu.addAction(self.save_action)
+
+        self.save_as_action = QAction(
+            QIcon.fromTheme("document-save-as"), "Save Project As...", self
+        )
+        self.save_as_action.setShortcut(QKeySequence("Ctrl+Shift+S"))
+        self.save_as_action.triggered.connect(self.on_save_project_as)
+        file_menu.addAction(self.save_as_action)
+
+        self.close_action = QAction(QIcon.fromTheme("document-save-as"), "Close Project", self)
+        self.close_action.setShortcut(QKeySequence("Ctrl+W"))
+        self.close_action.triggered.connect(self.on_close_project)
+        file_menu.addAction(self.close_action)
 
         file_menu.addSeparator()
 
-        export_action = QAction("Export Project", self)
-        export_action.setShortcut(QKeySequence("Ctrl+E"))
-        export_action.triggered.connect(self.on_export_project)
-        file_menu.addAction(export_action)
+        self.export_action = QAction("Export Project", self)
+        self.export_action.setShortcut(QKeySequence("Ctrl+E"))
+        self.export_action.triggered.connect(self.on_export_project)
+        file_menu.addAction(self.export_action)
 
-        export_as_action = QAction("Export Project As...", self)
-        export_as_action.setShortcut(QKeySequence("Ctrl+Shift+E"))
-        export_as_action.triggered.connect(self.on_export_project_as)
-        file_menu.addAction(export_as_action)
+        self.export_as_action = QAction("Export Project As...", self)
+        self.export_as_action.setShortcut(QKeySequence("Ctrl+Shift+E"))
+        self.export_as_action.triggered.connect(self.on_export_project_as)
+        file_menu.addAction(self.export_as_action)
 
-        edit_menu = QMenu("&Edit", self)
+        edit_menu = QMenu("Edit", self)
         menu_bar.addMenu(edit_menu)
 
-        undo_action = QAction(QIcon.fromTheme("edit-undo"), "&Undo", self)
-        undo_action.triggered.connect(self.undo_stack.undo)
-        edit_menu.addAction(undo_action)
+        self.undo_action = QAction(QIcon.fromTheme("edit-undo"), "&Undo", self)
+        self.undo_action.triggered.connect(self.undo_stack.undo)
+        edit_menu.addAction(self.undo_action)
 
-        redo_action = QAction(QIcon.fromTheme("edit-redo"), "&Redo", self)
-        redo_action.triggered.connect(self.undo_stack.redo)
-        edit_menu.addAction(redo_action)
+        self.redo_action = QAction(QIcon.fromTheme("edit-redo"), "&Redo", self)
+        self.redo_action.triggered.connect(self.undo_stack.redo)
+        edit_menu.addAction(self.redo_action)
 
         edit_menu.addSeparator()
 
-        preferences_action = QAction("&Preferences", self)
-        preferences_action.triggered.connect(self.on_preferences)
-        edit_menu.addAction(preferences_action)
+        self.preferences_action = QAction("&Preferences", self)
+        self.preferences_action.triggered.connect(self.on_preferences)
+        edit_menu.addAction(self.preferences_action)
 
-        view_menu = QMenu("&View", self)
+        view_menu = QMenu("View", self)
         menu_bar.addMenu(view_menu)
         # The rest of the "View" actions are added once the docks are finished
 
         show_hoop_separator_action = view_menu.addSeparator()
 
-        show_hoop_action = QAction("&Show hoop size", self)
-        show_hoop_action.setCheckable(True)
-        show_hoop_action.triggered.connect(lambda: self.on_show_hoop_size(show_hoop_action))
-        view_menu.addAction(show_hoop_action)
-        show_hoop_action.setChecked(global_preferences.get_hoop_visible())
+        self.show_hoop_action = QAction("&Show hoop size", self)
+        self.show_hoop_action.setCheckable(True)
+        self.show_hoop_action.triggered.connect(
+            lambda: self.on_show_hoop_size(self.show_hoop_action)
+        )
+        view_menu.addAction(self.show_hoop_action)
+        self.show_hoop_action.setChecked(global_preferences.get_hoop_visible())
 
         view_menu.addSeparator()
 
-        reset_layout_action = QAction("&Reset Layout", self)
-        reset_layout_action.triggered.connect(self.on_reset_layout)
-        view_menu.addAction(reset_layout_action)
+        self.reset_layout_action = QAction("Reset Layout", self)
+        self.reset_layout_action.triggered.connect(self.on_reset_layout)
+        view_menu.addAction(self.reset_layout_action)
 
         layer_menu = QMenu("&Layer", self)
         menu_bar.addMenu(layer_menu)
 
-        add_image_action = QAction(QIcon.fromTheme("insert-image"), "Add Image Layer", self)
-        add_image_action.setShortcut(QKeySequence("Ctrl+I"))
-        add_image_action.triggered.connect(self.on_layer_add_image)
-        layer_menu.addAction(add_image_action)
+        self.add_image_action = QAction(QIcon.fromTheme("insert-image"), "Add Image Layer", self)
+        self.add_image_action.setShortcut(QKeySequence("Ctrl+I"))
+        self.add_image_action.triggered.connect(self.on_layer_add_image)
+        layer_menu.addAction(self.add_image_action)
 
-        add_text_action = QAction(QIcon.fromTheme("insert-text"), "Add Text Layer", self)
-        add_text_action.setShortcut(QKeySequence("Ctrl+T"))
-        add_text_action.triggered.connect(self.on_layer_add_text)
-        layer_menu.addAction(add_text_action)
+        self.add_text_action = QAction(QIcon.fromTheme("insert-text"), "Add Text Layer", self)
+        self.add_text_action.setShortcut(QKeySequence("Ctrl+T"))
+        self.add_text_action.triggered.connect(self.on_layer_add_text)
+        layer_menu.addAction(self.add_text_action)
 
-        delete_layer_action = QAction(QIcon.fromTheme("edit-delete"), "Delete Layer", self)
-        delete_layer_action.triggered.connect(self.on_layer_delete)
-        layer_menu.addAction(delete_layer_action)
+        self.delete_layer_action = QAction(QIcon.fromTheme("edit-delete"), "Delete Layer", self)
+        self.delete_layer_action.triggered.connect(self.on_layer_delete)
+        layer_menu.addAction(self.delete_layer_action)
 
         layer_menu.addSeparator()
 
-        analyze_layer_action = QAction("&Analyze Layer", self)
-        analyze_layer_action.triggered.connect(self.on_layer_analyze)
-        layer_menu.addAction(analyze_layer_action)
+        self.analyze_layer_action = QAction("Analyze Layer", self)
+        self.analyze_layer_action.triggered.connect(self.on_layer_analyze)
+        layer_menu.addAction(self.analyze_layer_action)
 
         help_menu = QMenu("&Help", self)
         menu_bar.addMenu(help_menu)
 
-        about_action = QAction("&About", self)
-        about_action.triggered.connect(self.on_show_about_dialog)
-        help_menu.addAction(about_action)
+        self.about_action = QAction("About", self)
+        self.about_action.triggered.connect(self.on_show_about_dialog)
+        help_menu.addAction(self.about_action)
 
         self.toolbar = QToolBar("Tools")
         self.toolbar.setObjectName("main_window_toolbar")
         self.toolbar.setIconSize(QSize(16, 16))
         self.addToolBar(self.toolbar)
 
-        self.toolbar.addAction(open_action)
-        self.toolbar.addAction(save_action)
+        self.toolbar.addAction(self.open_action)
+        self.toolbar.addAction(self.save_action)
         self.toolbar.addSeparator()
 
-        self.toolbar.addAction(add_image_action)
-        self.toolbar.addAction(add_text_action)
+        self.toolbar.addAction(self.add_image_action)
+        self.toolbar.addAction(self.add_text_action)
         self.toolbar.addSeparator()
 
-        self.toolbar.addAction(undo_action)
-        self.toolbar.addAction(redo_action)
+        self.toolbar.addAction(self.undo_action)
+        self.toolbar.addAction(self.redo_action)
         self.toolbar.addSeparator()
 
-        color_action = QAction("Pen Color", self)
-        color_action.triggered.connect(self.on_choose_color)
-        self.toolbar.addAction(color_action)
+        self.zoom_slider = QSlider(Qt.Horizontal)
+        self.zoom_slider.setRange(1, 500)
+        self.zoom_slider.setValue(100)
+        self.zoom_slider.valueChanged.connect(self.on_zoom_changed)
+        self.toolbar.addWidget(self.zoom_slider)
 
-        zoom_slider = QSlider(Qt.Horizontal)
-        zoom_slider.setRange(1, 500)
-        zoom_slider.setValue(100)
-        zoom_slider.valueChanged.connect(self.on_zoom_changed)
-        self.toolbar.addWidget(zoom_slider)
+        self.update_qactions()
 
         # Layers Dock
         self.layer_list = QListWidget()
@@ -258,6 +269,16 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle("Pixem")
 
+    def update_qactions(self):
+        enabled = self.state is not None
+
+        self.save_action.setEnabled(enabled)
+        self.save_as_action.setEnabled(enabled)
+        self.close_action.setEnabled(enabled)
+        self.add_text_action.setEnabled(enabled)
+        self.add_image_action.setEnabled(enabled)
+        self.zoom_slider.setEnabled(enabled)
+
     def connect_widget_callbacks(self):
         self.name_edit.editingFinished.connect(self.on_update_layer_property)
         self.position_x_spinbox.valueChanged.connect(self.on_update_layer_property)
@@ -307,6 +328,18 @@ class MainWindow(QMainWindow):
     def mouseMoveEvent(self, event) -> None:
         pass
 
+    def on_new_project(self) -> None:
+        self.state = State()
+        self.canvas.state = self.state
+        self.layer_list.clear()
+        self.layer_groups_list.clear()
+
+        # FIXME: update state should be done in one method
+        self.update_qactions()
+        self.canvas.updateGeometry()
+        self.canvas.update()
+        self.update()
+
     def on_open_project(self) -> None:
         options = QFileDialog.Options()  # For more options if needed
         filename, _ = QFileDialog.getOpenFileName(
@@ -353,6 +386,7 @@ class MainWindow(QMainWindow):
                 self.layer_groups_list.setCurrentRow(selected_group_idx)
 
             # FIXME: update state should be done in one method
+            self.update_qactions()
             self.canvas.updateGeometry()
             self.canvas.update()
             self.update()
@@ -370,6 +404,18 @@ class MainWindow(QMainWindow):
         )
         if filename:
             self.state.save_to_filename(filename)
+
+    def on_close_project(self) -> None:
+        self.state = None
+        self.canvas.state = self.state
+        self.layer_list.clear()
+        self.layer_groups_list.clear()
+
+        # FIXME: update state should be done in one method
+        self.update_qactions()
+        self.canvas.updateGeometry()
+        self.canvas.update()
+        self.update()
 
     def on_export_project(self) -> None:
         export_filename = self.state.export_filename
@@ -466,11 +512,6 @@ class MainWindow(QMainWindow):
             print(group)
             self.layer_groups_list.addItem(group)
 
-    def on_choose_color(self) -> None:
-        color = QColorDialog.getColor(self.state.pen_color, self)
-        if color.isValid():
-            self.state.pen_color = color
-
     def on_zoom_changed(self, value: int) -> None:
         self.state.scale_factor = value / 100.0
         self.canvas.updateGeometry()
@@ -502,7 +543,8 @@ class MainWindow(QMainWindow):
 
             self.refresh_layer_groups()
         else:
-            self.state.current_layer_key = None
+            if self.state is not None:
+                self.state.current_layer_key = None
 
     def on_change_group(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
         logger.info(f"on_change_group: {current} {current.text() if current is not None else None}")

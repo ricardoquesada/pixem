@@ -17,9 +17,9 @@ INCHES_TO_MM = 25.4
 
 
 class Canvas(QWidget):
-    def __init__(self, state: State) -> None:
+    def __init__(self, state: State | None) -> None:
         super().__init__()
-        self.state: State = state
+        self.state = state
 
         self.cached_hoop_visible = global_preferences.get_hoop_visible()
         self.cached_hoop_size = global_preferences.get_hoop_size()
@@ -27,7 +27,7 @@ class Canvas(QWidget):
         self.setFixedSize(QSize(152 * 2, 254 * 2))
 
     def paintEvent(self, event: QPaintEvent) -> None:
-        if not self.state.layers:
+        if not self.state or not self.state.layers:
             return
 
         painter = QPainter(self)
@@ -132,8 +132,12 @@ class Canvas(QWidget):
         self.cached_hoop_size = global_preferences.get_hoop_size()
 
     def sizeHint(self) -> QSize:
+        if self.state is None:
+            return QSize(400, 400)
+
         max_w = 0
         max_h = 0
+
         if len(self.state.layers) == 0:
             max_w = self.cached_hoop_size[0] * INCHES_TO_MM
             max_h = self.cached_hoop_size[1] * INCHES_TO_MM
