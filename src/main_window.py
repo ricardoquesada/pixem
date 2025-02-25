@@ -44,9 +44,11 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self._state = None
-
         self._undo_stack = QUndoStack(self)
+        self._setup_ui()
+        self._load_settings()
 
+    def _setup_ui(self):
         menu_bar = self.menuBar()
         file_menu = QMenu("&File", self)
         menu_bar.addMenu(file_menu)
@@ -264,8 +266,6 @@ class MainWindow(QMainWindow):
         scroll_area.setWidget(self._canvas)
 
         self.setCentralWidget(scroll_area)
-
-        self._load_settings()
 
         self.setWindowTitle("Pixem")
 
