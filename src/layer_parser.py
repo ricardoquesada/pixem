@@ -14,8 +14,8 @@ DEFAULT_SAW_THRESHOLD = 40
 
 # Conf dictionary Keys
 KEY_PARTITIONS = "partitions"
-KEY_NODES_PATH = "nodes_path"
-KEY_NODES_PATH_SIZE = "nodes_path_size"
+KEY_PARTITION_PATH = "path"
+KEY_PARTITION_SIZE = "size"
 KEY_ROTATION = "rotation"
 KEY_SAW_THRESHOLD = "saw_threshold"  # SAW = Self Avoidance Walk
 KEY_STARTING_NODE = "starting_node"
@@ -234,8 +234,8 @@ class LayerParser:
                 if nodes is None or len(s.nodes) >= self._saw_threshold:
                     print(f", trying DFS ({len(s.nodes)})")
                     nodes = iterative_dfs(s, start_node)
-            self._conf[KEY_PARTITIONS][key][KEY_NODES_PATH] = nodes
-            self._conf[KEY_PARTITIONS][key][KEY_NODES_PATH_SIZE] = len(nodes)
+            self._conf[KEY_PARTITIONS][key][KEY_PARTITION_PATH] = nodes
+            self._conf[KEY_PARTITIONS][key][KEY_PARTITION_SIZE] = len(nodes)
             ret.append(nodes)
         return ret
 

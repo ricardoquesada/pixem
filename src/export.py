@@ -13,7 +13,7 @@ DEFAULT_PIXEL_SIZE_MM = (2.65, 2.65)
 KEY_FILL_MODE = "fill_mode"
 KEY_GROUPS = "groups"
 KEY_HOOP_SIZE_IN = "hoop_size"
-KEY_NODES_PATH = "nodes_path"
+KEY_PARTITION_PATH = "path"
 KEY_PIXEL_SIZE_MM = "pixel_size"
 
 INCHES_TO_MM = 25.4
@@ -70,7 +70,7 @@ class ExportToSVG:
     def add_layer(
         self,
         name: str,
-        colors: dict,
+        partitions: dict,
         pixel_size: tuple,
         translate: tuple,
         scale: tuple,
@@ -78,7 +78,7 @@ class ExportToSVG:
     ) -> None:
         entry = {
             "name": name,
-            "colors": colors,
+            "partitions": partitions,
             "pixel_size": pixel_size,
             "translate": translate,
             "scale": scale,
@@ -164,7 +164,7 @@ class ExportToSVG:
                 translate = layer["translate"]
                 rotation = layer["rotation"]
                 scale = layer["scale"]
-                colors = layer["colors"]
+                partitions = layer["partitions"]
                 f.write(
                     f'<g id="{name}" transform="'
                     f"translate({translate[0]} {translate[1]}) "
@@ -173,17 +173,18 @@ class ExportToSVG:
                     '">\n'
                 )
 
-                for color in colors:
-                    # Each color is a list of list. Each list is a connected graph.
-                    pixels = colors[color][KEY_NODES_PATH]
-                    f.write(f'<g id="color_{layer_idx}_{color}">\n')
-                    for pixel in pixels:
-                        # pixel is a tuple (x,y)
-                        x, y = pixel
+                for partition in partitions:
+                    # Each partition is a list of list. Each list is a connected graph.
+                    path = partitions[partition][KEY_PARTITION_PATH]
+                    f.write(f'<g id="partition_{layer_idx}_{partition}">\n')
+                    for coord in path:
+                        # coord is a tuple (x,y)
+                        x, y = coord
                         angle = 0 if ((x + y) % 2 == 0) else 90
+                        color = partition.split("_")[0]
                         self.write_rect_svg(f, layer_idx, x, y, pixel_size, color, angle)
 
-                    # color
+                    # partition
                     f.write("</g>\n")
                 # layer
                 f.write("</g>\n")
