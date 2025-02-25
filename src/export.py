@@ -4,17 +4,14 @@ import argparse
 import logging
 
 # Argument Defaults
-DEFAULT_ASPECT_RATIO = "pal"
 DEFAULT_FILL_MODE = "satin_s"
 DEFAULT_HOOP_SIZE_IN = (5, 7)
-DEFAULT_PIXEL_SIZE_MM = (2.65, 2.65)
 
 # Conf dictionary Keys
 KEY_FILL_MODE = "fill_mode"
 KEY_GROUPS = "groups"
 KEY_HOOP_SIZE_IN = "hoop_size"
 KEY_PARTITION_PATH = "path"
-KEY_PIXEL_SIZE_MM = "pixel_size"
 
 INCHES_TO_MM = 25.4
 

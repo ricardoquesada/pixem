@@ -90,7 +90,7 @@ class MainWindow(QMainWindow):
         self.export_as_action.triggered.connect(self.on_export_project_as)
         file_menu.addAction(self.export_as_action)
 
-        edit_menu = QMenu("Edit", self)
+        edit_menu = QMenu("&Edit", self)
         menu_bar.addMenu(edit_menu)
 
         self.undo_action = QAction(QIcon.fromTheme("edit-undo"), "&Undo", self)
@@ -107,7 +107,7 @@ class MainWindow(QMainWindow):
         self.preferences_action.triggered.connect(self.on_preferences)
         edit_menu.addAction(self.preferences_action)
 
-        view_menu = QMenu("View", self)
+        view_menu = QMenu("&View", self)
         menu_bar.addMenu(view_menu)
         # The rest of the "View" actions are added once the docks are finished
 
@@ -146,9 +146,9 @@ class MainWindow(QMainWindow):
 
         layer_menu.addSeparator()
 
-        self.analyze_layer_action = QAction("Find Partitions", self)
-        self.analyze_layer_action.triggered.connect(self.on_find_partitions)
-        layer_menu.addAction(self.analyze_layer_action)
+        self.find_partitions_action = QAction("Find Partitions", self)
+        self.find_partitions_action.triggered.connect(self.on_find_partitions)
+        layer_menu.addAction(self.find_partitions_action)
 
         help_menu = QMenu("&Help", self)
         menu_bar.addMenu(help_menu)
@@ -280,6 +280,9 @@ class MainWindow(QMainWindow):
 
         self.add_text_action.setEnabled(enabled)
         self.add_image_action.setEnabled(enabled)
+        self.delete_layer_action.setEnabled(enabled)
+        self.find_partitions_action.setEnabled(enabled)
+
         self.zoom_slider.setEnabled(enabled)
 
     def connect_widget_callbacks(self):

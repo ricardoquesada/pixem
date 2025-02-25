@@ -2,8 +2,6 @@ import logging
 from typing import Self
 
 import toml
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QColor
 
 import preferences
 from export import ExportToSVG
@@ -16,7 +14,6 @@ class State:
     def __init__(self) -> None:
         self.project_filename = None
         self.export_filename = None
-        self.pen_color = QColor(Qt.black)
         self.scale_factor = 1.0
         self.hoop_visible = False
         self.layers: list[Layer] = []
@@ -28,8 +25,6 @@ class State:
         state.project_filename = d["project_filename"]
         if "export_filename" in d:
             state.export_filename = d["export_filename"]
-        pen_color = d["pen_color"]
-        state.pen_color = QColor(pen_color["r"], pen_color["g"], pen_color["b"], pen_color["a"])
         state.scale_factor = d["scale_factor"]
         state.hoop_visible = d["hoop_visible"]
         dict_layers = d["layers"]
@@ -44,12 +39,6 @@ class State:
         project = {
             "project_filename": self.project_filename,
             "export_filename": self.export_filename,
-            "pen_color": {
-                "r": self.pen_color.red(),
-                "g": self.pen_color.green(),
-                "b": self.pen_color.blue(),
-                "a": self.pen_color.alpha(),
-            },
             "scale_factor": self.scale_factor,
             "hoop_visible": self.hoop_visible,
             "layers": [],
