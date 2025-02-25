@@ -354,7 +354,7 @@ class MainWindow(QMainWindow):
             self,
             "Open Pixem Project File",
             "",
-            "Pixem Project Files (*.toml *.pixemproj);;All Files (*)",
+            "Pixem files (*.toml *.pixemproj);;All files (*)",
             options=options,
         )
         if filename:
@@ -408,7 +408,7 @@ class MainWindow(QMainWindow):
 
     def on_save_project_as(self) -> None:
         filename, _ = QFileDialog.getSaveFileName(
-            self, "Save Project", "", "pixem (*.pixemproj *.toml)"
+            self, "Save Project", "", "Pixem files (*.pixemproj *.toml);;All files (*)"
         )
         if filename:
             self.state.save_to_filename(filename)
@@ -434,7 +434,9 @@ class MainWindow(QMainWindow):
         self.state.export_to_filename(export_filename)
 
     def on_export_project_as(self) -> None:
-        export_filename, _ = QFileDialog.getSaveFileName(self, "Export Project", "", "SVG (*.svg)")
+        export_filename, _ = QFileDialog.getSaveFileName(
+            self, "Export Project", "", "SVG (*.svg);;All files (*)"
+        )
         if export_filename:
             self.state.export_to_filename(export_filename)
 
@@ -469,7 +471,7 @@ class MainWindow(QMainWindow):
 
     def on_layer_add_image(self) -> None:
         file_name, _ = QFileDialog.getOpenFileName(
-            self, "Open Image", "", "Image Files (*.png *.jpg *.bmp)"
+            self, "Open Image", "", "Images (*.png *.jpg *.bmp);;All files (*)"
         )
         if file_name:
             layer = ImageLayer(file_name, f"Layer {len(self.state.layers) + 1}")
