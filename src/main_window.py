@@ -275,6 +275,9 @@ class MainWindow(QMainWindow):
         self.save_action.setEnabled(enabled)
         self.save_as_action.setEnabled(enabled)
         self.close_action.setEnabled(enabled)
+        self.export_action.setEnabled(enabled)
+        self.export_as_action.setEnabled(enabled)
+
         self.add_text_action.setEnabled(enabled)
         self.add_image_action.setEnabled(enabled)
         self.zoom_slider.setEnabled(enabled)
@@ -329,6 +332,7 @@ class MainWindow(QMainWindow):
         pass
 
     def on_new_project(self) -> None:
+        # FIXME: If an existing state is dirty, it should ask for "are you suse"
         self.state = State()
         self.canvas.state = self.state
         self.layer_list.clear()
@@ -341,6 +345,7 @@ class MainWindow(QMainWindow):
         self.update()
 
     def on_open_project(self) -> None:
+        # FIXME: If an existing state is dirty, it should ask for "are you suse"
         options = QFileDialog.Options()  # For more options if needed
         filename, _ = QFileDialog.getOpenFileName(
             self,
@@ -406,6 +411,7 @@ class MainWindow(QMainWindow):
             self.state.save_to_filename(filename)
 
     def on_close_project(self) -> None:
+        # FIXME: If an existing state is dirty, it should ask for "are you suse"
         self.state = None
         self.canvas.state = self.state
         self.layer_list.clear()
@@ -480,12 +486,16 @@ class MainWindow(QMainWindow):
         print(data)
 
     def on_layer_delete(self) -> None:
+        logger.info("on_layer_delete")
         selected_items = self.layer_list.selectedItems()
         layer = self.state.get_selected_layer()
 
         if not selected_items or not layer:
             logger.warning("Cannot delete layer, no layers selected")
             return
+
+        # Clear the "groups"
+        self.layer_groups_list.clear()
 
         # Remove it from the widget
         for item in selected_items:
@@ -494,6 +504,9 @@ class MainWindow(QMainWindow):
 
         # Remove it from the state
         self.state.delete_layer(layer)
+
+        # layer_groups_list should get auto-populated
+        # because a "on_change_layer" should be triggered
 
         self.canvas.updateGeometry()
         self.canvas.update()
@@ -594,6 +607,9 @@ class MainWindow(QMainWindow):
     def refresh_layer_groups(self):
         self.layer_groups_list.clear()
 
+        if self.state is None:
+            return
+
         layer = self.state.get_selected_layer()
         if layer is None:
             return
@@ -612,7 +628,7 @@ class MainWindow(QMainWindow):
         if len(layer.groups) == 0:
             # Sanity check
             layer.current_group_key = None
-            logger.warning("Failed to select group")
+            logger.info("Failed to select group, perhaps layer has not been analyzed yet")
 
 
 if __name__ == "__main__":
