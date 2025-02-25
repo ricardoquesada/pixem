@@ -20,8 +20,7 @@ class State:
         self.scale_factor = 1.0
         self.hoop_visible = False
         self.layers: list[Layer] = []
-        self.current_layer_idx: int = -1
-        self.current_nodes_path = []
+        self.current_layer_key = None
 
     @classmethod
     def from_dict(cls, d: dict) -> Self:
@@ -37,7 +36,8 @@ class State:
         for dict_layer in dict_layers:
             layer = Layer.from_dict(dict_layer)
             state.layers.append(layer)
-        state.current_layer_idx = d["current_layer_idx"]
+        if "current_layer_key" in d:
+            state.current_layer_key = d["current_layer_key"]
         return state
 
     def to_dict(self) -> dict:
@@ -53,14 +53,14 @@ class State:
             "scale_factor": self.scale_factor,
             "hoop_visible": self.hoop_visible,
             "layers": [],
-            "current_layer_idx": self.current_layer_idx,
+            "current_layer_key": self.current_layer_key,
         }
 
         for layer in self.layers:
             layer_dict = layer.to_dict()
             project["layers"].append(layer_dict)
 
-        project["current_layer_idx"] = self.current_layer_idx
+        project["current_layer_key"] = self.current_layer_key
 
         return project
 
@@ -111,7 +111,7 @@ class State:
 
     def add_layer(self, layer: Layer) -> None:
         self.layers.append(layer)
-        self.current_layer_idx = len(self.layers) - 1
+        self.current_layer_key = layer.name
 
     def delete_layer(self, layer: Layer) -> None:
         try:
@@ -120,9 +120,16 @@ class State:
             logger.warning(f"Failed to remove layer, not  found {layer.name}")
 
         # if there are no elements left, idx = -1
-        self.current_layer_idx = len(self.layers) - 1
+        if len(self.layers) > 0:
+            self.current_layer_key = self.layers[-1].name
+        else:
+            self.current_layer_key = None
 
     def get_selected_layer(self) -> Layer | None:
-        if self.current_layer_idx == -1:
+        if self.current_layer_key is None:
             return None
-        return self.layers[self.current_layer_idx]
+        for layer in self.layers:
+            if layer.name == self.current_layer_key:
+                return layer
+        logger.info(f"layers: {self.layers}")
+        logger.warning(f"get_selected_layer. Layer '{self.current_layer_key}' not found")

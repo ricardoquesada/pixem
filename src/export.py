@@ -97,14 +97,14 @@ class ExportToSVG:
         if key not in self._conf or self._conf[key] is None:
             self._conf[key] = default
 
-    def write_rect_svg(self, file, x, y, pixel_size, color, angle):
+    def write_rect_svg(self, file, layer_idx, x, y, pixel_size, color, angle):
         fill_method = self._fill_mode["fillmode"]
         max_stitch_len = self._fill_mode["max_stitch_len"]
         file.write(
             f'<rect x="{x * pixel_size[0]}" y="{y * pixel_size[1]}" '
             f'width="{pixel_size[0]}" height="{pixel_size[1]}" '
             f'fill="{color}" '
-            f'id="pixel_{x}_{y}_{angle}" '
+            f'id="pixel_{layer_idx}_{x}_{y}_{angle}" '
             f'style="display:inline;stroke:none" '
             f'inkstitch:fill_method="{fill_method}" '
             f'inkstitch:angle="{angle}" '
@@ -176,14 +176,12 @@ class ExportToSVG:
                 for color in colors:
                     # Each color is a list of list. Each list is a connected graph.
                     pixels = colors[color][KEY_NODES_PATH]
-                    f.write(
-                        f'<g id="layer_{layer_idx}_{color}" inkscape:label="color_{layer_idx}_{color}">\n'
-                    )
+                    f.write(f'<g id="color_{layer_idx}_{color}">\n')
                     for pixel in pixels:
                         # pixel is a tuple (x,y)
                         x, y = pixel
                         angle = 0 if ((x + y) % 2 == 0) else 90
-                        self.write_rect_svg(f, x, y, pixel_size, color, angle)
+                        self.write_rect_svg(f, layer_idx, x, y, pixel_size, color, angle)
 
                     # color
                     f.write("</g>\n")

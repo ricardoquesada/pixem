@@ -1,9 +1,12 @@
+import logging
 from typing import Self
 
 from PySide6.QtCore import QPointF, QSizeF
 from PySide6.QtGui import QImage
 
 import image_utils
+
+logger = logging.getLogger(__name__)  # __name__ gets the current module's name
 
 
 class Layer:
@@ -16,7 +19,7 @@ class Layer:
         self.visible: bool = True
         self.opacity: float = 1.0
         self.groups: dict = {}
-        self.current_groups_idx: int = -1
+        self.current_group_key = None
 
     def __repr__(self) -> str:
         return (
@@ -40,6 +43,8 @@ class Layer:
         layer.opacity = d["opacity"]
         if "groups" in d:
             layer.groups = d["groups"]
+        if "current_group_key" in d:
+            layer.current_group_key = d["current_group_key"]
         return layer
 
     def to_dict(self) -> dict:
@@ -53,8 +58,18 @@ class Layer:
             "opacity": self.opacity,
             "image": image_utils.qimage_to_base64_string(self.image),
             "groups": self.groups,
+            "current_group_key": self.current_group_key,
         }
         return d
+
+    def get_selected_group(self) -> dict | None:
+        if self.current_group_key is None:
+            return None
+
+        if self.current_group_key not in self.groups:
+            logger.warning(f"Group {self.current_group_key} not found")
+            return None
+        return self.groups[self.current_group_key]
 
 
 class ImageLayer(Layer):

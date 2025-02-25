@@ -60,8 +60,9 @@ class Canvas(QWidget):
                 painter.drawImage(layer.position, transformed_image)
                 painter.restore()
 
-        # Draw selected pixels
-        if len(self.state.current_nodes_path) > 0:
+        # Draw selected group pixels
+        layer = self.state.get_selected_layer()
+        if layer is not None and layer.current_group_key is not None:
             painter.save()
             # Scale the image based on pixel size
             scaled_x = layer.image.width() * layer.pixel_size.width()
@@ -90,15 +91,20 @@ class Canvas(QWidget):
 
             W = layer.pixel_size.width()
             H = layer.pixel_size.height()
-            for x, y in self.state.current_nodes_path:
-                polygon = [
-                    QPointF(layer.position.x() + x * W, layer.position.y() + y * H),
-                    QPointF(layer.position.x() + (x + 1) * W, layer.position.y() + y * H),
-                    QPointF(layer.position.x() + (x + 1) * W, layer.position.y() + (y + 1) * H),
-                    QPointF(layer.position.x() + x * W, layer.position.y() + (y + 1) * H),
-                ]
-                # Use drawPolygon instead of drawRects because drawPolygon supports floats
-                painter.drawPolygon(polygon)
+            if layer.current_group_key in layer.groups:
+                group = layer.groups[layer.current_group_key]
+
+                for x, y in group["nodes_path"]:
+                    polygon = [
+                        QPointF(layer.position.x() + x * W, layer.position.y() + y * H),
+                        QPointF(layer.position.x() + (x + 1) * W, layer.position.y() + y * H),
+                        QPointF(layer.position.x() + (x + 1) * W, layer.position.y() + (y + 1) * H),
+                        QPointF(layer.position.x() + x * W, layer.position.y() + (y + 1) * H),
+                    ]
+                    # Use drawPolygon instead of drawRects because drawPolygon supports floats
+                    painter.drawPolygon(polygon)
+            else:
+                logger.warning(f"paintEvent: key {layer.current_group_key} not found")
             painter.restore()
 
         # Draw hoop
@@ -117,9 +123,6 @@ class Canvas(QWidget):
 
             painter.drawPath(path)
             painter.restore()
-            logger.info(
-                f"DRAW HOOP: {self.cached_hoop_size[0] * INCHES_TO_MM} x {self.cached_hoop_size[1] * INCHES_TO_MM}"
-            )
 
         painter.end()
 
@@ -129,7 +132,6 @@ class Canvas(QWidget):
         self.cached_hoop_size = global_preferences.get_hoop_size()
 
     def sizeHint(self) -> QSize:
-        logger.info("sizeHint()")
         max_w = 0
         max_h = 0
         if len(self.state.layers) == 0:
@@ -143,7 +145,4 @@ class Canvas(QWidget):
                     max_w = w
                 if h > max_h:
                     max_h = h
-        logger.info(
-            f"size: {max_w * self.state.scale_factor}, {max_h * self.state.scale_factor}, scale={self.state.scale_factor} "
-        )
         return QSize(max_w * self.state.scale_factor, max_h * self.state.scale_factor)

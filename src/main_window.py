@@ -1,7 +1,6 @@
 # Pixem
 # Copyright 2024 Ricardo Quesada
 
-import copy
 import logging
 import sys
 
@@ -226,14 +225,7 @@ class MainWindow(QMainWindow):
         property_dock.setWidget(self.property_editor)
         self.addDockWidget(Qt.RightDockWidgetArea, property_dock)
 
-        self.name_edit.editingFinished.connect(self.on_update_layer_property)
-        self.position_x_spinbox.valueChanged.connect(self.on_update_layer_property)
-        self.position_y_spinbox.valueChanged.connect(self.on_update_layer_property)
-        self.rotation_slider.valueChanged.connect(self.on_update_layer_property)
-        self.pixel_width_spinbox.valueChanged.connect(self.on_update_layer_property)
-        self.pixel_height_spinbox.valueChanged.connect(self.on_update_layer_property)
-        self.visible_checkbox.stateChanged.connect(self.on_update_layer_property)
-        self.opacity_slider.valueChanged.connect(self.on_update_layer_property)
+        self.connect_widget_callbacks()
 
         # Insert all docks in Menu
         view_menu.insertActions(
@@ -257,6 +249,26 @@ class MainWindow(QMainWindow):
         self.load_settings()
 
         self.setWindowTitle("Pixem")
+
+    def connect_widget_callbacks(self):
+        self.name_edit.editingFinished.connect(self.on_update_layer_property)
+        self.position_x_spinbox.valueChanged.connect(self.on_update_layer_property)
+        self.position_y_spinbox.valueChanged.connect(self.on_update_layer_property)
+        self.rotation_slider.valueChanged.connect(self.on_update_layer_property)
+        self.pixel_width_spinbox.valueChanged.connect(self.on_update_layer_property)
+        self.pixel_height_spinbox.valueChanged.connect(self.on_update_layer_property)
+        self.visible_checkbox.stateChanged.connect(self.on_update_layer_property)
+        self.opacity_slider.valueChanged.connect(self.on_update_layer_property)
+
+    def disconnect_widget_callbacks(self):
+        self.name_edit.editingFinished.disconnect(self.on_update_layer_property)
+        self.position_x_spinbox.valueChanged.disconnect(self.on_update_layer_property)
+        self.position_y_spinbox.valueChanged.disconnect(self.on_update_layer_property)
+        self.rotation_slider.valueChanged.disconnect(self.on_update_layer_property)
+        self.pixel_width_spinbox.valueChanged.disconnect(self.on_update_layer_property)
+        self.pixel_height_spinbox.valueChanged.disconnect(self.on_update_layer_property)
+        self.visible_checkbox.stateChanged.disconnect(self.on_update_layer_property)
+        self.opacity_slider.valueChanged.disconnect(self.on_update_layer_property)
 
     def load_settings(self):
         # Save defaults before restoring saved settings
@@ -309,15 +321,28 @@ class MainWindow(QMainWindow):
             self.layer_list.clear()
             self.layer_groups_list.clear()
 
-            for layer in self.state.layers:
-                self.layer_list.addItem(layer.name)
-            self.layer_list.setCurrentRow(state.current_layer_idx)
+            selected_layer = self.state.get_selected_layer()
 
-            layer: Layer = self.state.get_selected_layer()
-            if layer is not None:
-                for group in layer.groups:
+            selected_layer_idx = -1
+            selected_group_idx = -1
+
+            for i, layer in enumerate(self.state.layers):
+                self.layer_list.addItem(layer.name)
+                if selected_layer is not None and layer.name == selected_layer.name:
+                    selected_layer_idx = i
+
+            if selected_layer is not None:
+                selected_group = selected_layer.current_group_key
+                for i, group in enumerate(selected_layer.groups):
                     self.layer_groups_list.addItem(group)
-                self.layer_groups_list.setCurrentRow(0)
+                    if group == selected_group:
+                        selected_group_idx = i
+
+            # This will trigger "on_" callback
+            if selected_layer_idx >= 0:
+                self.layer_list.setCurrentRow(selected_layer_idx)
+            if selected_group_idx >= 0:
+                self.layer_groups_list.setCurrentRow(selected_group_idx)
 
             # FIXME: update state should be done in one method
             self.canvas.updateGeometry()
@@ -387,7 +412,7 @@ class MainWindow(QMainWindow):
             layer = ImageLayer(file_name, f"Layer {len(self.state.layers) + 1}")
             self.state.add_layer(layer)
             self.layer_list.addItem(layer.name)
-            self.layer_list.setCurrentRow(self.state.current_layer_idx)
+            self.layer_list.setCurrentRow(len(self.state.layers) - 1)
             self.canvas.updateGeometry()
             self.canvas.update()
             self.update()
@@ -445,47 +470,51 @@ class MainWindow(QMainWindow):
         self.update()
 
     def on_change_layer(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
+        logger.info(f"on_change_layer: {current}")
         enabled = current is not None
         self.property_editor.setEnabled(enabled)
         if enabled:
-            self.state.current_layer_idx = self.layer_list.row(current)
-            # Cache all variables first
-            clone = copy.copy(self.state.layers[self.state.current_layer_idx])
-            # And then update widgets.
-            # This is updating the widgets will trigger the "value changed", that will
-            # update the current layer based on the self.current.
-            self.name_edit.setText(clone.name)
-            self.position_x_spinbox.setValue(clone.position.x())
-            self.position_y_spinbox.setValue(clone.position.y())
-            self.rotation_slider.setValue(round(clone.rotation))
-            self.pixel_width_spinbox.setValue(clone.pixel_size.width())
-            self.pixel_height_spinbox.setValue(clone.pixel_size.height())
-            self.visible_checkbox.setChecked(clone.visible)
-            self.opacity_slider.setValue(round(clone.opacity * 100))
+            idx = self.layer_list.row(current)
+            layer = self.state.layers[idx]
+
+            self.disconnect_widget_callbacks()
+
+            self.name_edit.setText(layer.name)
+            self.position_x_spinbox.setValue(layer.position.x())
+            self.position_y_spinbox.setValue(layer.position.y())
+            self.rotation_slider.setValue(round(layer.rotation))
+            self.pixel_width_spinbox.setValue(layer.pixel_size.width())
+            self.pixel_height_spinbox.setValue(layer.pixel_size.height())
+            self.visible_checkbox.setChecked(layer.visible)
+            self.opacity_slider.setValue(round(layer.opacity * 100))
+
+            self.connect_widget_callbacks()
 
             self.refresh_layer_groups()
+            self.state.current_layer_key = layer.name
         else:
-            self.state.current_layer_idx = -1
+            self.state.current_layer_key = None
 
     def on_change_layer_groups(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
+        logger.info(f"on_change_layer_groups: {current}")
         enabled = current is not None
         if enabled:
             idx = self.layer_groups_list.row(current)
-            self.state.get_selected_layer().current_groups_idx = idx
             key = self.layer_groups_list.item(idx).text()
-            pixels = self.state.get_selected_layer().groups[key]["nodes_path"]
-            self.state.current_nodes_path = pixels
+            self.state.get_selected_layer().current_group_key = key
         else:
-            self.state.get_selected_layer().current_groups_idx = -1
-            self.state.current_nodes_path = []
+            layer = self.state.get_selected_layer()
+            if layer is not None:
+                layer.current_groups_key = None
         self.canvas.update()
         self.update()
 
-    def on_update_layer_property(self) -> None:
-        enabled = self.state.current_layer_idx != -1
+    def on_update_layer_property(self, value) -> None:
+        logger.info(f"***** on_update_layer_property {value}")
+        current_layer = self.state.get_selected_layer()
+        enabled = current_layer is not None
         self.property_editor.setEnabled(enabled)
         if enabled:
-            current_layer = self.state.layers[self.state.current_layer_idx]
             current_layer.name = self.name_edit.text()
             current_layer.position = QPointF(
                 self.position_x_spinbox.value(), self.position_y_spinbox.value()
@@ -497,6 +526,7 @@ class MainWindow(QMainWindow):
             current_layer.visible = self.visible_checkbox.isChecked()
             current_layer.opacity = self.opacity_slider.value() / 100.0
             self.layer_list.currentItem().setText(current_layer.name)
+
             self.canvas.updateGeometry()
             self.canvas.update()
             self.update()
@@ -506,12 +536,20 @@ class MainWindow(QMainWindow):
         dialog.exec()
 
     def refresh_layer_groups(self):
-        layer = self.state.get_selected_layer()
         self.layer_groups_list.clear()
 
-        for group in layer.groups:
-            print(group)
+        layer: Layer = self.state.get_selected_layer()
+        if layer is None:
+            return
+
+        for i, group in enumerate(layer.groups):
             self.layer_groups_list.addItem(group)
+            if layer.current_group_key == group:
+                self.layer_groups_list.setCurrentRow(i)
+
+        if len(layer.groups) == 0:
+            # Sanity check
+            layer.current_group_key = None
 
 
 if __name__ == "__main__":
