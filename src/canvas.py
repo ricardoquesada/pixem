@@ -32,8 +32,8 @@ class Canvas(QWidget):
 
         painter = QPainter(self)
         painter.scale(
-            self.state.scale_factor * DEFAULT_SCALE_FACTOR,
-            self.state.scale_factor * DEFAULT_SCALE_FACTOR,
+            self.state.zoom_factor * DEFAULT_SCALE_FACTOR,
+            self.state.zoom_factor * DEFAULT_SCALE_FACTOR,
         )
 
         for i, layer in enumerate(self.state.layers):
@@ -149,4 +149,4 @@ class Canvas(QWidget):
                     max_w = w
                 if h > max_h:
                     max_h = h
-        return QSize(max_w * self.state.scale_factor, max_h * self.state.scale_factor)
+        return QSize(max_w * self.state.zoom_factor, max_h * self.state.zoom_factor)

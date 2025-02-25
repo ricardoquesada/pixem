@@ -339,7 +339,7 @@ class MainWindow(QMainWindow):
         self._partition_list.clear()
 
         self._disconnect_widget_callbacks()
-        self._zoom_slider.setValue(self._state.scale_factor * 100)
+        self._zoom_slider.setValue(self._state.zoom_factor * 100)
         self._connect_widget_callbacks()
 
         # FIXME: update state should be done in one method
@@ -395,7 +395,7 @@ class MainWindow(QMainWindow):
                 self._partition_list.setCurrentRow(selected_partition_idx)
 
             self._disconnect_widget_callbacks()
-            self._zoom_slider.setValue(self._state.scale_factor * 100)
+            self._zoom_slider.setValue(self._state.zoom_factor * 100)
             self._connect_widget_callbacks()
 
             # FIXME: update state should be done in one method
@@ -535,7 +535,7 @@ class MainWindow(QMainWindow):
             self._partition_list.addItem(partition)
 
     def _on_zoom_changed(self, value: int) -> None:
-        self._state.scale_factor = value / 100.0
+        self._state.zoom_factor = value / 100.0
         self._canvas.updateGeometry()
         self._canvas.update()
         self.update()

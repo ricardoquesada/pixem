@@ -14,7 +14,7 @@ class State:
     def __init__(self) -> None:
         self._project_filename = None
         self._export_filename = None
-        self._scale_factor = 1.0
+        self._zoom_factor = 1.0
         self._hoop_visible = False
         self._layers: list[Layer] = []
         self._current_layer_key = None
@@ -25,7 +25,8 @@ class State:
         state._project_filename = d["project_filename"]
         if "export_filename" in d:
             state._export_filename = d["export_filename"]
-        state._scale_factor = d["scale_factor"]
+        if "zoom_factor" in d:
+            state._zoom_factor = d["zoom_factor"]
         state._hoop_visible = d["hoop_visible"]
         dict_layers = d["layers"]
         for dict_layer in dict_layers:
@@ -39,7 +40,7 @@ class State:
         project = {
             "project_filename": self._project_filename,
             "export_filename": self._export_filename,
-            "scale_factor": self._scale_factor,
+            "zoom_factor": self._zoom_factor,
             "hoop_visible": self._hoop_visible,
             "layers": [],
             "current_layer_key": self._current_layer_key,
@@ -128,12 +129,12 @@ class State:
         return self._layers
 
     @property
-    def scale_factor(self):
-        return self._scale_factor
+    def zoom_factor(self):
+        return self._zoom_factor
 
-    @scale_factor.setter
-    def scale_factor(self, value: float):
-        self._scale_factor = value
+    @zoom_factor.setter
+    def zoom_factor(self, value: float):
+        self._zoom_factor = value
 
     @property
     def current_layer_key(self):
