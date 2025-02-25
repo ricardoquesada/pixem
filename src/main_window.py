@@ -5,7 +5,7 @@ import logging
 import sys
 
 from PySide6.QtCore import QCoreApplication, QFile, QIODevice, QPointF, QSize, QSizeF, Qt
-from PySide6.QtGui import QAction, QCloseEvent, QGuiApplication, QIcon, QUndoStack
+from PySide6.QtGui import QAction, QCloseEvent, QGuiApplication, QIcon, QKeySequence, QUndoStack
 from PySide6.QtWidgets import (
     QApplication,
     QCheckBox,
@@ -53,24 +53,29 @@ class MainWindow(QMainWindow):
         menu_bar.addMenu(file_menu)
 
         open_action = QAction(QIcon.fromTheme("document-open"), "&Open Project", self)
+        open_action.setShortcut(QKeySequence("Ctrl+O"))
         open_action.triggered.connect(self.on_open_project)
         file_menu.addAction(open_action)
 
         save_action = QAction(QIcon.fromTheme("document-save"), "Save Project", self)
+        save_action.setShortcut(QKeySequence("Ctrl+S"))
         save_action.triggered.connect(self.on_save_project)
         file_menu.addAction(save_action)
 
         save_as_action = QAction(QIcon.fromTheme("document-save-as"), "Save Project As...", self)
+        save_as_action.setShortcut(QKeySequence("Ctrl+Shift+S"))
         save_as_action.triggered.connect(self.on_save_project_as)
         file_menu.addAction(save_as_action)
 
         file_menu.addSeparator()
 
         export_action = QAction("Export Project", self)
+        export_action.setShortcut(QKeySequence("Ctrl+E"))
         export_action.triggered.connect(self.on_export_project)
         file_menu.addAction(export_action)
 
         export_as_action = QAction("Export Project As...", self)
+        export_as_action.setShortcut(QKeySequence("Ctrl+Shift+E"))
         export_as_action.triggered.connect(self.on_export_project_as)
         file_menu.addAction(export_as_action)
 
@@ -113,10 +118,12 @@ class MainWindow(QMainWindow):
         menu_bar.addMenu(layer_menu)
 
         add_image_action = QAction(QIcon.fromTheme("insert-image"), "Add Image Layer", self)
+        add_image_action.setShortcut(QKeySequence("Ctrl+I"))
         add_image_action.triggered.connect(self.on_layer_add_image)
         layer_menu.addAction(add_image_action)
 
         add_text_action = QAction(QIcon.fromTheme("insert-text"), "Add Text Layer", self)
+        add_text_action.setShortcut(QKeySequence("Ctrl+T"))
         add_text_action.triggered.connect(self.on_layer_add_text)
         layer_menu.addAction(add_text_action)
 
@@ -511,7 +518,7 @@ class MainWindow(QMainWindow):
         self.update()
 
     def on_update_layer_property(self, value) -> None:
-        logger.info(f"***** on_update_layer_property {value}")
+        logger.info(f"on_update_layer_property {value}")
         current_layer = self.state.get_selected_layer()
         enabled = current_layer is not None
         self.property_editor.setEnabled(enabled)
