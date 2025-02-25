@@ -38,7 +38,7 @@ class ExportToSVG:
 
     def __init__(
         self,
-        hoop_size: tuple,
+        hoop_size: tuple[float, float],
         fill_mode: str,
     ):
         """
@@ -56,7 +56,7 @@ class ExportToSVG:
             (fill_mode, KEY_FILL_MODE, DEFAULT_FILL_MODE),
         ]
         for arg in args:
-            self.set_conf_value(arg[0], arg[1], arg[2])
+            self._set_conf_value(arg[0], arg[1], arg[2])
 
         # Backward compatible
         self._fill_mode = self.FILL_PARAMS[self._conf[KEY_FILL_MODE]]
@@ -64,26 +64,7 @@ class ExportToSVG:
 
         self._layers = []
 
-    def add_layer(
-        self,
-        name: str,
-        partitions: dict,
-        pixel_size: tuple,
-        translate: tuple,
-        scale: tuple,
-        rotation: tuple,
-    ) -> None:
-        entry = {
-            "name": name,
-            "partitions": partitions,
-            "pixel_size": pixel_size,
-            "translate": translate,
-            "scale": scale,
-            "rotation": rotation,
-        }
-        self._layers.append(entry)
-
-    def set_conf_value(self, arg_value, key, default):
+    def _set_conf_value(self, arg_value, key, default):
         # Priority:
         #   1. argument
         #   2. conf
@@ -94,7 +75,7 @@ class ExportToSVG:
         if key not in self._conf or self._conf[key] is None:
             self._conf[key] = default
 
-    def write_rect_svg(self, file, layer_idx, x, y, pixel_size, color, angle):
+    def _write_rect_svg(self, file, layer_idx, x, y, pixel_size, color, angle):
         fill_method = self._fill_mode["fillmode"]
         max_stitch_len = self._fill_mode["max_stitch_len"]
         file.write(
@@ -179,13 +160,32 @@ class ExportToSVG:
                         x, y = coord
                         angle = 0 if ((x + y) % 2 == 0) else 90
                         color = partition.split("_")[0]
-                        self.write_rect_svg(f, layer_idx, x, y, pixel_size, color, angle)
+                        self._write_rect_svg(f, layer_idx, x, y, pixel_size, color, angle)
 
                     # partition
                     f.write("</g>\n")
                 # layer
                 f.write("</g>\n")
             f.write("</svg>\n")
+
+    def add_layer(
+        self,
+        name: str,
+        partitions: dict,
+        pixel_size: tuple[float, float],
+        translate: tuple[float, float],
+        scale: tuple,
+        rotation: tuple[float, float, float],
+    ) -> None:
+        entry = {
+            "name": name,
+            "partitions": partitions,
+            "pixel_size": pixel_size,
+            "translate": translate,
+            "scale": scale,
+            "rotation": rotation,
+        }
+        self._layers.append(entry)
 
 
 def main():

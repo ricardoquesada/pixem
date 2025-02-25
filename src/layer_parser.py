@@ -151,24 +151,24 @@ class LayerParser:
             (saw_threshold, KEY_SAW_THRESHOLD, DEFAULT_SAW_THRESHOLD),
         ]
         for arg in args:
-            self.set_conf_value(arg[0], arg[1], arg[2])
+            self._set_conf_value(arg[0], arg[1], arg[2])
 
         # Backward compatible
         self._rotation = self._conf[KEY_ROTATION]
         self._saw_threshold = self._conf[KEY_SAW_THRESHOLD]
 
         # Put all pixels in matrix
-        self.put_pixels_in_matrix(layer.image, width, height)
+        self._put_pixels_in_matrix(layer.image, width, height)
         # Group the ones that are touching/same-color together
-        g = self.create_color_graph(width, height)
+        g = self._create_color_graph(width, height)
 
         solution = {}
         for color in g:
-            subgraph = self.create_solution_graph(g[color], color)
+            subgraph = self._create_solution_graph(g[color], color)
             solution[color] = subgraph
         self._pixel_groups = solution
 
-    def set_conf_value(self, arg_value, key, default):
+    def _set_conf_value(self, arg_value, key, default):
         # Priority:
         #   1. argument
         #   2. conf
@@ -179,7 +179,7 @@ class LayerParser:
         if key not in self._conf or self._conf[key] is None:
             self._conf[key] = default
 
-    def put_pixels_in_matrix(self, img: QImage, width: int, height: int):
+    def _put_pixels_in_matrix(self, img: QImage, width: int, height: int):
         # Put all pixels in matrix
         for y in range(height):
             for x in range(width):
@@ -192,7 +192,7 @@ class LayerParser:
                     continue
                 self._image[x][y] = argb & 0xFFFFFF
 
-    def create_solution_graph(self, image_graph, color) -> list[list]:
+    def _create_solution_graph(self, image_graph, color) -> list[list]:
         # image_graph is a dict of:
         #   key: node
         #   value: edges
@@ -222,7 +222,7 @@ class LayerParser:
                 self._conf[KEY_PARTITIONS][key] = {}
 
             if len(nodes) > 1:
-                start_node = self.get_starting_node(s, key)
+                start_node = self._get_starting_node(s, key)
                 if len(s.nodes) < self._saw_threshold:
                     path = None
                     longest_path = []
@@ -239,7 +239,7 @@ class LayerParser:
             ret.append(nodes)
         return ret
 
-    def get_starting_node(self, G, key):
+    def _get_starting_node(self, G, key):
         print(f"Processing key: {key}:")
         node = None
         if KEY_STARTING_NODE in self._conf[KEY_PARTITIONS][key]:
@@ -254,7 +254,7 @@ class LayerParser:
         print(f"  Starting node: {node}")
         return node
 
-    def create_color_graph(self, width, height) -> dict:
+    def _create_color_graph(self, width, height) -> dict:
         # Creates a dictionary of key=color, value=dict of nodes and its edges
         # Each color is a list of nodes
         d = {}
