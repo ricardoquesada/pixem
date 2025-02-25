@@ -12,44 +12,44 @@ logger = logging.getLogger(__name__)  # __name__ gets the current module's name
 
 class State:
     def __init__(self) -> None:
-        self.project_filename = None
-        self.export_filename = None
-        self.scale_factor = 1.0
-        self.hoop_visible = False
-        self.layers: list[Layer] = []
-        self.current_layer_key = None
+        self._project_filename = None
+        self._export_filename = None
+        self._scale_factor = 1.0
+        self._hoop_visible = False
+        self._layers: list[Layer] = []
+        self._current_layer_key = None
 
     @classmethod
     def from_dict(cls, d: dict) -> Self:
         state = State()
-        state.project_filename = d["project_filename"]
+        state._project_filename = d["project_filename"]
         if "export_filename" in d:
-            state.export_filename = d["export_filename"]
-        state.scale_factor = d["scale_factor"]
-        state.hoop_visible = d["hoop_visible"]
+            state._export_filename = d["export_filename"]
+        state._scale_factor = d["scale_factor"]
+        state._hoop_visible = d["hoop_visible"]
         dict_layers = d["layers"]
         for dict_layer in dict_layers:
             layer = Layer.from_dict(dict_layer)
-            state.layers.append(layer)
+            state._layers.append(layer)
         if "current_layer_key" in d:
-            state.current_layer_key = d["current_layer_key"]
+            state._current_layer_key = d["current_layer_key"]
         return state
 
     def to_dict(self) -> dict:
         project = {
-            "project_filename": self.project_filename,
-            "export_filename": self.export_filename,
-            "scale_factor": self.scale_factor,
-            "hoop_visible": self.hoop_visible,
+            "project_filename": self._project_filename,
+            "export_filename": self._export_filename,
+            "scale_factor": self._scale_factor,
+            "hoop_visible": self._hoop_visible,
             "layers": [],
-            "current_layer_key": self.current_layer_key,
+            "current_layer_key": self._current_layer_key,
         }
 
-        for layer in self.layers:
+        for layer in self._layers:
             layer_dict = layer.to_dict()
             project["layers"].append(layer_dict)
 
-        project["current_layer_key"] = self.current_layer_key
+        project["current_layer_key"] = self._current_layer_key
 
         return project
 
@@ -64,7 +64,7 @@ class State:
         logger.info(f"Saving project to filename {filename}")
         if filename is None:
             return
-        self.project_filename = filename
+        self._project_filename = filename
 
         d = self.to_dict()
 
@@ -73,7 +73,7 @@ class State:
 
     def export_to_filename(self, filename: str) -> None:
         logger.info(f"Export project to filename {filename}")
-        if len(self.layers) == 0:
+        if len(self._layers) == 0:
             logger.warning("No layers found. Cannot export file")
             return
 
@@ -82,7 +82,7 @@ class State:
             "satin_s",
         )
 
-        for i, layer in enumerate(self.layers):
+        for i, layer in enumerate(self._layers):
             export.add_layer(
                 f"layer_{i}",
                 layer.partitions,
@@ -96,29 +96,57 @@ class State:
                 ),
             )
         export.write_to_svg(filename)
-        self.export_filename = filename
+        self._export_filename = filename
 
     def add_layer(self, layer: Layer) -> None:
-        self.layers.append(layer)
-        self.current_layer_key = layer.name
+        self._layers.append(layer)
+        self._current_layer_key = layer.name
 
     def delete_layer(self, layer: Layer) -> None:
         try:
-            self.layers.remove(layer)
+            self._layers.remove(layer)
         except ValueError:
             logger.warning(f"Failed to remove layer, not  found {layer.name}")
 
         # if there are no elements left, idx = -1
-        if len(self.layers) > 0:
-            self.current_layer_key = self.layers[-1].name
+        if len(self._layers) > 0:
+            self._current_layer_key = self._layers[-1].name
         else:
-            self.current_layer_key = None
+            self._current_layer_key = None
 
     def get_selected_layer(self) -> Layer | None:
-        if self.current_layer_key is None:
+        if self._current_layer_key is None:
             return None
-        for layer in self.layers:
-            if layer.name == self.current_layer_key:
+        for layer in self._layers:
+            if layer.name == self._current_layer_key:
                 return layer
-        logger.info(f"layers: {self.layers}")
-        logger.warning(f"get_selected_layer. Layer '{self.current_layer_key}' not found")
+        logger.info(f"layers: {self._layers}")
+        logger.warning(f"get_selected_layer. Layer '{self._current_layer_key}' not found")
+
+    @property
+    def layers(self):
+        return self._layers
+
+    @property
+    def scale_factor(self):
+        return self._scale_factor
+
+    @scale_factor.setter
+    def scale_factor(self, value: float):
+        self._scale_factor = value
+
+    @property
+    def current_layer_key(self):
+        return self._current_layer_key
+
+    @current_layer_key.setter
+    def current_layer_key(self, value: str):
+        self._current_layer_key = value
+
+    @property
+    def export_filename(self):
+        return self._export_filename
+
+    @property
+    def project_filename(self):
+        return self._project_filename

@@ -44,7 +44,6 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self._state = None
-        self._undo_stack = QUndoStack(self)
         self._setup_ui()
         self._load_settings()
 
@@ -95,6 +94,7 @@ class MainWindow(QMainWindow):
         edit_menu = QMenu("&Edit", self)
         menu_bar.addMenu(edit_menu)
 
+        self._undo_stack = QUndoStack(self)
         self._undo_action = QAction(QIcon.fromTheme("edit-undo"), "&Undo", self)
         self._undo_action.triggered.connect(self._undo_stack.undo)
         edit_menu.addAction(self._undo_action)
@@ -294,6 +294,7 @@ class MainWindow(QMainWindow):
         self._pixel_height_spinbox.valueChanged.connect(self._on_update_layer_property)
         self._visible_checkbox.stateChanged.connect(self._on_update_layer_property)
         self._opacity_slider.valueChanged.connect(self._on_update_layer_property)
+        self._zoom_slider.valueChanged.connect(self._on_zoom_changed)
 
     def _disconnect_widget_callbacks(self):
         self._name_edit.editingFinished.disconnect(self._on_update_layer_property)
@@ -304,6 +305,7 @@ class MainWindow(QMainWindow):
         self._pixel_height_spinbox.valueChanged.disconnect(self._on_update_layer_property)
         self._visible_checkbox.stateChanged.disconnect(self._on_update_layer_property)
         self._opacity_slider.valueChanged.disconnect(self._on_update_layer_property)
+        self._zoom_slider.valueChanged.disconnect(self._on_zoom_changed)
 
     def _load_settings(self):
         # Save defaults before restoring saved settings
@@ -335,6 +337,10 @@ class MainWindow(QMainWindow):
         self._canvas.state = self._state
         self._layer_list.clear()
         self._partition_list.clear()
+
+        self._disconnect_widget_callbacks()
+        self._zoom_slider.setValue(self._state.scale_factor * 100)
+        self._connect_widget_callbacks()
 
         # FIXME: update state should be done in one method
         self._update_qactions()
@@ -387,6 +393,10 @@ class MainWindow(QMainWindow):
                 self._layer_list.setCurrentRow(selected_layer_idx)
             if selected_partition_idx >= 0:
                 self._partition_list.setCurrentRow(selected_partition_idx)
+
+            self._disconnect_widget_callbacks()
+            self._zoom_slider.setValue(self._state.scale_factor * 100)
+            self._connect_widget_callbacks()
 
             # FIXME: update state should be done in one method
             self._update_qactions()
