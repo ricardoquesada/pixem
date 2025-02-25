@@ -490,8 +490,9 @@ class MainWindow(QMainWindow):
 
             self.connect_widget_callbacks()
 
-            self.refresh_layer_groups()
             self.state.current_layer_key = layer.name
+
+            self.refresh_layer_groups()
         else:
             self.state.current_layer_key = None
 
@@ -538,18 +539,25 @@ class MainWindow(QMainWindow):
     def refresh_layer_groups(self):
         self.layer_groups_list.clear()
 
-        layer: Layer = self.state.get_selected_layer()
+        layer = self.state.get_selected_layer()
         if layer is None:
             return
 
+        selected_group_idx = -1
+        # First: add all items
         for i, group in enumerate(layer.groups):
             self.layer_groups_list.addItem(group)
             if layer.current_group_key == group:
-                self.layer_groups_list.setCurrentRow(i)
+                selected_group_idx = i
+
+        # Second: select the correct one if present
+        if selected_group_idx >= 0:
+            self.layer_groups_list.setCurrentRow(selected_group_idx)
 
         if len(layer.groups) == 0:
             # Sanity check
             layer.current_group_key = None
+            logger.warning("Failed to select group")
 
 
 if __name__ == "__main__":
