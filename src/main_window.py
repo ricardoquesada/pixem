@@ -181,7 +181,8 @@ class MainWindow(QMainWindow):
 
         # Layer colors Dock
         self.layer_groups_list = QListWidget()
-        self.layer_groups_list.currentItemChanged.connect(self.on_change_layer_groups)
+        self.layer_groups_list.currentItemChanged.connect(self.on_change_group)
+        self.layer_groups_list.itemDoubleClicked.connect(self.on_double_click_group)
         layer_groups_dock = QDockWidget("Layer Groups", self)
         layer_groups_dock.setObjectName("layer_groups_dock")
         layer_groups_dock.setWidget(self.layer_groups_list)
@@ -477,7 +478,7 @@ class MainWindow(QMainWindow):
         self.update()
 
     def on_change_layer(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
-        logger.info(f"on_change_layer: {current}")
+        logger.info(f"on_change_layer: {current} {current.text() if current is not None else None}")
         enabled = current is not None
         self.property_editor.setEnabled(enabled)
         if enabled:
@@ -503,8 +504,8 @@ class MainWindow(QMainWindow):
         else:
             self.state.current_layer_key = None
 
-    def on_change_layer_groups(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
-        logger.info(f"on_change_layer_groups: {current}")
+    def on_change_group(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
+        logger.info(f"on_change_group: {current} {current.text() if current is not None else None}")
         enabled = current is not None
         if enabled:
             idx = self.layer_groups_list.row(current)
@@ -516,6 +517,11 @@ class MainWindow(QMainWindow):
                 layer.current_groups_key = None
         self.canvas.update()
         self.update()
+
+    def on_double_click_group(self, current: QListWidgetItem) -> None:
+        logger.info(
+            f"on_double_click_group: {current} {current.text() if current is not None else None}"
+        )
 
     def on_update_layer_property(self, value) -> None:
         logger.info(f"on_update_layer_property {value}")
