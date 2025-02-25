@@ -15,7 +15,6 @@ class State:
         self._project_filename = None
         self._export_filename = None
         self._zoom_factor = 1.0
-        self._hoop_visible = False
         self._layers: list[Layer] = []
         self._current_layer_key = None
 
@@ -27,7 +26,6 @@ class State:
             state._export_filename = d["export_filename"]
         if "zoom_factor" in d:
             state._zoom_factor = d["zoom_factor"]
-        state._hoop_visible = d["hoop_visible"]
         dict_layers = d["layers"]
         for dict_layer in dict_layers:
             layer = Layer.from_dict(dict_layer)
@@ -41,7 +39,6 @@ class State:
             "project_filename": self._project_filename,
             "export_filename": self._export_filename,
             "zoom_factor": self._zoom_factor,
-            "hoop_visible": self._hoop_visible,
             "layers": [],
             "current_layer_key": self._current_layer_key,
         }
