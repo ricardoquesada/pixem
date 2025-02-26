@@ -32,6 +32,7 @@ from about_dialog import AboutDialog
 from canvas import Canvas
 from layer import ImageLayer
 from layer_parser import LayerParser
+from partition_dialog import PartitionDialog
 from preference_dialog import PreferenceDialog
 from preferences import global_preferences
 from state import State
@@ -245,7 +246,7 @@ class MainWindow(QMainWindow):
         property_dock.setWidget(self._property_editor)
         self.addDockWidget(Qt.RightDockWidgetArea, property_dock)
 
-        self._connect_widget_callbacks()
+        self._connect_property_callbacks()
 
         # Insert all docks in Menu
         view_menu.insertActions(
@@ -284,7 +285,7 @@ class MainWindow(QMainWindow):
 
         self._zoom_slider.setEnabled(enabled)
 
-    def _connect_widget_callbacks(self):
+    def _connect_property_callbacks(self):
         self._name_edit.editingFinished.connect(self._on_update_layer_property)
         self._position_x_spinbox.valueChanged.connect(self._on_update_layer_property)
         self._position_y_spinbox.valueChanged.connect(self._on_update_layer_property)
@@ -295,7 +296,7 @@ class MainWindow(QMainWindow):
         self._opacity_slider.valueChanged.connect(self._on_update_layer_property)
         self._zoom_slider.valueChanged.connect(self._on_zoom_changed)
 
-    def _disconnect_widget_callbacks(self):
+    def _disconnect_property_callbacks(self):
         self._name_edit.editingFinished.disconnect(self._on_update_layer_property)
         self._position_x_spinbox.valueChanged.disconnect(self._on_update_layer_property)
         self._position_y_spinbox.valueChanged.disconnect(self._on_update_layer_property)
@@ -348,9 +349,9 @@ class MainWindow(QMainWindow):
         self._layer_list.clear()
         self._partition_list.clear()
 
-        self._disconnect_widget_callbacks()
+        self._disconnect_property_callbacks()
         self._zoom_slider.setValue(self._state.zoom_factor * 100)
-        self._connect_widget_callbacks()
+        self._connect_property_callbacks()
 
         # FIXME: update state should be done in one method
         self._update_qactions()
@@ -405,9 +406,9 @@ class MainWindow(QMainWindow):
             if selected_partition_idx >= 0:
                 self._partition_list.setCurrentRow(selected_partition_idx)
 
-            self._disconnect_widget_callbacks()
+            self._disconnect_property_callbacks()
             self._zoom_slider.setValue(self._state.zoom_factor * 100)
-            self._connect_widget_callbacks()
+            self._connect_property_callbacks()
 
             # FIXME: update state should be done in one method
             self._update_qactions()
@@ -557,7 +558,7 @@ class MainWindow(QMainWindow):
             idx = self._layer_list.row(current)
             layer = self._state.layers[idx]
 
-            self._disconnect_widget_callbacks()
+            self._disconnect_property_callbacks()
 
             self._name_edit.setText(layer.name)
             self._position_x_spinbox.setValue(layer.position.x())
@@ -568,7 +569,7 @@ class MainWindow(QMainWindow):
             self._visible_checkbox.setChecked(layer.visible)
             self._opacity_slider.setValue(round(layer.opacity * 100))
 
-            self._connect_widget_callbacks()
+            self._connect_property_callbacks()
 
             self._state.current_layer_key = layer.name
 
@@ -595,9 +596,26 @@ class MainWindow(QMainWindow):
         self.update()
 
     def _on_double_click_partition(self, current: QListWidgetItem) -> None:
+        if current is None:
+            return
+
+        layer = self._state.selected_layer
+        if layer is None:
+            return
+
         logger.info(
             f"on_double_click_partition: {current} {current.text() if current is not None else None}"
         )
+        partition = layer.selected_partition
+        if partition is None:
+            return
+
+        dialog = PartitionDialog(layer.image, partition)
+        if dialog.exec():
+            selected_items = dialog.get_selected_items()
+            print("Selected items:", selected_items)
+        else:
+            print("Dialog canceled")
 
     def _on_update_layer_property(self) -> None:
         current_layer = self._state.selected_layer
