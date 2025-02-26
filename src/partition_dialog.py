@@ -59,11 +59,11 @@ class ImageWidget(QWidget):
 
 
 class PartitionDialog(QDialog):
-    def __init__(self, image: QImage, partition: dict):
+    def __init__(self, image: QImage, path: list[tuple[int, int]]):
         super().__init__()
 
         self.setWindowTitle("Partition Editor")
-        coords = partition["path"]
+        coords = path
 
         # Create Image Widget
         self._image_widget = ImageWidget(image, coords)
@@ -118,5 +118,8 @@ class PartitionDialog(QDialog):
         print(selected_coords)
         self._image_widget.set_selected_coords(selected_coords)
 
-    def get_selected_items(self):
-        return [item.text() for item in self._list_widget.selectedItems()]
+    def get_path(self):
+        path = [
+            self._list_widget.item(i).data(Qt.UserRole) for i in range(self._list_widget.count())
+        ]
+        return path

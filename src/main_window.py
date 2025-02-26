@@ -610,10 +610,10 @@ class MainWindow(QMainWindow):
         if partition is None:
             return
 
-        dialog = PartitionDialog(layer.image, partition)
+        dialog = PartitionDialog(layer.image, partition["path"])
         if dialog.exec():
-            selected_items = dialog.get_selected_items()
-            print("Selected items:", selected_items)
+            path = dialog.get_path()
+            partition["path"] = path
         else:
             print("Dialog canceled")
 
