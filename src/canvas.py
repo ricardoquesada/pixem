@@ -61,7 +61,7 @@ class Canvas(QWidget):
                 painter.restore()
 
         # Draw selected partition pixels
-        layer = self.state.get_selected_layer()
+        layer = self.state.selected_layer
         if layer is not None and layer.current_partition_key is not None:
             painter.save()
             # Scale the image based on pixel size

@@ -186,7 +186,6 @@ class MainWindow(QMainWindow):
 
         # Layers Dock
         self._layer_list = QListWidget()
-        self._layer_list.currentItemChanged.connect(self._on_change_layer)
         layer_dock = QDockWidget("Layers", self)
         layer_dock.setObjectName("layer_dock")
         layer_dock.setWidget(self._layer_list)
@@ -194,12 +193,12 @@ class MainWindow(QMainWindow):
 
         # Layer colors Dock
         self._partition_list = QListWidget()
-        self._partition_list.currentItemChanged.connect(self._on_change_partition)
-        self._partition_list.itemDoubleClicked.connect(self._on_double_click_partition)
         partitions_dock = QDockWidget("Partitions", self)
         partitions_dock.setObjectName("partitions_dock")
         partitions_dock.setWidget(self._partition_list)
         self.addDockWidget(Qt.RightDockWidgetArea, partitions_dock)
+
+        self._connect_list_callbacks()
 
         # Undo Dock
         undo_view = QUndoView(self._undo_stack)
@@ -307,6 +306,16 @@ class MainWindow(QMainWindow):
         self._opacity_slider.valueChanged.disconnect(self._on_update_layer_property)
         self._zoom_slider.valueChanged.disconnect(self._on_zoom_changed)
 
+    def _connect_list_callbacks(self):
+        self._layer_list.currentItemChanged.connect(self._on_change_layer)
+        self._partition_list.currentItemChanged.connect(self._on_change_partition)
+        self._partition_list.itemDoubleClicked.connect(self._on_double_click_partition)
+
+    def _disconnect_list_callbacks(self):
+        self._layer_list.currentItemChanged.disconnect(self._on_change_layer)
+        self._partition_list.currentItemChanged.disconnect(self._on_change_partition)
+        self._partition_list.itemDoubleClicked.disconnect(self._on_double_click_partition)
+
     def _load_settings(self):
         # Save defaults before restoring saved settings
         # FIXME: Probably there is a more efficient way to do it.
@@ -335,6 +344,7 @@ class MainWindow(QMainWindow):
         # FIXME: If an existing state is dirty, it should ask for "are you suse"
         self._state = State()
         self._canvas.state = self._state
+        # Triggers on_change_layer / on_change_partition, but not an issue
         self._layer_list.clear()
         self._partition_list.clear()
 
@@ -367,10 +377,12 @@ class MainWindow(QMainWindow):
             self._state = state
             self._canvas.state = state
 
+            self._disconnect_list_callbacks()
             self._layer_list.clear()
             self._partition_list.clear()
+            self._connect_list_callbacks()
 
-            selected_layer = self._state.get_selected_layer()
+            selected_layer = self._state.selected_layer
 
             selected_layer_idx = -1
             selected_partition_idx = -1
@@ -381,10 +393,10 @@ class MainWindow(QMainWindow):
                     selected_layer_idx = i
 
             if selected_layer is not None:
-                selected_partition = selected_layer.current_partition_key
+                selected_partition_key = selected_layer.current_partition_key
                 for i, partition in enumerate(selected_layer.partitions):
                     self._partition_list.addItem(partition)
-                    if partition == selected_partition:
+                    if partition == selected_partition_key:
                         selected_partition_idx = i
 
             # This will trigger "on_" callback
@@ -494,7 +506,7 @@ class MainWindow(QMainWindow):
     def _on_layer_delete(self) -> None:
         logger.info("on_layer_delete")
         selected_items = self._layer_list.selectedItems()
-        layer = self._state.get_selected_layer()
+        layer = self._state.selected_layer
 
         if not selected_items or not layer:
             logger.warning("Cannot delete layer, no layers selected")
@@ -518,7 +530,7 @@ class MainWindow(QMainWindow):
         self.update()
 
     def _on_find_partitions(self) -> None:
-        layer = self._state.get_selected_layer()
+        layer = self._state.selected_layer
         if layer is None:
             logger.warning("Cannot find partitions. Layer not selected")
             return
@@ -528,6 +540,8 @@ class MainWindow(QMainWindow):
         for partition in layer.partitions:
             logger.info(f"Partition {partition}")
             self._partition_list.addItem(partition)
+        if len(layer.partitions) > 0:
+            self._partition_list.setCurrentRow(0)
 
     def _on_zoom_changed(self, value: int) -> None:
         self._state.zoom_factor = value / 100.0
@@ -568,14 +582,15 @@ class MainWindow(QMainWindow):
             f"on_change_partition: {current} {current.text() if current is not None else None}"
         )
         enabled = current is not None
+        selected_layer = self._state.selected_layer
+        new_key = None
         if enabled:
             idx = self._partition_list.row(current)
-            key = self._partition_list.item(idx).text()
-            self._state.get_selected_layer().current_partition_key = key
-        else:
-            layer = self._state.get_selected_layer()
-            if layer is not None:
-                layer.current_partitions_key = None
+            new_key = self._partition_list.item(idx).text()
+
+        if selected_layer is not None:
+            selected_layer.current_partition_key = new_key
+
         self._canvas.update()
         self.update()
 
@@ -585,7 +600,7 @@ class MainWindow(QMainWindow):
         )
 
     def _on_update_layer_property(self) -> None:
-        current_layer = self._state.get_selected_layer()
+        current_layer = self._state.selected_layer
         enabled = current_layer is not None
         self._property_editor.setEnabled(enabled)
         if enabled:
@@ -610,14 +625,16 @@ class MainWindow(QMainWindow):
         dialog.exec()
 
     def _refresh_partitions(self):
+        # Called from on_layer_changed
+
+        self._disconnect_list_callbacks()
         self._partition_list.clear()
+        self._connect_list_callbacks()
 
-        if self._state is None:
+        if self._state is None or self._state.selected_layer is None:
             return
 
-        layer = self._state.get_selected_layer()
-        if layer is None:
-            return
+        layer = self._state.selected_layer
 
         selected_partition_idx = -1
         # First: add all items

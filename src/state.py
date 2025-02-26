@@ -1,5 +1,5 @@
 import logging
-from typing import Self
+from typing import Optional, Self
 
 import toml
 
@@ -112,14 +112,16 @@ class State:
         else:
             self._current_layer_key = None
 
-    def get_selected_layer(self) -> Layer | None:
+    @property
+    def selected_layer(self) -> Optional[Layer]:
         if self._current_layer_key is None:
             return None
         for layer in self._layers:
             if layer.name == self._current_layer_key:
                 return layer
         logger.info(f"layers: {self._layers}")
-        logger.warning(f"get_selected_layer. Layer '{self._current_layer_key}' not found")
+        logger.warning(f"selected_layer. Layer '{self._current_layer_key}' not found")
+        return None
 
     @property
     def layers(self):

@@ -1,5 +1,5 @@
 import logging
-from typing import Self
+from typing import Optional, Self
 
 from PySide6.QtCore import QPointF, QSizeF
 from PySide6.QtGui import QImage
@@ -62,7 +62,8 @@ class Layer:
         }
         return d
 
-    def get_selected_partition(self) -> dict | None:
+    @property
+    def selected_partition(self) -> Optional[dict]:
         if self._current_partition_key is None:
             return None
 
@@ -97,6 +98,7 @@ class Layer:
 
     @current_partition_key.setter
     def current_partition_key(self, value: str):
+        logger.info(f"Layer.current_partition_key = {value}")
         self._current_partition_key = value
 
     @property
