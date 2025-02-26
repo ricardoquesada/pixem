@@ -1,21 +1,37 @@
-from PySide6.QtCore import QSize
-from PySide6.QtGui import QImage, QPainter, QPixmap
+from PySide6.QtCore import QRect, QSize, Qt
+from PySide6.QtGui import QColor, QImage, QPainter, QPen, QPixmap
 from PySide6.QtWidgets import QDialog, QHBoxLayout, QListWidget, QPushButton, QVBoxLayout, QWidget
 
 PAINT_SCALE_FACTOR = 10
 
 
 class ImageWidget(QWidget):
-    def __init__(self, image: QImage):
+    def __init__(self, image: QImage, coords: list[tuple]):
         super().__init__()
         self._image = image
+        self._coords = coords
         self.setMinimumSize(self._image.size())  # Ensure widget is at least image size
+
+        self._cached_rects = [QRect(x, y, 1, 1) for x, y in self._coords]
 
     def paintEvent(self, event):
         painter = QPainter(self)
         pixmap = QPixmap.fromImage(self._image)
         painter.scale(PAINT_SCALE_FACTOR, PAINT_SCALE_FACTOR)
         painter.drawPixmap(0, 0, pixmap)
+
+        painter.save()
+        # painter.setPen(Qt.NoPen)
+        painter.setPen(QPen(Qt.GlobalColor.gray, 0.1, Qt.PenStyle.SolidLine))
+
+        # Set the brush (fill)
+        brush = painter.brush()
+        brush.setColor(QColor(255, 0, 0, 128))  # Red, semi-transparent fill
+        brush.setStyle(Qt.BrushStyle.SolidPattern)  # Solid fill
+        painter.setBrush(brush)
+        painter.drawRects(self._cached_rects)
+        painter.restore()
+        painter.end()
 
     def sizeHint(self):
         return QSize(
@@ -29,14 +45,14 @@ class PartitionDialog(QDialog):
         super().__init__()
 
         self.setWindowTitle("Partition Editor")
+        coords = partition["path"]
 
         # Create Image Widget
-        self._image_widget = ImageWidget(image)
+        self._image_widget = ImageWidget(image, coords)
 
         # Create List Widget
         self._list_widget = QListWidget()
         self._list_widget.setDragDropMode(QListWidget.InternalMove)  # Enable reordering
-        coords = partition["path"]
         items = [f"({coord[0]} x {coord[1]})" for coord in coords]
         self._list_widget.addItems(items)
 
