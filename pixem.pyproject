@@ -1,0 +1,21 @@
+{
+    "files": [
+        "src/about_dialog.py",
+        "src/canvas.py",
+        "src/export.py",
+        "src/font_dialog.py",
+        "src/image_utils.py",
+        "src/layer.py",
+        "src/layer_parser.py",
+        "src/main_window.py",
+        "src/myproperty.py",
+        "src/partition_dialog.py",
+        "src/pixem.py",
+        "src/preference_dialog.py",
+        "src/preferences.py",
+        "src/resources.qrc",
+        "src/resources_rc.py",
+        "src/state.py",
+        "src/undo_commands.py"
+    ]
+}
