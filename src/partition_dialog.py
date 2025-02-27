@@ -44,9 +44,32 @@ class ImageWidget(QWidget):
         self._edit_mode = self.EditMode.PAINT
         self._coord_mode: ImageWidget.CoordMode = self.CoordMode.ADD
 
-    def set_selected_coords(self, coords: list[tuple[int, int]]):
-        self._cached_selected_rects = [QRect(x, y, 1, 1) for x, y in coords]
+    def _update_coordinate(self, coord: tuple[int, int]):
+        if coord not in self._original_coords:
+            logger.warning(f"Invalid coordinate: {coord}")
+            return
+
+        if self._coord_mode == self.CoordMode.ADD:
+            if coord not in self._selected_coords:
+                self._selected_coords.append(coord)
+        elif self._coord_mode == self.CoordMode.REMOVE:
+            if coord in self._selected_coords:
+                self._selected_coords.remove(coord)
+        else:
+            logger.warning(f"Invalid coord mode: {self._coord_mode}")
+
+        self._update_selected_coords_cache()
+
+    def _update_selected_coords_cache(self):
+        self._cached_selected_rects = [QRect(x, y, 1, 1) for x, y in self._selected_coords]
         self.update()
+
+    def set_selected_coords(self, coords: list[tuple[int, int]]):
+        self._selected_coords = coords
+        self._update_selected_coords_cache()
+
+    def set_edit_mode(self, mode: EditMode):
+        self._edit_mode = mode
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -101,33 +124,13 @@ class ImageWidget(QWidget):
         for coord in self._original_coords:
             if coord not in full_coords:
                 full_coords.append(coord)
-        self._partition_dialog.update_coords(full_coords)
-
-    def _update_coordinate(self, coord: tuple[int, int]):
-        if coord not in self._original_coords:
-            logger.info(f"Coordinates {coord} not in original coords")
-            return
-
-        if self._coord_mode == self.CoordMode.ADD:
-            if coord not in self._selected_coords:
-                self._selected_coords.append(coord)
-        elif self._coord_mode == self.CoordMode.REMOVE:
-            if coord in self._selected_coords:
-                self._selected_coords.remove(coord)
-        else:
-            logger.warning(f"Invalid coord mode: {self._coord_mode}")
-
-        self.set_selected_coords(self._selected_coords)
-        self.update()
+        self._partition_dialog.update_coords(self._selected_coords, full_coords)
 
     def sizeHint(self):
         return QSize(
             self._image.size().width() * PAINT_SCALE_FACTOR,
             self._image.size().height() * PAINT_SCALE_FACTOR,
         )
-
-    def set_edit_mode(self, mode: EditMode):
-        self._edit_mode = mode
 
 
 class PartitionDialog(QDialog):
@@ -145,13 +148,11 @@ class PartitionDialog(QDialog):
         self._list_widget.setDragDropMode(QListWidget.InternalMove)  # Enable reordering
         self._list_widget.setSelectionMode(QListWidget.ExtendedSelection)
 
-        for coord in coords:
-            item = QListWidgetItem(f"{coord[0]} x {coord[1]}")
-            item.setData(Qt.UserRole, coord)
-            self._list_widget.addItem(item)
+        self._connect_list_widget()
 
-        self._list_widget.model().rowsMoved.connect(self._on_rows_moved)
-        self._list_widget.itemSelectionChanged.connect(self._on_selection_changed)
+        self.update_coords([], coords)
+
+        self._edit_mode = ImageWidget.EditMode.PAINT
 
         # Create Buttons
         self.ok_button = QPushButton("OK")
@@ -172,11 +173,14 @@ class PartitionDialog(QDialog):
         button_layout.addWidget(self.cancel_button)
 
         toolbar = QToolBar()
-        self._paint_action = QAction(QIcon.fromTheme("document-open"), "Paint", self)
+        pixmap = QPixmap(":/res/icons/22x22/categories/applications-graphics.png")
+        self._paint_action = QAction(QIcon(pixmap), "Paint", self)
         self._paint_action.triggered.connect(self._on_action_mode_paint)
-        self._fill_action = QAction(QIcon.fromTheme("document-save"), "Fill", self)
+        pixmap = QPixmap(":/res/icons/22x22/actions/stock-tool-bucket-fill.png")
+        self._fill_action = QAction(QIcon(pixmap), "Fill", self)
         self._fill_action.triggered.connect(self._on_action_mode_fill)
-        self._select_action = QAction(QIcon.fromTheme("document-save"), "Select", self)
+        pixmap = QPixmap(":/res/icons/22x22/actions/stock-tool-rect-select.png")
+        self._select_action = QAction(QIcon(pixmap), "Select", self)
         self._select_action.triggered.connect(self._on_action_mode_select)
         actions = [self._paint_action, self._fill_action, self._select_action]
         toolbar.addActions(actions)
@@ -185,30 +189,54 @@ class PartitionDialog(QDialog):
         self._paint_action.setChecked(True)
 
         main_layout = QVBoxLayout()
-        main_layout.setContentsMargins(0, 0, 0, 0)  # Remove all margins
+        main_layout.setContentsMargins(0, 0, 0, 10)
         main_layout.addWidget(toolbar)
         main_layout.addLayout(image_list_layout)
         main_layout.addLayout(button_layout)
 
         self.setLayout(main_layout)
 
+    def _connect_list_widget(self):
+        self._list_widget.model().rowsMoved.connect(self._on_rows_moved)
+        self._list_widget.itemSelectionChanged.connect(self._on_selection_changed)
+
+    def _disconnect_list_widget(self):
+        self._list_widget.model().rowsMoved.disconnect(self._on_rows_moved)
+        self._list_widget.itemSelectionChanged.disconnect(self._on_selection_changed)
+
+    def _set_edit_mode(self, mode: ImageWidget.EditMode):
+        if mode != self._edit_mode:
+            self._edit_mode = mode
+            self._image_widget.set_edit_mode(mode)
+
+            match mode:
+                case ImageWidget.EditMode.PAINT:
+                    self._list_widget.setDragDropMode(QListWidget.NoDragDrop)  # Enable reordering
+                    self._list_widget.setSelectionMode(QListWidget.ContiguousSelection)
+                case ImageWidget.EditMode.FILL:
+                    self._list_widget.setDragDropMode(QListWidget.NoDragDrop)  # Enable reordering
+                    self._list_widget.setSelectionMode(QListWidget.ContiguousSelection)
+                case ImageWidget.EditMode.SELECT:
+                    self._list_widget.setDragDropMode(QListWidget.InternalMove)  # Enable reordering
+                    self._list_widget.setSelectionMode(QListWidget.ExtendedSelection)
+
     def _on_action_mode_paint(self, value):
         self._paint_action.setChecked(True)
         self._fill_action.setChecked(False)
         self._select_action.setChecked(False)
-        self._image_widget.set_edit_mode(ImageWidget.EditMode.PAINT)
+        self._set_edit_mode(ImageWidget.EditMode.PAINT)
 
     def _on_action_mode_fill(self, value):
         self._paint_action.setChecked(False)
         self._fill_action.setChecked(True)
         self._select_action.setChecked(False)
-        self._image_widget.set_edit_mode(ImageWidget.EditMode.FILL)
+        self._set_edit_mode(ImageWidget.EditMode.FILL)
 
     def _on_action_mode_select(self, value):
         self._paint_action.setChecked(False)
         self._fill_action.setChecked(False)
         self._select_action.setChecked(True)
-        self._image_widget.set_edit_mode(ImageWidget.EditMode.SELECT)
+        self._set_edit_mode(ImageWidget.EditMode.SELECT)
 
     def _on_rows_moved(self, parent, start, end, destination):
         print(f"Rows moved from {start} to {end} to destination {destination}")
@@ -222,12 +250,19 @@ class PartitionDialog(QDialog):
         selected_coords = [item.data(Qt.UserRole) for item in selected_items]
         self._image_widget.set_selected_coords(selected_coords)
 
-    def update_coords(self, coords: list[tuple[int, int]]):
+    def update_coords(
+        self, selected_coords: list[tuple[int, int]], full_coords: list[tuple[int, int]]
+    ):
+        self._disconnect_list_widget()
+
         self._list_widget.clear()
-        for coord in coords:
-            item = QListWidgetItem(f"{coord[0]} x {coord[1]}")
-            item.setData(Qt.UserRole, coord)
+        for i, coord in enumerate(full_coords):
+            item = QListWidgetItem(f"{i} - [{coord[0]} x {coord[1]}]")
             self._list_widget.addItem(item)
+            item.setData(Qt.UserRole, coord)
+            selected = coord in selected_coords
+            item.setSelected(selected)
+        self._connect_list_widget()
 
     def get_path(self):
         path = [
