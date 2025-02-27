@@ -1,5 +1,7 @@
+import logging
+
 from PySide6.QtCore import QRect, QSize, Qt
-from PySide6.QtGui import QColor, QImage, QPainter, QPen, QPixmap
+from PySide6.QtGui import QColor, QImage, QMouseEvent, QPainter, QPen, QPixmap
 from PySide6.QtWidgets import (
     QDialog,
     QHBoxLayout,
@@ -10,13 +12,16 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-PAINT_SCALE_FACTOR = 10
+PAINT_SCALE_FACTOR = 12
+
+logger = logging.getLogger(__name__)  # __name__ gets the current module's name
 
 
 class ImageWidget(QWidget):
-    def __init__(self, image: QImage, coords: list[tuple]):
+    def __init__(self, image: QImage, coords: list[tuple[int, int]]):
         super().__init__()
         self._image = image
+        self._original_coords = coords
         self._selected_coords = []
         self.setMinimumSize(self._image.size())  # Ensure widget is at least image size
 
@@ -50,6 +55,30 @@ class ImageWidget(QWidget):
         painter.drawRects(self._cached_selected_rects)
 
         painter.end()
+
+    def mousePressEvent(self, event: QMouseEvent):
+        event.accept()
+        pos = event.pos()
+        x = pos.x() / PAINT_SCALE_FACTOR
+        y = pos.y() / PAINT_SCALE_FACTOR
+        coord = [int(x), int(y)]
+
+        if coord not in self._original_coords:
+            logger.info(f"Coordinates {coord} not in original coords")
+            return
+
+        if event.button() == Qt.LeftButton:
+            if coord not in self._selected_coords:
+                self._selected_coords.append(coord)
+        elif event.button() == Qt.RightButton:
+            if coord in self._selected_coords:
+                self._selected_coords.remove(coord)
+
+        self.set_selected_coords(self._selected_coords)
+        self.update()
+
+    def mouseMoveEvent(self, event: QMouseEvent):
+        print(event)
 
     def sizeHint(self):
         return QSize(
@@ -115,7 +144,6 @@ class PartitionDialog(QDialog):
     def _on_selection_changed(self):
         selected_items = self._list_widget.selectedItems()
         selected_coords = [item.data(Qt.UserRole) for item in selected_items]
-        print(selected_coords)
         self._image_widget.set_selected_coords(selected_coords)
 
     def get_path(self):
