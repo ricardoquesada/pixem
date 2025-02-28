@@ -14,6 +14,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+import layer_parser
+
 PAINT_SCALE_FACTOR = 12
 
 logger = logging.getLogger(__name__)  # __name__ gets the current module's name
@@ -96,27 +98,47 @@ class ImageWidget(QWidget):
         painter.end()
 
     def mousePressEvent(self, event: QMouseEvent):
+        if self._edit_mode not in [ImageWidget.EditMode.PAINT, ImageWidget.EditMode.FILL]:
+            event.ignore()
+            return
         event.accept()
         pos = event.pos()
         x = pos.x() / PAINT_SCALE_FACTOR
         y = pos.y() / PAINT_SCALE_FACTOR
-        coord = [int(x), int(y)]
+        coord = (int(x), int(y))
 
-        self._coord_mode = (
-            self.CoordMode.ADD if event.button() == Qt.LeftButton else self.CoordMode.REMOVE
-        )
-        self._update_coordinate(coord)
+        match self._edit_mode:
+            case ImageWidget.EditMode.PAINT:
+                self._coord_mode = (
+                    self.CoordMode.ADD if event.button() == Qt.LeftButton else self.CoordMode.REMOVE
+                )
+                self._update_coordinate(coord)
+            case ImageWidget.EditMode.FILL:
+                partial_partition = list(set(self._original_coords) - set(self._selected_coords))
+                ordered_partition = layer_parser.order_partition(partial_partition, coord)
+                self._selected_coords = self._selected_coords + ordered_partition
+                self._update_selected_coords_cache()
 
     def mouseMoveEvent(self, event: QMouseEvent):
+        if self._edit_mode not in [
+            ImageWidget.EditMode.PAINT,
+        ]:
+            event.ignore()
+            return
+
         event.accept()
         pos = event.pos()
         x = pos.x() / PAINT_SCALE_FACTOR
         y = pos.y() / PAINT_SCALE_FACTOR
-        coord = [int(x), int(y)]
+        coord = (int(x), int(y))
 
         self._update_coordinate(coord)
 
     def mouseReleaseEvent(self, event: QMouseEvent):
+        if self._edit_mode not in [ImageWidget.EditMode.PAINT, ImageWidget.EditMode.FILL]:
+            event.ignore()
+            return
+
         event.accept()
         if len(self._selected_coords) == 0:
             return
@@ -153,6 +175,7 @@ class PartitionDialog(QDialog):
         self.update_coords([], coords)
 
         self._edit_mode = ImageWidget.EditMode.PAINT
+        self._set_edit_mode(ImageWidget.EditMode.PAINT)
 
         # Create Buttons
         self.ok_button = QPushButton("OK")

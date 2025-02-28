@@ -43,6 +43,10 @@ class Layer:
         layer._opacity = d["opacity"]
         if "partitions" in d:
             layer._partitions = d["partitions"]
+            # Convert [x,y] to (x,y) since it is hashable
+            for part in layer._partitions:
+                path = [(x, y) for x, y in layer._partitions[part]["path"]]
+                layer._partitions[part]["path"] = path
         if "current_partition_key" in d:
             layer._current_partition_key = d["current_partition_key"]
         return layer

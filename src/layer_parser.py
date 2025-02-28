@@ -1,7 +1,6 @@
 # Pixem
 # Copyright 2024 - Ricardo Quesada
 
-import argparse
 
 import networkx as nx
 from PySide6.QtGui import QColor, QImage
@@ -292,30 +291,69 @@ class LayerParser:
         return self.conf[KEY_PARTITIONS]
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Something something")
-    parser.add_argument("input_image", help="Path to the input PNG image.")
-    parser.add_argument(
-        "-r",
-        "--rotation",
-        type=int,
-        choices=[-8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7],
-        help="Where the first neighbor starts",
-    )
-    parser.add_argument("-t", "--saw_threshold", type=int, help="Where the first neighbor starts")
-    parser.add_argument("-c", "--conf", type=str, help="Configuration file")
-
-    args = parser.parse_args()
-
-    print(args)
-    tosvg = LayerParser(
-        args.input_image,
-        args.rotation,
-        args.saw_threshold,
-        args.conf,
-    )
-    print(tosvg.conf)
+#
+# ....XXXX
+# ........
+# ....X...
+# XXXXX...
+# ........
 
 
-if __name__ == "__main__":
-    main()
+def _rotate_offsets(offsets: list[tuple[int, int, str]], dir: str) -> list[tuple[int, int, str]]:
+    # offset should be in a way that the opposite direction is the first element.
+    # in other words, that the passed direction is the third element
+    while offsets[2][2] != dir:
+        offsets = offsets[1:] + offsets[:1]
+    return offsets
+
+
+def _find_neighbors(node: dict, partition: list[tuple[int, int]]) -> list[dict]:
+    # node:
+    # {
+    #  "coord": (x, y),
+    #  "dir": str,
+    # }
+    offsets = [
+        (0, 1, "S"),  # down
+        (-1, 0, "W"),  # left
+        (0, -1, "N"),  # up
+        (1, 0, "E"),  # right
+    ]
+
+    offsets = _rotate_offsets(offsets, node["dir"])
+    neighbors = []
+    for offset in offsets:
+        coord = node["coord"]
+        neighbor = (coord[0] + offset[0], coord[1] + offset[1])
+        if neighbor in partition:
+            new_node = {
+                "coord": neighbor,
+                "dir": offset[2],
+            }
+            neighbors.insert(0, new_node)
+    return neighbors
+
+
+def order_partition(
+    partition: list[tuple[int, int]], start_coord: tuple[int, int]
+) -> list[tuple[int, int]]:
+    visited = set()
+    node = {
+        "coord": start_coord,
+        "dir": "N",
+    }
+
+    stack = [node]
+    ret = []
+
+    while stack:
+        node = stack.pop()
+        coord = node["coord"]
+        if coord not in visited:
+            visited.add(coord)
+            ret.append(coord)
+            for neighbor in _find_neighbors(node, partition):
+                new_coord = neighbor["coord"]
+                if new_coord not in visited:
+                    stack.append(neighbor)
+    return ret
