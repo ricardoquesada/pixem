@@ -14,7 +14,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-import layer_parser
+from partition import Partition, order_partition
 
 PAINT_SCALE_FACTOR = 12
 
@@ -44,6 +44,7 @@ class ImageWidget(QWidget):
         self._cached_selected_rects = []
 
         self._edit_mode = self.EditMode.PAINT
+        self._fill_mode = Partition.FillMode.SPIRAL_CW
         self._coord_mode: ImageWidget.CoordMode = self.CoordMode.ADD
 
     def _update_coordinate(self, coord: tuple[int, int]):
@@ -72,6 +73,9 @@ class ImageWidget(QWidget):
 
     def set_edit_mode(self, mode: EditMode):
         self._edit_mode = mode
+
+    def set_fill_mode(self, mode: Partition.FillMode):
+        self._fill_mode = mode
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -115,7 +119,7 @@ class ImageWidget(QWidget):
                 self._update_coordinate(coord)
             case ImageWidget.EditMode.FILL:
                 partial_partition = list(set(self._original_coords) - set(self._selected_coords))
-                ordered_partition = layer_parser.order_partition(partial_partition, coord)
+                ordered_partition = order_partition(partial_partition, coord, self._fill_mode)
                 self._selected_coords = self._selected_coords + ordered_partition
                 self._update_selected_coords_cache()
 
@@ -196,20 +200,43 @@ class PartitionDialog(QDialog):
         button_layout.addWidget(self.cancel_button)
 
         toolbar = QToolBar()
+
+        # Edit modes
         pixmap = QPixmap(":/res/icons/22x22/categories/applications-graphics.png")
         self._paint_action = QAction(QIcon(pixmap), "Paint", self)
-        self._paint_action.triggered.connect(self._on_action_mode_paint)
         pixmap = QPixmap(":/res/icons/22x22/actions/stock-tool-bucket-fill.png")
         self._fill_action = QAction(QIcon(pixmap), "Fill", self)
-        self._fill_action.triggered.connect(self._on_action_mode_fill)
         pixmap = QPixmap(":/res/icons/22x22/actions/stock-tool-rect-select.png")
         self._select_action = QAction(QIcon(pixmap), "Select", self)
-        self._select_action.triggered.connect(self._on_action_mode_select)
         actions = [self._paint_action, self._fill_action, self._select_action]
         toolbar.addActions(actions)
         for action in actions:
             action.setCheckable(True)
+            action.triggered.connect(self._on_action_edit_mode)
         self._paint_action.setChecked(True)
+
+        toolbar.addSeparator()
+
+        # Fill modes
+        pixmap = QPixmap(":/res/icons/22x22/actions/go-up.png")
+        self._fill_spiral_cw_action = QAction(QIcon(pixmap), "Spiral CW", self)
+        pixmap = QPixmap(":/res/icons/22x22/actions/go-down.png")
+        self._fill_spiral_ccw_action = QAction(QIcon(pixmap), "Spiral CCW", self)
+        pixmap = QPixmap(":/res/icons/22x22/actions/go-previous.png")
+        self._fill_snake_cw_action = QAction(QIcon(pixmap), "Snake CW", self)
+        pixmap = QPixmap(":/res/icons/22x22/actions/go-next.png")
+        self._fill_snake_ccw_action = QAction(QIcon(pixmap), "Snake CCW", self)
+        actions = [
+            self._fill_spiral_cw_action,
+            self._fill_spiral_ccw_action,
+            self._fill_snake_cw_action,
+            self._fill_snake_ccw_action,
+        ]
+        toolbar.addActions(actions)
+        for action in actions:
+            action.setCheckable(True)
+            action.triggered.connect(self._on_action_fill_mode)
+        self._fill_spiral_cw_action.setChecked(True)
 
         main_layout = QVBoxLayout()
         main_layout.setContentsMargins(0, 0, 0, 10)
@@ -243,23 +270,55 @@ class PartitionDialog(QDialog):
                     self._list_widget.setDragDropMode(QListWidget.InternalMove)  # Enable reordering
                     self._list_widget.setSelectionMode(QListWidget.ExtendedSelection)
 
-    def _on_action_mode_paint(self, value):
-        self._paint_action.setChecked(True)
-        self._fill_action.setChecked(False)
-        self._select_action.setChecked(False)
-        self._set_edit_mode(ImageWidget.EditMode.PAINT)
+    def _set_fill_mode(self, mode: Partition.FillMode):
+        self._image_widget.set_fill_mode(mode)
 
-    def _on_action_mode_fill(self, value):
-        self._paint_action.setChecked(False)
-        self._fill_action.setChecked(True)
-        self._select_action.setChecked(False)
-        self._set_edit_mode(ImageWidget.EditMode.FILL)
+    def _on_action_edit_mode(self, value):
+        actions = [self._paint_action, self._fill_action, self._select_action]
+        sender: QAction = self.sender()
+        if sender not in actions:
+            logger.warning("Unknown actions {sender}")
+            return
+        for action in actions:
+            action.setChecked(False)
+        sender.setChecked(True)
 
-    def _on_action_mode_select(self, value):
-        self._paint_action.setChecked(False)
-        self._fill_action.setChecked(False)
-        self._select_action.setChecked(True)
-        self._set_edit_mode(ImageWidget.EditMode.SELECT)
+        mode = ImageWidget.EditMode.PAINT
+        match sender:
+            case self._paint_action:
+                mode = ImageWidget.EditMode.PAINT
+            case self._fill_action:
+                mode = ImageWidget.EditMode.FILL
+            case self._select_action:
+                mode = ImageWidget.EditMode.SELECT
+        self._set_edit_mode(mode)
+
+    def _on_action_fill_mode(self, value):
+        actions = [
+            self._fill_spiral_cw_action,
+            self._fill_spiral_ccw_action,
+            self._fill_snake_cw_action,
+            self._fill_snake_ccw_action,
+        ]
+        sender: QAction = self.sender()
+        if sender not in actions:
+            logger.warning("Unknown actions {sender}")
+            return
+        for action in actions:
+            action.setChecked(False)
+        sender.setChecked(True)
+
+        mode = Partition.FillMode.SPIRAL_CW
+        match sender:
+            case self._fill_spiral_cw_action:
+                mode = Partition.FillMode.SPIRAL_CW
+            case self._fill_spiral_ccw_action:
+                mode = Partition.FillMode.SPIRAL_CCW
+            case self._fill_snake_cw_action:
+                mode = Partition.FillMode.SNAKE_CW
+            case self._fill_snake_ccw_action:
+                mode = Partition.FillMode.SNAKE_CCW
+        self._set_fill_mode(mode)
 
     def _on_rows_moved(self, parent, start, end, destination):
         print(f"Rows moved from {start} to {end} to destination {destination}")
