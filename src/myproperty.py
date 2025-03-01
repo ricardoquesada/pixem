@@ -1,4 +1,5 @@
-# This Python file uses the following encoding: utf-8
+# Pixem
+# Copyright 2025 - Ricardo Quesada
 
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QColor

@@ -1,3 +1,6 @@
+# Pixem
+# Copyright 2024 - Ricardo Quesada
+
 import base64
 import logging
 

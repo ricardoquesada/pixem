@@ -1,3 +1,6 @@
+# Pixem
+# Copyright 2025 - Ricardo Quesada
+
 from PySide6.QtWidgets import (
     QApplication,
     QComboBox,

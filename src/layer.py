@@ -1,3 +1,6 @@
+# Pixem
+# Copyright 2025 - Ricardo Quesada
+
 import logging
 from typing import Optional, Self
 

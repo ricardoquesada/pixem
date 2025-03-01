@@ -1,7 +1,6 @@
 # Pixem
 # Copyright 2024 - Ricardo Quesada
 
-
 import logging
 
 import networkx as nx

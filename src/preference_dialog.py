@@ -1,3 +1,6 @@
+# Pixem
+# Copyright 2025 - Ricardo Quesada
+
 import sys
 
 from PySide6.QtWidgets import (

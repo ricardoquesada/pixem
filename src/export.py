@@ -1,5 +1,6 @@
 # Pixem
 # Copyright 2024 - Ricardo Quesada
+
 import argparse
 import logging
 

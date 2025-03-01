@@ -1,4 +1,6 @@
-# Copyright 2025 Ricardo Quesada
+# Pixem
+# Copyright 2025 - Ricardo Quesada
+
 import typing
 
 from PySide6.QtCore import QSettings
