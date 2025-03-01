@@ -505,7 +505,6 @@ class MainWindow(QMainWindow):
         print(data)
 
     def _on_layer_delete(self) -> None:
-        logger.info("on_layer_delete")
         selected_items = self._layer_list.selectedItems()
         layer = self._state.selected_layer
 
@@ -538,9 +537,8 @@ class MainWindow(QMainWindow):
 
         parser = LayerParser(layer)
         layer.partitions = parser.get_partitions()
-        for partition in layer.partitions:
-            logger.info(f"Partition {partition}")
-            self._partition_list.addItem(partition)
+        for partition_name in layer.partitions:
+            self._partition_list.addItem(partition_name)
         if len(layer.partitions) > 0:
             self._partition_list.setCurrentRow(0)
 
@@ -551,7 +549,6 @@ class MainWindow(QMainWindow):
         self.update()
 
     def _on_change_layer(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
-        logger.info(f"on_change_layer: {current} {current.text() if current is not None else None}")
         enabled = current is not None
         self._property_editor.setEnabled(enabled)
         if enabled:
@@ -579,9 +576,6 @@ class MainWindow(QMainWindow):
                 self._state.current_layer_key = None
 
     def _on_change_partition(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
-        logger.info(
-            f"on_change_partition: {current} {current.text() if current is not None else None}"
-        )
         enabled = current is not None
         selected_layer = self._state.selected_layer
         new_key = None
@@ -603,9 +597,6 @@ class MainWindow(QMainWindow):
         if layer is None:
             return
 
-        logger.info(
-            f"on_double_click_partition: {current} {current.text() if current is not None else None}"
-        )
         partition = layer.selected_partition
         if partition is None:
             return
@@ -613,7 +604,7 @@ class MainWindow(QMainWindow):
         dialog = PartitionDialog(layer.image, partition)
         if dialog.exec():
             path = dialog.get_path()
-            partition["path"] = path
+            partition.path = path
         else:
             print("Dialog canceled")
 

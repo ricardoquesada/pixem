@@ -94,7 +94,6 @@ class Canvas(QWidget):
             if layer.current_partition_key in layer.partitions:
                 partition = layer.partitions[layer.current_partition_key]
 
-                logger.info(f"*** type: {type(partition)}, value: {partition}")
                 for x, y in partition.path:
                     polygon = [
                         QPointF(layer.position.x() + x * W, layer.position.y() + y * H),

@@ -1,6 +1,6 @@
 import logging
 from enum import Enum, auto
-from typing import Self
+from typing import Optional, Self
 
 logger = logging.getLogger(__name__)  # __name__ gets the current module's name
 
@@ -12,15 +12,18 @@ class Partition:
         SNAKE_CW = auto()
         SNAKE_CCW = auto()
 
-    def __init__(self, nodes: list[tuple[int, int]]):
+    def __init__(self, nodes: list[tuple[int, int]], name: Optional[str] = None):
         self._nodes = nodes
         self._size = len(nodes)
+        self._name = name
 
     @classmethod
     def from_dict(cls, d: dict) -> Self:
-        logger.info(f"dict {d}")
         path = [(x, y) for x, y in d["path"]]
         part = Partition(path)
+
+        if "name" in d:
+            part.name = d["name"]
 
         if "size" in d and d["size"] != len(path):
             logger.warning(f"Unexpected size in Partition. Wanted {len(path)}, got {d['size']}")
@@ -32,6 +35,7 @@ class Partition:
         d = {
             "path": self._nodes,
             "size": len(self._nodes),
+            "name": self._name,
         }
         return d
 
@@ -41,6 +45,19 @@ class Partition:
     @property
     def path(self) -> list[tuple[int, int]]:
         return self._nodes
+
+    @path.setter
+    def path(self, value: list[tuple[int, int]]) -> None:
+        self._nodes = value
+        self._size = len(value)
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @name.setter
+    def name(self, value: str):
+        self._name = value
 
 
 def _rotate_offsets(offsets: list[tuple[int, int, str]], dir: str) -> list[tuple[int, int, str]]:

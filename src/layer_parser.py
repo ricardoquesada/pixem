@@ -6,6 +6,7 @@ import networkx as nx
 from PySide6.QtGui import QColor, QImage
 
 from layer import Layer
+from partition import Partition
 
 # Argument Defaults
 DEFAULT_ROTATION = 0
@@ -287,5 +288,9 @@ class LayerParser:
     def conf(self):
         return self._conf
 
-    def get_partitions(self) -> dict:
-        return self.conf[KEY_PARTITIONS]
+    def get_partitions(self) -> dict[str, Partition]:
+        ret = {}
+        for key in self.conf[KEY_PARTITIONS]:
+            part = Partition(self.conf[KEY_PARTITIONS][key]["path"], key)
+            ret[key] = part
+        return ret

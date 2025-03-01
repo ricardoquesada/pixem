@@ -45,8 +45,8 @@ class Layer:
         if "partitions" in d:
             for p in d["partitions"]:
                 part_dict = d["partitions"][p]
-                partition = Partition.from_dict(part_dict)
-                layer._partitions[p] = partition
+                part = Partition.from_dict(part_dict)
+                layer._partitions[p] = part
         if "current_partition_key" in d:
             layer._current_partition_key = d["current_partition_key"]
         return layer
@@ -65,8 +65,8 @@ class Layer:
             "current_partition_key": self._current_partition_key,
         }
         for p in self._partitions:
-            part_dict = self._partitions[p].to_dict()
-            d["partitions"][p] = part_dict
+            part = self._partitions[p].to_dict()
+            d["partitions"][p] = part
         return d
 
     @property
@@ -105,7 +105,6 @@ class Layer:
 
     @current_partition_key.setter
     def current_partition_key(self, value: str):
-        logger.info(f"Layer.current_partition_key = {value}")
         self._current_partition_key = value
 
     @property
