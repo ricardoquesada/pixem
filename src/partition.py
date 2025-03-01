@@ -2,6 +2,7 @@
 # Copyright 2025 - Ricardo Quesada
 
 import logging
+from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Optional, Self
 
@@ -17,33 +18,6 @@ def _rotate_offsets(offsets: list[tuple[int, int, str]], dir: str) -> list[tuple
     return offsets
 
 
-def _find_neighbors(node: dict, partition: list[tuple[int, int]]) -> list[dict]:
-    # node:
-    # {
-    #  "coord": (x, y),
-    #  "dir": str,
-    # }
-    offsets = [
-        (0, 1, "S"),  # down
-        (-1, 0, "W"),  # left
-        (0, -1, "N"),  # up
-        (1, 0, "E"),  # right
-    ]
-
-    offsets = _rotate_offsets(offsets, node["dir"])
-    neighbors = []
-    for offset in offsets:
-        coord = node["coord"]
-        neighbor = (coord[0] + offset[0], coord[1] + offset[1])
-        if neighbor in partition:
-            new_node = {
-                "coord": neighbor,
-                "dir": offset[2],
-            }
-            neighbors.insert(0, new_node)
-    return neighbors
-
-
 class Partition:
     class WalkMode(Enum):
         SPIRAL_CW = auto()
@@ -52,10 +26,33 @@ class Partition:
         SNAKE_CCW = auto()
         SELF_AVOIDANCE_WALK = auto()
 
-    def __init__(self, nodes: list[tuple[int, int]], name: Optional[str] = None):
-        self._nodes = nodes
-        self._size = len(nodes)
+    @dataclass
+    class Node:
+        coord: tuple[int, int]
+        dir: str
+
+    def __init__(self, path: list[tuple[int, int]], name: Optional[str] = None):
+        self._path = path
+        self._size = len(path)
         self._name = name
+
+    def _find_neighbors(self, node: Node) -> list[Node]:
+        offsets = [
+            (0, 1, "S"),  # down
+            (-1, 0, "W"),  # left
+            (0, -1, "N"),  # up
+            (1, 0, "E"),  # right
+        ]
+
+        offsets = _rotate_offsets(offsets, node.dir)
+        neighbors = []
+        for offset in offsets:
+            coord = node.coord
+            neighbor = (coord[0] + offset[0], coord[1] + offset[1])
+            if neighbor in self._path:
+                new_node = Partition.Node(neighbor, offset[2])
+                neighbors.insert(0, new_node)
+        return neighbors
 
     @classmethod
     def from_dict(cls, d: dict) -> Self:
@@ -73,41 +70,38 @@ class Partition:
     def to_dict(self) -> dict:
         """Returns a dictionary that represents the Layer"""
         d = {
-            "path": self._nodes,
-            "size": len(self._nodes),
+            "path": self._path,
+            "size": len(self._path),
             "name": self._name,
         }
         return d
 
     def walk_path(self, mode: WalkMode, start_point: tuple[int, int]) -> None:
         visited = set()
-        node = {
-            "coord": start_point,
-            "dir": "N",
-        }
+        node = Partition.Node(start_point, "N")
 
         stack = [node]
         new_path = []
 
         while stack:
             node = stack.pop()
-            coord = node["coord"]
+            coord = node.coord
             if coord not in visited:
                 visited.add(coord)
                 new_path.append(coord)
-                for neighbor in _find_neighbors(node, self.path):
-                    new_coord = neighbor["coord"]
+                for neighbor in self._find_neighbors(node):
+                    new_coord = neighbor.coord
                     if new_coord not in visited:
                         stack.append(neighbor)
         self.path = new_path
 
     @property
     def path(self) -> list[tuple[int, int]]:
-        return self._nodes
+        return self._path
 
     @path.setter
     def path(self, value: list[tuple[int, int]]) -> None:
-        self._nodes = value
+        self._path = value
         self._size = len(value)
 
     @property
