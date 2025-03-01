@@ -147,12 +147,6 @@ class MainWindow(QMainWindow):
         self._delete_layer_action.triggered.connect(self._on_layer_delete)
         layer_menu.addAction(self._delete_layer_action)
 
-        layer_menu.addSeparator()
-
-        self._find_partitions_action = QAction("Find Partitions", self)
-        self._find_partitions_action.triggered.connect(self._on_find_partitions)
-        layer_menu.addAction(self._find_partitions_action)
-
         help_menu = QMenu("&Help", self)
         menu_bar.addMenu(help_menu)
 
@@ -281,7 +275,6 @@ class MainWindow(QMainWindow):
         self._add_text_action.setEnabled(enabled)
         self._add_image_action.setEnabled(enabled)
         self._delete_layer_action.setEnabled(enabled)
-        self._find_partitions_action.setEnabled(enabled)
 
         self._zoom_slider.setEnabled(enabled)
 
@@ -493,6 +486,15 @@ class MainWindow(QMainWindow):
             self._state.add_layer(layer)
             self._layer_list.addItem(layer.name)
             self._layer_list.setCurrentRow(len(self._state.layers) - 1)
+
+            # TODO: Should be a function, since "on_layer_add_text" will use it too
+            parser = ImageParser(layer.image)
+            layer.partitions = parser.partitions
+            for partition_name in layer.partitions:
+                self._partition_list.addItem(partition_name)
+            if len(layer.partitions) > 0:
+                self._partition_list.setCurrentRow(0)
+
             self._canvas.recalculate_fixed_size()
             self.update()
 
@@ -528,19 +530,6 @@ class MainWindow(QMainWindow):
 
         self._canvas.recalculate_fixed_size()
         self.update()
-
-    def _on_find_partitions(self) -> None:
-        layer = self._state.selected_layer
-        if layer is None:
-            logger.warning("Cannot find partitions. Layer not selected")
-            return
-
-        parser = ImageParser(layer.image)
-        layer.partitions = parser.partitions
-        for partition_name in layer.partitions:
-            self._partition_list.addItem(partition_name)
-        if len(layer.partitions) > 0:
-            self._partition_list.setCurrentRow(0)
 
     def _on_zoom_changed(self, value: int) -> None:
         self._state.zoom_factor = value / 100.0

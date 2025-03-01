@@ -13,8 +13,6 @@ class Partition:
     class WalkMode(Enum):
         SPIRAL_CW = auto()
         SPIRAL_CCW = auto()
-        SNAKE_CW = auto()
-        SNAKE_CCW = auto()
         SELF_AVOIDANCE_WALK = auto()
 
     @dataclass
