@@ -11,19 +11,8 @@ from partition import Partition
 
 logger = logging.getLogger(__name__)  # __name__ gets the current module's name
 
-# Argument Defaults
-DEFAULT_ROTATION = 0
-DEFAULT_SAW_THRESHOLD = 40
 
-# Conf dictionary Keys
-KEY_PARTITIONS = "partitions"
-KEY_PARTITION_PATH = "path"
-KEY_PARTITION_SIZE = "size"
-KEY_ROTATION = "rotation"
-KEY_SAW_THRESHOLD = "saw_threshold"  # SAW = Self Avoidance Walk
-
-
-def get_node_with_one_neighbor(G):
+def _get_node_with_one_neighbor(G):
     # Returns the first node that has a degree of 1
     nodes_with_one_neighbor = [node for node, degree in G.degree() if degree == 1]
     if len(nodes_with_one_neighbor) > 0:
@@ -31,7 +20,7 @@ def get_node_with_one_neighbor(G):
     return None
 
 
-def get_top_left_node(G):
+def _get_top_left_node(G):
     curr_node = None
     curr_dist = 1000000
     for node in G.nodes():
@@ -41,80 +30,6 @@ def get_top_left_node(G):
             curr_dist = d
             curr_node = node
     return curr_node
-
-
-def iterative_dfs(G, start_node):
-    visited = set()
-    stack = [start_node]
-    ret = []
-
-    while stack:
-        node = stack.pop()
-        if node not in visited:
-            visited.add(node)
-            ret.append(node)
-            for neighbor in G.neighbors(node):
-                stack.append(neighbor)
-    return ret
-
-
-def saw_with_backtracking(G, node, path, longest_path):
-    """
-    Generates a self-avoiding walk (SAW) in a 2D lattice with holes using backtracking.
-
-    Args:
-      G: The graph
-      node: The current node of the walk.
-      path: The current path of the walk.
-      longest_path: longest path so far
-
-    Returns:
-      A list of nodes representing the SAW, or None if no valid walk exists.
-    """
-
-    if path is None:
-        path = [node]
-
-    if len(path) == len(G.nodes):
-        return path, longest_path
-
-    possible_nodes = G.neighbors(node)
-    for next_node in possible_nodes:
-        if next_node not in path:
-            path.append(next_node)  # Try this node
-            if len(path) > len(longest_path):
-                longest_path = path
-            new_path, new_longest_path = saw_with_backtracking(G, next_node, path, longest_path)
-            if new_path:
-                return new_path, new_longest_path  # Found a solution
-            path.pop()  # Backtrack: remove the last move
-
-    return None, longest_path  # No valid path found from this point
-
-
-def rotate_left_list(lst, n):
-    """Rotates a list by n positions to the left.
-
-    Args:
-        lst: The list to rotate.
-        n: The number of positions to rotate.
-
-    Returns:
-        The rotated list.
-    """
-    n = n % len(lst)
-    return lst[n:] + lst[:n]
-
-
-def find_jump_stitches(nodes):
-    jump_stitches = 0
-    if len(nodes) > 1:
-        prev = nodes[0]
-        for node in nodes[1:]:
-            if (abs(prev[0] - node[0]) > 1) or (abs(prev[1] - node[1]) > 1):
-                jump_stitches = jump_stitches + 1
-            prev = node
-    return jump_stitches
 
 
 class ImageParser:
@@ -129,29 +44,13 @@ class ImageParser:
         "W": (-1, 0),
     }
 
-    def __init__(
-        self,
-        image: QImage,
-        rotation=0,
-        saw_threshold=40,
-    ):
+    def __init__(self, image: QImage):
         width, height = image.width(), image.height()
 
         self._jump_stitches = 0
         self._image = [[-1 for _ in range(height)] for _ in range(width)]
 
-        self._conf = {KEY_PARTITIONS: {}}
-
-        args = [
-            (rotation, KEY_ROTATION, DEFAULT_ROTATION),
-            (saw_threshold, KEY_SAW_THRESHOLD, DEFAULT_SAW_THRESHOLD),
-        ]
-        for arg in args:
-            self._set_conf_value(arg[0], arg[1], arg[2])
-
-        # Backward compatible
-        self._rotation = self._conf[KEY_ROTATION]
-        self._saw_threshold = self._conf[KEY_SAW_THRESHOLD]
+        self._partitions = {}
 
         # Put all pixels in matrix
         self._put_pixels_in_matrix(image, width, height)
@@ -213,38 +112,19 @@ class ImageParser:
 
             partition = Partition(nodes, key)
 
-            if key not in self._conf[KEY_PARTITIONS]:
-                self._conf[KEY_PARTITIONS][key] = partition
+            if key not in self._partitions:
+                self._partitions[key] = partition
 
                 if len(nodes) > 1:
                     start_node = self._get_starting_node(s, key)
                     partition.walk_path(Partition.WalkMode.SPIRAL_CW, start_node)
-
-            # if len(nodes) > 1:
-            #     start_node = self._get_starting_node(s, key)
-            #     if len(s.nodes) < self._saw_threshold:
-            #         path = None
-            #         longest_path = []
-            #         print(f", trying SAW ({len(s.nodes)})", end="")
-            #         path, longest_path = saw_with_backtracking(s, start_node, path, longest_path)
-            #         nodes = path
-            #         if nodes is not None:
-            #             print("")
-            #     if nodes is None or len(s.nodes) >= self._saw_threshold:
-            #         print(f", trying DFS ({len(s.nodes)})")
-            #         nodes = iterative_dfs(s, start_node)
-            # self._conf[KEY_PARTITIONS][key][KEY_PARTITION_PATH] = nodes
-            # self._conf[KEY_PARTITIONS][key][KEY_PARTITION_SIZE] = len(nodes)
-            # ret.append(nodes)
         return ret
 
     def _get_starting_node(self, G, key):
-        logger.info(f"Processing key: {key}:")
-        node = get_node_with_one_neighbor(G)
+        node = _get_node_with_one_neighbor(G)
         if node is None:
-            node = get_top_left_node(G)
+            node = _get_top_left_node(G)
         assert node is not None
-        logger.info(f"  Starting node: {node}")
         return node
 
     def _create_color_graph(self, width, height) -> dict:
@@ -252,9 +132,6 @@ class ImageParser:
         # Each color is a list of nodes
         d = {}
         directions = ["NW", "N", "NE", "E", "SE", "S", "SW", "W"]
-        directions = rotate_left_list(directions, abs(self._rotation))
-        if self._rotation < 0:
-            directions = directions[::-1]
 
         for x in range(width):
             for y in range(height):
@@ -283,4 +160,4 @@ class ImageParser:
 
     @property
     def partitions(self) -> dict[str, Partition]:
-        return self.conf[KEY_PARTITIONS]
+        return self._partitions
