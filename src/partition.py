@@ -51,7 +51,7 @@ class Partition:
             neighbor = (coord[0] + offset[0], coord[1] + offset[1])
             if neighbor in self._path:
                 new_node = Partition.Node(neighbor, offset[2])
-                neighbors.insert(0, new_node)
+                neighbors.append(new_node)
         return neighbors
 
     @classmethod
@@ -89,11 +89,15 @@ class Partition:
             if coord not in visited:
                 visited.add(coord)
                 new_path.append(coord)
-                for neighbor in self._find_neighbors(node):
+                neighbors = self._find_neighbors(node)
+                if mode == Partition.WalkMode.SPIRAL_CW:
+                    # Walk it in opposite direction
+                    neighbors = reversed(neighbors)
+                for neighbor in neighbors:
                     new_coord = neighbor.coord
                     if new_coord not in visited:
                         stack.append(neighbor)
-        self.path = new_path
+        self._path = new_path
 
     @property
     def path(self) -> list[tuple[int, int]]:
