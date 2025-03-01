@@ -5,61 +5,7 @@ from typing import Optional, Self
 logger = logging.getLogger(__name__)  # __name__ gets the current module's name
 
 
-class Partition:
-    class WalkMode(Enum):
-        SPIRAL_CW = auto()
-        SPIRAL_CCW = auto()
-        SNAKE_CW = auto()
-        SNAKE_CCW = auto()
-
-    def __init__(self, nodes: list[tuple[int, int]], name: Optional[str] = None):
-        self._nodes = nodes
-        self._size = len(nodes)
-        self._name = name
-
-    @classmethod
-    def from_dict(cls, d: dict) -> Self:
-        path = [(x, y) for x, y in d["path"]]
-        part = Partition(path)
-
-        if "name" in d:
-            part.name = d["name"]
-
-        if "size" in d and d["size"] != len(path):
-            logger.warning(f"Unexpected size in Partition. Wanted {len(path)}, got {d['size']}")
-
-        return part
-
-    def to_dict(self) -> dict:
-        """Returns a dictionary that represents the Layer"""
-        d = {
-            "path": self._nodes,
-            "size": len(self._nodes),
-            "name": self._name,
-        }
-        return d
-
-    def create_path(self, mode: WalkMode, start_point: tuple[int, int]):
-        pass
-
-    @property
-    def path(self) -> list[tuple[int, int]]:
-        return self._nodes
-
-    @path.setter
-    def path(self, value: list[tuple[int, int]]) -> None:
-        self._nodes = value
-        self._size = len(value)
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @name.setter
-    def name(self, value: str):
-        self._name = value
-
-
+# TODO: move as static methods, or something
 def _rotate_offsets(offsets: list[tuple[int, int, str]], dir: str) -> list[tuple[int, int, str]]:
     # offset should be in a way that the opposite direction is the first element.
     # in other words, that the passed direction is the third element
@@ -95,26 +41,75 @@ def _find_neighbors(node: dict, partition: list[tuple[int, int]]) -> list[dict]:
     return neighbors
 
 
-def order_partition(
-    partition: list[tuple[int, int]], start_coord: tuple[int, int], fill_mode: Partition.WalkMode
-) -> list[tuple[int, int]]:
-    visited = set()
-    node = {
-        "coord": start_coord,
-        "dir": "N",
-    }
+class Partition:
+    class WalkMode(Enum):
+        SPIRAL_CW = auto()
+        SPIRAL_CCW = auto()
+        SNAKE_CW = auto()
+        SNAKE_CCW = auto()
 
-    stack = [node]
-    ret = []
+    def __init__(self, nodes: list[tuple[int, int]], name: Optional[str] = None):
+        self._nodes = nodes
+        self._size = len(nodes)
+        self._name = name
 
-    while stack:
-        node = stack.pop()
-        coord = node["coord"]
-        if coord not in visited:
-            visited.add(coord)
-            ret.append(coord)
-            for neighbor in _find_neighbors(node, partition):
-                new_coord = neighbor["coord"]
-                if new_coord not in visited:
-                    stack.append(neighbor)
-    return ret
+    @classmethod
+    def from_dict(cls, d: dict) -> Self:
+        path = [(x, y) for x, y in d["path"]]
+        part = Partition(path)
+
+        if "name" in d:
+            part.name = d["name"]
+
+        if "size" in d and d["size"] != len(path):
+            logger.warning(f"Unexpected size in Partition. Wanted {len(path)}, got {d['size']}")
+
+        return part
+
+    def to_dict(self) -> dict:
+        """Returns a dictionary that represents the Layer"""
+        d = {
+            "path": self._nodes,
+            "size": len(self._nodes),
+            "name": self._name,
+        }
+        return d
+
+    def walk_path(self, mode: WalkMode, start_point: tuple[int, int]) -> None:
+        visited = set()
+        node = {
+            "coord": start_point,
+            "dir": "N",
+        }
+
+        stack = [node]
+        new_path = []
+
+        while stack:
+            node = stack.pop()
+            coord = node["coord"]
+            if coord not in visited:
+                visited.add(coord)
+                new_path.append(coord)
+                for neighbor in _find_neighbors(node, self.path):
+                    new_coord = neighbor["coord"]
+                    if new_coord not in visited:
+                        stack.append(neighbor)
+        self.path = new_path
+
+    @property
+    def path(self) -> list[tuple[int, int]]:
+        return self._nodes
+
+    @path.setter
+    def path(self, value: list[tuple[int, int]]) -> None:
+        self._nodes = value
+        self._size = len(value)
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @name.setter
+    def name(self, value: str):
+        self._name = value

@@ -14,7 +14,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from partition import Partition, order_partition
+from partition import Partition
 
 PAINT_SCALE_FACTOR = 12
 
@@ -119,7 +119,10 @@ class ImageWidget(QWidget):
                 self._update_coordinate(coord)
             case ImageWidget.EditMode.FILL:
                 partial_partition = list(set(self._original_coords) - set(self._selected_coords))
-                ordered_partition = order_partition(partial_partition, coord, self._walk_mode)
+                # Create temporal partition
+                part = Partition(partial_partition)
+                part.walk_path(self._walk_mode, coord)
+                ordered_partition = part.path
                 self._selected_coords = self._selected_coords + ordered_partition
                 self._update_selected_coords_cache()
 
