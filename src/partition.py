@@ -9,15 +9,6 @@ from typing import Optional, Self
 logger = logging.getLogger(__name__)  # __name__ gets the current module's name
 
 
-# TODO: move as static methods, or something
-def _rotate_offsets(offsets: list[tuple[int, int, str]], dir: str) -> list[tuple[int, int, str]]:
-    # offset should be in a way that the opposite direction is the first element.
-    # in other words, that the passed direction is the third element
-    while offsets[2][2] != dir:
-        offsets = offsets[1:] + offsets[:1]
-    return offsets
-
-
 class Partition:
     class WalkMode(Enum):
         SPIRAL_CW = auto()
@@ -36,21 +27,28 @@ class Partition:
         self._size = len(path)
         self._name = name
 
+    @staticmethod
+    def _rotate_offsets(offsets: list[Node], dir: str) -> list[Node]:
+        # offset should be in a way that the opposite direction is the first element.
+        # in other words, that the passed direction is the third element
+        while offsets[2].dir != dir:
+            offsets = offsets[1:] + offsets[:1]
+        return offsets
+
     def _find_neighbors(self, node: Node) -> list[Node]:
         offsets = [
-            (0, 1, "S"),  # down
-            (-1, 0, "W"),  # left
-            (0, -1, "N"),  # up
-            (1, 0, "E"),  # right
+            Partition.Node((0, 1), "S"),  # down
+            Partition.Node((-1, 0), "W"),  # left
+            Partition.Node((0, -1), "N"),  # up
+            Partition.Node((1, 0), "E"),  # right
         ]
 
-        offsets = _rotate_offsets(offsets, node.dir)
+        offsets = Partition._rotate_offsets(offsets, node.dir)
         neighbors = []
         for offset in offsets:
-            coord = node.coord
-            neighbor = (coord[0] + offset[0], coord[1] + offset[1])
+            neighbor = (node.coord[0] + offset.coord[0], node.coord[1] + offset.coord[1])
             if neighbor in self._path:
-                new_node = Partition.Node(neighbor, offset[2])
+                new_node = Partition.Node(neighbor, offset.dir)
                 neighbors.append(new_node)
         return neighbors
 
