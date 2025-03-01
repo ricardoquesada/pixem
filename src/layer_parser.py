@@ -2,11 +2,15 @@
 # Copyright 2024 - Ricardo Quesada
 
 
+import logging
+
 import networkx as nx
 from PySide6.QtGui import QColor, QImage
 
 from layer import Layer
 from partition import Partition
+
+logger = logging.getLogger(__name__)  # __name__ gets the current module's name
 
 # Argument Defaults
 DEFAULT_ROTATION = 0
@@ -18,7 +22,6 @@ KEY_PARTITION_PATH = "path"
 KEY_PARTITION_SIZE = "size"
 KEY_ROTATION = "rotation"
 KEY_SAW_THRESHOLD = "saw_threshold"  # SAW = Self Avoidance Walk
-KEY_STARTING_NODE = "starting_node"
 
 
 def get_node_with_one_neighbor(G):
@@ -140,10 +143,6 @@ class LayerParser:
         self._jump_stitches = 0
         self._image = [[-1 for _ in range(height)] for _ in range(width)]
 
-        # key: color
-        # value: lists of neighboring pixels
-        self._pixel_groups = {}
-
         self._conf = {KEY_PARTITIONS: {}}
 
         args = [
@@ -162,11 +161,8 @@ class LayerParser:
         # Group the ones that are touching/same-color together
         g = self._create_color_graph(width, height)
 
-        solution = {}
         for color in g:
-            subgraph = self._create_solution_graph(g[color], color)
-            solution[color] = subgraph
-        self._pixel_groups = solution
+            self._create_partitions(g[color], color)
 
     def _set_conf_value(self, arg_value, key, default):
         # Priority:
@@ -192,7 +188,7 @@ class LayerParser:
                     continue
                 self._image[x][y] = argb & 0xFFFFFF
 
-    def _create_solution_graph(self, image_graph, color) -> list[list]:
+    def _create_partitions(self, image_graph, color) -> None:
         # image_graph is a dict of:
         #   key: node
         #   value: edges
@@ -216,38 +212,39 @@ class LayerParser:
             # nx.draw(s, with_labels=True)
             # plt.show()
             nodes = list(s.nodes())
-
             key = f"#{color:06x}_{idx}"
-            if key not in self._conf[KEY_PARTITIONS]:
-                self._conf[KEY_PARTITIONS][key] = {}
 
-            if len(nodes) > 1:
-                start_node = self._get_starting_node(s, key)
-                if len(s.nodes) < self._saw_threshold:
-                    path = None
-                    longest_path = []
-                    print(f", trying SAW ({len(s.nodes)})", end="")
-                    path, longest_path = saw_with_backtracking(s, start_node, path, longest_path)
-                    nodes = path
-                    if nodes is not None:
-                        print("")
-                if nodes is None or len(s.nodes) >= self._saw_threshold:
-                    print(f", trying DFS ({len(s.nodes)})")
-                    nodes = iterative_dfs(s, start_node)
-            self._conf[KEY_PARTITIONS][key][KEY_PARTITION_PATH] = nodes
-            self._conf[KEY_PARTITIONS][key][KEY_PARTITION_SIZE] = len(nodes)
-            ret.append(nodes)
+            partition = Partition(nodes, key)
+
+            if key not in self._conf[KEY_PARTITIONS]:
+                self._conf[KEY_PARTITIONS][key] = partition
+
+                if len(nodes) > 1:
+                    start_node = self._get_starting_node(s, key)
+                    logger.info(f"Start node: {start_node}, type: {type(start_node)}")
+                    partition.walk_path(Partition.WalkMode.SPIRAL_CW, start_node)
+
+            # if len(nodes) > 1:
+            #     start_node = self._get_starting_node(s, key)
+            #     if len(s.nodes) < self._saw_threshold:
+            #         path = None
+            #         longest_path = []
+            #         print(f", trying SAW ({len(s.nodes)})", end="")
+            #         path, longest_path = saw_with_backtracking(s, start_node, path, longest_path)
+            #         nodes = path
+            #         if nodes is not None:
+            #             print("")
+            #     if nodes is None or len(s.nodes) >= self._saw_threshold:
+            #         print(f", trying DFS ({len(s.nodes)})")
+            #         nodes = iterative_dfs(s, start_node)
+            # self._conf[KEY_PARTITIONS][key][KEY_PARTITION_PATH] = nodes
+            # self._conf[KEY_PARTITIONS][key][KEY_PARTITION_SIZE] = len(nodes)
+            # ret.append(nodes)
         return ret
 
     def _get_starting_node(self, G, key):
         print(f"Processing key: {key}:")
-        node = None
-        if KEY_STARTING_NODE in self._conf[KEY_PARTITIONS][key]:
-            node = self._conf[key][KEY_STARTING_NODE]
-            # Returns a list. Convert it to tuple.
-            node = tuple(node)
-        if node is None:
-            node = get_node_with_one_neighbor(G)
+        node = get_node_with_one_neighbor(G)
         if node is None:
             node = get_top_left_node(G)
         assert node is not None
@@ -288,9 +285,6 @@ class LayerParser:
     def conf(self):
         return self._conf
 
-    def get_partitions(self) -> dict[str, Partition]:
-        ret = {}
-        for key in self.conf[KEY_PARTITIONS]:
-            part = Partition(self.conf[KEY_PARTITIONS][key]["path"], key)
-            ret[key] = part
-        return ret
+    @property
+    def partitions(self) -> dict[str, Partition]:
+        return self.conf[KEY_PARTITIONS]

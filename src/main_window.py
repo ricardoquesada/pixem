@@ -536,7 +536,7 @@ class MainWindow(QMainWindow):
             return
 
         parser = LayerParser(layer)
-        layer.partitions = parser.get_partitions()
+        layer.partitions = parser.partitions
         for partition_name in layer.partitions:
             self._partition_list.addItem(partition_name)
         if len(layer.partitions) > 0:

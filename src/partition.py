@@ -47,6 +47,7 @@ class Partition:
         SPIRAL_CCW = auto()
         SNAKE_CW = auto()
         SNAKE_CCW = auto()
+        SELF_AVOIDANCE_WALK = auto()
 
     def __init__(self, nodes: list[tuple[int, int]], name: Optional[str] = None):
         self._nodes = nodes
