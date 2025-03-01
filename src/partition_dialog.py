@@ -44,7 +44,7 @@ class ImageWidget(QWidget):
         self._cached_selected_rects = []
 
         self._edit_mode = self.EditMode.PAINT
-        self._fill_mode = Partition.FillMode.SPIRAL_CW
+        self._walk_mode = Partition.WalkMode.SPIRAL_CW
         self._coord_mode: ImageWidget.CoordMode = self.CoordMode.ADD
 
     def _update_coordinate(self, coord: tuple[int, int]):
@@ -74,8 +74,8 @@ class ImageWidget(QWidget):
     def set_edit_mode(self, mode: EditMode):
         self._edit_mode = mode
 
-    def set_fill_mode(self, mode: Partition.FillMode):
-        self._fill_mode = mode
+    def set_walk_mode(self, mode: Partition.WalkMode):
+        self._walk_mode = mode
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -119,7 +119,7 @@ class ImageWidget(QWidget):
                 self._update_coordinate(coord)
             case ImageWidget.EditMode.FILL:
                 partial_partition = list(set(self._original_coords) - set(self._selected_coords))
-                ordered_partition = order_partition(partial_partition, coord, self._fill_mode)
+                ordered_partition = order_partition(partial_partition, coord, self._walk_mode)
                 self._selected_coords = self._selected_coords + ordered_partition
                 self._update_selected_coords_cache()
 
@@ -160,11 +160,11 @@ class ImageWidget(QWidget):
 
 
 class PartitionDialog(QDialog):
-    def __init__(self, image: QImage, path: list[tuple[int, int]]):
+    def __init__(self, image: QImage, partition: Partition):
         super().__init__()
 
         self.setWindowTitle("Partition Editor")
-        coords = path
+        coords = partition.path
 
         # Create Image Widget
         self._image_widget = ImageWidget(self, image, coords)
@@ -235,7 +235,7 @@ class PartitionDialog(QDialog):
         toolbar.addActions(actions)
         for action in actions:
             action.setCheckable(True)
-            action.triggered.connect(self._on_action_fill_mode)
+            action.triggered.connect(self._on_action_walk_mode)
         self._fill_spiral_cw_action.setChecked(True)
 
         main_layout = QVBoxLayout()
@@ -270,8 +270,8 @@ class PartitionDialog(QDialog):
                     self._list_widget.setDragDropMode(QListWidget.InternalMove)  # Enable reordering
                     self._list_widget.setSelectionMode(QListWidget.ExtendedSelection)
 
-    def _set_fill_mode(self, mode: Partition.FillMode):
-        self._image_widget.set_fill_mode(mode)
+    def _set_walk_mode(self, mode: Partition.WalkMode):
+        self._image_widget.set_walk_mode(mode)
 
     def _on_action_edit_mode(self, value):
         actions = [self._paint_action, self._fill_action, self._select_action]
@@ -293,7 +293,7 @@ class PartitionDialog(QDialog):
                 mode = ImageWidget.EditMode.SELECT
         self._set_edit_mode(mode)
 
-    def _on_action_fill_mode(self, value):
+    def _on_action_walk_mode(self, value):
         actions = [
             self._fill_spiral_cw_action,
             self._fill_spiral_ccw_action,
@@ -308,17 +308,17 @@ class PartitionDialog(QDialog):
             action.setChecked(False)
         sender.setChecked(True)
 
-        mode = Partition.FillMode.SPIRAL_CW
+        mode = Partition.WalkMode.SPIRAL_CW
         match sender:
             case self._fill_spiral_cw_action:
-                mode = Partition.FillMode.SPIRAL_CW
+                mode = Partition.WalkMode.SPIRAL_CW
             case self._fill_spiral_ccw_action:
-                mode = Partition.FillMode.SPIRAL_CCW
+                mode = Partition.WalkMode.SPIRAL_CCW
             case self._fill_snake_cw_action:
-                mode = Partition.FillMode.SNAKE_CW
+                mode = Partition.WalkMode.SNAKE_CW
             case self._fill_snake_ccw_action:
-                mode = Partition.FillMode.SNAKE_CCW
-        self._set_fill_mode(mode)
+                mode = Partition.WalkMode.SNAKE_CCW
+        self._set_walk_mode(mode)
 
     def _on_rows_moved(self, parent, start, end, destination):
         print(f"Rows moved from {start} to {end} to destination {destination}")

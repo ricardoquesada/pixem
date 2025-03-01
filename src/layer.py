@@ -5,6 +5,7 @@ from PySide6.QtCore import QPointF, QSizeF
 from PySide6.QtGui import QImage
 
 import image_utils
+from partition import Partition
 
 logger = logging.getLogger(__name__)  # __name__ gets the current module's name
 
@@ -18,7 +19,7 @@ class Layer:
         self._pixel_size: QSizeF = QSizeF(2.5, 2.5)
         self._visible: bool = True
         self._opacity: float = 1.0
-        self._partitions: dict = {}
+        self._partitions: dict[str, Partition] = {}
         self._current_partition_key = None
 
     def __repr__(self) -> str:
@@ -42,11 +43,10 @@ class Layer:
         layer._visible = d["visible"]
         layer._opacity = d["opacity"]
         if "partitions" in d:
-            layer._partitions = d["partitions"]
-            # Convert [x,y] to (x,y) since it is hashable
-            for part in layer._partitions:
-                path = [(x, y) for x, y in layer._partitions[part]["path"]]
-                layer._partitions[part]["path"] = path
+            for p in d["partitions"]:
+                part_dict = d["partitions"][p]
+                partition = Partition.from_dict(part_dict)
+                layer._partitions[p] = partition
         if "current_partition_key" in d:
             layer._current_partition_key = d["current_partition_key"]
         return layer
@@ -60,14 +60,17 @@ class Layer:
             "pixel_size": {"width": self._pixel_size.width(), "height": self._pixel_size.height()},
             "visible": self._visible,
             "opacity": self._opacity,
+            "partitions": {},
             "image": image_utils.qimage_to_base64_string(self._image),
-            "partitions": self._partitions,
             "current_partition_key": self._current_partition_key,
         }
+        for p in self._partitions:
+            part_dict = self._partitions[p].to_dict()
+            d["partitions"][p] = part_dict
         return d
 
     @property
-    def selected_partition(self) -> Optional[dict]:
+    def selected_partition(self) -> Optional[Partition]:
         if self._current_partition_key is None:
             return None
 
@@ -106,11 +109,11 @@ class Layer:
         self._current_partition_key = value
 
     @property
-    def partitions(self) -> dict:
+    def partitions(self) -> dict[str, Partition]:
         return self._partitions
 
     @partitions.setter
-    def partitions(self, value: dict):
+    def partitions(self, value: dict[str, Partition]):
         self._partitions = value
 
     @property

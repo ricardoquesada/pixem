@@ -1,14 +1,46 @@
-# WIP WIP WIP
-
+import logging
 from enum import Enum, auto
+from typing import Self
+
+logger = logging.getLogger(__name__)  # __name__ gets the current module's name
 
 
 class Partition:
-    class FillMode(Enum):
+    class WalkMode(Enum):
         SPIRAL_CW = auto()
         SPIRAL_CCW = auto()
         SNAKE_CW = auto()
         SNAKE_CCW = auto()
+
+    def __init__(self, nodes: list[tuple[int, int]]):
+        self._nodes = nodes
+        self._size = len(nodes)
+
+    @classmethod
+    def from_dict(cls, d: dict) -> Self:
+        logger.info(f"dict {d}")
+        path = [(x, y) for x, y in d["path"]]
+        part = Partition(path)
+
+        if "size" in d and d["size"] != len(path):
+            logger.warning(f"Unexpected size in Partition. Wanted {len(path)}, got {d['size']}")
+
+        return part
+
+    def to_dict(self) -> dict:
+        """Returns a dictionary that represents the Layer"""
+        d = {
+            "path": self._nodes,
+            "size": len(self._nodes),
+        }
+        return d
+
+    def create_path(self, mode: WalkMode, start_point: tuple[int, int]):
+        pass
+
+    @property
+    def path(self) -> list[tuple[int, int]]:
+        return self._nodes
 
 
 def _rotate_offsets(offsets: list[tuple[int, int, str]], dir: str) -> list[tuple[int, int, str]]:
@@ -47,7 +79,7 @@ def _find_neighbors(node: dict, partition: list[tuple[int, int]]) -> list[dict]:
 
 
 def order_partition(
-    partition: list[tuple[int, int]], start_coord: tuple[int, int], fill_mode: Partition.FillMode
+    partition: list[tuple[int, int]], start_coord: tuple[int, int], fill_mode: Partition.WalkMode
 ) -> list[tuple[int, int]]:
     visited = set()
     node = {

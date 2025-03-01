@@ -610,7 +610,7 @@ class MainWindow(QMainWindow):
         if partition is None:
             return
 
-        dialog = PartitionDialog(layer.image, partition["path"])
+        dialog = PartitionDialog(layer.image, partition)
         if dialog.exec():
             path = dialog.get_path()
             partition["path"] = path
