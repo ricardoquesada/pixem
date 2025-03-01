@@ -7,7 +7,6 @@ import logging
 import networkx as nx
 from PySide6.QtGui import QColor, QImage
 
-from layer import Layer
 from partition import Partition
 
 logger = logging.getLogger(__name__)  # __name__ gets the current module's name
@@ -118,9 +117,7 @@ def find_jump_stitches(nodes):
     return jump_stitches
 
 
-class LayerParser:
-    VERSION = "0.1"
-
+class ImageParser:
     OFFSETS = {
         "NW": (-1, -1),
         "N": (0, -1),
@@ -134,11 +131,11 @@ class LayerParser:
 
     def __init__(
         self,
-        layer: Layer,
+        image: QImage,
         rotation=0,
         saw_threshold=40,
     ):
-        width, height = layer.image.width(), layer.image.height()
+        width, height = image.width(), image.height()
 
         self._jump_stitches = 0
         self._image = [[-1 for _ in range(height)] for _ in range(width)]
@@ -157,7 +154,7 @@ class LayerParser:
         self._saw_threshold = self._conf[KEY_SAW_THRESHOLD]
 
         # Put all pixels in matrix
-        self._put_pixels_in_matrix(layer.image, width, height)
+        self._put_pixels_in_matrix(image, width, height)
         # Group the ones that are touching/same-color together
         g = self._create_color_graph(width, height)
 
@@ -221,7 +218,6 @@ class LayerParser:
 
                 if len(nodes) > 1:
                     start_node = self._get_starting_node(s, key)
-                    logger.info(f"Start node: {start_node}, type: {type(start_node)}")
                     partition.walk_path(Partition.WalkMode.SPIRAL_CW, start_node)
 
             # if len(nodes) > 1:
@@ -243,12 +239,12 @@ class LayerParser:
         return ret
 
     def _get_starting_node(self, G, key):
-        print(f"Processing key: {key}:")
+        logger.info(f"Processing key: {key}:")
         node = get_node_with_one_neighbor(G)
         if node is None:
             node = get_top_left_node(G)
         assert node is not None
-        print(f"  Starting node: {node}")
+        logger.info(f"  Starting node: {node}")
         return node
 
     def _create_color_graph(self, width, height) -> dict:

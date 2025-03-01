@@ -30,8 +30,8 @@ from PySide6.QtWidgets import (
 import resources_rc  # noqa: F401
 from about_dialog import AboutDialog
 from canvas import Canvas
+from image_parser import ImageParser
 from layer import ImageLayer
-from layer_parser import LayerParser
 from partition_dialog import PartitionDialog
 from preference_dialog import PreferenceDialog
 from preferences import global_preferences
@@ -535,7 +535,7 @@ class MainWindow(QMainWindow):
             logger.warning("Cannot find partitions. Layer not selected")
             return
 
-        parser = LayerParser(layer)
+        parser = ImageParser(layer.image)
         layer.partitions = parser.partitions
         for partition_name in layer.partitions:
             self._partition_list.addItem(partition_name)
