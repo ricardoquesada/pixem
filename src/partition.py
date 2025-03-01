@@ -2,6 +2,7 @@
 # Copyright 2025 - Ricardo Quesada
 
 import logging
+import random
 from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Optional, Self
@@ -13,7 +14,7 @@ class Partition:
     class WalkMode(Enum):
         SPIRAL_CW = auto()
         SPIRAL_CCW = auto()
-        SELF_AVOIDANCE_WALK = auto()
+        RANDOM = auto()
 
     @dataclass
     class Node:
@@ -33,21 +34,27 @@ class Partition:
             offsets = offsets[1:] + offsets[:1]
         return offsets
 
-    def _find_neighbors(self, node: Node) -> list[Node]:
+    def _find_neighbors(self, mode: WalkMode, node: Node) -> list[Node]:
         offsets = [
             Partition.Node((0, 1), "S"),  # down
             Partition.Node((-1, 0), "W"),  # left
             Partition.Node((0, -1), "N"),  # up
             Partition.Node((1, 0), "E"),  # right
         ]
+        if mode == Partition.WalkMode.SPIRAL_CW or mode == Partition.WalkMode.SPIRAL_CCW:
+            offsets = Partition._rotate_offsets(offsets, node.dir)
+        elif mode == Partition.WalkMode.RANDOM:
+            random.shuffle(offsets)
 
-        offsets = Partition._rotate_offsets(offsets, node.dir)
         neighbors = []
         for offset in offsets:
             neighbor = (node.coord[0] + offset.coord[0], node.coord[1] + offset.coord[1])
             if neighbor in self._path:
                 new_node = Partition.Node(neighbor, offset.dir)
-                neighbors.append(new_node)
+                if mode == Partition.WalkMode.SPIRAL_CCW:
+                    neighbors.insert(0, new_node)
+                else:
+                    neighbors.append(new_node)
         return neighbors
 
     @classmethod
@@ -85,10 +92,7 @@ class Partition:
             if coord not in visited:
                 visited.add(coord)
                 new_path.append(coord)
-                neighbors = self._find_neighbors(node)
-                if mode == Partition.WalkMode.SPIRAL_CW:
-                    # Walk it in opposite direction
-                    neighbors = reversed(neighbors)
+                neighbors = self._find_neighbors(mode, node)
                 for neighbor in neighbors:
                     new_coord = neighbor.coord
                     if new_coord not in visited:

@@ -229,11 +229,11 @@ class PartitionDialog(QDialog):
         pixmap = QPixmap(":/res/icons/22x22/actions/go-down.png")
         self._fill_spiral_ccw_action = QAction(QIcon(pixmap), "Spiral CCW", self)
         pixmap = QPixmap(":/res/icons/22x22/actions/go-previous.png")
-        self._fill_self_avoidance_walk_action = QAction(QIcon(pixmap), "Self Avoidance Walk", self)
+        self._fill_random_action = QAction(QIcon(pixmap), "Random", self)
         actions = [
             self._fill_spiral_cw_action,
             self._fill_spiral_ccw_action,
-            self._fill_self_avoidance_walk_action,
+            self._fill_random_action,
         ]
         toolbar.addActions(actions)
         for action in actions:
@@ -300,7 +300,7 @@ class PartitionDialog(QDialog):
         actions = [
             self._fill_spiral_cw_action,
             self._fill_spiral_ccw_action,
-            self._fill_self_avoidance_walk_action,
+            self._fill_random_action,
         ]
         sender: QAction = self.sender()
         if sender not in actions:
@@ -316,8 +316,8 @@ class PartitionDialog(QDialog):
                 mode = Partition.WalkMode.SPIRAL_CW
             case self._fill_spiral_ccw_action:
                 mode = Partition.WalkMode.SPIRAL_CCW
-            case self._fill_self_avoidance_walk_action:
-                mode = Partition.WalkMode.SELF_AVOIDANCE_WALK
+            case self._fill_random_action:
+                mode = Partition.WalkMode.RANDOM
         self._set_walk_mode(mode)
 
     def _on_rows_moved(self, parent, start, end, destination):
