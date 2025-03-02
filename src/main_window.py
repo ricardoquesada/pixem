@@ -4,7 +4,7 @@
 import logging
 import sys
 
-from PySide6.QtCore import QCoreApplication, QFile, QIODevice, QPointF, QSize, QSizeF, Qt
+from PySide6.QtCore import QCoreApplication, QPointF, QSize, QSizeF, Qt
 from PySide6.QtGui import QAction, QCloseEvent, QGuiApplication, QIcon, QKeySequence, QUndoStack
 from PySide6.QtWidgets import (
     QApplication,
@@ -30,8 +30,9 @@ from PySide6.QtWidgets import (
 import resources_rc  # noqa: F401
 from about_dialog import AboutDialog
 from canvas import Canvas
+from font_dialog import FontDialog
 from image_parser import ImageParser
-from layer import ImageLayer
+from layer import ImageLayer, Layer, TextLayer
 from partition_dialog import PartitionDialog
 from preference_dialog import PreferenceDialog
 from preferences import global_preferences
@@ -477,34 +478,35 @@ class MainWindow(QMainWindow):
             self._canvas.update()
             self.update()
 
+    def _add_layer(self, layer: Layer):
+        self._state.add_layer(layer)
+        self._layer_list.addItem(layer.name)
+        self._layer_list.setCurrentRow(len(self._state.layers) - 1)
+
+        parser = ImageParser(layer.image)
+        layer.partitions = parser.partitions
+        for partition_name in layer.partitions:
+            self._partition_list.addItem(partition_name)
+        if len(layer.partitions) > 0:
+            self._partition_list.setCurrentRow(0)
+
+        self._canvas.recalculate_fixed_size()
+        self.update()
+
     def _on_layer_add_image(self) -> None:
         file_name, _ = QFileDialog.getOpenFileName(
             self, "Open Image", "", "Images (*.png *.jpg *.bmp);;All files (*)"
         )
         if file_name:
-            layer = ImageLayer(file_name, f"Layer {len(self._state.layers) + 1}")
-            self._state.add_layer(layer)
-            self._layer_list.addItem(layer.name)
-            self._layer_list.setCurrentRow(len(self._state.layers) - 1)
-
-            # TODO: Should be a function, since "on_layer_add_text" will use it too
-            parser = ImageParser(layer.image)
-            layer.partitions = parser.partitions
-            for partition_name in layer.partitions:
-                self._partition_list.addItem(partition_name)
-            if len(layer.partitions) > 0:
-                self._partition_list.setCurrentRow(0)
-
-            self._canvas.recalculate_fixed_size()
-            self.update()
+            layer = ImageLayer(file_name, f"ImageLayer {len(self._state.layers) + 1}")
+            self._add_layer(layer)
 
     def _on_layer_add_text(self) -> None:
-        file = QFile(":/res/fonts/petscii-charset.bin")
-        if not file.open(QIODevice.OpenModeFlag.ReadOnly):
-            print(f"Could not load file: {file.errorString()}")
-            return
-        data = file.readAll()
-        print(data)
+        dialog = FontDialog()
+        if dialog.exec() == QDialog.Accepted:
+            text, font_name = dialog.get_data()
+            layer = TextLayer(font_name, text, f"TextLayer {len(self._state.layers) + 1}")
+            self._add_layer(layer)
 
     def _on_layer_delete(self) -> None:
         selected_items = self._layer_list.selectedItems()

@@ -3,6 +3,7 @@
 
 import base64
 import logging
+from typing import Optional
 
 from PySide6.QtCore import QBuffer, QByteArray, QIODevice
 from PySide6.QtGui import QImage
@@ -55,3 +56,7 @@ def base64_string_to_qimage(base64_string: str) -> QImage:
     except Exception as e:
         logger.error(f"Error decoding Base64 string: {e}")
         return QImage()  # Return a null QImage on error
+
+
+def text_to_qimage(text: str, font: str) -> Optional[QImage]:
+    return QImage()

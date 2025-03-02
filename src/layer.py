@@ -161,4 +161,9 @@ class ImageLayer(Layer):
 
 class TextLayer(Layer):
     def __init__(self, font: str, text: str, layer_name: str) -> None:
-        pass
+        self._text = text
+        self._font = font
+        image = image_utils.text_to_qimage(text, font)
+        if image is None:
+            raise ValueError(f"Invalid font: {font}")
+        super().__init__(image, layer_name)
