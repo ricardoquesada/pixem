@@ -1,6 +1,7 @@
 # Pixem
 # Copyright 2025 - Ricardo Quesada
 
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QApplication,
     QComboBox,
@@ -23,7 +24,8 @@ class FontDialog(QDialog):
         self.text_edit = QLineEdit()
         self.font_label = QLabel("Font:")
         self.font_combo = QComboBox()
-        self.font_combo.addItems(["PETSCII (Commodore 8-bit)", "ATASCII (Atari 8-bit)"])
+        self.font_combo.addItem("PETSCII (Commodore 8-bit)", ":/res/fonts/petscii-charset.bin")
+        self.font_combo.addItem("ATASCII (Atari 8-bit)", ":/res/fonts/atascii-charset.bin")
         self.ok_button = QPushButton("OK")
         self.cancel_button = QPushButton("Cancel")
 
@@ -57,7 +59,7 @@ class FontDialog(QDialog):
             tuple: A tuple containing the text and font name.
         """
         text = self.text_edit.text()
-        font_name = self.font_combo.currentText()
+        font_name = self.font_combo.currentData(Qt.UserRole)
         return text, font_name
 
 
