@@ -236,12 +236,6 @@ def _ascii_to_petscii_screencode(ascii_chr: chr) -> Optional[int]:
     return petscii
 
 
-def _paint_row(image: QImage, data: int, offset_x: int, offset_y: int) -> None:
-    for b in range(8):
-        if data & (1 << (8 - b)):
-            image.setPixel(offset_x + b, offset_y, QColor(Qt.black).rgb())
-
-
 def text_to_qimage(text: str, font_path: str) -> Optional[QImage]:
     if text is None or len(text) == 0:
         return None
@@ -265,7 +259,9 @@ def text_to_qimage(text: str, font_path: str) -> Optional[QImage]:
         if o is None:
             continue
         data_offset = o * 8
-        for i in range(8):
-            row = data[data_offset + i][0]
-            _paint_row(image, row, offset_x + char_idx * 8, i)
+        for offset_y in range(8):
+            row_byte = data[data_offset + offset_y][0]
+            for b in range(8):
+                if row_byte & (1 << (8 - b)):
+                    image.setPixel(offset_x + b + char_idx * 8, offset_y, QColor(Qt.black).rgb())
     return image
