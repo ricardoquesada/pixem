@@ -114,6 +114,10 @@ class ImageWidget(QWidget):
         y = pos.y() / PAINT_SCALE_FACTOR
         coord = (int(x), int(y))
 
+        if coord not in self._original_coords:
+            event.ignore()
+            return
+
         match self._edit_mode:
             case ImageWidget.EditMode.PAINT:
                 self._coord_mode = (
