@@ -153,10 +153,26 @@ class Layer:
 
 class ImageLayer(Layer):
     def __init__(self, file_name: str, layer_name: str) -> None:
+        self._image_file_name = file_name
         image = QImage(file_name)
+
         if image is None:
             raise ValueError(f"Invalid image: {file_name}")
         super().__init__(image, layer_name)
+
+    @classmethod
+    def from_dict(cls, d: dict) -> Self:
+        layer = Layer.from_dict(d)
+
+        if "image_file_name" in d:
+            layer._image_file_name = d["image_file_name"]
+        return layer
+
+    def to_dict(self) -> dict:
+        d = super().to_dict()
+        d["image_file_name"] = self._image_file_name
+        d["layer_type"] = "ImageLayer"
+        return d
 
 
 class TextLayer(Layer):
@@ -167,3 +183,20 @@ class TextLayer(Layer):
         if image is None:
             raise ValueError(f"Invalid font: {font}")
         super().__init__(image, layer_name)
+
+    @classmethod
+    def from_dict(cls, d: dict) -> Self:
+        layer = Layer.from_dict(d)
+
+        if "text" in d:
+            layer._text = d["text"]
+        if "font" in d:
+            layer._font = d["font"]
+        return layer
+
+    def to_dict(self) -> dict:
+        d = super().to_dict()
+        d["text"] = self._text
+        d["font"] = self._font
+        d["layer_type"] = "TextLayer"
+        return d
