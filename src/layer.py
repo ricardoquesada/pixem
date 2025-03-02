@@ -36,6 +36,8 @@ class Layer:
         """Creates a Layer from a dict"""
         name = d["name"]
         image = image_utils.base64_string_to_qimage(d["image"])
+
+        # FIXME: Create the correct instance here (???) like a TextLayer or ImageLayer (???)
         layer = Layer(image, name)
 
         pos = d["position"]
@@ -166,6 +168,7 @@ class ImageLayer(Layer):
 
         if "image_file_name" in d:
             layer._image_file_name = d["image_file_name"]
+        # FIXME: Does not work. Returning Layer instead of ImageLayer
         return layer
 
     def to_dict(self) -> dict:
@@ -192,6 +195,8 @@ class TextLayer(Layer):
             layer._text = d["text"]
         if "font" in d:
             layer._font = d["font"]
+
+        # FIXME: Does not work. Returning Layer instead of TextLayer
         return layer
 
     def to_dict(self) -> dict:
