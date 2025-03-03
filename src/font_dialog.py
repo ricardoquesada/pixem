@@ -6,10 +6,10 @@ from PySide6.QtWidgets import (
     QApplication,
     QComboBox,
     QDialog,
+    QDialogButtonBox,
     QHBoxLayout,
     QLabel,
     QLineEdit,
-    QPushButton,
     QVBoxLayout,
 )
 
@@ -26,12 +26,11 @@ class FontDialog(QDialog):
         self.font_combo = QComboBox()
         self.font_combo.addItem("PETSCII (Commodore 8-bit)", ":/res/fonts/petscii-charset.bin")
         self.font_combo.addItem("ATASCII (Atari 8-bit)", ":/res/fonts/atascii-charset.bin")
-        self.ok_button = QPushButton("OK")
-        self.cancel_button = QPushButton("Cancel")
 
-        # Connect signals
-        self.ok_button.clicked.connect(self.accept)
-        self.cancel_button.clicked.connect(self.reject)
+        # Create QDialogButtonBox
+        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        button_box.accepted.connect(self.accept)
+        button_box.rejected.connect(self.reject)
 
         # Create layouts
         main_layout = QVBoxLayout()
@@ -41,13 +40,10 @@ class FontDialog(QDialog):
         font_layout = QHBoxLayout()
         font_layout.addWidget(self.font_label)
         font_layout.addWidget(self.font_combo)
-        button_layout = QHBoxLayout()
-        button_layout.addWidget(self.ok_button)
-        button_layout.addWidget(self.cancel_button)
 
         main_layout.addLayout(text_layout)
         main_layout.addLayout(font_layout)
-        main_layout.addLayout(button_layout)
+        main_layout.addWidget(button_box)
 
         self.setLayout(main_layout)
 

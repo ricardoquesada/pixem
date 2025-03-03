@@ -8,10 +8,10 @@ from PySide6.QtCore import QRect, QSize, Qt
 from PySide6.QtGui import QAction, QColor, QIcon, QImage, QMouseEvent, QPainter, QPen, QPixmap
 from PySide6.QtWidgets import (
     QDialog,
+    QDialogButtonBox,
     QHBoxLayout,
     QListWidget,
     QListWidgetItem,
-    QPushButton,
     QToolBar,
     QVBoxLayout,
     QWidget,
@@ -191,23 +191,10 @@ class PartitionDialog(QDialog):
         self._edit_mode = ImageWidget.EditMode.PAINT
         self._set_edit_mode(ImageWidget.EditMode.PAINT)
 
-        # Create Buttons
-        self.ok_button = QPushButton("OK")
-        self.cancel_button = QPushButton("Cancel")
-
-        # Connect Buttons
-        self.ok_button.clicked.connect(self.accept)
-        self.cancel_button.clicked.connect(self.reject)
-
         # Layouts
         image_list_layout = QHBoxLayout()
         image_list_layout.addWidget(self._image_widget)
         image_list_layout.addWidget(self._list_widget)
-
-        button_layout = QHBoxLayout()
-        button_layout.addStretch()  # Add space before buttons
-        button_layout.addWidget(self.ok_button)
-        button_layout.addWidget(self.cancel_button)
 
         toolbar = QToolBar()
 
@@ -245,11 +232,16 @@ class PartitionDialog(QDialog):
             action.triggered.connect(self._on_action_walk_mode)
         self._fill_spiral_cw_action.setChecked(True)
 
+        # Create Buttons
+        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        button_box.accepted.connect(self.accept)
+        button_box.rejected.connect(self.reject)
+
         main_layout = QVBoxLayout()
         main_layout.setContentsMargins(0, 0, 0, 10)
         main_layout.addWidget(toolbar)
         main_layout.addLayout(image_list_layout)
-        main_layout.addLayout(button_layout)
+        main_layout.addWidget(button_box)
 
         self.setLayout(main_layout)
 
