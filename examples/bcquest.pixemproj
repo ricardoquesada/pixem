@@ -1,5 +1,5 @@
-project_filename = "/Users/ricardoq/progs/pixem/examples/bcquest.pixemproj"
-export_filename = "/Users/ricardoq/progs/pixem/bcquest.svg"
+export_filename = "/Users/ricardoq/progs/pixem/examples/bcquest.svg"
+export_pull_compensation_mm = 0.5
 zoom_factor = 0.53
 current_layer_key = "Layer 1"
 [[layers]]

@@ -25,7 +25,6 @@ class State:
     @classmethod
     def from_dict(cls, d: dict) -> Self:
         state = State()
-        state._project_filename = d["project_filename"]
         if "export_filename" in d:
             state._export_filename = d["export_filename"]
         if "export_pull_compensation_mm" in d:
@@ -42,7 +41,6 @@ class State:
 
     def to_dict(self) -> dict:
         project = {
-            "project_filename": self._project_filename,
             "export_filename": self._export_filename,
             "export_pull_compensation_mm": self._export_pull_compensation_mm,
             "zoom_factor": self._zoom_factor,
@@ -63,7 +61,9 @@ class State:
         logger.info(f"Loading project from filename {filename}")
         with open(filename, "r", encoding="utf-8") as f:
             d = toml.load(f)
-            return cls.from_dict(d)
+            state = cls.from_dict(d)
+            state._project_filename = filename
+            return state
 
     def save_to_filename(self, filename: str) -> None:
         logger.info(f"Saving project to filename {filename}")
