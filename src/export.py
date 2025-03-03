@@ -12,7 +12,6 @@ DEFAULT_HOOP_SIZE_IN = (5, 7)
 KEY_FILL_MODE = "fill_mode"
 KEY_GROUPS = "groups"
 KEY_HOOP_SIZE_IN = "hoop_size"
-KEY_PARTITION_PATH = "path"
 
 INCHES_TO_MM = 25.4
 
@@ -154,7 +153,7 @@ class ExportToSVG:
 
                 for partition in partitions:
                     # Each partition is a list of list. Each list is a connected graph.
-                    path = partitions[partition][KEY_PARTITION_PATH]
+                    path = partitions[partition].path
                     f.write(f'<g id="partition_{layer_idx}_{partition}">\n')
                     for coord in path:
                         # coord is a tuple (x,y)

@@ -14,11 +14,11 @@ from PySide6.QtWidgets import (
 )
 
 
-class SaveFileDialog(QDialog):
+class ExportDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.setWindowTitle("Save File Dialog")
+        self.setWindowTitle("Export As Dialog")
 
         layout = QVBoxLayout()
 
@@ -51,9 +51,11 @@ class SaveFileDialog(QDialog):
         self.setLayout(layout)
 
     def browse_file(self):
-        file_name, _ = QFileDialog.getSaveFileName(self, "Save File")
-        if file_name:
-            self.file_edit.setText(file_name)
+        filename, _ = QFileDialog.getSaveFileName(
+            self, "Export Project", "", "SVG (*.svg);;All files (*)"
+        )
+        if filename:
+            self.file_edit.setText(filename)
 
     def get_file_name(self):
         return self.file_edit.text()
@@ -64,7 +66,7 @@ class SaveFileDialog(QDialog):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    dialog = SaveFileDialog()
+    dialog = ExportDialog()
 
     if dialog.exec() == QDialog.Accepted:
         file_name = dialog.get_file_name()

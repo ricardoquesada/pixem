@@ -30,6 +30,7 @@ from PySide6.QtWidgets import (
 import resources_rc  # noqa: F401
 from about_dialog import AboutDialog
 from canvas import Canvas
+from export_dialog import ExportDialog
 from font_dialog import FontDialog
 from image_parser import ImageParser
 from layer import ImageLayer, Layer, TextLayer
@@ -443,10 +444,9 @@ class MainWindow(QMainWindow):
         self._state.export_to_filename(export_filename)
 
     def _on_export_project_as(self) -> None:
-        export_filename, _ = QFileDialog.getSaveFileName(
-            self, "Export Project", "", "SVG (*.svg);;All files (*)"
-        )
-        if export_filename:
+        dialog = ExportDialog()
+        if dialog.exec() == QDialog.Accepted:
+            export_filename = dialog.get_file_name()
             self._state.export_to_filename(export_filename)
 
     def _on_show_hoop_size(self, action: QAction) -> None:
