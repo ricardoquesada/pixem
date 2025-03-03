@@ -447,7 +447,8 @@ class MainWindow(QMainWindow):
         dialog = ExportDialog()
         if dialog.exec() == QDialog.Accepted:
             export_filename = dialog.get_file_name()
-            self._state.export_to_filename(export_filename)
+            pull_compensation_mm = dialog.get_pull_compensation()
+            self._state.export_to_filename(export_filename, pull_compensation_mm)
 
     def _on_show_hoop_size(self, action: QAction) -> None:
         is_checked = action.isChecked()

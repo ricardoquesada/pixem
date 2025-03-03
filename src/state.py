@@ -17,6 +17,7 @@ class State:
     def __init__(self) -> None:
         self._project_filename = None
         self._export_filename = None
+        self._export_pull_compensation_mm = 0.0
         self._zoom_factor = 1.0
         self._layers: list[Layer] = []
         self._current_layer_key = None
@@ -27,6 +28,8 @@ class State:
         state._project_filename = d["project_filename"]
         if "export_filename" in d:
             state._export_filename = d["export_filename"]
+        if "export_pull_compensation_mm" in d:
+            state._export_pull_compensation_mm = d["export_pull_compensation_mm"]
         if "zoom_factor" in d:
             state._zoom_factor = d["zoom_factor"]
         dict_layers = d["layers"]
@@ -41,6 +44,7 @@ class State:
         project = {
             "project_filename": self._project_filename,
             "export_filename": self._export_filename,
+            "export_pull_compensation_mm": self._export_pull_compensation_mm,
             "zoom_factor": self._zoom_factor,
             "layers": [],
             "current_layer_key": self._current_layer_key,
@@ -69,11 +73,18 @@ class State:
 
         d = self.to_dict()
 
-        with open(filename, "w", encoding="utf-8") as f:
-            toml.dump(d, f)
+        try:
+            with open(filename, "w", encoding="utf-8") as f:
+                toml.dump(d, f)
+        except FileNotFoundError as e:
+            logger.error(f"Could not save file to {filename}, error: {e}")
+        except Exception:
+            logging.exception("An unexpected error occurred:")
 
-    def export_to_filename(self, filename: str) -> None:
-        logger.info(f"Export project to filename {filename}")
+    def export_to_filename(self, filename: str, pull_compensation_mm: float) -> None:
+        logger.info(
+            f"Export project to filename {filename}, pull compensation (mm): {pull_compensation_mm}"
+        )
         if len(self._layers) == 0:
             logger.warning("No layers found. Cannot export file")
             return
@@ -96,8 +107,9 @@ class State:
                     layer.image.height() * layer.pixel_size.height() / 2,  # anchor point y
                 ),
             )
-        export.write_to_svg(filename)
+        export.write_to_svg(filename, pull_compensation_mm)
         self._export_filename = filename
+        self._export_pull_compensation_mm = pull_compensation_mm
 
     def add_layer(self, layer: Layer) -> None:
         self._layers.append(layer)
@@ -149,6 +161,10 @@ class State:
     @property
     def export_filename(self):
         return self._export_filename
+
+    @property
+    def export_pull_compensation_mm(self):
+        return self._export_pull_compensation_mm
 
     @property
     def project_filename(self):

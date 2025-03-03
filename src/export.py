@@ -3,6 +3,7 @@
 
 import argparse
 import logging
+from typing import TextIO
 
 # Argument Defaults
 DEFAULT_FILL_MODE = "satin_s"
@@ -75,7 +76,17 @@ class ExportToSVG:
         if key not in self._conf or self._conf[key] is None:
             self._conf[key] = default
 
-    def _write_rect_svg(self, file, layer_idx, x, y, pixel_size, color, angle):
+    def _write_rect_svg(
+        self,
+        file: TextIO,
+        layer_idx: int,
+        x: int,
+        y: int,
+        pixel_size: tuple[int, int],
+        color: str,
+        angle: int,
+        pull_compensation_mm: float,
+    ) -> None:
         fill_method = self._fill_mode["fillmode"]
         max_stitch_len = self._fill_mode["max_stitch_len"]
         file.write(
@@ -87,10 +98,11 @@ class ExportToSVG:
             f'inkstitch:fill_method="{fill_method}" '
             f'inkstitch:angle="{angle}" '
             f'inkstitch:max_stitch_length_mm="{max_stitch_len}" '
+            f'inkstitch:pull_compensation_mm="{pull_compensation_mm}" '
             "/>\n"
         )
 
-    def write_to_svg(self, output_path):
+    def write_to_svg(self, output_path: str, pull_compensation_mm: float = 0.0):
         logger.info(f"writing SVG {output_path}")
         with open(output_path, "w") as f:
             f.write('<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n')
@@ -160,7 +172,9 @@ class ExportToSVG:
                         x, y = coord
                         angle = 0 if ((x + y) % 2 == 0) else 90
                         color = partition.split("_")[0]
-                        self._write_rect_svg(f, layer_idx, x, y, pixel_size, color, angle)
+                        self._write_rect_svg(
+                            f, layer_idx, x, y, pixel_size, color, angle, pull_compensation_mm
+                        )
 
                     # partition
                     f.write("</g>\n")
