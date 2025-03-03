@@ -445,7 +445,7 @@ class MainWindow(QMainWindow):
         self._state.export_to_filename(export_filename, pull_compensation_mm)
 
     def _on_export_project_as(self) -> None:
-        dialog = ExportDialog()
+        dialog = ExportDialog(self._state.export_filename, self._state.export_pull_compensation_mm)
         if dialog.exec() == QDialog.Accepted:
             export_filename = dialog.get_file_name()
             pull_compensation_mm = dialog.get_pull_compensation()

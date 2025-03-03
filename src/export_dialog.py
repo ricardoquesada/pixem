@@ -1,3 +1,4 @@
+import os
 import sys
 
 from PySide6.QtWidgets import (
@@ -15,7 +16,7 @@ from PySide6.QtWidgets import (
 
 
 class ExportDialog(QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, export_filename: str, pull_compensation: float, parent=None):
         super().__init__(parent)
 
         self.setWindowTitle("Export As Dialog")
@@ -26,6 +27,7 @@ class ExportDialog(QDialog):
         file_layout = QHBoxLayout()
         file_label = QLabel("File Name:")
         self.file_edit = QLineEdit()
+        self.file_edit.setText(export_filename)
         self.browse_button = QPushButton("Browse")
         self.browse_button.clicked.connect(self.browse_file)
 
@@ -38,6 +40,7 @@ class ExportDialog(QDialog):
         pull_layout = QHBoxLayout()
         pull_label = QLabel("Pull Compensation (mm):")
         self.pull_spinbox = QDoubleSpinBox()
+        self.pull_spinbox.setValue(pull_compensation)
         pull_layout.addWidget(pull_label)
         pull_layout.addWidget(self.pull_spinbox)
         layout.addLayout(pull_layout)
@@ -51,8 +54,9 @@ class ExportDialog(QDialog):
         self.setLayout(layout)
 
     def browse_file(self):
+        dirname = os.path.dirname(self.file_edit.text())
         filename, _ = QFileDialog.getSaveFileName(
-            self, "Export Project", "", "SVG (*.svg);;All files (*)"
+            self, "Export Project", dirname, "SVG (*.svg);;All files (*)"
         )
         if filename:
             self.file_edit.setText(filename)
