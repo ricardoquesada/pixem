@@ -2,6 +2,7 @@
 # Copyright 2024 Ricardo Quesada
 
 import logging
+import os.path
 import sys
 
 from PySide6.QtCore import QCoreApplication, QPointF, QSize, QSizeF, Qt
@@ -439,7 +440,11 @@ class MainWindow(QMainWindow):
     def _on_export_project(self) -> None:
         export_filename = self._state.export_filename
         pull_compensation_mm = self._state.export_pull_compensation_mm
-        if export_filename is None or len(export_filename) == 0:
+        if (
+            export_filename is None
+            or len(export_filename) == 0
+            or not os.path.exists(export_filename)
+        ):
             self._on_export_project_as()
             return
         self._state.export_to_filename(export_filename, pull_compensation_mm)

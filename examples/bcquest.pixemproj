@@ -1,6 +1,6 @@
-export_filename = "/Users/ricardoq/progs/pixem/examples/bcquest.svg"
+export_filename = "/Volumes/riq_data/progs/pixem/examples/examples.svg"
 export_pull_compensation_mm = 0.5
-zoom_factor = 0.53
+zoom_factor = 0.9
 current_layer_key = "Layer 1"
 [[layers]]
 name = "Layer 1"
