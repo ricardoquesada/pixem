@@ -153,9 +153,7 @@ class MainWindow(QMainWindow):
         partition_menu = QMenu("&Partition", self)
         menu_bar.addMenu(partition_menu)
 
-        self._edit_partition_action = QAction(
-            QIcon.fromTheme("insert-image"), "Edit Partition", self
-        )
+        self._edit_partition_action = QAction(QIcon.fromTheme("edit-find"), "Edit Partition", self)
         self._edit_partition_action.setShortcut(QKeySequence("Ctrl+P"))
         self._edit_partition_action.triggered.connect(self._on_partition_edit)
         partition_menu.addAction(self._edit_partition_action)
@@ -288,6 +286,8 @@ class MainWindow(QMainWindow):
         self._add_text_action.setEnabled(enabled)
         self._add_image_action.setEnabled(enabled)
         self._delete_layer_action.setEnabled(enabled)
+
+        self._edit_partition_action.setEnabled(enabled)
 
         self._zoom_slider.setEnabled(enabled)
 
