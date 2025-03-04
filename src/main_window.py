@@ -150,6 +150,16 @@ class MainWindow(QMainWindow):
         self._delete_layer_action.triggered.connect(self._on_layer_delete)
         layer_menu.addAction(self._delete_layer_action)
 
+        partition_menu = QMenu("&Partition", self)
+        menu_bar.addMenu(partition_menu)
+
+        self._edit_partition_action = QAction(
+            QIcon.fromTheme("insert-image"), "Edit Partition", self
+        )
+        self._edit_partition_action.setShortcut(QKeySequence("Ctrl+P"))
+        self._edit_partition_action.triggered.connect(self._on_partition_edit)
+        partition_menu.addAction(self._edit_partition_action)
+
         help_menu = QMenu("&Help", self)
         menu_bar.addMenu(help_menu)
 
@@ -591,6 +601,9 @@ class MainWindow(QMainWindow):
         if current is None:
             return
 
+        self._on_partition_edit()
+
+    def _on_partition_edit(self):
         layer = self._state.selected_layer
         if layer is None:
             return
