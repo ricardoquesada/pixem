@@ -7,7 +7,7 @@ from main_window import MainWindow
 
 
 class DrawCommand(QUndoCommand):
-    def __init__(self, editor: MainWindow, old_image: QImage) -> None:
+    def __init__(self, editor: MainWindow, old_image: QImage):
         super().__init__()
         self.editor = editor
         self.old_image = old_image

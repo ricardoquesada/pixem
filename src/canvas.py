@@ -17,7 +17,7 @@ INCHES_TO_MM = 25.4
 
 
 class Canvas(QWidget):
-    def __init__(self, state: State | None) -> None:
+    def __init__(self, state: State | None):
         super().__init__()
         self.state = state
 

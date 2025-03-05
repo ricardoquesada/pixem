@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)  # __name__ gets the current module's name
 
 
 class State:
-    def __init__(self) -> None:
+    def __init__(self):
         self._project_filename = None
         self._export_filename = None
         self._export_pull_compensation_mm = 0.0

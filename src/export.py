@@ -37,11 +37,7 @@ class ExportToSVG:
         },
     }
 
-    def __init__(
-        self,
-        hoop_size: tuple[float, float],
-        fill_mode: str,
-    ):
+    def __init__(self, hoop_size: tuple[float, float], fill_mode: str):
         """
         Creates an SVG file from a PNG image, representing each pixel as a rectangle.
 

@@ -44,7 +44,7 @@ logger = logging.getLogger(__name__)  # __name__ gets the current module's name
 
 
 class MainWindow(QMainWindow):
-    def __init__(self) -> None:
+    def __init__(self):
         super().__init__()
 
         self._state = None
