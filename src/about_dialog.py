@@ -9,12 +9,14 @@ from PySide6.QtWidgets import QApplication, QDialog, QDialogButtonBox, QLabel, Q
 
 import resources_rc  # noqa: F401
 
+VERSION = "0.1.0"
+
 
 class AboutDialog(QDialog):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle("About Pixel Editor")
+        self.setWindowTitle("About Pixem")
 
         # Create an icon label
         icon_label = QLabel()
@@ -24,14 +26,17 @@ class AboutDialog(QDialog):
 
         # Create a label for the description
         description_label = QLabel(
-            """
+            f"""
             <p><b>Pixem</b></p>
-            <p>A simple and fun pixel editor application.</p>
-            <p>Version 1.0</p>
-            <p>Copyright (c) 2024 Ricardo Quesada</p>
+            <p>A pixel-art to machine-embroidery application</p>
+            <p>Version {VERSION}</p>
+            <p>Copyright (c) 2024-2025 Ricardo Quesada</p>
+            <a href="https://github.com/ricardoquesada/pixem">https://github.com/ricardoquesada/pixem</a>
             """
         )
         description_label.setWordWrap(True)  # Enable word wrap
+        description_label.setTextFormat(Qt.RichText)
+        description_label.setOpenExternalLinks(True)
 
         # Create an "OK" button
         button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok)
