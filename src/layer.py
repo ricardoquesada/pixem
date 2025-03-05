@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)  # __name__ gets the current module's name
 
 
 class Layer:
-    def __init__(self, name: str, image: QImage) -> None:
+    def __init__(self, name: str, image: QImage):
         self._image: QImage = image
         self._name: str = name
         self._position: QPointF = QPointF(0.0, 0.0)
@@ -78,6 +78,7 @@ class Layer:
             "partitions": {},
             "image": image_utils.qimage_to_base64_string(self._image),
             "current_partition_key": self._current_partition_key,
+            "layer_type": self.__class__.__name__,
         }
         for p in self._partitions:
             part = self._partitions[p].to_dict()
@@ -170,7 +171,7 @@ class ImageLayer(Layer):
     @overload
     def __init__(self, layer_name: str, image: QImage): ...
 
-    def __init__(self, layer_name: str, filename_or_image: str | QImage) -> None:
+    def __init__(self, layer_name, filename_or_image):
         self._image_file_name = None
         if isinstance(filename_or_image, QImage):
             image = filename_or_image
@@ -191,7 +192,6 @@ class ImageLayer(Layer):
     def to_dict(self) -> dict:
         d = super().to_dict()
         d["image_file_name"] = self._image_file_name
-        d["layer_type"] = "ImageLayer"
         return d
 
 
@@ -202,9 +202,7 @@ class TextLayer(Layer):
     @overload
     def __init__(self, layer_name: str, image: QImage): ...
 
-    def __init__(
-        self, layer_name: str, text_or_image: str | QImage, font_name: Optional[str] = None
-    ) -> None:
+    def __init__(self, layer_name, text_or_image, font_name=None):
         self._text = None
         self._font_name = None
         if isinstance(text_or_image, QImage):
@@ -231,5 +229,4 @@ class TextLayer(Layer):
         d = super().to_dict()
         d["text"] = self._text
         d["font_name"] = self._font_name
-        d["layer_type"] = "TextLayer"
         return d
