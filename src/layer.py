@@ -2,7 +2,7 @@
 # Copyright 2025 - Ricardo Quesada
 
 import logging
-from typing import Optional, Self
+from typing import Optional, Self, overload
 
 from PySide6.QtCore import QPointF, QSizeF
 from PySide6.QtGui import QImage
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)  # __name__ gets the current module's name
 
 
 class Layer:
-    def __init__(self, image: QImage, name: str) -> None:
+    def __init__(self, name: str, image: QImage) -> None:
         self._image: QImage = image
         self._name: str = name
         self._position: QPointF = QPointF(0.0, 0.0)
@@ -28,7 +28,8 @@ class Layer:
     def __repr__(self) -> str:
         return (
             f"Layer(name: {self._name}, visible: {self._visible}, opacity: {self._opacity}, "
-            f"pixel size: {self._pixel_size}, position: {self._position}, rotation: {self._rotation})"
+            f"pixel size: {self._pixel_size}, position: {self._position}, rotation: {self._rotation}, current partition: {self._current_partition_key}"
+            ")"
         )
 
     @classmethod
@@ -36,25 +37,34 @@ class Layer:
         """Creates a Layer from a dict"""
         name = d["name"]
         image = image_utils.base64_string_to_qimage(d["image"])
+        layer_type = "Layer"
+        if "layer_type" in d:
+            layer_type = d["layer_type"]
 
-        # FIXME: Create the correct instance here (???) like a TextLayer or ImageLayer (???)
-        layer = Layer(image, name)
+        if layer_type == "ImageLayer":
+            layer = ImageLayer(name, image)
+        elif layer_type == "TextLayer":
+            layer = TextLayer(name, image)
+        else:
+            layer = Layer(name, image)
+        layer.populate_from_dict(d)
+        return layer
 
+    def populate_from_dict(self, d: dict) -> None:
         pos = d["position"]
-        layer._position = QPointF(pos["x"], pos["y"])
-        layer._rotation = d["rotation"]
+        self._position = QPointF(pos["x"], pos["y"])
+        self._rotation = d["rotation"]
         pixel_size = d["pixel_size"]
-        layer._pixel_size = QSizeF(pixel_size["width"], pixel_size["height"])
-        layer._visible = d["visible"]
-        layer._opacity = d["opacity"]
+        self._pixel_size = QSizeF(pixel_size["width"], pixel_size["height"])
+        self._visible = d["visible"]
+        self._opacity = d["opacity"]
         if "partitions" in d:
             for p in d["partitions"]:
                 part_dict = d["partitions"][p]
                 part = Partition.from_dict(part_dict)
-                layer._partitions[p] = part
+                self._partitions[p] = part
         if "current_partition_key" in d:
-            layer._current_partition_key = d["current_partition_key"]
-        return layer
+            self._current_partition_key = d["current_partition_key"]
 
     def to_dict(self) -> dict:
         """Returns a dictionary that represents the Layer"""
@@ -154,22 +164,29 @@ class Layer:
 
 
 class ImageLayer(Layer):
-    def __init__(self, file_name: str, layer_name: str) -> None:
-        self._image_file_name = file_name
-        image = QImage(file_name)
+    @overload
+    def __init__(self, layer_name: str, filename: str): ...
 
-        if image is None:
-            raise ValueError(f"Invalid image: {file_name}")
-        super().__init__(image, layer_name)
+    @overload
+    def __init__(self, layer_name: str, image: QImage): ...
 
-    @classmethod
-    def from_dict(cls, d: dict) -> Self:
-        layer = Layer.from_dict(d)
+    def __init__(self, layer_name: str, filename_or_image: str | QImage) -> None:
+        self._image_file_name = None
+        if isinstance(filename_or_image, QImage):
+            image = filename_or_image
+        elif isinstance(filename_or_image, str):
+            self._image_file_name = filename_or_image
+            image = QImage(filename_or_image)
+            if image is None:
+                raise ValueError(f"Invalid image: {filename_or_image}")
+        else:
+            raise ValueError(f"Invalid image type: {filename_or_image}")
+        super().__init__(layer_name, image)
 
+    def populate_from_dict(self, d: dict) -> None:
+        super().populate_from_dict(d)
         if "image_file_name" in d:
-            layer._image_file_name = d["image_file_name"]
-        # FIXME: Does not work. Returning Layer instead of ImageLayer
-        return layer
+            self._image_file_name = d["image_file_name"]
 
     def to_dict(self) -> dict:
         d = super().to_dict()
@@ -179,29 +196,40 @@ class ImageLayer(Layer):
 
 
 class TextLayer(Layer):
-    def __init__(self, font: str, text: str, layer_name: str) -> None:
-        self._text = text
-        self._font = font
-        image = image_utils.text_to_qimage(text, font)
-        if image is None:
-            raise ValueError(f"Invalid font: {font}")
-        super().__init__(image, layer_name)
+    @overload
+    def __init__(self, layer_name: str, text: str, font_name): ...
 
-    @classmethod
-    def from_dict(cls, d: dict) -> Self:
-        layer = Layer.from_dict(d)
+    @overload
+    def __init__(self, layer_name: str, image: QImage): ...
 
+    def __init__(
+        self, layer_name: str, text_or_image: str | QImage, font_name: Optional[str] = None
+    ) -> None:
+        self._text = None
+        self._font_name = None
+        if isinstance(text_or_image, QImage):
+            image = text_or_image
+        elif isinstance(text_or_image, str):
+            image = image_utils.text_to_qimage(text_or_image, font_name)
+            if image is None:
+                raise ValueError(f"Invalid font: {font_name}")
+            self._text = text_or_image
+            self._font_name = font_name
+        else:
+            raise ValueError(f"Invalid type for text_or_image: {text_or_image}")
+
+        super().__init__(layer_name, image)
+
+    def populate_from_dict(self, d: dict) -> None:
+        super().populate_from_dict(d)
         if "text" in d:
-            layer._text = d["text"]
-        if "font" in d:
-            layer._font = d["font"]
-
-        # FIXME: Does not work. Returning Layer instead of TextLayer
-        return layer
+            self._text = d["text"]
+        if "font_name" in d:
+            self._font_name = d["font_name"]
 
     def to_dict(self) -> dict:
         d = super().to_dict()
         d["text"] = self._text
-        d["font"] = self._font
+        d["font_name"] = self._font_name
         d["layer_type"] = "TextLayer"
         return d

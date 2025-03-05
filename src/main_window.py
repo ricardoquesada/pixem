@@ -153,7 +153,7 @@ class MainWindow(QMainWindow):
         partition_menu = QMenu("&Partition", self)
         menu_bar.addMenu(partition_menu)
 
-        self._edit_partition_action = QAction(QIcon.fromTheme("edit-find"), "Edit Partition", self)
+        self._edit_partition_action = QAction("Edit Partition", self)
         self._edit_partition_action.setShortcut(QKeySequence("Ctrl+P"))
         self._edit_partition_action.triggered.connect(self._on_partition_edit)
         partition_menu.addAction(self._edit_partition_action)
@@ -439,8 +439,11 @@ class MainWindow(QMainWindow):
         # FIXME: If an existing state is dirty, it should ask for "are you suse"
         self._state = None
         self._canvas.state = self._state
+
+        self._disconnect_list_callbacks()
         self._layer_list.clear()
         self._partition_list.clear()
+        self._connect_list_callbacks()
 
         # FIXME: update state should be done in one method
         self._update_qactions()
@@ -515,14 +518,14 @@ class MainWindow(QMainWindow):
             self, "Open Image", "", "Images (*.png *.jpg *.bmp);;All files (*)"
         )
         if file_name:
-            layer = ImageLayer(file_name, f"ImageLayer {len(self._state.layers) + 1}")
+            layer = ImageLayer(f"ImageLayer {len(self._state.layers) + 1}", file_name)
             self._add_layer(layer)
 
     def _on_layer_add_text(self) -> None:
         dialog = FontDialog()
         if dialog.exec() == QDialog.Accepted:
             text, font_name = dialog.get_data()
-            layer = TextLayer(font_name, text, f"TextLayer {len(self._state.layers) + 1}")
+            layer = TextLayer(f"TextLayer {len(self._state.layers) + 1}", text, font_name)
             self._add_layer(layer)
 
     def _on_layer_delete(self) -> None:
