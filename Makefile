@@ -5,7 +5,7 @@ SHELL := /bin/bash
 all: help
 
 run: resources
-	python3 src/pixem.py
+	python3 src/main.py
 
 resources:
 	pyside6-rcc src/resources.qrc -o src/resources_rc.py
