@@ -4,7 +4,7 @@
 import logging
 import sys
 
-from PySide6.QtCore import QCoreApplication
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication
 
 from main_window import MainWindow
@@ -22,9 +22,11 @@ def main():
     )
 
     app = QApplication(sys.argv)
-    QCoreApplication.setApplicationName("Pixem")
-    QCoreApplication.setOrganizationName("Retro Moe")
-    QCoreApplication.setOrganizationDomain("retro.moe")
+    app.setApplicationName("Pixem")
+    app.setOrganizationName("Retro Moe")
+    app.setOrganizationDomain("retro.moe")
+    app.setWindowIcon(QIcon(":/res/icons/pixem.png"))
+
     window = MainWindow()
     window.show()
     sys.exit(app.exec())

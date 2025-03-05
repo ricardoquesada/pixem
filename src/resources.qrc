@@ -3,6 +3,7 @@
         <file>res/fonts/petscii-charset.bin</file>
         <file>res/fonts/atascii-charset.bin</file>
         <file>res/logo512.png</file>
+        <file>res/icons/pixem.png</file>
         <file>res/icons/16x16/actions/address-book-new.png</file>
         <file>res/icons/16x16/actions/appointment-new.png</file>
         <file>res/icons/16x16/actions/bookmark-new.png</file>

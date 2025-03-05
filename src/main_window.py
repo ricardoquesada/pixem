@@ -460,6 +460,7 @@ class MainWindow(QMainWindow):
         self._canvas.recalculate_fixed_size()
         self.update()
 
+        self.setWindowTitle(f"Pixem - {os.path.basename(filename)}")
         global_preferences.add_recent_file(filename)
         self._populate_recent_menu()
 
