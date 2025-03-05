@@ -62,8 +62,9 @@ class Preferences:
         return self._recent_files
 
     def add_recent_file(self, filename: str) -> None:
-        if filename not in self._recent_files:
-            self._recent_files.insert(0, filename)
+        if filename in self._recent_files:
+            self._recent_files.remove(filename)
+        self._recent_files.insert(0, filename)
         if len(self._recent_files) > self.MAX_RECENT_FILES:
             self._recent_files.pop()
         self.save_recent_files()

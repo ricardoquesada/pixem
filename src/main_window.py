@@ -293,9 +293,7 @@ class MainWindow(QMainWindow):
         for file_name in recent_files:
             action = QAction(os.path.basename(file_name), self)
             action.setData(file_name)
-            action.triggered.connect(
-                lambda checked=False, file=file_name: self._open_filename(file_name)
-            )
+            action.triggered.connect(self._on_recent_file)
             self._recent_menu.addAction(action)
 
         if len(recent_files) > 0:
@@ -411,6 +409,10 @@ class MainWindow(QMainWindow):
             self._open_filename(filename)
         else:
             logger.warning("Could not open file. Invalid filename")
+
+    def _on_recent_file(self):
+        file_name = self.sender().data()
+        self._open_filename(file_name)
 
     def _open_filename(self, filename: str):
         state = State.load_from_filename(filename)
