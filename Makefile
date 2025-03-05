@@ -7,6 +7,10 @@ all: help
 run: resources
 	python3 src/main.py
 
+dist: resources
+	pyinstaller --name Pixem src/main.py
+
+
 resources:
 	pyside6-rcc src/resources.qrc -o src/resources_rc.py
 
@@ -24,6 +28,7 @@ lint:
 clean:
 	rm -f src/resources_rc.py
 	rm -rf venv
+	rm -rf dist
 
 help:
 	echo "Options: run, resources, venv, format, clean"
