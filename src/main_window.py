@@ -296,11 +296,10 @@ class MainWindow(QMainWindow):
             action.triggered.connect(self._on_recent_file)
             self._recent_menu.addAction(action)
 
-        if len(recent_files) > 0:
-            self._recent_menu.addSeparator()
-            action = QAction(QIcon.fromTheme("edit-clear"), "Clear Recent", self)
-            action.triggered.connect(self._on_clear_recent_files)
-            self._recent_menu.addAction(action)
+        self._recent_menu.addSeparator()
+        action = QAction(QIcon.fromTheme("edit-clear"), "Clear Recent Files", self)
+        action.triggered.connect(self._on_clear_recent_files)
+        self._recent_menu.addAction(action)
 
         self._recent_menu.setEnabled(len(recent_files) > 0)
 
