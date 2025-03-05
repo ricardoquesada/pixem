@@ -299,7 +299,6 @@ class MainWindow(QMainWindow):
             self._recent_menu.addAction(action)
 
         if len(recent_files) > 0:
-            logger.info("Adding clear!")
             self._recent_menu.addSeparator()
             action = QAction(QIcon.fromTheme("edit-clear"), "Clear Recent", self)
             action.triggered.connect(self._on_clear_recent_files)
