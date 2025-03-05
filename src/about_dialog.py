@@ -7,7 +7,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QApplication, QDialog, QDialogButtonBox, QLabel, QVBoxLayout
 
-import resources_rc  # noqa: F401
+import rc_resources  # noqa: F401
 
 VERSION = "0.1.0"
 

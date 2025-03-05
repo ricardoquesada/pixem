@@ -12,7 +12,7 @@ dist: resources
 
 
 resources:
-	pyside6-rcc src/resources.qrc -o src/resources_rc.py
+	pyside6-rcc src/resources.qrc -o src/rc_resources.py
 
 venv:
 	rm -rf venv

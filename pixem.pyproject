@@ -5,8 +5,8 @@
         "src/export.py",
         "src/export_dialog.py",
         "src/font_dialog.py",
-        "src/image_utils.py",
         "src/image_parser.py",
+        "src/image_utils.py",
         "src/layer.py",
         "src/main.py",
         "src/main_window.py",
@@ -14,8 +14,8 @@
         "src/partition_dialog.py",
         "src/preference_dialog.py",
         "src/preferences.py",
+        "src/rc_resources.py",
         "src/resources.qrc",
-        "src/resources_rc.py",
         "src/state.py",
         "src/undo_commands.py"
     ]
