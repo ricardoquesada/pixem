@@ -66,6 +66,12 @@ class MainWindow(QMainWindow):
         self._open_action.triggered.connect(self._on_open_project)
         file_menu.addAction(self._open_action)
 
+        self._recent_menu = QMenu("Recent Files", file_menu)
+        file_menu.addMenu(self._recent_menu)
+        self._populate_recent_menu()
+
+        file_menu.addSeparator()
+
         self._save_action = QAction(QIcon.fromTheme("document-save"), "Save Project", self)
         self._save_action.setShortcut(QKeySequence("Ctrl+S"))
         self._save_action.triggered.connect(self._on_save_project)
@@ -78,13 +84,6 @@ class MainWindow(QMainWindow):
         self._save_as_action.triggered.connect(self._on_save_project_as)
         file_menu.addAction(self._save_as_action)
 
-        self._close_action = QAction(QIcon.fromTheme("document-save-as"), "Close Project", self)
-        self._close_action.setShortcut(QKeySequence("Ctrl+W"))
-        self._close_action.triggered.connect(self._on_close_project)
-        file_menu.addAction(self._close_action)
-
-        file_menu.addSeparator()
-
         self._export_action = QAction("Export Project", self)
         self._export_action.setShortcut(QKeySequence("Ctrl+E"))
         self._export_action.triggered.connect(self._on_export_project)
@@ -94,6 +93,20 @@ class MainWindow(QMainWindow):
         self._export_as_action.setShortcut(QKeySequence("Ctrl+Shift+E"))
         self._export_as_action.triggered.connect(self._on_export_project_as)
         file_menu.addAction(self._export_as_action)
+
+        file_menu.addSeparator()
+
+        self._close_action = QAction(QIcon.fromTheme("window-close"), "Close Project", self)
+        self._close_action.setShortcut(QKeySequence("Ctrl+W"))
+        self._close_action.triggered.connect(self._on_close_project)
+        file_menu.addAction(self._close_action)
+
+        file_menu.addSeparator()
+
+        self._exit_action = QAction(QIcon.fromTheme("application-exit"), "Exit", self)
+        self._exit_action.setShortcut(QKeySequence("Ctrl+Q"))
+        self._exit_action.triggered.connect(self._on_exit_application)
+        file_menu.addAction(self._exit_action)
 
         edit_menu = QMenu("&Edit", self)
         menu_bar.addMenu(edit_menu)
@@ -274,6 +287,26 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle("Pixem")
 
+    def _populate_recent_menu(self):
+        self._recent_menu.clear()
+        recent_files = global_preferences.get_recent_files()
+        for file_name in recent_files:
+            action = QAction(os.path.basename(file_name), self)
+            action.setData(file_name)
+            action.triggered.connect(
+                lambda checked=False, file=file_name: self._open_filename(file_name)
+            )
+            self._recent_menu.addAction(action)
+
+        if len(recent_files) > 0:
+            logger.info("Adding clear!")
+            self._recent_menu.addSeparator()
+            action = QAction(QIcon.fromTheme("edit-clear"), "Clear Recent", self)
+            action.triggered.connect(self._on_clear_recent_files)
+            self._recent_menu.addAction(action)
+
+        self._recent_menu.setEnabled(len(recent_files) > 0)
+
     def _update_qactions(self):
         enabled = self._state is not None
 
@@ -341,6 +374,7 @@ class MainWindow(QMainWindow):
     def _save_settings(self):
         global_preferences.set_window_geometry(self.saveGeometry())
         global_preferences.set_window_state(self.saveState(global_preferences.STATE_VERSION))
+        global_preferences.save_recent_files()
 
     def closeEvent(self, event: QCloseEvent):
         logger.info("Closing Pixem")
@@ -375,51 +409,63 @@ class MainWindow(QMainWindow):
             options=options,
         )
         if filename:
-            state = State.load_from_filename(filename)
-            if state is None:
-                logger.warning(f"Failed to load state from filename {filename}")
-                return
+            self._open_filename(filename)
+        else:
+            logger.warning("Could not open file. Invalid filename")
 
-            # FIXME: Add a method that sets the new state
-            self._state = state
-            self._canvas.state = state
+    def _open_filename(self, filename: str):
+        state = State.load_from_filename(filename)
+        if state is None:
+            logger.warning(f"Failed to load state from filename {filename}")
+            return
 
-            self._disconnect_list_callbacks()
-            self._layer_list.clear()
-            self._partition_list.clear()
-            self._connect_list_callbacks()
+        # FIXME: Add a method that sets the new state
+        self._state = state
+        self._canvas.state = state
 
-            selected_layer = self._state.selected_layer
+        self._disconnect_list_callbacks()
+        self._layer_list.clear()
+        self._partition_list.clear()
+        self._connect_list_callbacks()
 
-            selected_layer_idx = -1
-            selected_partition_idx = -1
+        selected_layer = self._state.selected_layer
 
-            for i, layer in enumerate(self._state.layers):
-                self._layer_list.addItem(layer.name)
-                if selected_layer is not None and layer.name == selected_layer.name:
-                    selected_layer_idx = i
+        selected_layer_idx = -1
+        selected_partition_idx = -1
 
-            if selected_layer is not None:
-                selected_partition_key = selected_layer.current_partition_key
-                for i, partition in enumerate(selected_layer.partitions):
-                    self._partition_list.addItem(partition)
-                    if partition == selected_partition_key:
-                        selected_partition_idx = i
+        for i, layer in enumerate(self._state.layers):
+            self._layer_list.addItem(layer.name)
+            if selected_layer is not None and layer.name == selected_layer.name:
+                selected_layer_idx = i
 
-            # This will trigger "on_" callback
-            if selected_layer_idx >= 0:
-                self._layer_list.setCurrentRow(selected_layer_idx)
-            if selected_partition_idx >= 0:
-                self._partition_list.setCurrentRow(selected_partition_idx)
+        if selected_layer is not None:
+            selected_partition_key = selected_layer.current_partition_key
+            for i, partition in enumerate(selected_layer.partitions):
+                self._partition_list.addItem(partition)
+                if partition == selected_partition_key:
+                    selected_partition_idx = i
 
-            self._disconnect_property_callbacks()
-            self._zoom_slider.setValue(self._state.zoom_factor * 100)
-            self._connect_property_callbacks()
+        # This will trigger "on_" callback
+        if selected_layer_idx >= 0:
+            self._layer_list.setCurrentRow(selected_layer_idx)
+        if selected_partition_idx >= 0:
+            self._partition_list.setCurrentRow(selected_partition_idx)
 
-            # FIXME: update state should be done in one method
-            self._update_qactions()
-            self._canvas.recalculate_fixed_size()
-            self.update()
+        self._disconnect_property_callbacks()
+        self._zoom_slider.setValue(self._state.zoom_factor * 100)
+        self._connect_property_callbacks()
+
+        # FIXME: update state should be done in one method
+        self._update_qactions()
+        self._canvas.recalculate_fixed_size()
+        self.update()
+
+        global_preferences.add_recent_file(filename)
+        self._populate_recent_menu()
+
+    def _on_clear_recent_files(self) -> None:
+        global_preferences.clear_recent_files()
+        self._populate_recent_menu()
 
     def _on_save_project(self) -> None:
         filename = self._state.project_filename
@@ -434,21 +480,6 @@ class MainWindow(QMainWindow):
         )
         if filename:
             self._state.save_to_filename(filename)
-
-    def _on_close_project(self) -> None:
-        # FIXME: If an existing state is dirty, it should ask for "are you suse"
-        self._state = None
-        self._canvas.state = self._state
-
-        self._disconnect_list_callbacks()
-        self._layer_list.clear()
-        self._partition_list.clear()
-        self._connect_list_callbacks()
-
-        # FIXME: update state should be done in one method
-        self._update_qactions()
-        self._canvas.recalculate_fixed_size()
-        self.update()
 
     def _on_export_project(self) -> None:
         export_filename = self._state.export_filename
@@ -468,6 +499,24 @@ class MainWindow(QMainWindow):
             export_filename = dialog.get_file_name()
             pull_compensation_mm = dialog.get_pull_compensation()
             self._state.export_to_filename(export_filename, pull_compensation_mm)
+
+    def _on_close_project(self) -> None:
+        # FIXME: If an existing state is dirty, it should ask for "are you suse"
+        self._state = None
+        self._canvas.state = self._state
+
+        self._disconnect_list_callbacks()
+        self._layer_list.clear()
+        self._partition_list.clear()
+        self._connect_list_callbacks()
+
+        # FIXME: update state should be done in one method
+        self._update_qactions()
+        self._canvas.recalculate_fixed_size()
+        self.update()
+
+    def _on_exit_application(self) -> None:
+        QApplication.quit()
 
     def _on_show_hoop_size(self, action: QAction) -> None:
         is_checked = action.isChecked()
