@@ -70,6 +70,11 @@ class MainWindow(QMainWindow):
         file_menu.addMenu(self._recent_menu)
         self._populate_recent_menu()
 
+        self._close_action = QAction(QIcon.fromTheme("window-close"), "Close Project", self)
+        self._close_action.setShortcut(QKeySequence("Ctrl+W"))
+        self._close_action.triggered.connect(self._on_close_project)
+        file_menu.addAction(self._close_action)
+
         file_menu.addSeparator()
 
         self._save_action = QAction(QIcon.fromTheme("document-save"), "Save Project", self)
@@ -93,13 +98,6 @@ class MainWindow(QMainWindow):
         self._export_as_action.setShortcut(QKeySequence("Ctrl+Shift+E"))
         self._export_as_action.triggered.connect(self._on_export_project_as)
         file_menu.addAction(self._export_as_action)
-
-        file_menu.addSeparator()
-
-        self._close_action = QAction(QIcon.fromTheme("window-close"), "Close Project", self)
-        self._close_action.setShortcut(QKeySequence("Ctrl+W"))
-        self._close_action.triggered.connect(self._on_close_project)
-        file_menu.addAction(self._close_action)
 
         file_menu.addSeparator()
 
@@ -201,8 +199,6 @@ class MainWindow(QMainWindow):
         self._zoom_slider.valueChanged.connect(self._on_zoom_changed)
         self._toolbar.addWidget(self._zoom_slider)
 
-        self._update_qactions()
-
         # Layers Dock
         self._layer_list = QListWidget()
         layer_dock = QDockWidget("Layers", self)
@@ -265,6 +261,7 @@ class MainWindow(QMainWindow):
         self.addDockWidget(Qt.RightDockWidgetArea, property_dock)
 
         self._connect_property_callbacks()
+        self._update_qactions()
 
         # Insert all docks in Menu
         view_menu.insertActions(
@@ -297,7 +294,7 @@ class MainWindow(QMainWindow):
             self._recent_menu.addAction(action)
 
         self._recent_menu.addSeparator()
-        action = QAction(QIcon.fromTheme("edit-clear"), "Clear Recent Files", self)
+        action = QAction(QIcon.fromTheme("edit-clear"), "Clear Menu", self)
         action.triggered.connect(self._on_clear_recent_files)
         self._recent_menu.addAction(action)
 
@@ -319,6 +316,8 @@ class MainWindow(QMainWindow):
         self._edit_partition_action.setEnabled(enabled)
 
         self._zoom_slider.setEnabled(enabled)
+
+        self._property_editor.setEnabled(enabled)
 
     def _connect_property_callbacks(self):
         self._name_edit.editingFinished.connect(self._on_update_layer_property)
@@ -409,11 +408,11 @@ class MainWindow(QMainWindow):
         else:
             logger.warning("Could not open file. Invalid filename")
 
-    def _on_recent_file(self):
+    def _on_recent_file(self) -> None:
         file_name = self.sender().data()
         self._open_filename(file_name)
 
-    def _open_filename(self, filename: str):
+    def _open_filename(self, filename: str) -> None:
         state = State.load_from_filename(filename)
         if state is None:
             logger.warning(f"Failed to load state from filename {filename}")
