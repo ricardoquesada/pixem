@@ -5,7 +5,7 @@ import logging
 import os.path
 import sys
 
-from PySide6.QtCore import QCoreApplication, QPointF, QSize, QSizeF, Qt
+from PySide6.QtCore import QPointF, QSize, QSizeF, Qt
 from PySide6.QtGui import QAction, QCloseEvent, QGuiApplication, QIcon, QKeySequence, QUndoStack
 from PySide6.QtWidgets import (
     QApplication,
@@ -213,7 +213,7 @@ class MainWindow(QMainWindow):
         partitions_dock.setWidget(self._partition_list)
         self.addDockWidget(Qt.RightDockWidgetArea, partitions_dock)
 
-        self._connect_list_callbacks()
+        self._connect_layer_partition_callbacks()
 
         # Undo Dock
         undo_view = QUndoView(self._undo_stack)
@@ -282,7 +282,7 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(scroll_area)
 
-        self.setWindowTitle("Pixem")
+        self._update_window_title()
 
         # After setting up the main window, open latest file
         open_on_startup = global_preferences.get_open_file_on_startup()
@@ -348,12 +348,12 @@ class MainWindow(QMainWindow):
         self._opacity_slider.valueChanged.disconnect(self._on_update_layer_property)
         self._zoom_slider.valueChanged.disconnect(self._on_zoom_changed)
 
-    def _connect_list_callbacks(self):
+    def _connect_layer_partition_callbacks(self):
         self._layer_list.currentItemChanged.connect(self._on_change_layer)
         self._partition_list.currentItemChanged.connect(self._on_change_partition)
         self._partition_list.itemDoubleClicked.connect(self._on_double_click_partition)
 
-    def _disconnect_list_callbacks(self):
+    def _disconnect_layer_partition_callbacks(self):
         self._layer_list.currentItemChanged.disconnect(self._on_change_layer)
         self._partition_list.currentItemChanged.disconnect(self._on_change_partition)
         self._partition_list.itemDoubleClicked.disconnect(self._on_double_click_partition)
@@ -378,11 +378,116 @@ class MainWindow(QMainWindow):
         global_preferences.set_window_state(self.saveState(global_preferences.STATE_VERSION))
         global_preferences.save_recent_files()
 
+    def _update_window_title(self):
+        title = "Pixem"
+        if self._state is not None:
+            title = f"{title} - {os.path.basename(self._state.project_filename)}"
+        self.setWindowTitle(title)
+
+    def _open_filename(self, filename: str) -> None:
+        state = State.load_from_filename(filename)
+        if state is None:
+            logger.warning(f"Failed to load state from filename {filename}")
+            return
+
+        # FIXME: Add a method that sets the new state
+        self._state = state
+        self._canvas.state = state
+
+        self._disconnect_layer_partition_callbacks()
+        self._layer_list.clear()
+        self._partition_list.clear()
+        self._connect_layer_partition_callbacks()
+
+        selected_layer = self._state.selected_layer
+
+        selected_layer_idx = -1
+        selected_partition_idx = -1
+
+        for i, layer in enumerate(self._state.layers):
+            self._layer_list.addItem(layer.name)
+            if selected_layer is not None and layer.name == selected_layer.name:
+                selected_layer_idx = i
+
+        if selected_layer is not None:
+            selected_partition_key = selected_layer.current_partition_key
+            for i, partition in enumerate(selected_layer.partitions):
+                self._partition_list.addItem(partition)
+                if partition == selected_partition_key:
+                    selected_partition_idx = i
+
+        # This will trigger "on_" callback
+        if selected_layer_idx >= 0:
+            self._layer_list.setCurrentRow(selected_layer_idx)
+        if selected_partition_idx >= 0:
+            self._partition_list.setCurrentRow(selected_partition_idx)
+
+        self._disconnect_property_callbacks()
+        self._zoom_slider.setValue(self._state.zoom_factor * 100)
+        self._connect_property_callbacks()
+
+        # FIXME: update state should be done in one method
+        self._update_qactions()
+        self._canvas.recalculate_fixed_size()
+        self.update()
+
+        self._update_window_title()
+        global_preferences.add_recent_file(filename)
+        self._populate_recent_menu()
+
+    def _add_layer(self, layer: Layer):
+        self._state.add_layer(layer)
+        self._layer_list.addItem(layer.name)
+        self._layer_list.setCurrentRow(len(self._state.layers) - 1)
+
+        parser = ImageParser(layer.image)
+        layer.partitions = parser.partitions
+        for partition_name in layer.partitions:
+            self._partition_list.addItem(partition_name)
+        if len(layer.partitions) > 0:
+            self._partition_list.setCurrentRow(0)
+
+        self._canvas.recalculate_fixed_size()
+        self.update()
+
+    def _refresh_partitions(self):
+        # Called from on_layer_changed
+        self._disconnect_layer_partition_callbacks()
+        self._partition_list.clear()
+        self._connect_layer_partition_callbacks()
+
+        if self._state is None or self._state.selected_layer is None:
+            return
+
+        layer = self._state.selected_layer
+
+        selected_partition_idx = -1
+        # First: add all items
+        for i, partition in enumerate(layer.partitions):
+            self._partition_list.addItem(partition)
+            if layer.current_partition_key == partition:
+                selected_partition_idx = i
+
+        # Second: select the correct one if present
+        if selected_partition_idx >= 0:
+            self._partition_list.setCurrentRow(selected_partition_idx)
+
+        if len(layer.partitions) == 0:
+            # Sanity check
+            layer.current_partition_key = None
+            logger.info("Failed to select partition, perhaps layer has not been analyzed yet")
+
+    #
+    # pyside6 events
+    #
     def closeEvent(self, event: QCloseEvent):
         logger.info("Closing Pixem")
         self._save_settings()
         super().closeEvent(event)
 
+    #
+    # local events / callbacks
+    #
     def _on_new_project(self) -> None:
         # FIXME: If an existing state is dirty, it should ask for "are you sure"
         self._state = State()
@@ -418,57 +523,6 @@ class MainWindow(QMainWindow):
     def _on_recent_file(self) -> None:
         file_name = self.sender().data()
         self._open_filename(file_name)
-
-    def _open_filename(self, filename: str) -> None:
-        state = State.load_from_filename(filename)
-        if state is None:
-            logger.warning(f"Failed to load state from filename {filename}")
-            return
-
-        # FIXME: Add a method that sets the new state
-        self._state = state
-        self._canvas.state = state
-
-        self._disconnect_list_callbacks()
-        self._layer_list.clear()
-        self._partition_list.clear()
-        self._connect_list_callbacks()
-
-        selected_layer = self._state.selected_layer
-
-        selected_layer_idx = -1
-        selected_partition_idx = -1
-
-        for i, layer in enumerate(self._state.layers):
-            self._layer_list.addItem(layer.name)
-            if selected_layer is not None and layer.name == selected_layer.name:
-                selected_layer_idx = i
-
-        if selected_layer is not None:
-            selected_partition_key = selected_layer.current_partition_key
-            for i, partition in enumerate(selected_layer.partitions):
-                self._partition_list.addItem(partition)
-                if partition == selected_partition_key:
-                    selected_partition_idx = i
-
-        # This will trigger "on_" callback
-        if selected_layer_idx >= 0:
-            self._layer_list.setCurrentRow(selected_layer_idx)
-        if selected_partition_idx >= 0:
-            self._partition_list.setCurrentRow(selected_partition_idx)
-
-        self._disconnect_property_callbacks()
-        self._zoom_slider.setValue(self._state.zoom_factor * 100)
-        self._connect_property_callbacks()
-
-        # FIXME: update state should be done in one method
-        self._update_qactions()
-        self._canvas.recalculate_fixed_size()
-        self.update()
-
-        self.setWindowTitle(f"Pixem - {os.path.basename(filename)}")
-        global_preferences.add_recent_file(filename)
-        self._populate_recent_menu()
 
     def _on_clear_recent_files(self) -> None:
         global_preferences.clear_recent_files()
@@ -512,18 +566,17 @@ class MainWindow(QMainWindow):
         self._state = None
         self._canvas.state = self._state
 
-        self._disconnect_list_callbacks()
+        self._disconnect_layer_partition_callbacks()
         self._layer_list.clear()
         self._partition_list.clear()
-        self._connect_list_callbacks()
+        self._connect_layer_partition_callbacks()
 
         # FIXME: update state should be done in one method
         self._update_qactions()
         self._canvas.recalculate_fixed_size()
         self.update()
 
-        # FIXME: Move it somewhere else
-        self.setWindowTitle("Pixem")
+        self._update_window_title()
 
     def _on_exit_application(self) -> None:
         QApplication.quit()
@@ -556,21 +609,6 @@ class MainWindow(QMainWindow):
             self._canvas.on_preferences_updated()
             self._canvas.update()
             self.update()
-
-    def _add_layer(self, layer: Layer):
-        self._state.add_layer(layer)
-        self._layer_list.addItem(layer.name)
-        self._layer_list.setCurrentRow(len(self._state.layers) - 1)
-
-        parser = ImageParser(layer.image)
-        layer.partitions = parser.partitions
-        for partition_name in layer.partitions:
-            self._partition_list.addItem(partition_name)
-        if len(layer.partitions) > 0:
-            self._partition_list.setCurrentRow(0)
-
-        self._canvas.recalculate_fixed_size()
-        self.update()
 
     def _on_layer_add_image(self) -> None:
         file_name, _ = QFileDialog.getOpenFileName(
@@ -678,8 +716,6 @@ class MainWindow(QMainWindow):
         if dialog.exec():
             path = dialog.get_path()
             partition.path = path
-        else:
-            print("Dialog canceled")
 
     def _on_update_layer_property(self) -> None:
         current_layer = self._state.selected_layer
@@ -706,40 +742,12 @@ class MainWindow(QMainWindow):
         dialog = AboutDialog()
         dialog.exec()
 
-    def _refresh_partitions(self):
-        # Called from on_layer_changed
-
-        self._disconnect_list_callbacks()
-        self._partition_list.clear()
-        self._connect_list_callbacks()
-
-        if self._state is None or self._state.selected_layer is None:
-            return
-
-        layer = self._state.selected_layer
-
-        selected_partition_idx = -1
-        # First: add all items
-        for i, partition in enumerate(layer.partitions):
-            self._partition_list.addItem(partition)
-            if layer.current_partition_key == partition:
-                selected_partition_idx = i
-
-        # Second: select the correct one if present
-        if selected_partition_idx >= 0:
-            self._partition_list.setCurrentRow(selected_partition_idx)
-
-        if len(layer.partitions) == 0:
-            # Sanity check
-            layer.current_partition_key = None
-            logger.info("Failed to select partition, perhaps layer has not been analyzed yet")
-
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    QCoreApplication.setApplicationName("Pixem")
-    QCoreApplication.setOrganizationName("Retro Moe")
-    QCoreApplication.setOrganizationDomain("retro.moe")
+    app.setApplicationName("Pixem")
+    app.setOrganizationName("Retro Moe")
+    app.setOrganizationDomain("retro.moe")
     window = MainWindow()
     window.show()
     sys.exit(app.exec())
