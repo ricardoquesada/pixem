@@ -522,6 +522,9 @@ class MainWindow(QMainWindow):
         self._canvas.recalculate_fixed_size()
         self.update()
 
+        # FIXME: Move it somewhere else
+        self.setWindowTitle("Pixem")
+
     def _on_exit_application(self) -> None:
         QApplication.quit()
 
