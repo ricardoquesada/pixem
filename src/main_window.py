@@ -384,7 +384,7 @@ class MainWindow(QMainWindow):
         super().closeEvent(event)
 
     def _on_new_project(self) -> None:
-        # FIXME: If an existing state is dirty, it should ask for "are you suse"
+        # FIXME: If an existing state is dirty, it should ask for "are you sure"
         self._state = State()
         self._canvas.state = self._state
         # Triggers on_change_layer / on_change_partition, but not an issue
