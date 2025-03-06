@@ -82,9 +82,9 @@ class ExportToSVG:
         color: str,
         angle: int,
         pull_compensation_mm: float,
+        max_stitch_length_mm: float,
     ) -> None:
         fill_method = self._fill_mode["fillmode"]
-        max_stitch_len = self._fill_mode["max_stitch_len"]
         file.write(
             f'<rect x="{x * pixel_size[0]}" y="{y * pixel_size[1]}" '
             f'width="{pixel_size[0]}" height="{pixel_size[1]}" '
@@ -93,12 +93,17 @@ class ExportToSVG:
             f'style="display:inline;stroke:none" '
             f'inkstitch:fill_method="{fill_method}" '
             f'inkstitch:angle="{angle}" '
-            f'inkstitch:max_stitch_length_mm="{max_stitch_len}" '
+            f'inkstitch:max_stitch_length_mm="{max_stitch_length_mm}" '
             f'inkstitch:pull_compensation_mm="{pull_compensation_mm}" '
             "/>\n"
         )
 
-    def write_to_svg(self, output_path: str, pull_compensation_mm: float = 0.0):
+    def write_to_svg(
+        self,
+        output_path: str,
+        pull_compensation_mm: float = 0.0,
+        max_stitch_length_mm: float = 1000.0,
+    ):
         logger.info(f"writing SVG {output_path}")
         with open(output_path, "w") as f:
             f.write('<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n')
@@ -169,7 +174,15 @@ class ExportToSVG:
                         angle = 0 if ((x + y) % 2 == 0) else 90
                         color = partition.split("_")[0]
                         self._write_rect_svg(
-                            f, layer_idx, x, y, pixel_size, color, angle, pull_compensation_mm
+                            f,
+                            layer_idx,
+                            x,
+                            y,
+                            pixel_size,
+                            color,
+                            angle,
+                            pull_compensation_mm,
+                            max_stitch_length_mm,
                         )
 
                     # partition

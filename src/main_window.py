@@ -545,6 +545,7 @@ class MainWindow(QMainWindow):
     def _on_export_project(self) -> None:
         export_filename = self._state.export_filename
         pull_compensation_mm = self._state.export_pull_compensation_mm
+        max_stitch_length_mm = self._state.export_max_stitch_length_mm
         if (
             export_filename is None
             or len(export_filename) == 0
@@ -552,14 +553,21 @@ class MainWindow(QMainWindow):
         ):
             self._on_export_project_as()
             return
-        self._state.export_to_filename(export_filename, pull_compensation_mm)
+        self._state.export_to_filename(export_filename, pull_compensation_mm, max_stitch_length_mm)
 
     def _on_export_project_as(self) -> None:
-        dialog = ExportDialog(self._state.export_filename, self._state.export_pull_compensation_mm)
+        dialog = ExportDialog(
+            self._state.export_filename,
+            self._state.export_pull_compensation_mm,
+            self._state.export_max_stitch_length_mm,
+        )
         if dialog.exec() == QDialog.Accepted:
             export_filename = dialog.get_file_name()
             pull_compensation_mm = dialog.get_pull_compensation()
-            self._state.export_to_filename(export_filename, pull_compensation_mm)
+            max_stitch_length_mm = dialog.get_max_stitch_length()
+            self._state.export_to_filename(
+                export_filename, pull_compensation_mm, max_stitch_length_mm
+            )
 
     def _on_close_project(self) -> None:
         # FIXME: If an existing state is dirty, it should ask for "are you suse"

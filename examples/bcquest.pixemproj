@@ -1,5 +1,6 @@
-export_filename = "/home/riq/progs/pixem/examples/bcquest.svg"
+export_filename = "/Users/ricardoq/progs/pixem/examples/bcquest.svg"
 export_pull_compensation_mm = 0.25
+export_max_stitch_length_mm = 1000.0
 zoom_factor = 0.69
 current_layer_key = "ImageLayer 1"
 [[layers]]

@@ -18,6 +18,7 @@ class State:
         self._project_filename = None
         self._export_filename = None
         self._export_pull_compensation_mm = 0.0
+        self._export_max_stitch_length_mm = 1000.0
         self._zoom_factor = 1.0
         self._layers: list[Layer] = []
         self._current_layer_key = None
@@ -29,6 +30,8 @@ class State:
             state._export_filename = d["export_filename"]
         if "export_pull_compensation_mm" in d:
             state._export_pull_compensation_mm = d["export_pull_compensation_mm"]
+        if "export_max_stitch_length_mm" in d:
+            state._export_max_stitch_length_mm = d["export_max_stitch_length_mm"]
         if "zoom_factor" in d:
             state._zoom_factor = d["zoom_factor"]
         dict_layers = d["layers"]
@@ -43,6 +46,7 @@ class State:
         project = {
             "export_filename": self._export_filename,
             "export_pull_compensation_mm": self._export_pull_compensation_mm,
+            "export_max_stitch_length_mm": self._export_max_stitch_length_mm,
             "zoom_factor": self._zoom_factor,
             "layers": [],
             "current_layer_key": self._current_layer_key,
@@ -81,7 +85,9 @@ class State:
         except Exception:
             logging.exception("An unexpected error occurred:")
 
-    def export_to_filename(self, filename: str, pull_compensation_mm: float) -> None:
+    def export_to_filename(
+        self, filename: str, pull_compensation_mm: float, max_stitch_length_mm: float
+    ) -> None:
         logger.info(
             f"Export project to filename {filename}, pull compensation (mm): {pull_compensation_mm}"
         )
@@ -107,9 +113,10 @@ class State:
                     layer.image.height() * layer.pixel_size.height() / 2,  # anchor point y
                 ),
             )
-        export.write_to_svg(filename, pull_compensation_mm)
+        export.write_to_svg(filename, pull_compensation_mm, max_stitch_length_mm)
         self._export_filename = filename
         self._export_pull_compensation_mm = pull_compensation_mm
+        self._export_max_stitch_length_mm = max_stitch_length_mm
 
     def add_layer(self, layer: Layer) -> None:
         self._layers.append(layer)
@@ -165,6 +172,10 @@ class State:
     @property
     def export_pull_compensation_mm(self):
         return self._export_pull_compensation_mm
+
+    @property
+    def export_max_stitch_length_mm(self):
+        return self._export_max_stitch_length_mm
 
     @property
     def project_filename(self):
