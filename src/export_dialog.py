@@ -1,8 +1,12 @@
+# Pixem
+# Copyright 2025 Ricardo Quesada
+
 import os
 import sys
 
 from PySide6.QtWidgets import (
     QApplication,
+    QComboBox,
     QDialog,
     QDialogButtonBox,
     QDoubleSpinBox,
@@ -11,6 +15,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
     QPushButton,
+    QSpinBox,
     QVBoxLayout,
 )
 
@@ -21,6 +26,8 @@ class ExportDialog(QDialog):
         export_filename: str,
         pull_compensation: float,
         max_stitch_length: float = 1000.0,
+        fill_method: str = "auto_fill",
+        angle: int = 0,
         parent=None,
     ):
         super().__init__(parent)
@@ -42,6 +49,23 @@ class ExportDialog(QDialog):
         file_layout.addWidget(browse_button)
         layout.addLayout(file_layout)
 
+        # Fill method
+        fill_method_layout = QHBoxLayout()
+        fill_method_label = QLabel("Fill Method:")
+        self._fill_method_combo = QComboBox()
+
+        items = {
+            "auto_fill": "Auto Fill",
+            "legacy_fill": "Legacy Fill",
+        }
+        for item in items:
+            self._fill_method_combo.addItem(items[item], item)
+            if fill_method == item:
+                self._fill_method_combo.setCurrentIndex(self._fill_method_combo.count() - 1)
+        fill_method_layout.addWidget(fill_method_label)
+        fill_method_layout.addWidget(self._fill_method_combo)
+        layout.addLayout(fill_method_layout)
+
         # Pull Compensation
         pull_layout = QHBoxLayout()
         pull_label = QLabel("Pull Compensation (mm):")
@@ -60,6 +84,16 @@ class ExportDialog(QDialog):
         max_stitch_layout.addWidget(max_stitch_label)
         max_stitch_layout.addWidget(self._max_stitch_spinbox)
         layout.addLayout(max_stitch_layout)
+
+        # Angle
+        angle_layout = QHBoxLayout()
+        angle_label = QLabel("Initial Angle (degrees):")
+        self._angle_spinbox = QSpinBox()
+        self._angle_spinbox.setRange(0, 89)
+        self._angle_spinbox.setValue(angle)
+        angle_layout.addWidget(angle_label)
+        angle_layout.addWidget(self._angle_spinbox)
+        layout.addLayout(angle_layout)
 
         # Create QDialogButtonBox
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
@@ -85,6 +119,12 @@ class ExportDialog(QDialog):
 
     def get_max_stitch_length(self):
         return self._max_stitch_spinbox.value()
+
+    def get_initial_angle(self):
+        return self._angle_spinbox.value()
+
+    def get_fill_method(self):
+        return self._fill_method_combo.currentData()
 
 
 if __name__ == "__main__":
