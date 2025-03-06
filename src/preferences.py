@@ -58,6 +58,12 @@ class Preferences:
         y = int(self._settings.value("hoop/size_y", defaultValue=4))
         return x, y
 
+    def set_open_file_on_startup(self, value: bool) -> None:
+        self._settings.setValue("files/open_file_on_startup", value)
+
+    def get_open_file_on_startup(self) -> bool:
+        return bool(self._settings.value("files/open_file_on_startup", defaultValue=True))
+
     def get_recent_files(self) -> list[str]:
         return self._recent_files
 

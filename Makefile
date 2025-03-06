@@ -4,8 +4,8 @@ SHELL := /bin/bash
 
 all: help
 
-run: resources
-	python3 src/main.py
+run:
+	pyside6-project run
 
 dist: resources
 	pyinstaller --name Pixem src/main.py
@@ -26,7 +26,7 @@ lint:
 	ruff check --line-length=100 --fix *.py
 
 clean:
-	rm -f src/resources_rc.py
+	pyside6-project clean
 	rm -rf venv
 	rm -rf dist
 

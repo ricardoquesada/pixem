@@ -284,6 +284,13 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle("Pixem")
 
+        # After setting up the main window, open latest file
+        open_on_startup = global_preferences.get_open_file_on_startup()
+        if open_on_startup:
+            files = global_preferences.get_recent_files()
+            if len(files) > 0:
+                self._open_filename(files[0])
+
     def _populate_recent_menu(self):
         self._recent_menu.clear()
         recent_files = global_preferences.get_recent_files()
