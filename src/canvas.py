@@ -4,7 +4,7 @@
 import logging
 
 from PySide6.QtCore import QPointF, QSize, Qt
-from PySide6.QtGui import QColor, QPainter, QPainterPath, QPaintEvent, QPen
+from PySide6.QtGui import QColor, QMouseEvent, QPainter, QPainterPath, QPaintEvent, QPen
 from PySide6.QtWidgets import QWidget
 
 from preferences import global_preferences
@@ -26,6 +26,9 @@ class Canvas(QWidget):
         # FIXME: must be set according to layer size
         self.setFixedSize(QSize(152 * 2, 254 * 2))
 
+    #
+    # Pyside6 events
+    #
     def paintEvent(self, event: QPaintEvent) -> None:
         if not self.state or not self.state.layers:
             return
@@ -126,16 +129,18 @@ class Canvas(QWidget):
 
         painter.end()
 
-    def on_preferences_updated(self):
-        """Updates the preference cache"""
-        self._cached_hoop_visible = global_preferences.get_hoop_visible()
-        self._cached_hoop_size = global_preferences.get_hoop_size()
+    def mousePressEvent(self, event: QMouseEvent):
+        event.accept()
+        x, y = event.position()
+        logger.info(f"mousePressEvent: {event}")
 
-    def recalculate_fixed_size(self):
-        self.updateGeometry()
-        new_size = self.sizeHint()
-        self.setFixedSize(new_size)
-        self.update()
+    def mouseMoveEvent(self, event: QMouseEvent):
+        event.accept()
+        logger.info(f"mouseMouseEvent: {event}")
+
+    def mouseReleaseEvent(self, event: QMouseEvent):
+        event.accept()
+        logger.info(f"mouseReleaseEvent: {event}")
 
     def sizeHint(self) -> QSize:
         max_w = self._cached_hoop_size[0] * INCHES_TO_MM
@@ -157,3 +162,17 @@ class Canvas(QWidget):
             (max_h + margin) * self.state.zoom_factor * DEFAULT_SCALE_FACTOR,
         )
         return ret
+
+    #
+    # Public
+    #
+    def on_preferences_updated(self):
+        """Updates the preference cache"""
+        self._cached_hoop_visible = global_preferences.get_hoop_visible()
+        self._cached_hoop_size = global_preferences.get_hoop_size()
+
+    def recalculate_fixed_size(self):
+        self.updateGeometry()
+        new_size = self.sizeHint()
+        self.setFixedSize(new_size)
+        self.update()
