@@ -128,11 +128,15 @@ class MainWindow(QMainWindow):
         self._canvas_mode_move_action.triggered.connect(self._on_canvas_mode_move)
         edit_menu.addAction(self._canvas_mode_move_action)
 
-        self._canvas_mode_select_action = QAction(QIcon.fromTheme("edit-copy"), "Select Mode", self)
-        self._canvas_mode_select_action.setCheckable(True)
-        self._canvas_mode_select_action.setChecked(False)
-        self._canvas_mode_select_action.triggered.connect(self._on_canvas_mode_select)
-        edit_menu.addAction(self._canvas_mode_select_action)
+        self._canvas_mode_drawing_action = QAction(
+            QIcon.fromTheme("tool_pen"), "Drawing Mode", self
+        )
+        self._canvas_mode_drawing_action.setCheckable(True)
+        self._canvas_mode_drawing_action.setChecked(False)
+        self._canvas_mode_drawing_action.triggered.connect(self._on_canvas_mode_drawing)
+        edit_menu.addAction(self._canvas_mode_drawing_action)
+        # FIXME: Enable "pen" mode
+        self._canvas_mode_drawing_action.setEnabled(False)
 
         edit_menu.addSeparator()
 
@@ -208,7 +212,7 @@ class MainWindow(QMainWindow):
         self._toolbar.addSeparator()
 
         self._toolbar.addAction(self._canvas_mode_move_action)
-        self._toolbar.addAction(self._canvas_mode_select_action)
+        self._toolbar.addAction(self._canvas_mode_drawing_action)
         self._toolbar.addSeparator()
 
         self._toolbar.addAction(self._undo_action)
@@ -779,13 +783,13 @@ class MainWindow(QMainWindow):
 
     def _on_canvas_mode_move(self):
         self._canvas_mode_move_action.setChecked(True)
-        self._canvas_mode_select_action.setChecked(False)
+        self._canvas_mode_drawing_action.setChecked(False)
         self._canvas.mode = Canvas.Mode.MOVE
 
-    def _on_canvas_mode_select(self):
+    def _on_canvas_mode_drawing(self):
         self._canvas_mode_move_action.setChecked(False)
-        self._canvas_mode_select_action.setChecked(True)
-        self._canvas.mode = Canvas.Mode.SELECT
+        self._canvas_mode_drawing_action.setChecked(True)
+        self._canvas.mode = Canvas.Mode.DRAWING
 
 
 if __name__ == "__main__":

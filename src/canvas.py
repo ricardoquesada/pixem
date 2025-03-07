@@ -23,12 +23,14 @@ class Canvas(QWidget):
     layer_selection_changed = Signal(Layer)
 
     class Mode(Enum):
-        MOVE = 0
-        SELECT = 1
+        INVALID = 0
+        MOVE = 1
+        DRAWING = 2
 
     class ModeStatus(Enum):
-        IDLE = 0
-        MOVING = 1
+        INVALID = 0
+        IDLE = 1
+        MOVING = 2
 
     def __init__(self, state: State | None):
         super().__init__()
