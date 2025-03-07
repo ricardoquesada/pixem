@@ -8,7 +8,7 @@ from PySide6.QtGui import QColor, QImage
 
 from partition import Partition
 
-logger = logging.getLogger(__name__)  # __name__ gets the current module's name
+logger = logging.getLogger(__name__)
 
 
 def _get_node_with_one_neighbor(G):

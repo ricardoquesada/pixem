@@ -9,7 +9,7 @@ from PySide6.QtWidgets import QApplication
 
 from main_window import MainWindow
 
-logger = logging.getLogger(__name__)  # __name__ gets the current module's name
+logger = logging.getLogger(__name__)
 
 
 def main():

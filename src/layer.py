@@ -10,7 +10,7 @@ from PySide6.QtGui import QImage
 import image_utils
 from partition import Partition
 
-logger = logging.getLogger(__name__)  # __name__ gets the current module's name
+logger = logging.getLogger(__name__)
 
 
 class Layer:

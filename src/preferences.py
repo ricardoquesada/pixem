@@ -6,7 +6,7 @@ import typing
 
 from PySide6.QtCore import QSettings
 
-logger = logging.getLogger(__name__)  # __name__ gets the current module's name
+logger = logging.getLogger(__name__)
 
 
 class Preferences:

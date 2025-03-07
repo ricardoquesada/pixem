@@ -8,7 +8,7 @@ from typing import Optional
 from PySide6.QtCore import QBuffer, QByteArray, QFile, QIODevice, Qt
 from PySide6.QtGui import QColor, QImage
 
-logger = logging.getLogger(__name__)  # __name__ gets the current module's name
+logger = logging.getLogger(__name__)
 
 
 def qimage_to_base64_string(image: QImage, fmt: str = "PNG") -> str | None:

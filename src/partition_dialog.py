@@ -21,7 +21,7 @@ from partition import Partition
 
 PAINT_SCALE_FACTOR = 12
 
-logger = logging.getLogger(__name__)  # __name__ gets the current module's name
+logger = logging.getLogger(__name__)
 
 
 class ImageWidget(QWidget):

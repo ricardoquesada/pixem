@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Optional, Self
 
-logger = logging.getLogger(__name__)  # __name__ gets the current module's name
+logger = logging.getLogger(__name__)
 
 
 class Partition:
