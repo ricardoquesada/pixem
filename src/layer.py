@@ -25,13 +25,6 @@ class Layer:
         self._partitions: dict[str, Partition] = {}
         self._current_partition_key = None
 
-    def __repr__(self) -> str:
-        return (
-            f"Layer(name: {self._name}, visible: {self._visible}, opacity: {self._opacity}, "
-            f"pixel size: {self._pixel_size}, position: {self._position}, rotation: {self._rotation}, current partition: {self._current_partition_key}"
-            ")"
-        )
-
     @classmethod
     def from_dict(cls, d: dict) -> Self:
         """Creates a Layer from a dict"""
