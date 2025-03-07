@@ -1,6 +1,3 @@
-export_filename = "/Users/ricardoq/progs/pixem/examples/bcquest.svg"
-export_pull_compensation_mm = 0.25
-export_max_stitch_length_mm = 1000.0
 zoom_factor = 0.69
 current_layer_key = "ImageLayer 1"
 [[layers]]
@@ -58,3 +55,10 @@ size = 74
 [layers.partitions."#cdcdcd_1"]
 path = [ [ 29, 37,], [ 28, 37,], [ 27, 37,], [ 27, 36,], [ 27, 35,], [ 26, 35,], [ 26, 36,], [ 26, 37,], [ 25, 36,], [ 25, 35,], [ 25, 34,], [ 24, 34,], [ 24, 35,], [ 24, 36,], [ 23, 36,], [ 23, 35,], [ 23, 34,], [ 23, 33,], [ 22, 33,], [ 22, 34,], [ 22, 35,], [ 22, 36,], [ 21, 36,], [ 21, 35,], [ 21, 34,], [ 20, 34,], [ 20, 35,], [ 20, 36,], [ 19, 36,], [ 18, 36,], [ 17, 37,], [ 16, 37,],]
 size = 32
+
+[export_params]
+filename = "/Users/ricardoq/progs/pixem/examples/bcquest.svg"
+pull_compensation_mm = 0.25
+max_stitch_length_mm = 1000.0
+fill_method = "auto_fill"
+initial_angle_degrees = 0

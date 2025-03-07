@@ -19,15 +19,13 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
+from export import ExportParameters
+
 
 class ExportDialog(QDialog):
     def __init__(
         self,
-        export_filename: str,
-        pull_compensation: float,
-        max_stitch_length: float = 1000.0,
-        fill_method: str = "auto_fill",
-        angle: int = 0,
+        export_parameters: ExportParameters,
         parent=None,
     ):
         super().__init__(parent)
@@ -40,7 +38,7 @@ class ExportDialog(QDialog):
         file_layout = QHBoxLayout()
         file_label = QLabel("File Name:")
         self._file_edit = QLineEdit()
-        self._file_edit.setText(export_filename)
+        self._file_edit.setText(export_parameters.filename)
         browse_button = QPushButton("Browse")
         browse_button.clicked.connect(self._on_browse_file)
 
@@ -60,7 +58,7 @@ class ExportDialog(QDialog):
         }
         for item in items:
             self._fill_method_combo.addItem(items[item], item)
-            if fill_method == item:
+            if export_parameters.fill_method == item:
                 self._fill_method_combo.setCurrentIndex(self._fill_method_combo.count() - 1)
         fill_method_layout.addWidget(fill_method_label)
         fill_method_layout.addWidget(self._fill_method_combo)
@@ -70,7 +68,7 @@ class ExportDialog(QDialog):
         pull_layout = QHBoxLayout()
         pull_label = QLabel("Pull Compensation (mm):")
         self._pull_spinbox = QDoubleSpinBox()
-        self._pull_spinbox.setValue(pull_compensation)
+        self._pull_spinbox.setValue(export_parameters.pull_compensation_mm)
         pull_layout.addWidget(pull_label)
         pull_layout.addWidget(self._pull_spinbox)
         layout.addLayout(pull_layout)
@@ -80,7 +78,7 @@ class ExportDialog(QDialog):
         max_stitch_label = QLabel("Max Stitch Length (mm):")
         self._max_stitch_spinbox = QDoubleSpinBox()
         self._max_stitch_spinbox.setRange(0.1, 2000.0)
-        self._max_stitch_spinbox.setValue(max_stitch_length)
+        self._max_stitch_spinbox.setValue(export_parameters.max_stitch_length_mm)
         max_stitch_layout.addWidget(max_stitch_label)
         max_stitch_layout.addWidget(self._max_stitch_spinbox)
         layout.addLayout(max_stitch_layout)
@@ -90,7 +88,7 @@ class ExportDialog(QDialog):
         angle_label = QLabel("Initial Angle (degrees):")
         self._angle_spinbox = QSpinBox()
         self._angle_spinbox.setRange(0, 89)
-        self._angle_spinbox.setValue(angle)
+        self._angle_spinbox.setValue(export_parameters.initial_angle_degrees)
         angle_layout.addWidget(angle_label)
         angle_layout.addWidget(self._angle_spinbox)
         layout.addLayout(angle_layout)
@@ -111,31 +109,30 @@ class ExportDialog(QDialog):
         if filename:
             self._file_edit.setText(filename)
 
-    def get_file_name(self):
-        return self._file_edit.text()
-
-    def get_pull_compensation(self):
-        return self._pull_spinbox.value()
-
-    def get_max_stitch_length(self):
-        return self._max_stitch_spinbox.value()
-
-    def get_initial_angle(self):
-        return self._angle_spinbox.value()
-
-    def get_fill_method(self):
-        return self._fill_method_combo.currentData()
+    def get_export_parameters(self) -> ExportParameters:
+        return ExportParameters(
+            filename=self._file_edit.text(),
+            pull_compensation_mm=self._pull_spinbox.value(),
+            max_stitch_length_mm=self._max_stitch_spinbox.value(),
+            fill_method=self._fill_method_combo.currentData(),
+            initial_angle_degrees=self._angle_spinbox.value(),
+        )
 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    dialog = ExportDialog("test filename", 10.0, 100)
+    params = ExportParameters(
+        filename="test filename",
+        pull_compensation_mm=10.0,
+        max_stitch_length_mm=100,
+        fill_method="auto_fill",
+        initial_angle_degrees=0,
+    )
+    dialog = ExportDialog(params)
 
     if dialog.exec() == QDialog.Accepted:
-        file_name = dialog.get_file_name()
-        pull_compensation = dialog.get_pull_compensation()
-        print(f"File Name: {file_name}")
-        print(f"Pull Compensation: {pull_compensation}")
+        params = dialog.get_export_parameters()
+        print(params)
     else:
         print("Dialog canceled.")
     sys.exit(app.exec())

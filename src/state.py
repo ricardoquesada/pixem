@@ -2,12 +2,13 @@
 # Copyright 2025 - Ricardo Quesada
 
 import logging
+from dataclasses import asdict
 from typing import Optional, Self
 
 import toml
 
 import preferences
-from export import ExportToSVG
+from export import ExportParameters, ExportToSVG
 from layer import Layer
 
 logger = logging.getLogger(__name__)  # __name__ gets the current module's name
@@ -16,9 +17,13 @@ logger = logging.getLogger(__name__)  # __name__ gets the current module's name
 class State:
     def __init__(self):
         self._project_filename = None
-        self._export_filename = None
-        self._export_pull_compensation_mm = 0.0
-        self._export_max_stitch_length_mm = 1000.0
+        self._export_params = ExportParameters(
+            filename="",
+            pull_compensation_mm=0.0,
+            max_stitch_length_mm=1000.0,
+            fill_method="auto_fill",
+            initial_angle_degrees=0,
+        )
         self._zoom_factor = 1.0
         self._layers: list[Layer] = []
         self._current_layer_key = None
@@ -27,11 +32,13 @@ class State:
     def from_dict(cls, d: dict) -> Self:
         state = State()
         if "export_filename" in d:
-            state._export_filename = d["export_filename"]
+            state._export_params.filename = d["export_filename"]
         if "export_pull_compensation_mm" in d:
-            state._export_pull_compensation_mm = d["export_pull_compensation_mm"]
+            state._export_params.pull_compensation_mm = d["export_pull_compensation_mm"]
         if "export_max_stitch_length_mm" in d:
-            state._export_max_stitch_length_mm = d["export_max_stitch_length_mm"]
+            state._export_params.max_stitch_length_mm = d["export_max_stitch_length_mm"]
+        if "export_params" in d:
+            state._export_params = ExportParameters(**d["export_params"])
         if "zoom_factor" in d:
             state._zoom_factor = d["zoom_factor"]
         dict_layers = d["layers"]
@@ -44,9 +51,7 @@ class State:
 
     def to_dict(self) -> dict:
         project = {
-            "export_filename": self._export_filename,
-            "export_pull_compensation_mm": self._export_pull_compensation_mm,
-            "export_max_stitch_length_mm": self._export_max_stitch_length_mm,
+            "export_params": asdict(self._export_params),
             "zoom_factor": self._zoom_factor,
             "layers": [],
             "current_layer_key": self._current_layer_key,
@@ -85,20 +90,13 @@ class State:
         except Exception:
             logging.exception("An unexpected error occurred:")
 
-    def export_to_filename(
-        self, filename: str, pull_compensation_mm: float, max_stitch_length_mm: float
-    ) -> None:
-        logger.info(
-            f"Export project to filename {filename}, pull compensation (mm): {pull_compensation_mm}"
-        )
+    def export_to_filename(self, export_params: ExportParameters) -> None:
+        logger.info(f"Export parameters: {export_params}")
         if len(self._layers) == 0:
             logger.warning("No layers found. Cannot export file")
             return
 
-        export = ExportToSVG(
-            preferences.global_preferences.get_hoop_size(),
-            "satin_s",
-        )
+        export = ExportToSVG(preferences.global_preferences.get_hoop_size(), export_params)
 
         for i, layer in enumerate(self._layers):
             export.add_layer(
@@ -113,10 +111,8 @@ class State:
                     layer.image.height() * layer.pixel_size.height() / 2,  # anchor point y
                 ),
             )
-        export.write_to_svg(filename, pull_compensation_mm, max_stitch_length_mm)
-        self._export_filename = filename
-        self._export_pull_compensation_mm = pull_compensation_mm
-        self._export_max_stitch_length_mm = max_stitch_length_mm
+        export.write_to_svg()
+        self._export_params = export_params
 
     def add_layer(self, layer: Layer) -> None:
         self._layers.append(layer)
@@ -166,16 +162,8 @@ class State:
         self._current_layer_key = value
 
     @property
-    def export_filename(self):
-        return self._export_filename
-
-    @property
-    def export_pull_compensation_mm(self):
-        return self._export_pull_compensation_mm
-
-    @property
-    def export_max_stitch_length_mm(self):
-        return self._export_max_stitch_length_mm
+    def export_params(self):
+        return self._export_params
 
     @property
     def project_filename(self):
