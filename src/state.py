@@ -18,7 +18,7 @@ class State:
     def __init__(self):
         self._project_filename = None
         self._export_params = ExportParameters(
-            filename="",
+            filename=None,
             pull_compensation_mm=0.0,
             max_stitch_length_mm=1000.0,
             fill_method="auto_fill",
@@ -31,12 +31,6 @@ class State:
     @classmethod
     def from_dict(cls, d: dict) -> Self:
         state = State()
-        if "export_filename" in d:
-            state._export_params.filename = d["export_filename"]
-        if "export_pull_compensation_mm" in d:
-            state._export_params.pull_compensation_mm = d["export_pull_compensation_mm"]
-        if "export_max_stitch_length_mm" in d:
-            state._export_params.max_stitch_length_mm = d["export_max_stitch_length_mm"]
         if "export_params" in d:
             state._export_params = ExportParameters(**d["export_params"])
         if "zoom_factor" in d:

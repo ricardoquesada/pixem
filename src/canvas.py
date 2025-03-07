@@ -10,7 +10,7 @@ from PySide6.QtWidgets import QWidget
 from preferences import global_preferences
 from state import State
 
-logger = logging.getLogger(__name__)  # __name__ gets the current module's name
+logger = logging.getLogger(__name__)
 
 DEFAULT_SCALE_FACTOR = 5.0
 INCHES_TO_MM = 25.4

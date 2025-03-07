@@ -1,26 +1,18 @@
 # Pixem
 # Copyright 2024 - Ricardo Quesada
 
-import argparse
 import logging
 from dataclasses import asdict, dataclass
 from typing import TextIO
 
-# Argument Defaults
-DEFAULT_HOOP_SIZE_IN = (5, 7)
-
-# Conf dictionary Keys
-KEY_GROUPS = "groups"
-KEY_HOOP_SIZE_IN = "hoop_size"
-
 INCHES_TO_MM = 25.4
 
-logger = logging.getLogger(__name__)  # __name__ gets the current module's name
+logger = logging.getLogger(__name__)
 
 
 @dataclass
 class ExportParameters:
-    filename: str
+    filename: str | None
     pull_compensation_mm: float
     max_stitch_length_mm: float
     fill_method: str
@@ -31,39 +23,11 @@ class ExportToSVG:
     VERSION = "0.1"
 
     def __init__(self, hoop_size: tuple[float, float], export_params: ExportParameters):
-        """
-        Creates an SVG file from a PNG image, representing each pixel as a rectangle.
-
-        Args:
-            hoop_size: Tuple that defines the hoop size in inches.
-            fill_mode: Fill mode to use
-        """
-
-        self._conf = {KEY_GROUPS: {}}
-
-        args = [
-            (hoop_size, KEY_HOOP_SIZE_IN, DEFAULT_HOOP_SIZE_IN),
-        ]
-        for arg in args:
-            self._set_conf_value(arg[0], arg[1], arg[2])
-
-        # Backward compatible
         self._export_params = export_params
+        self._hoop_size = hoop_size
         logger.info(f"Exporting to SVG {self._export_params}")
-        self._hoop_size = self._conf[KEY_HOOP_SIZE_IN]
 
         self._layers = []
-
-    def _set_conf_value(self, arg_value, key, default):
-        # Priority:
-        #   1. argument
-        #   2. conf
-        #   3. default
-        if arg_value is not None:
-            self._conf[key] = arg_value
-
-        if key not in self._conf or self._conf[key] is None:
-            self._conf[key] = default
 
     def _write_rect_svg(
         self,
@@ -188,48 +152,3 @@ class ExportToSVG:
             "rotation": rotation,
         }
         self._layers.append(entry)
-
-
-def main():
-    parser = argparse.ArgumentParser(description="Convert a PNG image to an Ink/Stitch SVG file")
-    parser.add_argument("output_svg", help="Path to save the output SVG file.")
-    parser.add_argument(
-        "-s",
-        "--hoop_size",
-        metavar="WIDTHxHEIGHT",
-        help="Hoop size in the format WIDTHxHEIGHT in inches (e.g., 5x7)",
-    )
-    parser.add_argument(
-        "-p", "--pixel_size", metavar="WIDTHxHEIGHT", help="Pixel size in mm (e.g., 3.25x3.25"
-    )
-    parser.add_argument(
-        "-f",
-        "--fill_mode",
-        type=str,
-        choices=["satin_s", "autofill", "legacy"],
-        help="Defines the fill mode to use",
-    )
-
-    args = parser.parse_args()
-
-    hoop_size = None
-    if args.hoop_size is not None:
-        x, y = map(int, args.hoop_size.split("x"))
-        hoop_size = (x, y)
-
-    pixel_size = None
-    if args.pixel_size is not None:
-        x, y = map(float, args.hoop_size.split("x"))
-        pixel_size = (x, y)
-
-    print(args)
-    tosvg = ExportToSVG(
-        hoop_size,
-        pixel_size,
-        args.fill_mode,
-    )
-    tosvg.write_to_svg(args.output_svg)
-
-
-if __name__ == "__main__":
-    main()
