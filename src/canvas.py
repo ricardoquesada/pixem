@@ -3,7 +3,7 @@
 
 import logging
 
-from PySide6.QtCore import QPointF, QSize, Qt
+from PySide6.QtCore import QPointF, QSize, Qt, Signal
 from PySide6.QtGui import QColor, QMouseEvent, QPainter, QPainterPath, QPaintEvent, QPen
 from PySide6.QtWidgets import QWidget
 
@@ -17,6 +17,8 @@ INCHES_TO_MM = 25.4
 
 
 class Canvas(QWidget):
+    position_changed = Signal(QPointF)
+
     def __init__(self, state: State | None):
         super().__init__()
         self.state = state
@@ -141,19 +143,19 @@ class Canvas(QWidget):
     def mouseMoveEvent(self, event: QMouseEvent):
         event.accept()
         delta = event.position() - self._mouse_start_coords
-        self._mouse_delta = QPointF(
-            delta.x() / DEFAULT_SCALE_FACTOR, delta.y() / DEFAULT_SCALE_FACTOR
-        )
+        scale_factor = self.state.zoom_factor * DEFAULT_SCALE_FACTOR
+        self._mouse_delta = QPointF(delta.x() / scale_factor, delta.y() / scale_factor)
         self.update()
 
     def mouseReleaseEvent(self, event: QMouseEvent):
         event.accept()
         delta = event.position() - self._mouse_start_coords
-        self._mouse_delta = QPointF(
-            delta.x() / DEFAULT_SCALE_FACTOR, delta.y() / DEFAULT_SCALE_FACTOR
+        scale_factor = self.state.zoom_factor * DEFAULT_SCALE_FACTOR
+        orig_pos = self.state.selected_layer.position
+        new_pos = QPointF(
+            orig_pos.x() + delta.x() / scale_factor, orig_pos.y() + delta.y() / scale_factor
         )
-        print(f"NEW X,Y should be: {self._mouse_delta}")
-        self.update()
+        self.position_changed.emit(new_pos)
         self._mouse_start_coords = QPointF(0.0, 0.0)
         self._mouse_delta = QPointF(0.0, 0.0)
 
@@ -164,8 +166,8 @@ class Canvas(QWidget):
             return QSize(max_w * DEFAULT_SCALE_FACTOR, max_h * DEFAULT_SCALE_FACTOR)
 
         for layer in self.state.layers:
-            w = layer.image.width() * layer.pixel_size.width()
-            h = layer.image.height() * layer.pixel_size.height()
+            w = layer.position.x() + layer.image.width() * layer.pixel_size.width()
+            h = layer.position.y() + layer.image.height() * layer.pixel_size.height()
             if w > max_w:
                 max_w = w
             if h > max_h:

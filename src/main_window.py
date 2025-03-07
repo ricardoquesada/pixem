@@ -275,6 +275,7 @@ class MainWindow(QMainWindow):
         )
 
         self._canvas = Canvas(self._state)
+        self._canvas.position_changed.connect(self._on_position_changed_from_canvas)
 
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
@@ -740,6 +741,11 @@ class MainWindow(QMainWindow):
     def _on_show_about_dialog(self) -> None:
         dialog = AboutDialog()
         dialog.exec()
+
+    def _on_position_changed_from_canvas(self, position: QPointF):
+        self._position_x_spinbox.setValue(position.x())
+        self._position_y_spinbox.setValue(position.y())
+        self._canvas.recalculate_fixed_size()
 
 
 if __name__ == "__main__":
