@@ -175,6 +175,7 @@ class Canvas(QWidget):
                 self._mode_status = Canvas.ModeStatus.MOVING
                 if layer != self.state.selected_layer:
                     self.layer_selection_changed.emit(layer)
+                self.update()
                 break
 
     def mouseMoveEvent(self, event: QMouseEvent):
