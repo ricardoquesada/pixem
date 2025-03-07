@@ -2,11 +2,13 @@
 # Copyright 2024 Ricardo Quesada
 
 import logging
+from enum import Enum
 
 from PySide6.QtCore import QPointF, QSize, Qt, Signal
 from PySide6.QtGui import QColor, QMouseEvent, QPainter, QPainterPath, QPaintEvent, QPen
 from PySide6.QtWidgets import QWidget
 
+from layer import Layer
 from preferences import global_preferences
 from state import State
 
@@ -18,6 +20,11 @@ INCHES_TO_MM = 25.4
 
 class Canvas(QWidget):
     position_changed = Signal(QPointF)
+    layer_selection_changed = Signal(Layer)
+
+    class Mode(Enum):
+        MOVE = 0
+        SELECT = 1
 
     def __init__(self, state: State | None):
         super().__init__()
@@ -30,6 +37,7 @@ class Canvas(QWidget):
 
         self._mouse_start_coords = QPointF(0.0, 0.0)
         self._mouse_delta = QPointF(0.0, 0.0)
+        self._mode = Canvas.Mode.MOVE
 
     #
     # Pyside6 events
@@ -138,26 +146,40 @@ class Canvas(QWidget):
 
     def mousePressEvent(self, event: QMouseEvent):
         event.accept()
-        self._mouse_start_coords = event.position()
+        if self._mode == Canvas.Mode.MOVE:
+            self._mouse_start_coords = event.position()
+        elif self._mode == Canvas.Mode.SELECT:
+            for layer in self.state.layers:
+                point = event.position()
+                scale = self.state.zoom_factor * DEFAULT_SCALE_FACTOR
+                point = QPointF(point.x() / scale, point.y() / scale)
+                if layer.is_point_inside(point):
+                    logger.info(f"POINT INSIDE: {event.position()} {layer} ")
+                    self.layer_selection_changed.emit(layer)
+
+        else:
+            logger.error(f"Invalid mode {self._mode}")
 
     def mouseMoveEvent(self, event: QMouseEvent):
         event.accept()
-        delta = event.position() - self._mouse_start_coords
-        scale_factor = self.state.zoom_factor * DEFAULT_SCALE_FACTOR
-        self._mouse_delta = QPointF(delta.x() / scale_factor, delta.y() / scale_factor)
-        self.update()
+        if self._mode == Canvas.Mode.MOVE:
+            delta = event.position() - self._mouse_start_coords
+            scale_factor = self.state.zoom_factor * DEFAULT_SCALE_FACTOR
+            self._mouse_delta = QPointF(delta.x() / scale_factor, delta.y() / scale_factor)
+            self.update()
 
     def mouseReleaseEvent(self, event: QMouseEvent):
         event.accept()
-        delta = event.position() - self._mouse_start_coords
-        scale_factor = self.state.zoom_factor * DEFAULT_SCALE_FACTOR
-        orig_pos = self.state.selected_layer.position
-        new_pos = QPointF(
-            orig_pos.x() + delta.x() / scale_factor, orig_pos.y() + delta.y() / scale_factor
-        )
-        self.position_changed.emit(new_pos)
-        self._mouse_start_coords = QPointF(0.0, 0.0)
-        self._mouse_delta = QPointF(0.0, 0.0)
+        if self._mode == Canvas.Mode.MOVE:
+            delta = event.position() - self._mouse_start_coords
+            scale_factor = self.state.zoom_factor * DEFAULT_SCALE_FACTOR
+            orig_pos = self.state.selected_layer.position
+            new_pos = QPointF(
+                orig_pos.x() + delta.x() / scale_factor, orig_pos.y() + delta.y() / scale_factor
+            )
+            self.position_changed.emit(new_pos)
+            self._mouse_start_coords = QPointF(0.0, 0.0)
+            self._mouse_delta = QPointF(0.0, 0.0)
 
     def sizeHint(self) -> QSize:
         max_w = self._cached_hoop_size[0] * INCHES_TO_MM
@@ -193,3 +215,11 @@ class Canvas(QWidget):
         new_size = self.sizeHint()
         self.setFixedSize(new_size)
         self.update()
+
+    @property
+    def mode(self) -> Mode:
+        return self._mode
+
+    @mode.setter
+    def mode(self, value: Mode) -> None:
+        self._mode = value

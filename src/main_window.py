@@ -109,6 +109,17 @@ class MainWindow(QMainWindow):
         edit_menu = QMenu("&Edit", self)
         menu_bar.addMenu(edit_menu)
 
+        self._undo_stack = QUndoStack(self)
+        self._undo_action = QAction(QIcon.fromTheme("edit-undo"), "&Undo", self)
+        self._undo_action.triggered.connect(self._undo_stack.undo)
+        edit_menu.addAction(self._undo_action)
+
+        self._redo_action = QAction(QIcon.fromTheme("edit-redo"), "&Redo", self)
+        self._redo_action.triggered.connect(self._undo_stack.redo)
+        edit_menu.addAction(self._redo_action)
+
+        edit_menu.addSeparator()
+
         self._canvas_mode_move_action = QAction(QIcon.fromTheme("edit-clear"), "Move Mode", self)
         self._canvas_mode_move_action.setCheckable(True)
         self._canvas_mode_move_action.setChecked(True)
@@ -121,20 +132,11 @@ class MainWindow(QMainWindow):
         self._canvas_mode_select_action.triggered.connect(self._on_canvas_mode_select)
         edit_menu.addAction(self._canvas_mode_select_action)
 
-        menu_bar.addSeparator()
-
-        self._undo_stack = QUndoStack(self)
-        self._undo_action = QAction(QIcon.fromTheme("edit-undo"), "&Undo", self)
-        self._undo_action.triggered.connect(self._undo_stack.undo)
-        edit_menu.addAction(self._undo_action)
-
-        self._redo_action = QAction(QIcon.fromTheme("edit-redo"), "&Redo", self)
-        self._redo_action.triggered.connect(self._undo_stack.redo)
-        edit_menu.addAction(self._redo_action)
-
         edit_menu.addSeparator()
 
-        self._preferences_action = QAction("&Preferences", self)
+        self._preferences_action = QAction(
+            QIcon.fromTheme("preferences-system"), "&Preferences", self
+        )
         self._preferences_action.triggered.connect(self._on_preferences)
         edit_menu.addAction(self._preferences_action)
 
@@ -294,6 +296,7 @@ class MainWindow(QMainWindow):
 
         self._canvas = Canvas(self._state)
         self._canvas.position_changed.connect(self._on_position_changed_from_canvas)
+        self._canvas.layer_selection_changed.connect(self._on_layer_selection_changed_from_canvas)
 
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
@@ -765,11 +768,20 @@ class MainWindow(QMainWindow):
         self._position_y_spinbox.setValue(position.y())
         self._canvas.recalculate_fixed_size()
 
+    def _on_layer_selection_changed_from_canvas(self, layer: Layer):
+        for i in range(self._layer_list.count()):
+            item = self._layer_list.item(i)
+            if item.text() == layer.name:
+                self._layer_list.setCurrentRow(i)
+                break
+
     def _on_canvas_mode_move(self):
         self._canvas_mode_select_action.setChecked(False)
+        self._canvas.mode = Canvas.Mode.MOVE
 
     def _on_canvas_mode_select(self):
         self._canvas_mode_move_action.setChecked(False)
+        self._canvas.mode = Canvas.Mode.SELECT
 
 
 if __name__ == "__main__":

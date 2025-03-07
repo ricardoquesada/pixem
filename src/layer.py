@@ -4,8 +4,8 @@
 import logging
 from typing import Optional, Self, overload
 
-from PySide6.QtCore import QPointF, QSizeF
-from PySide6.QtGui import QImage
+from PySide6.QtCore import QPointF, QRectF, QSizeF
+from PySide6.QtGui import QImage, QTransform
 
 import image_utils
 from partition import Partition
@@ -155,6 +155,26 @@ class Layer:
     @rotation.setter
     def rotation(self, value: float):
         self._rotation = value
+
+    def is_point_inside(self, point: QPointF) -> bool:
+        rect = QRectF(
+            self._position.x(),
+            self._position.y(),
+            self._image.width() * self._pixel_size.width(),
+            self._image.height() * self._pixel_size.height(),
+        )
+
+        transform = QTransform()
+        transform.translate(rect.center().x(), rect.center().y())
+        transform.rotate(self._rotation)
+        transform.translate(-rect.center().x(), -rect.center().y())
+
+        inverse_transform, invertible = transform.inverted()
+        if not invertible:
+            return False
+
+        transformed_point = inverse_transform.map(point)
+        return rect.contains(transformed_point)
 
 
 class ImageLayer(Layer):
