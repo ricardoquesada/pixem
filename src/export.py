@@ -3,7 +3,7 @@
 
 import argparse
 import logging
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from typing import TextIO
 
 # Argument Defaults
@@ -49,6 +49,7 @@ class ExportToSVG:
 
         # Backward compatible
         self._export_params = export_params
+        logger.info(f"Exporting to SVG {self._export_params}")
         self._hoop_size = self._conf[KEY_HOOP_SIZE_IN]
 
         self._layers = []
@@ -89,7 +90,7 @@ class ExportToSVG:
 
     def write_to_svg(self):
         logger.info(f"writing SVG {self._export_params.filename}")
-        with open(self._export_params.fill_method, "w") as f:
+        with open(self._export_params.filename, "w") as f:
             f.write('<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n')
             f.write(
                 f"<svg\n"
@@ -125,13 +126,7 @@ class ExportToSVG:
             )
             f.write("</sodipodi:namedview>\n")
             f.write("<defs\n" '  id="defs1"\n' "/>\n")
-            f.write(
-                "<!-- pixem:params\n"
-                f'  hoop_size="{self._hoop_size}"\n'
-                f'  fill_method="{self._export_params.fill_method}"\n'
-                f'  version="{self.VERSION}"\n'
-                "-->\n"
-            )
+            f.write("<!-- pixem:params\n" f'  {asdict(self._export_params)}"\n' "-->\n")
 
             for layer_idx, layer in enumerate(self._layers):
                 name = layer["name"]
@@ -155,7 +150,9 @@ class ExportToSVG:
                     for coord in path:
                         # coord is a tuple (x,y)
                         x, y = coord
-                        angle = 0 if ((x + y) % 2 == 0) else 90
+                        angle = self._export_params.initial_angle_degrees
+                        if (x + y) % 2 == 0:
+                            angle += 90
                         color = partition.split("_")[0]
                         self._write_rect_svg(
                             f,
