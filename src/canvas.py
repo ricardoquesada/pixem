@@ -4,7 +4,7 @@
 import logging
 from enum import Enum
 
-from PySide6.QtCore import QPointF, QSize, Qt, Signal
+from PySide6.QtCore import QPointF, QRectF, QSize, Qt, Signal
 from PySide6.QtGui import QColor, QMouseEvent, QPainter, QPainterPath, QPaintEvent, QPen
 from PySide6.QtWidgets import QWidget
 
@@ -80,6 +80,20 @@ class Canvas(QWidget):
                     -(scaled_y / 2 + offset.y()),
                 )
                 painter.drawImage(offset, transformed_image)
+
+                # Draw rect around it
+                if (
+                    self._mode_status == Canvas.ModeStatus.MOVING
+                    and self.state.selected_layer == layer
+                ):
+                    brush = painter.brush()
+                    brush.setColor(QColor(0, 0, 255, 16))  # Red, semi-transparent fill
+                    brush.setStyle(Qt.BrushStyle.SolidPattern)  # Solid fill
+                    painter.setBrush(brush)
+                    painter.setPen(QPen(Qt.GlobalColor.lightGray, 0.5, Qt.PenStyle.DashLine))
+                    rect = QRectF(offset.x(), offset.y(), scaled_x, scaled_y)
+                    painter.drawRect(rect)
+
                 painter.restore()
 
         # Draw selected partition pixels
@@ -90,12 +104,6 @@ class Canvas(QWidget):
             # Scale the image based on pixel size
             scaled_x = layer.image.width() * layer.pixel_size.width()
             scaled_y = layer.image.height() * layer.pixel_size.height()
-            transformed_image = layer.image.scaled(
-                round(scaled_x),
-                round(scaled_y),
-                Qt.AspectRatioMode.IgnoreAspectRatio,
-                Qt.TransformationMode.FastTransformation,
-            )
             painter.translate(scaled_x / 2 + offset.x(), scaled_y / 2 + offset.y())
             painter.rotate(layer.rotation)
             painter.translate(
@@ -155,7 +163,8 @@ class Canvas(QWidget):
             return
         if event.button() != Qt.LeftButton:
             return
-        for layer in self.state.layers:
+        # Layer on top (visually) first
+        for layer in reversed(self.state.layers):
             point = event.position()
             scale = self.state.zoom_factor * DEFAULT_SCALE_FACTOR
             point = QPointF(point.x() / scale, point.y() / scale)

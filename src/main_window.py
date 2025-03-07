@@ -120,7 +120,9 @@ class MainWindow(QMainWindow):
 
         edit_menu.addSeparator()
 
-        self._canvas_mode_move_action = QAction(QIcon.fromTheme("edit-clear"), "Move Mode", self)
+        self._canvas_mode_move_action = QAction(
+            QIcon.fromTheme("transform-move"), "Move Mode", self
+        )
         self._canvas_mode_move_action.setCheckable(True)
         self._canvas_mode_move_action.setChecked(True)
         self._canvas_mode_move_action.triggered.connect(self._on_canvas_mode_move)
@@ -776,11 +778,13 @@ class MainWindow(QMainWindow):
                 break
 
     def _on_canvas_mode_move(self):
+        self._canvas_mode_move_action.setChecked(True)
         self._canvas_mode_select_action.setChecked(False)
         self._canvas.mode = Canvas.Mode.MOVE
 
     def _on_canvas_mode_select(self):
         self._canvas_mode_move_action.setChecked(False)
+        self._canvas_mode_select_action.setChecked(True)
         self._canvas.mode = Canvas.Mode.SELECT
 
 
