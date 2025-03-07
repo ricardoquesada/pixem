@@ -26,6 +26,9 @@ class Canvas(QWidget):
         # FIXME: must be set according to layer size
         self.setFixedSize(QSize(152 * 2, 254 * 2))
 
+        self._mouse_start_coords = QPointF(0.0, 0.0)
+        self._mouse_delta = QPointF(0.0, 0.0)
+
     #
     # Pyside6 events
     #
@@ -40,6 +43,9 @@ class Canvas(QWidget):
         )
 
         for i, layer in enumerate(self.state.layers):
+            offset = layer.position
+            if layer.name == self.state.selected_layer.name:
+                offset = layer.position + self._mouse_delta
             if layer.visible:
                 painter.save()
                 painter.setOpacity(layer.opacity)
@@ -52,20 +58,19 @@ class Canvas(QWidget):
                     Qt.AspectRatioMode.IgnoreAspectRatio,
                     Qt.TransformationMode.FastTransformation,
                 )
-                painter.translate(
-                    scaled_x / 2 + layer.position.x(), scaled_y / 2 + layer.position.y()
-                )
+                painter.translate(scaled_x / 2 + offset.x(), scaled_y / 2 + offset.y())
                 painter.rotate(layer.rotation)
                 painter.translate(
-                    -(scaled_x / 2 + layer.position.x()),
-                    -(scaled_y / 2 + layer.position.y()),
+                    -(scaled_x / 2 + offset.x()),
+                    -(scaled_y / 2 + offset.y()),
                 )
-                painter.drawImage(layer.position, transformed_image)
+                painter.drawImage(offset, transformed_image)
                 painter.restore()
 
         # Draw selected partition pixels
         layer = self.state.selected_layer
         if layer is not None and layer.current_partition_key is not None:
+            offset = layer.position + self._mouse_delta
             painter.save()
             # Scale the image based on pixel size
             scaled_x = layer.image.width() * layer.pixel_size.width()
@@ -76,11 +81,11 @@ class Canvas(QWidget):
                 Qt.AspectRatioMode.IgnoreAspectRatio,
                 Qt.TransformationMode.FastTransformation,
             )
-            painter.translate(scaled_x / 2 + layer.position.x(), scaled_y / 2 + layer.position.y())
+            painter.translate(scaled_x / 2 + offset.x(), scaled_y / 2 + offset.y())
             painter.rotate(layer.rotation)
             painter.translate(
-                -(scaled_x / 2 + layer.position.x()),
-                -(scaled_y / 2 + layer.position.y()),
+                -(scaled_x / 2 + offset.x()),
+                -(scaled_y / 2 + offset.y()),
             )
 
             # painter.setPen(Qt.NoPen)
@@ -99,10 +104,10 @@ class Canvas(QWidget):
 
                 for x, y in partition.path:
                     polygon = [
-                        QPointF(layer.position.x() + x * W, layer.position.y() + y * H),
-                        QPointF(layer.position.x() + (x + 1) * W, layer.position.y() + y * H),
-                        QPointF(layer.position.x() + (x + 1) * W, layer.position.y() + (y + 1) * H),
-                        QPointF(layer.position.x() + x * W, layer.position.y() + (y + 1) * H),
+                        QPointF(offset.x() + x * W, offset.y() + y * H),
+                        QPointF(offset.x() + (x + 1) * W, offset.y() + y * H),
+                        QPointF(offset.x() + (x + 1) * W, offset.y() + (y + 1) * H),
+                        QPointF(offset.x() + x * W, offset.y() + (y + 1) * H),
                     ]
                     # Use drawPolygon instead of drawRects because drawPolygon supports floats
                     painter.drawPolygon(polygon)
@@ -131,16 +136,26 @@ class Canvas(QWidget):
 
     def mousePressEvent(self, event: QMouseEvent):
         event.accept()
-        x, y = event.position()
-        logger.info(f"mousePressEvent: {event}")
+        self._mouse_start_coords = event.position()
 
     def mouseMoveEvent(self, event: QMouseEvent):
         event.accept()
-        logger.info(f"mouseMouseEvent: {event}")
+        delta = event.position() - self._mouse_start_coords
+        self._mouse_delta = QPointF(
+            delta.x() / DEFAULT_SCALE_FACTOR, delta.y() / DEFAULT_SCALE_FACTOR
+        )
+        self.update()
 
     def mouseReleaseEvent(self, event: QMouseEvent):
         event.accept()
-        logger.info(f"mouseReleaseEvent: {event}")
+        delta = event.position() - self._mouse_start_coords
+        self._mouse_delta = QPointF(
+            delta.x() / DEFAULT_SCALE_FACTOR, delta.y() / DEFAULT_SCALE_FACTOR
+        )
+        print(f"NEW X,Y should be: {self._mouse_delta}")
+        self.update()
+        self._mouse_start_coords = QPointF(0.0, 0.0)
+        self._mouse_delta = QPointF(0.0, 0.0)
 
     def sizeHint(self) -> QSize:
         max_w = self._cached_hoop_size[0] * INCHES_TO_MM
