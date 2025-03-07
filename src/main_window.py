@@ -109,6 +109,20 @@ class MainWindow(QMainWindow):
         edit_menu = QMenu("&Edit", self)
         menu_bar.addMenu(edit_menu)
 
+        self._canvas_mode_move_action = QAction(QIcon.fromTheme("edit-clear"), "Move Mode", self)
+        self._canvas_mode_move_action.setCheckable(True)
+        self._canvas_mode_move_action.setChecked(True)
+        self._canvas_mode_move_action.triggered.connect(self._on_canvas_mode_move)
+        edit_menu.addAction(self._canvas_mode_move_action)
+
+        self._canvas_mode_select_action = QAction(QIcon.fromTheme("edit-copy"), "Select Mode", self)
+        self._canvas_mode_select_action.setCheckable(True)
+        self._canvas_mode_select_action.setChecked(False)
+        self._canvas_mode_select_action.triggered.connect(self._on_canvas_mode_select)
+        edit_menu.addAction(self._canvas_mode_select_action)
+
+        menu_bar.addSeparator()
+
         self._undo_stack = QUndoStack(self)
         self._undo_action = QAction(QIcon.fromTheme("edit-undo"), "&Undo", self)
         self._undo_action.triggered.connect(self._undo_stack.undo)
@@ -187,6 +201,10 @@ class MainWindow(QMainWindow):
 
         self._toolbar.addAction(self._add_image_action)
         self._toolbar.addAction(self._add_text_action)
+        self._toolbar.addSeparator()
+
+        self._toolbar.addAction(self._canvas_mode_move_action)
+        self._toolbar.addAction(self._canvas_mode_select_action)
         self._toolbar.addSeparator()
 
         self._toolbar.addAction(self._undo_action)
@@ -746,6 +764,12 @@ class MainWindow(QMainWindow):
         self._position_x_spinbox.setValue(position.x())
         self._position_y_spinbox.setValue(position.y())
         self._canvas.recalculate_fixed_size()
+
+    def _on_canvas_mode_move(self):
+        self._canvas_mode_select_action.setChecked(False)
+
+    def _on_canvas_mode_select(self):
+        self._canvas_mode_move_action.setChecked(False)
 
 
 if __name__ == "__main__":
