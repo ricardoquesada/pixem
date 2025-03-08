@@ -15,13 +15,11 @@ from PySide6.QtWidgets import (
     QDoubleSpinBox,
     QFileDialog,
     QFormLayout,
-    QGridLayout,
     QLineEdit,
     QListWidget,
     QListWidgetItem,
     QMainWindow,
     QMenu,
-    QPushButton,
     QScrollArea,
     QSlider,
     QStyle,
@@ -125,22 +123,20 @@ class MainWindow(QMainWindow):
 
         edit_menu.addSeparator()
 
-        self._canvas_mode_move_action = QAction(
-            QIcon.fromTheme("transform-move"), "Move Mode", self
-        )
+        icon = create_icon_from_svg(":/res/icons/svg/actions/object-select-symbolic.svg")
+        self._canvas_mode_move_action = QAction(icon, "Select Mode", self)
         self._canvas_mode_move_action.setCheckable(True)
         self._canvas_mode_move_action.setChecked(True)
         self._canvas_mode_move_action.triggered.connect(self._on_canvas_mode_move)
         edit_menu.addAction(self._canvas_mode_move_action)
 
-        self._canvas_mode_drawing_action = QAction(
-            QIcon.fromTheme("tool_pen"), "Drawing Mode", self
-        )
+        icon = create_icon_from_svg(":/res/icons/svg/actions/draw-freehand-symbolic.svg")
+        self._canvas_mode_drawing_action = QAction(icon, "Drawing Mode", self)
         self._canvas_mode_drawing_action.setCheckable(True)
         self._canvas_mode_drawing_action.setChecked(False)
         self._canvas_mode_drawing_action.triggered.connect(self._on_canvas_mode_drawing)
         edit_menu.addAction(self._canvas_mode_drawing_action)
-        # FIXME: Enable "pen" mode
+        # FIXME: Enable "Drawing" mode
         self._canvas_mode_drawing_action.setEnabled(False)
 
         edit_menu.addSeparator()
@@ -297,22 +293,6 @@ class MainWindow(QMainWindow):
         self.addDockWidget(Qt.RightDockWidgetArea, partitions_dock)
 
         self._connect_layer_partition_callbacks()
-
-        # Alignment Dock
-        self._alignment_layout = QGridLayout()
-        # Create and add 9 buttons to the grid
-        arrows = ["↖", "↑", "↗", "←", "↔", "→", "↙", "↓", "↘"]
-        for row in range(3):
-            for col in range(3):
-                button = QPushButton(f"{arrows[row * 3 + col]}")
-                self._alignment_layout.addWidget(button, row, col)
-
-        alignment_dock = QDockWidget("Alignment", self)
-        alignment_dock.setObjectName("alignment_dock")
-        container_widget = QWidget()
-        container_widget.setLayout(self._alignment_layout)
-        alignment_dock.setWidget(container_widget)
-        self.addDockWidget(Qt.RightDockWidgetArea, alignment_dock)
 
         # Undo Dock
         undo_view = QUndoView(self._undo_stack)
