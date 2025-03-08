@@ -6,7 +6,8 @@ import logging
 from typing import Optional
 
 from PySide6.QtCore import QBuffer, QByteArray, QFile, QIODevice, Qt
-from PySide6.QtGui import QColor, QImage
+from PySide6.QtGui import QColor, QIcon, QImage, QPainter, QPixmap
+from PySide6.QtSvg import QSvgRenderer
 
 logger = logging.getLogger(__name__)
 
@@ -146,3 +147,19 @@ def text_to_qimage(text: str, font_path: str) -> Optional[QImage]:
                 if row_byte & (1 << (8 - b)):
                     image.setPixel(offset_x + b + char_idx * 8, offset_y, QColor(Qt.black).rgb())
     return image
+
+
+def create_icon_from_svg(svg_path: str, size: int = 32) -> QIcon | None:
+    """Creates a QIcon from an SVG resource."""
+    renderer = QSvgRenderer(svg_path)
+    if not renderer.isValid():
+        logger.error(f"Error: Invalid SVG resource: {svg_path}")
+        return None
+
+    pixmap = QPixmap(size, size)
+    pixmap.fill(Qt.transparent)
+    painter = QPainter(pixmap)
+    renderer.render(painter)
+    painter.end()
+
+    return QIcon(pixmap)

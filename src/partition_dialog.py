@@ -5,7 +5,7 @@ import logging
 from enum import Enum, auto
 
 from PySide6.QtCore import QRect, QSize, Qt
-from PySide6.QtGui import QAction, QColor, QIcon, QImage, QMouseEvent, QPainter, QPen, QPixmap
+from PySide6.QtGui import QAction, QColor, QImage, QMouseEvent, QPainter, QPen, QPixmap
 from PySide6.QtWidgets import (
     QDialog,
     QDialogButtonBox,
@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from image_utils import create_icon_from_svg
 from partition import Partition
 
 PAINT_SCALE_FACTOR = 12
@@ -199,12 +200,14 @@ class PartitionDialog(QDialog):
         toolbar = QToolBar()
 
         # Edit modes
-        pixmap = QPixmap(":/res/icons/22x22/categories/applications-graphics.png")
-        self._paint_action = QAction(QIcon(pixmap), "Paint", self)
-        pixmap = QPixmap(":/res/icons/22x22/actions/stock-tool-bucket-fill.png")
-        self._fill_action = QAction(QIcon(pixmap), "Fill", self)
-        pixmap = QPixmap(":/res/icons/22x22/actions/stock-tool-rect-select.png")
-        self._select_action = QAction(QIcon(pixmap), "Select", self)
+        paint_icon = create_icon_from_svg(":/res/icons/svg/actions/draw-freehand-symbolic.svg", 22)
+        self._paint_action = QAction(paint_icon, "Paint", self)
+        fill_icon = create_icon_from_svg(":/res/icons/svg/actions/color-fill-symbolic.svg", 22)
+        self._fill_action = QAction(fill_icon, "Fill", self)
+        select_icon = create_icon_from_svg(
+            ":/res/icons/svg/actions/selection-touch-symbolic.svg", 22
+        )
+        self._select_action = QAction(select_icon, "Select", self)
         actions = [self._paint_action, self._fill_action, self._select_action]
         toolbar.addActions(actions)
         for action in actions:
@@ -215,12 +218,18 @@ class PartitionDialog(QDialog):
         toolbar.addSeparator()
 
         # Fill modes
-        pixmap = QPixmap(":/res/icons/22x22/actions/go-up.png")
-        self._fill_spiral_cw_action = QAction(QIcon(pixmap), "Spiral CW", self)
-        pixmap = QPixmap(":/res/icons/22x22/actions/go-down.png")
-        self._fill_spiral_ccw_action = QAction(QIcon(pixmap), "Spiral CCW", self)
-        pixmap = QPixmap(":/res/icons/22x22/actions/go-previous.png")
-        self._fill_random_action = QAction(QIcon(pixmap), "Random", self)
+        fill_spiral_cw_icon = create_icon_from_svg(
+            ":/res/icons/svg/actions/draw-ellipse-chord-symbolic.svg", 22
+        )
+        self._fill_spiral_cw_action = QAction(fill_spiral_cw_icon, "Spiral CW", self)
+        fill_spiral_ccw_icon = create_icon_from_svg(
+            ":/res/icons/svg/actions/draw-ellipse-segment-symbolic.svg", 22
+        )
+        self._fill_spiral_ccw_action = QAction(fill_spiral_ccw_icon, "Spiral CCW", self)
+        fill_random_icon = create_icon_from_svg(
+            ":/res/icons/svg/actions/randomize-symbolic.svg", 22
+        )
+        self._fill_random_action = QAction(fill_random_icon, "Random", self)
         actions = [
             self._fill_spiral_cw_action,
             self._fill_spiral_ccw_action,
