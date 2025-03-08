@@ -21,6 +21,7 @@ from image_utils import create_icon_from_svg
 from partition import Partition
 
 PAINT_SCALE_FACTOR = 12
+ICON_SIZE = 22
 
 logger = logging.getLogger(__name__)
 
@@ -200,12 +201,16 @@ class PartitionDialog(QDialog):
         toolbar = QToolBar()
 
         # Edit modes
-        paint_icon = create_icon_from_svg(":/res/icons/svg/actions/draw-freehand-symbolic.svg", 22)
+        paint_icon = create_icon_from_svg(
+            ":/res/icons/svg/actions/draw-freehand-symbolic.svg", ICON_SIZE
+        )
         self._paint_action = QAction(paint_icon, "Paint", self)
-        fill_icon = create_icon_from_svg(":/res/icons/svg/actions/color-fill-symbolic.svg", 22)
+        fill_icon = create_icon_from_svg(
+            ":/res/icons/svg/actions/color-fill-symbolic.svg", ICON_SIZE
+        )
         self._fill_action = QAction(fill_icon, "Fill", self)
         select_icon = create_icon_from_svg(
-            ":/res/icons/svg/actions/selection-touch-symbolic.svg", 22
+            ":/res/icons/svg/actions/selection-touch-symbolic.svg", ICON_SIZE
         )
         self._select_action = QAction(select_icon, "Select", self)
         actions = [self._paint_action, self._fill_action, self._select_action]
@@ -219,15 +224,15 @@ class PartitionDialog(QDialog):
 
         # Fill modes
         fill_spiral_cw_icon = create_icon_from_svg(
-            ":/res/icons/svg/actions/draw-ellipse-chord-symbolic.svg", 22
+            ":/res/icons/svg/actions/draw-ellipse-chord-symbolic.svg", ICON_SIZE
         )
         self._fill_spiral_cw_action = QAction(fill_spiral_cw_icon, "Spiral CW", self)
         fill_spiral_ccw_icon = create_icon_from_svg(
-            ":/res/icons/svg/actions/draw-ellipse-segment-symbolic.svg", 22
+            ":/res/icons/svg/actions/draw-ellipse-segment-symbolic.svg", ICON_SIZE
         )
         self._fill_spiral_ccw_action = QAction(fill_spiral_ccw_icon, "Spiral CCW", self)
         fill_random_icon = create_icon_from_svg(
-            ":/res/icons/svg/actions/randomize-symbolic.svg", 22
+            ":/res/icons/svg/actions/randomize-symbolic.svg", ICON_SIZE
         )
         self._fill_random_action = QAction(fill_random_icon, "Random", self)
         actions = [

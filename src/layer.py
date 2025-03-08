@@ -2,6 +2,7 @@
 # Copyright 2025 - Ricardo Quesada
 
 import logging
+from enum import Enum
 from typing import Optional, Self, overload
 
 from PySide6.QtCore import QPointF, QRectF, QSizeF
@@ -11,6 +12,18 @@ import image_utils
 from partition import Partition
 
 logger = logging.getLogger(__name__)
+
+INCHES_TO_MM = 25.4
+
+
+class LayerAlign(Enum):
+    HORIZONTAL_LEFT = 1
+    HORIZONTAL_CENTER = 2
+    HORIZONTAL_RIGHT = 3
+
+    VERTICAL_TOP = 4
+    VERTICAL_CENTER = 5
+    VERTICAL_BOTTOM = 6
 
 
 class Layer:
@@ -175,6 +188,39 @@ class Layer:
 
         transformed_point = inverse_transform.map(point)
         return rect.contains(transformed_point)
+
+    def align(self, align_mode: LayerAlign, hoop_size: tuple[float, float]):
+        logger.info(f"Layer align: {align_mode}, {hoop_size}")
+        match align_mode:
+            case LayerAlign.HORIZONTAL_LEFT:
+                self.position = QPointF(0.0, self.position.y())
+            case LayerAlign.HORIZONTAL_CENTER:
+                self.position = QPointF(
+                    (hoop_size[0] * INCHES_TO_MM - self._image.width() * self._pixel_size.width())
+                    / 2,
+                    self.position.y(),
+                )
+            case LayerAlign.HORIZONTAL_RIGHT:
+                self.position = QPointF(
+                    (hoop_size[0] * INCHES_TO_MM - self._image.width() * self._pixel_size.width()),
+                    self.position.y(),
+                )
+            case LayerAlign.VERTICAL_TOP:
+                self.position = QPointF(self.position.x(), 0.0)
+            case LayerAlign.VERTICAL_CENTER:
+                self.position = QPointF(
+                    self.position.x(),
+                    (hoop_size[1] * INCHES_TO_MM - self._image.height() * self._pixel_size.height())
+                    / 2,
+                )
+            case LayerAlign.VERTICAL_BOTTOM:
+                self.position = QPointF(
+                    self.position.x(),
+                    (
+                        hoop_size[1] * INCHES_TO_MM
+                        - self._image.height() * self._pixel_size.height()
+                    ),
+                )
 
 
 class ImageLayer(Layer):

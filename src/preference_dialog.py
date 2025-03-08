@@ -33,11 +33,11 @@ class PreferenceDialog(QDialog):
         self._hoop_10_6_radio = QRadioButton("10x6")
         self._hoop_custom_radio = QRadioButton("Custom:")
         self._custom_size_x_spinbox = QDoubleSpinBox()
+        self._custom_size_x_spinbox.setValue(10.0)
         self._custom_size_x_spinbox.setEnabled(False)
-        self._custom_size_x_spinbox.setValue(8.0)
         self._custom_size_y_spinbox = QDoubleSpinBox()
+        self._custom_size_y_spinbox.setValue(10.0)
         self._custom_size_y_spinbox.setEnabled(False)
-        self._custom_size_y_spinbox.setValue(8.0)
         self._hoop_custom_radio.toggled.connect(self._custom_size_x_spinbox.setEnabled)
         self._hoop_custom_radio.toggled.connect(self._custom_size_y_spinbox.setEnabled)
 
@@ -75,7 +75,12 @@ class PreferenceDialog(QDialog):
 
         # Populate from global preferences
         hoop_visible = preferences.global_preferences.get_hoop_visible()
-        hoop_size = preferences.global_preferences.get_hoop_size()
+
+        # Custom supports floats
+        hoop_size_f = preferences.global_preferences.get_hoop_size()
+
+        # Pre-defined, convert it to integers so it is easier to match them
+        hoop_size_i = (int(hoop_size_f[0]), int(hoop_size_f[1]))
         self._visibility_checkbox.setChecked(hoop_visible)
 
         d = {
@@ -86,10 +91,16 @@ class PreferenceDialog(QDialog):
             (10, 6): self._hoop_10_6_radio,
         }
         radio_button = None
-        if hoop_size in d:
-            radio_button = d[hoop_size]
+        if hoop_size_i in d:
+            radio_button = d[hoop_size_i]
         else:
+            # FIXME: Preferences should save the custom hoop size in a different "bucket"
+            # so that it should remember both things: which predefined is used, and the
+            # custom value
             radio_button = self._hoop_custom_radio
+            self._custom_size_x_spinbox.setValue(hoop_size_f[0])
+            self._custom_size_y_spinbox.setValue(hoop_size_f[1])
+
         radio_button.setChecked(True)
 
         self._open_file_startup_checkbox.setChecked(

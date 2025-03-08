@@ -36,13 +36,16 @@ from canvas import Canvas
 from export_dialog import ExportDialog
 from font_dialog import FontDialog
 from image_parser import ImageParser
-from layer import ImageLayer, Layer, TextLayer
+from image_utils import create_icon_from_svg
+from layer import ImageLayer, Layer, LayerAlign, TextLayer
 from partition_dialog import PartitionDialog
 from preference_dialog import PreferenceDialog
 from preferences import global_preferences
 from state import State
 
 logger = logging.getLogger(__name__)  # __name__ gets the current module's name
+
+ICON_SIZE = 22
 
 
 class MainWindow(QMainWindow):
@@ -185,6 +188,49 @@ class MainWindow(QMainWindow):
         self._delete_layer_action.triggered.connect(self._on_layer_delete)
         layer_menu.addAction(self._delete_layer_action)
 
+        layer_menu.addSeparator()
+        aligns = [
+            (
+                LayerAlign.HORIZONTAL_LEFT,
+                "Align Horizontal Left",
+                "align-horizontal-left-symbolic.svg",
+            ),
+            (
+                LayerAlign.HORIZONTAL_CENTER,
+                "Align Horizontal Center",
+                "align-horizontal-center-symbolic.svg",
+            ),
+            (
+                LayerAlign.HORIZONTAL_RIGHT,
+                "Align Horizontal Right",
+                "align-horizontal-right-symbolic.svg",
+            ),
+            (LayerAlign.VERTICAL_TOP, "Align Vertical Top", "align-vertical-top-symbolic.svg"),
+            (
+                LayerAlign.VERTICAL_CENTER,
+                "Align Vertical Center",
+                "align-vertical-center-symbolic.svg",
+            ),
+            (
+                LayerAlign.VERTICAL_BOTTOM,
+                "Align Vertical Bottom",
+                "align-vertical-bottom-symbolic.svg",
+            ),
+        ]
+
+        self._align_actions = {}
+
+        for i, align in enumerate(aligns):
+            path = f":/res/icons/svg/actions/{align[2]}"
+            icon = create_icon_from_svg(path)
+            action = QAction(icon, align[1], self)
+            action.triggered.connect(self._on_layer_align)
+            action.setData(align[0])
+            self._align_actions[align[0]] = action
+            layer_menu.addAction(action)
+            if i == 2:
+                layer_menu.addSeparator()
+
         partition_menu = QMenu("&Partition", self)
         menu_bar.addMenu(partition_menu)
 
@@ -215,6 +261,15 @@ class MainWindow(QMainWindow):
 
         self._toolbar.addAction(self._canvas_mode_move_action)
         self._toolbar.addAction(self._canvas_mode_drawing_action)
+        self._toolbar.addSeparator()
+
+        # Add Align actions
+        for i, key in enumerate(self._align_actions):
+            action = self._align_actions[key]
+            self._toolbar.addAction(action)
+            if i == 2:
+                self._toolbar.addSeparator()
+
         self._toolbar.addSeparator()
 
         self._toolbar.addAction(self._undo_action)
@@ -371,6 +426,10 @@ class MainWindow(QMainWindow):
         self._zoom_slider.setEnabled(enabled)
 
         self._property_editor.setEnabled(enabled)
+
+        for key in self._align_actions:
+            action = self._align_actions[key]
+            action.setEnabled(enabled)
 
     def _connect_property_callbacks(self):
         self._name_edit.editingFinished.connect(self._on_update_layer_property)
@@ -691,6 +750,20 @@ class MainWindow(QMainWindow):
 
         # _partition_list should get auto-populated
         # because a "on_change_layer" should be triggered
+
+        self._canvas.recalculate_fixed_size()
+        self.update()
+
+    def _on_layer_align(self):
+        s = self.sender()
+        if self._state is None or self._state.selected_layer is None:
+            return
+        self._state.selected_layer.align(s.data(), global_preferences.get_hoop_size())
+        new_pos = self._state.selected_layer.position
+        self._disconnect_property_callbacks()
+        self._position_x_spinbox.setValue(new_pos.x())
+        self._position_y_spinbox.setValue(new_pos.y())
+        self._connect_property_callbacks()
 
         self._canvas.recalculate_fixed_size()
         self.update()

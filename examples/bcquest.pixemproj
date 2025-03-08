@@ -11,7 +11,7 @@ layer_type = "ImageLayer"
 image_file_name = "/home/riq/progs/pixem/bc2_sprite.png"
 
 [layers.position]
-x = 0.0
+x = 2.6999999999999886
 y = 0.0
 [layers.pixel_size]
 width = 3.5
