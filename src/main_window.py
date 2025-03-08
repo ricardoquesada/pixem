@@ -15,11 +15,13 @@ from PySide6.QtWidgets import (
     QDoubleSpinBox,
     QFileDialog,
     QFormLayout,
+    QGridLayout,
     QLineEdit,
     QListWidget,
     QListWidgetItem,
     QMainWindow,
     QMenu,
+    QPushButton,
     QScrollArea,
     QSlider,
     QStyle,
@@ -232,7 +234,7 @@ class MainWindow(QMainWindow):
         layer_dock.setWidget(self._layer_list)
         self.addDockWidget(Qt.RightDockWidgetArea, layer_dock)
 
-        # Layer colors Dock
+        # Partitions Dock
         self._partition_list = QListWidget()
         partitions_dock = QDockWidget("Partitions", self)
         partitions_dock.setObjectName("partitions_dock")
@@ -240,6 +242,22 @@ class MainWindow(QMainWindow):
         self.addDockWidget(Qt.RightDockWidgetArea, partitions_dock)
 
         self._connect_layer_partition_callbacks()
+
+        # Alignment Dock
+        self._alignment_layout = QGridLayout()
+        # Create and add 9 buttons to the grid
+        arrows = ["↖", "↑", "↗", "←", "↔", "→", "↙", "↓", "↘"]
+        for row in range(3):
+            for col in range(3):
+                button = QPushButton(f"{arrows[row * 3 + col]}")
+                self._alignment_layout.addWidget(button, row, col)
+
+        alignment_dock = QDockWidget("Alignment", self)
+        alignment_dock.setObjectName("alignment_dock")
+        container_widget = QWidget()
+        container_widget.setLayout(self._alignment_layout)
+        alignment_dock.setWidget(container_widget)
+        self.addDockWidget(Qt.RightDockWidgetArea, alignment_dock)
 
         # Undo Dock
         undo_view = QUndoView(self._undo_stack)
