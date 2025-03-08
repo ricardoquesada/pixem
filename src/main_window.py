@@ -626,6 +626,7 @@ class MainWindow(QMainWindow):
         )
         if filename:
             self._state.save_to_filename(filename)
+            self._update_window_title()
 
     def _on_export_project(self) -> None:
         export_params = self._state.export_params
