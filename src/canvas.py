@@ -100,7 +100,12 @@ class Canvas(QWidget):
 
         # Draw selected partition pixels
         layer = self.state.selected_layer
-        if layer is not None and layer.current_partition_key is not None and layer.visible:
+        if (
+            layer is not None
+            and layer.current_partition_key is not None
+            and layer.visible
+            and self._mode_status != Canvas.ModeStatus.MOVING
+        ):
             offset = layer.position + self._mouse_delta
             painter.save()
             # Scale the image based on pixel size
