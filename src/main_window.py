@@ -64,9 +64,9 @@ class MainWindow(QMainWindow):
         self._new_action.triggered.connect(self._on_new_project)
         file_menu.addAction(self._new_action)
 
-        self._open_action = QAction(QIcon.fromTheme("document-open"), "Open Project", self)
+        self._open_action = QAction(QIcon.fromTheme("document-open"), "Open Image or Project", self)
         self._open_action.setShortcut(QKeySequence("Ctrl+O"))
-        self._open_action.triggered.connect(self._on_open_project)
+        self._open_action.triggered.connect(self._on_open_image_or_project)
         file_menu.addAction(self._open_action)
 
         self._recent_menu = QMenu("Recent Files", file_menu)
@@ -465,7 +465,7 @@ class MainWindow(QMainWindow):
 
     def _update_window_title(self):
         title = "Pixem"
-        if self._state is not None:
+        if self._state is not None and self._state.project_filename is not None:
             title = f"{title} - {os.path.basename(self._state.project_filename)}"
         self.setWindowTitle(title)
 
@@ -590,18 +590,28 @@ class MainWindow(QMainWindow):
         self._canvas.recalculate_fixed_size()
         self.update()
 
-    def _on_open_project(self) -> None:
-        # FIXME: If an existing state is dirty, it should ask for "are you suse"
+        self._update_window_title()
+
+    def _on_open_image_or_project(self) -> None:
+        # FIXME: If an existing state is dirty, it should ask for "are you sure"
         options = QFileDialog.Options()  # For more options if needed
         filename, _ = QFileDialog.getOpenFileName(
             self,
             "Open Pixem Project File",
             "",
-            "Pixem files (*.toml *.pixemproj);;All files (*)",
+            "All Supported Files (*.pixemproj *.png *.jpg *.bmp );;"
+            "Pixem project (*.pixemproj);;"
+            "All files (*)",
             options=options,
         )
         if filename:
-            self._open_filename(filename)
+            _, ext = os.path.splitext(filename)
+            if ext == ".pixemproj":
+                self._open_filename(filename)
+            else:
+                self._on_new_project()
+                layer = ImageLayer(f"ImageLayer {len(self._state.layers) + 1}", filename)
+                self._add_layer(layer)
         else:
             logger.warning("Could not open file. Invalid filename")
 
@@ -622,11 +632,16 @@ class MainWindow(QMainWindow):
 
     def _on_save_project_as(self) -> None:
         filename, _ = QFileDialog.getSaveFileName(
-            self, "Save Project", "", "Pixem files (*.pixemproj *.toml);;All files (*)"
+            self, "Save Project", "", "Pixem files (*.pixemproj);;All files (*)"
         )
         if filename:
+            _, ext = os.path.splitext(filename)
+            if ext != ".pixemproj":
+                filename = filename + ".pixemproj"
             self._state.save_to_filename(filename)
             self._update_window_title()
+            global_preferences.add_recent_file(filename)
+            self._populate_recent_menu()
 
     def _on_export_project(self) -> None:
         export_params = self._state.export_params
@@ -647,7 +662,7 @@ class MainWindow(QMainWindow):
             self._state.export_to_filename(export_params)
 
     def _on_close_project(self) -> None:
-        # FIXME: If an existing state is dirty, it should ask for "are you suse"
+        # FIXME: If an existing state is dirty, it should ask for "are you sure"
         self._state = None
         self._canvas.state = self._state
 

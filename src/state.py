@@ -18,7 +18,7 @@ class State:
     def __init__(self):
         self._project_filename = None
         self._export_params = ExportParameters(
-            filename=None,
+            filename="",
             pull_compensation_mm=0.0,
             max_stitch_length_mm=1000.0,
             fill_method="auto_fill",
