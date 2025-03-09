@@ -207,7 +207,7 @@ class PartitionDialog(QDialog):
         action_modes = [
             (ImageWidget.EditMode.PAINT, "Paint", "draw-freehand-symbolic.svg"),
             (ImageWidget.EditMode.FILL, "Fill", "color-fill-symbolic.svg"),
-            (ImageWidget.EditMode.SELECT, "Select", "selection-touch-symbolic.svg"),
+            (ImageWidget.EditMode.SELECT, "Select", "dialog-layers-symbolic.svg"),
         ]
         for mode in action_modes:
             path = f":/res/icons/svg/actions/{mode[2]}"
