@@ -216,7 +216,6 @@ class Canvas(QWidget):
         self._mouse_delta = QPointF(0.0, 0.0)
 
     def sizeHint(self) -> QSize:
-        # FIXME: Should take into account rotated images
         max_w = self._cached_hoop_size[0] * INCHES_TO_MM
         max_h = self._cached_hoop_size[1] * INCHES_TO_MM
         if self.state is None:
