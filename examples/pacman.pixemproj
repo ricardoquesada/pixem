@@ -6,7 +6,7 @@ rotation = 0
 visible = true
 opacity = 1.0
 image = "iVBORw0KGgoAAAANSUhEUgAAAD4AAAAOCAYAAAB3u6/pAAABjGlDQ1BHSU1QIGJ1aWx0LWluIHNSR0IAACiRfZE7SMNQFIb/pooPKg5WEHHIUJ2sg4o41ioUoUKoFVp1MLnpC5o0JCkujoJrwcHHYtXBxVlXB1dBEHyAuAtOii5S4rlJoUWMBy7347/n/7n3XECol5lmdcQATbfNVCIuZrKrYtcrguhBABMYlJllzElSEr71dU+dVHdRnuXf92f1qTmLAQGROMYM0ybeIJ7ZtA3O+8RhVpRV4nPicZMuSPzIdcXjN84FlwWeGTbTqXniMLFYaGOljVnR1IiniSOqplO+kPFY5bzFWStXWfOe/IWhnL6yzHVaI0hgEUuQIEJBFSWUYSNKu06KhRSdx338w65fIpdCrhIYORZQgQbZ9YP/we/ZWvmpSS8pFAc6XxznYxTo2gUaNcf5PnacxgkQfAau9Ja/UgdmP0mvtbTIEdC/DVxctzRlD7jcAYaeDNmUXSlIS8jngfcz+qYsMHAL9K55c2ue4/QBSNOskjfAwSEwVqDsdZ93d7fP7d+e5vx+AGfwcqIUfZlEAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAGXRFWHRDb21tZW50AENyZWF0ZWQgd2l0aCBHSU1QV4EOFwAAAXNJREFUSIntVzGSwyAMlDz+iN34IalcOg89l678kDTwlL3Cgy2EMDDJFXdzO5OJsllBFgFWmAyACPIzE7GlywEb4vyZm/IJcT5xWz62Rc2/Jvl9lKAMa760ANqw5osLoA1rvrAAwxDynybv/ZXfnWNnTEfz32hypqs1OdOVGueu7/z0RVYsNT1RnelzbiLoyktDfjreh1ecF3hsQFJ5AM4f4TjEeQkPQFce2wJPRPtu/2bJY1vA88qdFHgH8i5dgxyf6Ka2OCCYq40/gdO4NFYT3+HxOF4/xVsYXs+muG/Z5gFyu9ec7SRfbncANLYOcG13eYNLYxKax7YgutXD6uqzkuPTCY6tvO/xGc/xAd4ZZ/mG/wRYVnwcjtD5+O6x+HcqTiQebTW3uTlAWvEWRBXXhkv8b0ZXlvxN/BvXTQkTscWVBrTa0qpeXbejzGxy2XnjfpznlS0uxB3RZejOWE4jTYW4lksM3fXiN5pgyPozktN8Ay7R3itG7lH5AAAAAElFTkSuQmCC"
-current_partition_key = "#ffb751_0"
+current_partition_key = "#2121ff_7"
 layer_type = "ImageLayer"
 image_file_name = "/Volumes/riq_data/progs/embroidery/pixel/sprites/pacman.png"
 
@@ -93,7 +93,7 @@ path = [ [ 51, 1,], [ 52, 1,], [ 52, 2,], [ 51, 2,],]
 size = 4
 name = "#2121ff_6"
 [layers.partitions."#2121ff_7"]
-path = [ [ 57, 1,], [ 58, 1,], [ 58, 2,], [ 57, 2,],]
+path = [ [ 58, 2,], [ 57, 2,], [ 57, 1,], [ 58, 1,],]
 size = 4
 name = "#2121ff_7"
 
