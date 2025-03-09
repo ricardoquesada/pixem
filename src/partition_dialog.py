@@ -315,11 +315,11 @@ class PartitionDialog(QDialog):
         self._set_walk_mode(mode)
 
     def _on_rows_moved(self, parent, start, end, destination):
-        print(f"Rows moved from {start} to {end} to destination {destination}")
+        # FIXME: Do something ? It seems that the partition data was automatically updated (???)
         # You can access the new order of items here
-        for row in range(self._list_widget.count()):
-            item = self._list_widget.item(row)
-            print(f"  Item at row {row}: {item.text()}")
+        # for row in range(self._list_widget.count()):
+        #     item = self._list_widget.item(row)
+        pass
 
     def _on_selection_changed(self):
         selected_items = self._list_widget.selectedItems()
