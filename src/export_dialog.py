@@ -23,11 +23,7 @@ from export import ExportParameters
 
 
 class ExportDialog(QDialog):
-    def __init__(
-        self,
-        export_parameters: ExportParameters,
-        parent=None,
-    ):
+    def __init__(self, export_parameters: ExportParameters, parent=None):
         super().__init__(parent)
 
         self.setWindowTitle("Export As Dialog")
@@ -107,6 +103,9 @@ class ExportDialog(QDialog):
             self, "Export Project", dirname, "SVG (*.svg);;All files (*)"
         )
         if filename:
+            _, ext = os.path.splitext(filename)
+            if ext != ".svg":
+                filename = filename + ".svg"
             self._file_edit.setText(filename)
 
     def get_export_parameters(self) -> ExportParameters:
