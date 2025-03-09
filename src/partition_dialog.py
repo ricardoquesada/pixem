@@ -227,8 +227,8 @@ class PartitionDialog(QDialog):
 
         # Fill modes
         fill_modes = [
-            (Partition.WalkMode.SPIRAL_CW, "Spiral CCW", "draw-ellipse-chord-symbolic.svg"),
-            (Partition.WalkMode.SPIRAL_CCW, "Spiral CW", "draw-ellipse-segment-symbolic.svg"),
+            (Partition.WalkMode.SPIRAL_CW, "Spiral CW", "arrow-clockwise-pixem.svg"),
+            (Partition.WalkMode.SPIRAL_CCW, "Spiral CCW", "arrow-counter-clockwise-pixem.svg"),
             (Partition.WalkMode.RANDOM, "Random ", "randomize-symbolic.svg"),
         ]
 

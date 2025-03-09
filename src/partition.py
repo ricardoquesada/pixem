@@ -51,7 +51,7 @@ class Partition:
             neighbor = (node.coord[0] + offset.coord[0], node.coord[1] + offset.coord[1])
             if neighbor in self._path:
                 new_node = Partition.Node(neighbor, offset.dir)
-                if mode == Partition.WalkMode.SPIRAL_CCW:
+                if mode == Partition.WalkMode.SPIRAL_CW:
                     neighbors.insert(0, new_node)
                 else:
                     neighbors.append(new_node)

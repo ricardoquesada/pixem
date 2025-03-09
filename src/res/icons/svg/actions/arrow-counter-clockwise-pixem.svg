@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 16 16"
+   fill="#000000"
+   id="Arrow-Clockwise-Fill--Streamline-Phosphor-Fill"
+   height="16"
+   width="16"
+   version="1.1"
+   sodipodi:docname="arrow-counter-clockwise.svg"
+   inkscape:version="1.4 (e7c3feb100, 2024-10-09)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="75.1875"
+     inkscape:cx="8"
+     inkscape:cy="8"
+     inkscape:window-width="2560"
+     inkscape:window-height="1412"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="Arrow-Clockwise-Fill--Streamline-Phosphor-Fill" />
+  <desc
+     id="desc1">Arrow Clockwise Fill Streamline Icon: https://streamlinehq.com</desc>
+  <path
+     d="m 0.15001477,2.5724 v 3.6182188 c 0,0.3330437 0.26999375,0.6030249 0.60303125,0.6030375 H 4.371271 C 4.8354898,6.794025 5.126021,6.291725 4.8942273,5.8895125 4.8677773,5.8436187 4.835396,5.8014063 4.797921,5.763975 L 3.5164648,4.4825188 4.311721,3.7551063 4.3305648,3.7370125 C 7.6137023,0.45511875 13.218421,1.9580375 14.419059,6.4422687 15.61969,10.926494 11.515771,15.028863 7.031996,13.826531 6.0677273,13.567963 5.182746,13.074038 4.4564523,12.389088 4.119021,12.069938 3.5626398,12.235744 3.4549585,12.687544 c -0.049969,0.209681 0.015712,0.430093 0.1723125,0.578206 1.3408625,1.269719 3.118625,1.975213 4.9652563,1.970425 h 0.0995 C 14.262121,15.159881 17.660846,9.0824 14.809727,4.2967 12.398284,0.24900625 6.8233648,-0.45143125 3.4855585,2.8739188 L 2.6616585,3.6277125 1.179696,2.1427375 C 0.85163977,1.8142938 0.29105227,1.9641563 0.17063977,2.4124875 c -0.014,0.052137 -0.0209437,0.105925 -0.020625,0.1599125 z"
+     stroke-width="0.0625"
+     id="path1" />
+</svg>

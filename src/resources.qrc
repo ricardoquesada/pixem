@@ -630,5 +630,7 @@
         <file>res/icons/svg/actions/zoom-out-symbolic.svg</file>
         <file>res/icons/svg/actions/zoom-previous-symbolic.svg</file>
         <file>res/icons/svg/actions/zoom-symbolic.svg</file>
+        <file>res/icons/svg/actions/arrow-clockwise-pixem.svg</file>
+        <file>res/icons/svg/actions/arrow-counter-clockwise-pixem.svg</file>
     </qresource>
 </RCC>
