@@ -140,11 +140,17 @@ class State:
         return None
 
     @property
-    def layers(self):
+    def layers(self) -> list[Layer]:
         return self._layers
 
+    @layers.setter
+    def layers(self, value: list[Layer]) -> None:
+        # Must be a re-order of the existing list
+        # FIXME: add checks, or rename function, or add a proper "reorder layers" method
+        self._layers = value
+
     @property
-    def zoom_factor(self):
+    def zoom_factor(self) -> float:
         return self._zoom_factor
 
     @zoom_factor.setter
@@ -152,7 +158,7 @@ class State:
         self._zoom_factor = value
 
     @property
-    def current_layer_key(self):
+    def current_layer_key(self) -> str:
         return self._current_layer_key
 
     @current_layer_key.setter
@@ -160,9 +166,9 @@ class State:
         self._current_layer_key = value
 
     @property
-    def export_params(self):
+    def export_params(self) -> ExportParameters:
         return self._export_params
 
     @property
-    def project_filename(self):
+    def project_filename(self) -> str:
         return self._project_filename

@@ -143,9 +143,9 @@ def text_to_qimage(text: str, font_path: str) -> Optional[QImage]:
         data_offset = o * 8
         for offset_y in range(8):
             row_byte = data[data_offset + offset_y][0]
-            for b in range(8):
-                if row_byte & (1 << (8 - b)):
-                    image.setPixel(offset_x + b + char_idx * 8, offset_y, QColor(Qt.black).rgb())
+            for x in range(8):
+                if row_byte & (1 << (7 - x)):
+                    image.setPixel(offset_x + x + char_idx * 8, offset_y, QColor(Qt.black).rgb())
     return image
 
 

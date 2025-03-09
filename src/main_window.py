@@ -802,11 +802,19 @@ class MainWindow(QMainWindow):
                 self._state.current_layer_key = None
 
     def _on_layer_rows_moved(self, parent, start, end, destination):
-        print(f"Rows moved from {start} to {end} to destination {destination}")
-        # You can access the new order of items here
+        if self._state is None:
+            logger.warning("Cannot reorder layers, no active state")
+            return
+        layers = self._state.layers
+        new_layers = []
         for row in range(self._layer_list.count()):
             item = self._layer_list.item(row)
-            print(f"  Item at row {row}: {item.text()}")
+            layer_name = item.text()
+            for layer in layers:
+                if layer.name == layer_name:
+                    new_layers.append(layer)
+                    break
+        self._state.layers = new_layers
 
     def _on_change_partition(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
         enabled = current is not None
@@ -843,10 +851,10 @@ class MainWindow(QMainWindow):
             partition.path = path
 
     def _on_partition_rows_moved(self, parent, start, end, destination):
-        layer = self._state.selected_layer
-        if layer is None:
+        if self._state is None or self._state.selected_layer is None:
             logger.warning("Cannot reorder partitions, no layer selected")
             return
+        layer = self._state.selected_layer
         partitions = layer.partitions
         # reorder dict keys
         new_partitions = {}
