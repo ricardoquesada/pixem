@@ -77,6 +77,11 @@ class Preferences:
             self._recent_files.pop()
         self.save_recent_files()
 
+    def remove_recent_file(self, filename: str) -> None:
+        if filename in self._recent_files:
+            self._recent_files.remove(filename)
+        self.save_recent_files()
+
     def clear_recent_files(self) -> None:
         self._recent_files.clear()
         self.save_recent_files()

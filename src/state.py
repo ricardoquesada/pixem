@@ -62,11 +62,15 @@ class State:
     @classmethod
     def load_from_filename(cls, filename: str) -> Self | None:
         logger.info(f"Loading project from filename {filename}")
-        with open(filename, "r", encoding="utf-8") as f:
-            d = toml.load(f)
-            state = cls.from_dict(d)
-            state._project_filename = filename
-            return state
+        try:
+            with open(filename, "r", encoding="utf-8") as f:
+                d = toml.load(f)
+                state = cls.from_dict(d)
+                state._project_filename = filename
+                return state
+        except FileNotFoundError as e:
+            logger.error(f"Could not load file from {filename}, error: {e}")
+            return None
 
     def save_to_filename(self, filename: str) -> None:
         logger.info(f"Saving project to filename {filename}")

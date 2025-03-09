@@ -616,8 +616,12 @@ class MainWindow(QMainWindow):
             logger.warning("Could not open file. Invalid filename")
 
     def _on_recent_file(self) -> None:
-        file_name = self.sender().data()
-        self._open_filename(file_name)
+        filename = self.sender().data()
+        self._open_filename(filename)
+
+        # Means that open_filename failed
+        if self._state is None:
+            global_preferences.remove_recent_files(filename)
 
     def _on_clear_recent_files(self) -> None:
         global_preferences.clear_recent_files()
