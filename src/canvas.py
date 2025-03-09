@@ -8,6 +8,7 @@ from PySide6.QtCore import QPointF, QRectF, QSize, Qt, Signal
 from PySide6.QtGui import QColor, QMouseEvent, QPainter, QPainterPath, QPaintEvent, QPen
 from PySide6.QtWidgets import QWidget
 
+import image_utils
 from layer import Layer
 from preferences import global_preferences
 from state import State
@@ -215,14 +216,24 @@ class Canvas(QWidget):
         self._mouse_delta = QPointF(0.0, 0.0)
 
     def sizeHint(self) -> QSize:
+        # FIXME: Should take into account rotated images
         max_w = self._cached_hoop_size[0] * INCHES_TO_MM
         max_h = self._cached_hoop_size[1] * INCHES_TO_MM
         if self.state is None:
             return QSize(max_w * DEFAULT_SCALE_FACTOR, max_h * DEFAULT_SCALE_FACTOR)
 
         for layer in self.state.layers:
-            w = layer.position.x() + layer.image.width() * layer.pixel_size.width()
-            h = layer.position.y() + layer.image.height() * layer.pixel_size.height()
+            orig_w = layer.image.width() * layer.pixel_size.width()
+            orig_h = layer.image.height() * layer.pixel_size.height()
+            rot_w, rot_h = image_utils.rotated_rectangle_dimensions(orig_w, orig_h, layer.rotation)
+
+            # Compensates anchor point issues.
+            # Rotation is done from center, but position is from top-left
+            diff_w = (orig_w - rot_w) / 2
+            diff_h = (orig_h - rot_h) / 2
+
+            w = layer.position.x() - diff_w + rot_w
+            h = layer.position.y() - diff_h + rot_h
             if w > max_w:
                 max_w = w
             if h > max_h:
