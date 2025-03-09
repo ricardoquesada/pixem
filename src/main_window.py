@@ -619,10 +619,6 @@ class MainWindow(QMainWindow):
         filename = self.sender().data()
         self._open_filename(filename)
 
-        # Means that open_filename failed
-        if self._state is None:
-            global_preferences.remove_recent_files(filename)
-
     def _on_clear_recent_files(self) -> None:
         global_preferences.clear_recent_files()
         self._populate_recent_menu()
