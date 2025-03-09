@@ -15,6 +15,7 @@ from PySide6.QtWidgets import (
     QDoubleSpinBox,
     QFileDialog,
     QFormLayout,
+    QHBoxLayout,
     QLineEdit,
     QListWidget,
     QListWidgetItem,
@@ -22,6 +23,7 @@ from PySide6.QtWidgets import (
     QMenu,
     QScrollArea,
     QSlider,
+    QSpinBox,
     QStyle,
     QToolBar,
     QUndoView,
@@ -329,7 +331,14 @@ class MainWindow(QMainWindow):
         self._rotation_slider = QSlider(Qt.Horizontal)
         self._rotation_slider.setRange(0, 360)
         self._rotation_slider.setValue(0)
-        self._property_layout.addRow("Rotation:", self._rotation_slider)
+        self._rotation_spinbox = QSpinBox()
+        self._rotation_spinbox.setRange(0, 360)
+        self._rotation_spinbox.setValue(0)
+        hbox = QHBoxLayout()
+        hbox.addWidget(self._rotation_spinbox)
+        hbox.addWidget(self._rotation_slider)
+        self._rotation_spinbox.valueChanged.connect(self._rotation_slider.setValue)
+        self._property_layout.addRow("Rotation:", hbox)
 
         self._visible_checkbox = QCheckBox()
         self._property_layout.addRow("Visible:", self._visible_checkbox)
@@ -786,7 +795,7 @@ class MainWindow(QMainWindow):
             self._name_edit.setText(layer.name)
             self._position_x_spinbox.setValue(layer.position.x())
             self._position_y_spinbox.setValue(layer.position.y())
-            self._rotation_slider.setValue(round(layer.rotation))
+            self._rotation_spinbox.setValue(round(layer.rotation))
             self._pixel_width_spinbox.setValue(layer.pixel_size.width())
             self._pixel_height_spinbox.setValue(layer.pixel_size.height())
             self._visible_checkbox.setChecked(layer.visible)
@@ -874,6 +883,7 @@ class MainWindow(QMainWindow):
                 self._position_x_spinbox.value(), self._position_y_spinbox.value()
             )
             current_layer.rotation = self._rotation_slider.value()
+            self._rotation_spinbox.setValue(current_layer.rotation)
             current_layer.pixel_size = QSizeF(
                 self._pixel_width_spinbox.value(), self._pixel_height_spinbox.value()
             )

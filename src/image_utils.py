@@ -3,6 +3,7 @@
 
 import base64
 import logging
+import math
 from typing import Optional
 
 from PySide6.QtCore import QBuffer, QByteArray, QFile, QIODevice, Qt
@@ -163,3 +164,30 @@ def create_icon_from_svg(svg_path: str, size: int = 32) -> QIcon | None:
     painter.end()
 
     return QIcon(pixmap)
+
+
+def rotated_rectangle_dimensions(
+    width: float, height: float, angle_degrees: float
+) -> tuple[float, float]:
+    """
+    Calculates the width and height of a rotated rectangle's bounding box.
+
+    Args:
+        width: Original width of the rectangle.
+        height: Original height of the rectangle.
+        angle_degrees: Rotation angle in degrees.
+
+    Returns:
+        A tuple (new_width, new_height).
+    """
+    logger.info(f"BEFORE {width} {height} {angle_degrees}")
+    angle_radians = math.radians(angle_degrees)
+    cos_theta = math.cos(angle_radians)
+    sin_theta = math.sin(angle_radians)
+
+    new_width = abs(width * cos_theta) + abs(height * sin_theta)
+    new_height = abs(width * sin_theta) + abs(height * cos_theta)
+
+    logger.info(f"AFTER {new_width} {new_height}")
+
+    return new_width, new_height
