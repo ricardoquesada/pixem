@@ -280,6 +280,8 @@ class MainWindow(QMainWindow):
 
         # Layers Dock
         self._layer_list = QListWidget()
+        self._layer_list.setDragDropMode(QListWidget.InternalMove)  # Enable reordering
+        self._layer_list.model().rowsMoved.connect(self._on_layer_rows_moved)
         layer_dock = QDockWidget("Layers", self)
         layer_dock.setObjectName("layer_dock")
         layer_dock.setWidget(self._layer_list)
@@ -287,6 +289,8 @@ class MainWindow(QMainWindow):
 
         # Partitions Dock
         self._partition_list = QListWidget()
+        self._partition_list.setDragDropMode(QListWidget.InternalMove)  # Enable reordering
+        self._partition_list.model().rowsMoved.connect(self._on_partition_rows_moved)
         partitions_dock = QDockWidget("Partitions", self)
         partitions_dock.setObjectName("partitions_dock")
         partitions_dock.setWidget(self._partition_list)
@@ -797,6 +801,13 @@ class MainWindow(QMainWindow):
             if self._state is not None:
                 self._state.current_layer_key = None
 
+    def _on_layer_rows_moved(self, parent, start, end, destination):
+        print(f"Rows moved from {start} to {end} to destination {destination}")
+        # You can access the new order of items here
+        for row in range(self._layer_list.count()):
+            item = self._layer_list.item(row)
+            print(f"  Item at row {row}: {item.text()}")
+
     def _on_change_partition(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
         enabled = current is not None
         selected_layer = self._state.selected_layer
@@ -830,6 +841,20 @@ class MainWindow(QMainWindow):
         if dialog.exec():
             path = dialog.get_path()
             partition.path = path
+
+    def _on_partition_rows_moved(self, parent, start, end, destination):
+        layer = self._state.selected_layer
+        if layer is None:
+            logger.warning("Cannot reorder partitions, no layer selected")
+            return
+        partitions = layer.partitions
+        # reorder dict keys
+        new_partitions = {}
+        for row in range(self._partition_list.count()):
+            item = self._partition_list.item(row)
+            partition_key = item.text()
+            new_partitions[partition_key] = partitions[partition_key]
+        layer.partitions = new_partitions
 
     def _on_update_layer_property(self) -> None:
         current_layer = self._state.selected_layer

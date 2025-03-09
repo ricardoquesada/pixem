@@ -186,9 +186,6 @@ class PartitionDialog(QDialog):
 
         # Create List Widget
         self._list_widget = QListWidget()
-        self._list_widget.setDragDropMode(QListWidget.InternalMove)  # Enable reordering
-        self._list_widget.setSelectionMode(QListWidget.ExtendedSelection)
-
         self._connect_list_widget()
 
         self.update_coords([], coords)
