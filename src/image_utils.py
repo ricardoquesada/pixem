@@ -180,14 +180,11 @@ def rotated_rectangle_dimensions(
     Returns:
         A tuple (new_width, new_height).
     """
-    logger.info(f"BEFORE {width} {height} {angle_degrees}")
     angle_radians = math.radians(angle_degrees)
     cos_theta = math.cos(angle_radians)
     sin_theta = math.sin(angle_radians)
 
     new_width = abs(width * cos_theta) + abs(height * sin_theta)
     new_height = abs(width * sin_theta) + abs(height * cos_theta)
-
-    logger.info(f"AFTER {new_width} {new_height}")
 
     return new_width, new_height

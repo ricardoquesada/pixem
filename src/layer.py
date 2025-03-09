@@ -193,25 +193,36 @@ class Layer:
         return rect.contains(transformed_point)
 
     def align(self, align_mode: LayerAlign, hoop_size: tuple[float, float]):
-        # FIXME: anchor point needs to be taken into account when the image is rotated
-        w, h = image_utils.rotated_rectangle_dimensions(
-            self._image.width() * self.pixel_size.width(),
-            self._image.height() * self._pixel_size.height(),
-            self._rotation,
-        )
+        orig_w = self._image.width() * self.pixel_size.width()
+        orig_h = self._image.height() * self.pixel_size.height()
+        rot_w, rot_h = image_utils.rotated_rectangle_dimensions(orig_w, orig_h, self._rotation)
+
+        # Compensates anchor point issues.
+        # Rotation is done from center, but position is from top-left
+        diff_w = (orig_w - rot_w) / 2
+        diff_h = (orig_h - rot_h) / 2
+
         match align_mode:
             case LayerAlign.HORIZONTAL_LEFT:
-                self.position = QPointF(0.0, self.position.y())
+                self.position = QPointF(0 - diff_w, self.position.y())
             case LayerAlign.HORIZONTAL_CENTER:
-                self.position = QPointF((hoop_size[0] * INCHES_TO_MM - w) / 2, self.position.y())
+                self.position = QPointF(
+                    (hoop_size[0] * INCHES_TO_MM - rot_w) / 2 - diff_w, self.position.y()
+                )
             case LayerAlign.HORIZONTAL_RIGHT:
-                self.position = QPointF((hoop_size[0] * INCHES_TO_MM - w), self.position.y())
+                self.position = QPointF(
+                    (hoop_size[0] * INCHES_TO_MM - rot_w - diff_w), self.position.y()
+                )
             case LayerAlign.VERTICAL_TOP:
-                self.position = QPointF(self.position.x(), 0.0)
+                self.position = QPointF(self.position.x(), 0.0 - diff_h)
             case LayerAlign.VERTICAL_CENTER:
-                self.position = QPointF(self.position.x(), (hoop_size[1] * INCHES_TO_MM - h) / 2)
+                self.position = QPointF(
+                    self.position.x(), (hoop_size[1] * INCHES_TO_MM - rot_h) / 2 - diff_h
+                )
             case LayerAlign.VERTICAL_BOTTOM:
-                self.position = QPointF(self.position.x(), (hoop_size[1] * INCHES_TO_MM - h))
+                self.position = QPointF(
+                    self.position.x(), (hoop_size[1] * INCHES_TO_MM - rot_h - diff_h)
+                )
 
 
 class ImageLayer(Layer):
