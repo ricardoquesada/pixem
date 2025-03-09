@@ -193,7 +193,10 @@ class PartitionDialog(QDialog):
 
         self.update_coords([], coords)
 
-        self._edit_mode = ImageWidget.EditMode.PAINT
+        self._mode_actions = {}
+        self._fill_mode_actions = {}
+
+        self._edit_mode = None
         self._set_edit_mode(ImageWidget.EditMode.PAINT)
 
         # Layouts
@@ -204,50 +207,43 @@ class PartitionDialog(QDialog):
         toolbar = QToolBar()
 
         # Edit modes
-        paint_icon = create_icon_from_svg(
-            ":/res/icons/svg/actions/draw-freehand-symbolic.svg", ICON_SIZE
-        )
-        self._paint_action = QAction(paint_icon, "Paint", self)
-        fill_icon = create_icon_from_svg(
-            ":/res/icons/svg/actions/color-fill-symbolic.svg", ICON_SIZE
-        )
-        self._fill_action = QAction(fill_icon, "Fill", self)
-        select_icon = create_icon_from_svg(
-            ":/res/icons/svg/actions/selection-touch-symbolic.svg", ICON_SIZE
-        )
-        self._select_action = QAction(select_icon, "Select", self)
-        actions = [self._paint_action, self._fill_action, self._select_action]
-        toolbar.addActions(actions)
-        for action in actions:
+        action_modes = [
+            (ImageWidget.EditMode.PAINT, "Paint", "draw-freehand-symbolic.svg"),
+            (ImageWidget.EditMode.FILL, "Fill", "color-fill-symbolic.svg"),
+            (ImageWidget.EditMode.SELECT, "Select", "selection-touch-symbolic.svg"),
+        ]
+        for mode in action_modes:
+            path = f":/res/icons/svg/actions/{mode[2]}"
+            icon = create_icon_from_svg(path, ICON_SIZE)
+            action = QAction(icon, mode[1], self)
+            toolbar.addAction(action)
             action.setCheckable(True)
             action.triggered.connect(self._on_action_edit_mode)
-        self._paint_action.setChecked(True)
+            action.setData(mode[0])
+            self._mode_actions[mode[0]] = action
+        self._mode_actions[ImageWidget.EditMode.PAINT].setChecked(True)
 
         toolbar.addSeparator()
 
         # Fill modes
-        fill_spiral_cw_icon = create_icon_from_svg(
-            ":/res/icons/svg/actions/draw-ellipse-chord-symbolic.svg", ICON_SIZE
-        )
-        self._fill_spiral_cw_action = QAction(fill_spiral_cw_icon, "Spiral CW", self)
-        fill_spiral_ccw_icon = create_icon_from_svg(
-            ":/res/icons/svg/actions/draw-ellipse-segment-symbolic.svg", ICON_SIZE
-        )
-        self._fill_spiral_ccw_action = QAction(fill_spiral_ccw_icon, "Spiral CCW", self)
-        fill_random_icon = create_icon_from_svg(
-            ":/res/icons/svg/actions/randomize-symbolic.svg", ICON_SIZE
-        )
-        self._fill_random_action = QAction(fill_random_icon, "Random", self)
-        actions = [
-            self._fill_spiral_cw_action,
-            self._fill_spiral_ccw_action,
-            self._fill_random_action,
+        fill_modes = [
+            (Partition.WalkMode.SPIRAL_CW, "Spiral CCW", "draw-ellipse-chord-symbolic.svg"),
+            (Partition.WalkMode.SPIRAL_CCW, "Spiral CW", "draw-ellipse-segment-symbolic.svg"),
+            (Partition.WalkMode.RANDOM, "Random ", "randomize-symbolic.svg"),
         ]
-        toolbar.addActions(actions)
-        for action in actions:
+
+        for mode in fill_modes:
+            path = f":/res/icons/svg/actions/{mode[2]}"
+            icon = create_icon_from_svg(path, ICON_SIZE)
+            action = QAction(icon, mode[1], self)
+            toolbar.addAction(action)
             action.setCheckable(True)
-            action.triggered.connect(self._on_action_walk_mode)
-        self._fill_spiral_cw_action.setChecked(True)
+            action.triggered.connect(self._on_action_fill_mode)
+            action.setData(mode[0])
+            # Only enable them when "fill mode" is enabled
+            action.setEnabled(False)
+            self._fill_mode_actions[mode[0]] = action
+        self._fill_mode_actions[Partition.WalkMode.SPIRAL_CW].setChecked(True)
 
         # Create Buttons
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
@@ -286,51 +282,39 @@ class PartitionDialog(QDialog):
                     self._list_widget.setDragDropMode(QListWidget.InternalMove)  # Enable reordering
                     self._list_widget.setSelectionMode(QListWidget.ExtendedSelection)
 
+            enabled = mode == ImageWidget.EditMode.FILL
+            self._enable_fill_mode_actions(enabled)
+
+    def _enable_fill_mode_actions(self, enabled: bool):
+        for action in self._fill_mode_actions.values():
+            action.setEnabled(enabled)
+
     def _set_walk_mode(self, mode: Partition.WalkMode):
         self._image_widget.set_walk_mode(mode)
 
     def _on_action_edit_mode(self, value):
-        actions = [self._paint_action, self._fill_action, self._select_action]
         sender: QAction = self.sender()
-        if sender not in actions:
+        if sender not in self._mode_actions.values():
             logger.warning("Unknown actions {sender}")
             return
-        for action in actions:
+        for action in self._mode_actions.values():
             action.setChecked(False)
+
         sender.setChecked(True)
 
-        mode = ImageWidget.EditMode.PAINT
-        match sender:
-            case self._paint_action:
-                mode = ImageWidget.EditMode.PAINT
-            case self._fill_action:
-                mode = ImageWidget.EditMode.FILL
-            case self._select_action:
-                mode = ImageWidget.EditMode.SELECT
+        mode: ImageWidget.EditMode = sender.data()
         self._set_edit_mode(mode)
 
-    def _on_action_walk_mode(self, value):
-        actions = [
-            self._fill_spiral_cw_action,
-            self._fill_spiral_ccw_action,
-            self._fill_random_action,
-        ]
+    def _on_action_fill_mode(self, value):
         sender: QAction = self.sender()
-        if sender not in actions:
+        if sender not in self._fill_mode_actions.values():
             logger.warning("Unknown actions {sender}")
             return
-        for action in actions:
+        for action in self._fill_mode_actions.values():
             action.setChecked(False)
         sender.setChecked(True)
 
-        mode = Partition.WalkMode.SPIRAL_CW
-        match sender:
-            case self._fill_spiral_cw_action:
-                mode = Partition.WalkMode.SPIRAL_CW
-            case self._fill_spiral_ccw_action:
-                mode = Partition.WalkMode.SPIRAL_CCW
-            case self._fill_random_action:
-                mode = Partition.WalkMode.RANDOM
+        mode: Partition.WalkMode = sender.data()
         self._set_walk_mode(mode)
 
     def _on_rows_moved(self, parent, start, end, destination):
