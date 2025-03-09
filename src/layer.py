@@ -190,7 +190,6 @@ class Layer:
         return rect.contains(transformed_point)
 
     def align(self, align_mode: LayerAlign, hoop_size: tuple[float, float]):
-        logger.info(f"Layer align: {align_mode}, {hoop_size}")
         match align_mode:
             case LayerAlign.HORIZONTAL_LEFT:
                 self.position = QPointF(0.0, self.position.y())

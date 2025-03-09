@@ -50,14 +50,12 @@ class Preferences:
         return bool(self._settings.value("hoop/visible", defaultValue=True))
 
     def set_hoop_size(self, size: tuple[float, float]) -> None:
-        logger.info(f"hoop size: {size}")
         self._settings.setValue("hoop/size_x", size[0])
         self._settings.setValue("hoop/size_y", size[1])
 
     def get_hoop_size(self) -> tuple[float, float]:
         x = float(self._settings.value("hoop/size_x", defaultValue=4))
         y = float(self._settings.value("hoop/size_y", defaultValue=4))
-        logger.info(f"ret hoop size: {x} {y}")
         return x, y
 
     def set_open_file_on_startup(self, value: bool) -> None:
