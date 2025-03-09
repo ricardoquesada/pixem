@@ -97,6 +97,11 @@ class Partition:
                     new_coord = neighbor.coord
                     if new_coord not in visited:
                         stack.append(neighbor)
+
+        # add possible missing nodes. Could happen since diagonals are not visited in this algorithm
+        for coord in self._path:
+            if coord not in new_path:
+                new_path.append(coord)
         self._path = new_path
 
     @property

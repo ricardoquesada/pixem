@@ -127,6 +127,9 @@ class ImageWidget(QWidget):
                 )
                 self._update_coordinate(coord)
             case ImageWidget.EditMode.FILL:
+                if coord in self._selected_coords:
+                    # Could be a user error, when it clicks a pixel that it is already painted
+                    return
                 partial_partition = list(set(self._original_coords) - set(self._selected_coords))
                 # Create temporal partition
                 part = Partition(partial_partition)
