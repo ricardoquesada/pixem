@@ -14,18 +14,18 @@ class UpdateLayerRotationCommand(QUndoCommand):
     def __init__(self, state, layer: Layer, rotation: int, parent: QUndoCommand | None):
         super().__init__(f"Rotation: {rotation}", parent)
         self._layer = layer
-        copy_properties = copy.deepcopy(layer.render_properties)
+        copy_properties = copy.deepcopy(layer.properties)
         copy_properties.rotation = rotation
         self._new_properties = copy_properties
-        self._old_properties = layer.render_properties
+        self._old_properties = layer.properties
         self._state = state
 
     def undo(self) -> None:
-        self._layer.render_properties = self._old_properties
+        self._layer.properties = self._old_properties
         self._state.layer_property_changed.emit(self._layer)
 
     def redo(self) -> None:
-        self._layer.render_properties = self._new_properties
+        self._layer.properties = self._new_properties
         self._state.layer_property_changed.emit(self._layer)
 
     def mergeWith(self, other: QUndoCommand) -> bool:
@@ -45,10 +45,10 @@ class UpdateLayerPositionCommand(QUndoCommand):
     ):
         super().__init__(parent)
         self._layer = layer
-        copy_properties = copy.deepcopy(layer.render_properties)
+        copy_properties = copy.deepcopy(layer.properties)
         copy_properties.position = position
         self._new_properties = copy_properties
-        self._old_properties = layer.render_properties
+        self._old_properties = layer.properties
         self._state = state
         if self._old_properties.position[0] == self._new_properties.position[0]:
             self.setText(f"Position Y: {self._new_properties.position[1]}")
@@ -58,11 +58,11 @@ class UpdateLayerPositionCommand(QUndoCommand):
             self.setText(f"Position XY: {self._new_properties.position}")
 
     def undo(self) -> None:
-        self._layer.render_properties = self._old_properties
+        self._layer.properties = self._old_properties
         self._state.layer_property_changed.emit(self._layer)
 
     def redo(self) -> None:
-        self._layer.render_properties = self._new_properties
+        self._layer.properties = self._new_properties
         self._state.layer_property_changed.emit(self._layer)
 
 
@@ -72,18 +72,18 @@ class UpdateLayerPixelSizeCommand(QUndoCommand):
     ):
         super().__init__(f"Pixel Size: {pixel_size}", parent)
         self._layer = layer
-        copy_properties = copy.deepcopy(layer.render_properties)
+        copy_properties = copy.deepcopy(layer.properties)
         copy_properties.pixel_size = pixel_size
         self._new_properties = copy_properties
-        self._old_properties = layer.render_properties
+        self._old_properties = layer.properties
         self._state = state
 
     def undo(self) -> None:
-        self._layer.render_properties = self._old_properties
+        self._layer.properties = self._old_properties
         self._state.layer_property_changed.emit(self._layer)
 
     def redo(self) -> None:
-        self._layer.render_properties = self._new_properties
+        self._layer.properties = self._new_properties
         self._state.layer_property_changed.emit(self._layer)
 
 
@@ -91,18 +91,18 @@ class UpdateLayerOpacityCommand(QUndoCommand):
     def __init__(self, state, layer: Layer, opacity: float, parent: QUndoCommand | None):
         super().__init__(f"Opacity: {opacity}", parent)
         self._layer = layer
-        copy_properties = copy.deepcopy(layer.render_properties)
+        copy_properties = copy.deepcopy(layer.properties)
         copy_properties.opacity = opacity
         self._new_properties = copy_properties
-        self._old_properties = layer.render_properties
+        self._old_properties = layer.properties
         self._state = state
 
     def undo(self) -> None:
-        self._layer.render_properties = self._old_properties
+        self._layer.properties = self._old_properties
         self._state.layer_property_changed.emit(self._layer)
 
     def redo(self) -> None:
-        self._layer.render_properties = self._new_properties
+        self._layer.properties = self._new_properties
         self._state.layer_property_changed.emit(self._layer)
 
 
@@ -110,16 +110,16 @@ class UpdateLayerVisibleCommand(QUndoCommand):
     def __init__(self, state, layer: Layer, visible: bool, parent: QUndoCommand | None):
         super().__init__(f"Visible: {visible}", parent)
         self._layer = layer
-        copy_properties = copy.deepcopy(layer.render_properties)
+        copy_properties = copy.deepcopy(layer.properties)
         copy_properties.visible = visible
         self._new_properties = copy_properties
-        self._old_properties = layer.render_properties
+        self._old_properties = layer.properties
         self._state = state
 
     def undo(self) -> None:
-        self._layer.render_properties = self._old_properties
+        self._layer.properties = self._old_properties
         self._state.layer_property_changed.emit(self._layer)
 
     def redo(self) -> None:
-        self._layer.render_properties = self._new_properties
+        self._layer.properties = self._new_properties
         self._state.layer_property_changed.emit(self._layer)
