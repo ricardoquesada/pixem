@@ -8,7 +8,7 @@ layer_type = "ImageLayer"
 image_file_name = "/Volumes/riq_data/progs/embroidery/pixel/sprites/pacman.png"
 
 [layers.render_properties]
-position = [ 0.0, 0.0,]
+position = [ 2.1, 0.0,]
 rotation = 0
 pixel_size = [ 2.8, 2.8,]
 visible = true
