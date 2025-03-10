@@ -424,6 +424,10 @@ class MainWindow(QMainWindow):
             action = self._align_actions[key]
             action.setEnabled(enabled)
 
+        # short circuit
+        self._undo_action.setEnabled(enabled and self._state.undo_stack.canUndo())
+        self._redo_action.setEnabled(enabled and self._state.undo_stack.canRedo())
+
     def _connect_property_callbacks(self):
         self._name_edit.editingFinished.connect(self._on_update_layer_property)
         self._position_x_spinbox.valueChanged.connect(self._on_update_layer_property)
@@ -937,7 +941,6 @@ class MainWindow(QMainWindow):
     def _on_position_changed_from_canvas(self, position: QPointF):
         self._position_x_spinbox.setValue(position.x())
         self._position_y_spinbox.setValue(position.y())
-        self._canvas.recalculate_fixed_size()
 
     def _on_layer_selection_changed_from_canvas(self, layer: Layer):
         for i in range(self._layer_list.count()):

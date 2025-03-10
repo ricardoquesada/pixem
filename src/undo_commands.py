@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)  # __name__ gets the current module's name
 
 class UpdateLayerRotationCommand(QUndoCommand):
     def __init__(self, state, layer: Layer, rotation: int, parent: QUndoCommand | None):
-        super().__init__("Rotation", parent)
+        super().__init__(f"Rotation: {rotation}", parent)
         self._layer = layer
         copy_properties = copy.deepcopy(layer.render_properties)
         copy_properties.rotation = rotation
@@ -43,13 +43,19 @@ class UpdateLayerPositionCommand(QUndoCommand):
     def __init__(
         self, state, layer: Layer, position: tuple[float, float], parent: QUndoCommand | None
     ):
-        super().__init__("Position", parent)
+        super().__init__(parent)
         self._layer = layer
         copy_properties = copy.deepcopy(layer.render_properties)
         copy_properties.position = position
         self._new_properties = copy_properties
         self._old_properties = layer.render_properties
         self._state = state
+        if self._old_properties.position[0] == self._new_properties.position[0]:
+            self.setText(f"Position Y: {self._new_properties.position[1]}")
+        elif self._old_properties.position[1] == self._new_properties.position[1]:
+            self.setText(f"Position X: {self._new_properties.position[0]}")
+        else:
+            self.setText(f"Position XY: {self._new_properties.position}")
 
     def undo(self) -> None:
         self._layer.render_properties = self._old_properties
@@ -64,7 +70,7 @@ class UpdateLayerPixelSizeCommand(QUndoCommand):
     def __init__(
         self, state, layer: Layer, pixel_size: tuple[float, float], parent: QUndoCommand | None
     ):
-        super().__init__("Pixel Size", parent)
+        super().__init__(f"Pixel Size: {pixel_size}", parent)
         self._layer = layer
         copy_properties = copy.deepcopy(layer.render_properties)
         copy_properties.pixel_size = pixel_size
@@ -83,7 +89,7 @@ class UpdateLayerPixelSizeCommand(QUndoCommand):
 
 class UpdateLayerOpacityCommand(QUndoCommand):
     def __init__(self, state, layer: Layer, opacity: float, parent: QUndoCommand | None):
-        super().__init__("Opacity", parent)
+        super().__init__(f"Opacity: {opacity}", parent)
         self._layer = layer
         copy_properties = copy.deepcopy(layer.render_properties)
         copy_properties.opacity = opacity
@@ -102,7 +108,7 @@ class UpdateLayerOpacityCommand(QUndoCommand):
 
 class UpdateLayerVisibleCommand(QUndoCommand):
     def __init__(self, state, layer: Layer, visible: bool, parent: QUndoCommand | None):
-        super().__init__("Visible", parent)
+        super().__init__(f"Visible: {visible}", parent)
         self._layer = layer
         copy_properties = copy.deepcopy(layer.render_properties)
         copy_properties.visible = visible
