@@ -5,7 +5,7 @@ import logging
 import os.path
 import sys
 
-from PySide6.QtCore import QPointF, QSize, QSizeF, Qt
+from PySide6.QtCore import QPointF, QSize, Qt
 from PySide6.QtGui import QAction, QCloseEvent, QGuiApplication, QIcon, QKeySequence, QUndoStack
 from PySide6.QtWidgets import (
     QApplication,
@@ -37,7 +37,7 @@ from export_dialog import ExportDialog
 from font_dialog import FontDialog
 from image_parser import ImageParser
 from image_utils import create_icon_from_svg
-from layer import ImageLayer, Layer, LayerAlign, TextLayer
+from layer import ImageLayer, Layer, LayerAlign, LayerRenderProperties, TextLayer
 from partition_dialog import PartitionDialog
 from preference_dialog import PreferenceDialog
 from preferences import global_preferences
@@ -114,13 +114,11 @@ class MainWindow(QMainWindow):
         edit_menu = QMenu("&Edit", self)
         menu_bar.addMenu(edit_menu)
 
-        self._undo_stack = QUndoStack(self)
         self._undo_action = QAction(QIcon.fromTheme("edit-undo"), "&Undo", self)
-        self._undo_action.triggered.connect(self._undo_stack.undo)
+        self._undo_action.setShortcut("Ctrl+Z")
         edit_menu.addAction(self._undo_action)
-
         self._redo_action = QAction(QIcon.fromTheme("edit-redo"), "&Redo", self)
-        self._redo_action.triggered.connect(self._undo_stack.redo)
+        self._redo_action.setShortcut("Ctrl+Shift+Z")
         edit_menu.addAction(self._redo_action)
 
         edit_menu.addSeparator()
@@ -301,11 +299,11 @@ class MainWindow(QMainWindow):
         self._connect_layer_partition_callbacks()
 
         # Undo Dock
-        undo_view = QUndoView(self._undo_stack)
-        undo_dock = QDockWidget("Undo List", self)
-        undo_dock.setObjectName("undo_dock")
-        undo_dock.setWidget(undo_view)
-        self.addDockWidget(Qt.RightDockWidgetArea, undo_dock)
+        self._undo_dock = QDockWidget("Undo List", self)
+        self._undo_dock.setObjectName("undo_dock")
+        self._undo_view = QUndoView()
+        self._undo_dock.setWidget(self._undo_view)
+        self.addDockWidget(Qt.RightDockWidgetArea, self._undo_dock)
 
         # Property Dock
         self._property_editor = QWidget()
@@ -362,7 +360,7 @@ class MainWindow(QMainWindow):
                 layer_dock.toggleViewAction(),
                 partitions_dock.toggleViewAction(),
                 property_dock.toggleViewAction(),
-                undo_dock.toggleViewAction(),
+                self._undo_dock.toggleViewAction(),
             ],
         )
 
@@ -489,8 +487,7 @@ class MainWindow(QMainWindow):
             return
 
         # FIXME: Add a method that sets the new state
-        self._state = state
-        self._canvas.state = state
+        self._setup_state(state)
 
         self._disconnect_layer_partition_callbacks()
         self._layer_list.clear()
@@ -532,6 +529,23 @@ class MainWindow(QMainWindow):
         self._update_window_title()
         global_preferences.add_recent_file(filename)
         self._populate_recent_menu()
+
+    def _setup_state(self, state: State):
+        self._state = state
+        self._canvas.state = state
+        self._state.layer_property_changed.connect(self._on_layer_property_changed_from_state)
+
+        self._undo_action.triggered.connect(self._state.undo_stack.undo)
+        self._redo_action.triggered.connect(self._state.undo_stack.redo)
+
+        self._undo_view.setStack(self._state.undo_stack)
+        self._undo_dock.setEnabled(True)
+
+    def _cleanup_state(self):
+        self._state = None
+        self._canvas.state = None
+        self._undo_view.setStack(QUndoStack())
+        self._undo_dock.setEnabled(False)
 
     def _add_layer(self, layer: Layer):
         self._state.add_layer(layer)
@@ -588,8 +602,8 @@ class MainWindow(QMainWindow):
     #
     def _on_new_project(self) -> None:
         # FIXME: If an existing state is dirty, it should ask for "are you sure"
-        self._state = State()
-        self._canvas.state = self._state
+        state = State()
+        self._setup_state(state)
         # Triggers on_change_layer / on_change_partition, but not an issue
         self._layer_list.clear()
         self._partition_list.clear()
@@ -676,8 +690,7 @@ class MainWindow(QMainWindow):
 
     def _on_close_project(self) -> None:
         # FIXME: If an existing state is dirty, it should ask for "are you sure"
-        self._state = None
-        self._canvas.state = self._state
+        self._cleanup_state()
 
         self._disconnect_layer_partition_callbacks()
         self._layer_list.clear()
@@ -879,16 +892,15 @@ class MainWindow(QMainWindow):
         self._property_editor.setEnabled(enabled)
         if enabled:
             current_layer.name = self._name_edit.text()
-            current_layer.position = QPointF(
-                self._position_x_spinbox.value(), self._position_y_spinbox.value()
+
+            properties = LayerRenderProperties(
+                position=(self._position_x_spinbox.value(), self._position_y_spinbox.value()),
+                rotation=self._rotation_slider.value(),
+                pixel_size=(self._pixel_width_spinbox.value(), self._pixel_height_spinbox.value()),
+                visible=self._visible_checkbox.isChecked(),
+                opacity=self._opacity_slider.value() / 100.0,
             )
-            current_layer.rotation = self._rotation_slider.value()
-            self._rotation_spinbox.setValue(current_layer.rotation)
-            current_layer.pixel_size = QSizeF(
-                self._pixel_width_spinbox.value(), self._pixel_height_spinbox.value()
-            )
-            current_layer.visible = self._visible_checkbox.isChecked()
-            current_layer.opacity = self._opacity_slider.value() / 100.0
+            self._state.set_layer_render_properties(current_layer, properties)
 
             self._layer_list.currentItem().setText(current_layer.name)
 
@@ -910,6 +922,28 @@ class MainWindow(QMainWindow):
             if item.text() == layer.name:
                 self._layer_list.setCurrentRow(i)
                 break
+
+    def _on_layer_property_changed_from_state(self, layer: Layer):
+        if self._state is None:
+            logger.warning("Unexpected state. Should not be none")
+            return
+        if self._state.selected_layer != layer:
+            logger.warning("Unexpected selected layer")
+            return
+
+        properties = layer.render_properties
+        self._disconnect_property_callbacks()
+        self._position_x_spinbox.setValue(properties.position[0])
+        self._position_y_spinbox.setValue(properties.position[1])
+        self._rotation_slider.setValue(round(properties.rotation))
+        self._rotation_spinbox.setValue(round(properties.rotation))
+        self._pixel_width_spinbox.setValue(properties.pixel_size[0])
+        self._pixel_height_spinbox.setValue(properties.pixel_size[1])
+        self._connect_property_callbacks()
+
+        self._update_qactions()
+        self._canvas.recalculate_fixed_size()
+        self.update()
 
     def _on_canvas_mode_move(self):
         self._canvas_mode_move_action.setChecked(True)

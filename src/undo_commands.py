@@ -1,22 +1,29 @@
 # Pixem
 # Copyright 2025 - Ricardo Quesada
 
-from PySide6.QtGui import QImage, QUndoCommand
+import logging
 
-from main_window import MainWindow
+from PySide6.QtGui import QUndoCommand
+
+from layer import Layer, LayerRenderProperties
+
+logger = logging.getLogger(__name__)  # __name__ gets the current module's name
 
 
-class DrawCommand(QUndoCommand):
-    def __init__(self, editor: MainWindow, old_image: QImage):
-        super().__init__()
-        self.editor = editor
-        self.old_image = old_image
-        self.new_image = editor.state.current_layer.image.copy()
+class UpdateLayerRenderPropertiesCommand(QUndoCommand):
+    def __init__(
+        self, state, layer: Layer, properties: LayerRenderProperties, parent: QUndoCommand | None
+    ):
+        super().__init__("Layer Render Properties", parent)
+        self._layer = layer
+        self._new_properties = properties
+        self._old_properties = layer.render_properties
+        self._state = state
 
     def undo(self) -> None:
-        self.editor.state.current_layer.image = self.old_image
-        self.editor.update()
+        self._layer.render_properties = self._old_properties
+        self._state.layer_property_changed.emit(self._layer)
 
     def redo(self) -> None:
-        self.editor.state.current_layer.image = self.new_image
-        self.editor.update()
+        self._layer.render_properties = self._new_properties
+        self._state.layer_property_changed.emit(self._layer)

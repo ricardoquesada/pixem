@@ -2,6 +2,7 @@
 # Copyright 2025 - Ricardo Quesada
 
 import logging
+from dataclasses import asdict, dataclass
 from enum import Enum
 from typing import Optional, Self, overload
 
@@ -26,6 +27,15 @@ class LayerAlign(Enum):
     VERTICAL_BOTTOM = 6
 
 
+@dataclass
+class LayerRenderProperties:
+    position: tuple[float, float]
+    rotation: int
+    pixel_size: tuple[float, float]
+    visible: bool
+    opacity: float
+
+
 class Layer:
     def __init__(self, name: str, image: QImage):
         self._image: QImage = image
@@ -35,6 +45,13 @@ class Layer:
         self._pixel_size: QSizeF = QSizeF(2.5, 2.5)
         self._visible: bool = True
         self._opacity: float = 1.0
+        self._render_properties = LayerRenderProperties(
+            position=(0.0, 0.0),
+            rotation=0,
+            pixel_size=(2.5, 2.5),
+            visible=True,
+            opacity=1.0,
+        )
         self._partitions: dict[str, Partition] = {}
         self._current_partition_key = None
 
@@ -60,13 +77,19 @@ class Layer:
         return layer
 
     def populate_from_dict(self, d: dict) -> None:
-        pos = d["position"]
-        self._position = QPointF(pos["x"], pos["y"])
-        self._rotation = d["rotation"]
-        pixel_size = d["pixel_size"]
-        self._pixel_size = QSizeF(pixel_size["width"], pixel_size["height"])
-        self._visible = d["visible"]
-        self._opacity = d["opacity"]
+        if "position" in d:
+            self._render_properties.position = d["position"]
+        if "rotation" in d:
+            self._render_properties.rotation = d["rotation"]
+        if "pixel_size" in d:
+            pixel_size = d["pixel_size"]
+            self._render_properties.pixel_size = (pixel_size["width"], pixel_size["height"])
+        if "visible" in d:
+            self._render_properties.visible = d["visible"]
+        if "opacity" in d:
+            self._render_properties.opacity = d["opacity"]
+        if "render_properties" in d:
+            self._render_properties = LayerRenderProperties(**d["render_properties"])
         if "partitions" in d:
             for p in d["partitions"]:
                 part_dict = d["partitions"][p]
@@ -79,11 +102,7 @@ class Layer:
         """Returns a dictionary that represents the Layer"""
         d = {
             "name": self._name,
-            "position": {"x": self._position.x(), "y": self._position.y()},
-            "rotation": self._rotation,
-            "pixel_size": {"width": self._pixel_size.width(), "height": self._pixel_size.height()},
-            "visible": self._visible,
-            "opacity": self._opacity,
+            "render_properties": asdict(self._render_properties),
             "partitions": {},
             "image": image_utils.qimage_to_base64_string(self._image),
             "current_partition_key": self._current_partition_key,
@@ -117,12 +136,52 @@ class Layer:
         self._name = value
 
     @property
+    def render_properties(self) -> LayerRenderProperties:
+        return self._render_properties
+
+    @render_properties.setter
+    def render_properties(self, value: LayerRenderProperties):
+        self._render_properties = value
+
+    @property
     def visible(self) -> bool:
-        return self._visible
+        return self._render_properties.visible
 
     @visible.setter
     def visible(self, value: bool):
-        self._visible = value
+        self._render_properties.visible = value
+
+    @property
+    def opacity(self) -> float:
+        return self._render_properties.opacity
+
+    @opacity.setter
+    def opacity(self, value: float):
+        self._render_properties.opacity = value
+
+    @property
+    def pixel_size(self) -> QSizeF:
+        return QSizeF(self._render_properties.pixel_size[0], self._render_properties.pixel_size[1])
+
+    @pixel_size.setter
+    def pixel_size(self, value: QSizeF):
+        self._render_properties.pixel_size = (value.width(), value.height())
+
+    @property
+    def position(self) -> QPointF:
+        return QPointF(self._render_properties.position[0], self._render_properties.position[1])
+
+    @position.setter
+    def position(self, value: QPointF):
+        self._render_properties.position = (value.x(), value.y())
+
+    @property
+    def rotation(self) -> float:
+        return self._render_properties.rotation
+
+    @rotation.setter
+    def rotation(self, value: float):
+        self._render_properties.rotation = value
 
     @property
     def current_partition_key(self) -> str:
@@ -139,38 +198,6 @@ class Layer:
     @partitions.setter
     def partitions(self, value: dict[str, Partition]):
         self._partitions = value
-
-    @property
-    def opacity(self) -> float:
-        return self._opacity
-
-    @opacity.setter
-    def opacity(self, value: float):
-        self._opacity = value
-
-    @property
-    def pixel_size(self) -> QSizeF:
-        return self._pixel_size
-
-    @pixel_size.setter
-    def pixel_size(self, value: QSizeF):
-        self._pixel_size = value
-
-    @property
-    def position(self) -> QPointF:
-        return self._position
-
-    @position.setter
-    def position(self, value: QPointF):
-        self._position = value
-
-    @property
-    def rotation(self) -> float:
-        return self._rotation
-
-    @rotation.setter
-    def rotation(self, value: float):
-        self._rotation = value
 
     def is_point_inside(self, point: QPointF) -> bool:
         rect = QRectF(

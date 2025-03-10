@@ -6,16 +6,22 @@ from dataclasses import asdict
 from typing import Optional, Self
 
 import toml
+from PySide6.QtCore import QObject, Signal
+from PySide6.QtGui import QUndoStack
 
 import preferences
 from export import ExportParameters, ExportToSVG
-from layer import Layer
+from layer import Layer, LayerRenderProperties
+from undo_commands import UpdateLayerRenderPropertiesCommand
 
 logger = logging.getLogger(__name__)
 
 
-class State:
+class State(QObject):
+    layer_property_changed = Signal(Layer)
+
     def __init__(self):
+        super().__init__()
         self._project_filename = None
         self._export_params = ExportParameters(
             filename="",
@@ -27,6 +33,8 @@ class State:
         self._zoom_factor = 1.0
         self._layers: list[Layer] = []
         self._current_layer_key = None
+
+        self._undo_stack = QUndoStack()
 
     @classmethod
     def from_dict(cls, d: dict) -> Self:
@@ -127,6 +135,13 @@ class State:
             self._current_layer_key = self._layers[-1].name
         else:
             self._current_layer_key = None
+
+    def set_layer_render_properties(self, layer: Layer, properties: LayerRenderProperties):
+        self._undo_stack.push(UpdateLayerRenderPropertiesCommand(self, layer, properties, None))
+
+    @property
+    def undo_stack(self) -> QUndoStack:
+        return self._undo_stack
 
     @property
     def selected_layer(self) -> Optional[Layer]:
