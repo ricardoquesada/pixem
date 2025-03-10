@@ -38,7 +38,7 @@ from export_dialog import ExportDialog
 from font_dialog import FontDialog
 from image_parser import ImageParser
 from image_utils import create_icon_from_svg
-from layer import ImageLayer, Layer, LayerAlign, LayerRenderProperties, TextLayer
+from layer import ImageLayer, Layer, LayerAlign, LayerProperties, TextLayer
 from partition_dialog import PartitionDialog
 from preference_dialog import PreferenceDialog
 from preferences import global_preferences
@@ -920,14 +920,14 @@ class MainWindow(QMainWindow):
         if enabled:
             current_layer.name = self._name_edit.text()
 
-            properties = LayerRenderProperties(
+            properties = LayerProperties(
                 position=(self._position_x_spinbox.value(), self._position_y_spinbox.value()),
                 rotation=self._rotation_slider.value(),
                 pixel_size=(self._pixel_width_spinbox.value(), self._pixel_height_spinbox.value()),
                 visible=self._visible_checkbox.isChecked(),
                 opacity=self._opacity_slider.value() / 100.0,
             )
-            self._state.set_layer_render_properties(current_layer, properties)
+            self._state.set_layer_properties(current_layer, properties)
 
             self._layer_list.currentItem().setText(current_layer.name)
 
@@ -959,7 +959,7 @@ class MainWindow(QMainWindow):
             )
             return
 
-        properties = layer.render_properties
+        properties = layer.properties
         self._disconnect_property_callbacks()
         self._position_x_spinbox.setValue(properties.position[0])
         self._position_y_spinbox.setValue(properties.position[1])

@@ -11,7 +11,7 @@ from PySide6.QtGui import QUndoStack
 
 import preferences
 from export import ExportParameters, ExportToSVG
-from layer import Layer, LayerRenderProperties
+from layer import Layer, LayerProperties
 from undo_commands import (
     UpdateLayerOpacityCommand,
     UpdateLayerPixelSizeCommand,
@@ -143,27 +143,27 @@ class State(QObject):
         else:
             self._current_layer_key = None
 
-    def set_layer_render_properties(self, layer: Layer, properties: LayerRenderProperties):
-        if properties == layer.render_properties:
+    def set_layer_properties(self, layer: Layer, properties: LayerProperties):
+        if properties == layer.properties:
             return
 
         # To make it easier for the user, we split the Undo Commands in multiple ones.
         # Easier to create "mergeables"
-        if properties.rotation != layer.render_properties.rotation:
+        if properties.rotation != layer.properties.rotation:
             self._undo_stack.push(
                 UpdateLayerRotationCommand(self, layer, properties.rotation, None)
             )
-        if properties.position != layer.render_properties.position:
+        if properties.position != layer.properties.position:
             self._undo_stack.push(
                 UpdateLayerPositionCommand(self, layer, properties.position, None)
             )
-        if properties.pixel_size != layer.render_properties.pixel_size:
+        if properties.pixel_size != layer.properties.pixel_size:
             self._undo_stack.push(
                 UpdateLayerPixelSizeCommand(self, layer, properties.pixel_size, None)
             )
-        if properties.visible != layer.render_properties.visible:
+        if properties.visible != layer.properties.visible:
             self._undo_stack.push(UpdateLayerVisibleCommand(self, layer, properties.visible, None))
-        if properties.opacity != layer.render_properties.opacity:
+        if properties.opacity != layer.properties.opacity:
             self._undo_stack.push(UpdateLayerOpacityCommand(self, layer, properties.opacity, None))
 
     @property

@@ -7,7 +7,7 @@ current_partition_key = "#d4a0a1_0"
 layer_type = "ImageLayer"
 image_file_name = "/home/riq/progs/embroidery/pixel/sprites/outrun-car_16_colors.png"
 
-[layers.render_properties]
+[layers.properties]
 position = [ 30.75, 23.69999999999999,]
 rotation = 0.0
 pixel_size = [ 2.5, 2.5,]

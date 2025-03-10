@@ -28,7 +28,7 @@ class LayerAlign(Enum):
 
 
 @dataclass
-class LayerRenderProperties:
+class LayerProperties:
     position: tuple[float, float]
     rotation: int
     pixel_size: tuple[float, float]
@@ -40,7 +40,7 @@ class Layer:
     def __init__(self, name: str, image: QImage):
         self._image: QImage = image
         self._name: str = name
-        self._render_properties = LayerRenderProperties(
+        self._properties = LayerProperties(
             position=(0.0, 0.0),
             rotation=0,
             pixel_size=(2.5, 2.5),
@@ -73,16 +73,18 @@ class Layer:
 
     def populate_from_dict(self, d: dict) -> None:
         if "render_properties" in d:
-            self._render_properties = LayerRenderProperties(**d["render_properties"])
-            # Convert list to tuple
-            self._render_properties.position = (
-                self._render_properties.position[0],
-                self._render_properties.position[1],
-            )
-            self._render_properties.pixel_size = (
-                self._render_properties.pixel_size[0],
-                self._render_properties.pixel_size[1],
-            )
+            self._properties = LayerProperties(**d["render_properties"])
+        if "properties" in d:
+            self._properties = LayerProperties(**d["properties"])
+        # Convert list to tuple
+        self._properties.position = (
+            self._properties.position[0],
+            self._properties.position[1],
+        )
+        self._properties.pixel_size = (
+            self._properties.pixel_size[0],
+            self._properties.pixel_size[1],
+        )
         if "partitions" in d:
             for p in d["partitions"]:
                 part_dict = d["partitions"][p]
@@ -95,7 +97,7 @@ class Layer:
         """Returns a dictionary that represents the Layer"""
         d = {
             "name": self._name,
-            "render_properties": asdict(self._render_properties),
+            "properties": asdict(self._properties),
             "partitions": {},
             "image": image_utils.qimage_to_base64_string(self._image),
             "current_partition_key": self._current_partition_key,
@@ -129,52 +131,52 @@ class Layer:
         self._name = value
 
     @property
-    def render_properties(self) -> LayerRenderProperties:
-        return self._render_properties
+    def properties(self) -> LayerProperties:
+        return self._properties
 
-    @render_properties.setter
-    def render_properties(self, value: LayerRenderProperties):
-        self._render_properties = value
+    @properties.setter
+    def properties(self, value: LayerProperties):
+        self._properties = value
 
     @property
     def visible(self) -> bool:
-        return self._render_properties.visible
+        return self._properties.visible
 
     @visible.setter
     def visible(self, value: bool):
-        self._render_properties.visible = value
+        self._properties.visible = value
 
     @property
     def opacity(self) -> float:
-        return self._render_properties.opacity
+        return self._properties.opacity
 
     @opacity.setter
     def opacity(self, value: float):
-        self._render_properties.opacity = value
+        self._properties.opacity = value
 
     @property
     def pixel_size(self) -> QSizeF:
-        return QSizeF(self._render_properties.pixel_size[0], self._render_properties.pixel_size[1])
+        return QSizeF(self._properties.pixel_size[0], self._properties.pixel_size[1])
 
     @pixel_size.setter
     def pixel_size(self, value: QSizeF):
-        self._render_properties.pixel_size = (value.width(), value.height())
+        self._properties.pixel_size = (value.width(), value.height())
 
     @property
     def position(self) -> QPointF:
-        return QPointF(self._render_properties.position[0], self._render_properties.position[1])
+        return QPointF(self._properties.position[0], self._properties.position[1])
 
     @position.setter
     def position(self, value: QPointF):
-        self._render_properties.position = (value.x(), value.y())
+        self._properties.position = (value.x(), value.y())
 
     @property
-    def rotation(self) -> float:
-        return self._render_properties.rotation
+    def rotation(self) -> int:
+        return self._properties.rotation
 
     @rotation.setter
-    def rotation(self, value: float):
-        self._render_properties.rotation = value
+    def rotation(self, value: int):
+        self._properties.rotation = value
 
     @property
     def current_partition_key(self) -> str:
@@ -194,15 +196,15 @@ class Layer:
 
     def is_point_inside(self, point: QPointF) -> bool:
         rect = QRectF(
-            self._render_properties.position[0],
-            self._render_properties.position[1],
-            self._image.width() * self._render_properties.pixel_size[0],
-            self._image.height() * self._render_properties.pixel_size[1],
+            self._properties.position[0],
+            self._properties.position[1],
+            self._image.width() * self._properties.pixel_size[0],
+            self._image.height() * self._properties.pixel_size[1],
         )
 
         transform = QTransform()
         transform.translate(rect.center().x(), rect.center().y())
-        transform.rotate(self._render_properties.rotation)
+        transform.rotate(self._properties.rotation)
         transform.translate(-rect.center().x(), -rect.center().y())
 
         inverse_transform, invertible = transform.inverted()
@@ -215,10 +217,10 @@ class Layer:
     def calculate_pos_for_align(
         self, align_mode: LayerAlign, hoop_size: tuple[float, float]
     ) -> tuple[float, float]:
-        orig_w = self._image.width() * self._render_properties.pixel_size[0]
-        orig_h = self._image.height() * self._render_properties.pixel_size[1]
+        orig_w = self._image.width() * self._properties.pixel_size[0]
+        orig_h = self._image.height() * self._properties.pixel_size[1]
         rot_w, rot_h = image_utils.rotated_rectangle_dimensions(
-            orig_w, orig_h, self._render_properties.rotation
+            orig_w, orig_h, self._properties.rotation
         )
 
         # Compensates anchor point issues.
@@ -228,7 +230,7 @@ class Layer:
 
         # shorter, easier to type
         new_pos = (0, 0)
-        old_pos = self._render_properties.position
+        old_pos = self._properties.position
         match align_mode:
             case LayerAlign.HORIZONTAL_LEFT:
                 new_pos = (0 - diff_w, old_pos[1])

@@ -7,7 +7,7 @@ current_partition_key = "#2121ff_0"
 layer_type = "ImageLayer"
 image_file_name = "/Volumes/riq_data/progs/embroidery/pixel/sprites/pacman.png"
 
-[layers.render_properties]
+[layers.properties]
 position = [ 2.1, 0.0,]
 rotation = 0
 pixel_size = [ 2.8, 2.8,]

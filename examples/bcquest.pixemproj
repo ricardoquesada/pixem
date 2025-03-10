@@ -7,7 +7,7 @@ current_partition_key = "#b76418_0"
 layer_type = "ImageLayer"
 image_file_name = "/home/riq/progs/pixem/bc2_sprite.png"
 
-[layers.render_properties]
+[layers.properties]
 position = [ 2.7, 0.0,]
 rotation = 0
 pixel_size = [ 3.5, 3.5,]
