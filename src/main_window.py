@@ -356,7 +356,7 @@ class MainWindow(QMainWindow):
         self._opacity_slider.setValue(100)
         self._property_layout.addRow("Opacity:", self._opacity_slider)
 
-        property_dock = QDockWidget("Properties", self)
+        property_dock = QDockWidget("Layer Properties", self)
         property_dock.setObjectName("property_dock")
         property_dock.setWidget(self._property_editor)
         self.addDockWidget(Qt.RightDockWidgetArea, property_dock)
