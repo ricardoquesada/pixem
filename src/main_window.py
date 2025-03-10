@@ -21,6 +21,7 @@ from PySide6.QtWidgets import (
     QListWidgetItem,
     QMainWindow,
     QMenu,
+    QMessageBox,
     QScrollArea,
     QSlider,
     QSpinBox,
@@ -596,6 +597,18 @@ class MainWindow(QMainWindow):
     # pyside6 events
     #
     def closeEvent(self, event: QCloseEvent):
+        if self._state and not self._state.undo_stack.isClean():
+            reply = QMessageBox.question(
+                self,
+                "Warning",
+                "Changes will be lost. Continue?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No,
+            )
+            if reply == QMessageBox.No:
+                event.ignore()
+                return
+
         logger.info("Closing Pixem")
         self._save_settings()
         super().closeEvent(event)
@@ -692,7 +705,17 @@ class MainWindow(QMainWindow):
             self._state.export_to_filename(export_params)
 
     def _on_close_project(self) -> None:
-        # FIXME: If an existing state is dirty, it should ask for "are you sure"
+        if self._state and not self._state.undo_stack.isClean():
+            reply = QMessageBox.question(
+                self,
+                "Warning",
+                "Changes will be lost. Continue?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No,
+            )
+            if reply == QMessageBox.No:
+                return
+
         self._cleanup_state()
 
         self._disconnect_layer_partition_callbacks()
