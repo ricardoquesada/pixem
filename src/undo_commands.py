@@ -28,6 +28,15 @@ class UpdateLayerRotationCommand(QUndoCommand):
         self._layer.render_properties = self._new_properties
         self._state.layer_property_changed.emit(self._layer)
 
+    def mergeWith(self, other: QUndoCommand) -> bool:
+        if not isinstance(other, UpdateLayerRotationCommand):
+            return False
+        if self._layer != other._layer:
+            return False
+        self._new_properties = other._new_properties
+        self.setObsolete(False)
+        return True
+
 
 class UpdateLayerPositionCommand(QUndoCommand):
     def __init__(
