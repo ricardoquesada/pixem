@@ -29,6 +29,7 @@ class UpdateLayerRotationCommand(QUndoCommand):
         self._state.layer_property_changed.emit(self._layer)
 
     def mergeWith(self, other: QUndoCommand) -> bool:
+        # FIXME: NOT WORKING, not sure why
         if not isinstance(other, UpdateLayerRotationCommand):
             return False
         if self._layer != other._layer:
