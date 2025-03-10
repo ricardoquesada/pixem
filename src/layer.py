@@ -40,11 +40,6 @@ class Layer:
     def __init__(self, name: str, image: QImage):
         self._image: QImage = image
         self._name: str = name
-        self._position: QPointF = QPointF(0.0, 0.0)
-        self._rotation: float = 0.0
-        self._pixel_size: QSizeF = QSizeF(2.5, 2.5)
-        self._visible: bool = True
-        self._opacity: float = 1.0
         self._render_properties = LayerRenderProperties(
             position=(0.0, 0.0),
             rotation=0,
@@ -78,7 +73,8 @@ class Layer:
 
     def populate_from_dict(self, d: dict) -> None:
         if "position" in d:
-            self._render_properties.position = d["position"]
+            pos = d["position"]
+            self._render_properties.position = (pos["x"], pos["y"])
         if "rotation" in d:
             self._render_properties.rotation = d["rotation"]
         if "pixel_size" in d:
@@ -201,15 +197,15 @@ class Layer:
 
     def is_point_inside(self, point: QPointF) -> bool:
         rect = QRectF(
-            self._position.x(),
-            self._position.y(),
-            self._image.width() * self._pixel_size.width(),
-            self._image.height() * self._pixel_size.height(),
+            self._render_properties.position[0],
+            self._render_properties.position[1],
+            self._image.width() * self._render_properties.pixel_size[0],
+            self._image.height() * self._render_properties.pixel_size[1],
         )
 
         transform = QTransform()
         transform.translate(rect.center().x(), rect.center().y())
-        transform.rotate(self._rotation)
+        transform.rotate(self._render_properties.rotation)
         transform.translate(-rect.center().x(), -rect.center().y())
 
         inverse_transform, invertible = transform.inverted()
@@ -220,36 +216,38 @@ class Layer:
         return rect.contains(transformed_point)
 
     def align(self, align_mode: LayerAlign, hoop_size: tuple[float, float]):
-        orig_w = self._image.width() * self.pixel_size.width()
-        orig_h = self._image.height() * self.pixel_size.height()
-        rot_w, rot_h = image_utils.rotated_rectangle_dimensions(orig_w, orig_h, self._rotation)
+        orig_w = self._image.width() * self._render_properties.pixel_size[0]
+        orig_h = self._image.height() * self._render_properties.pixel_size[1]
+        rot_w, rot_h = image_utils.rotated_rectangle_dimensions(
+            orig_w, orig_h, self._render_properties.rotation
+        )
 
         # Compensates anchor point issues.
         # Rotation is done from center, but position is from top-left
         diff_w = (orig_w - rot_w) / 2
         diff_h = (orig_h - rot_h) / 2
 
+        # shorter, easier to type
+        prop = self._render_properties
         match align_mode:
             case LayerAlign.HORIZONTAL_LEFT:
-                self.position = QPointF(0 - diff_w, self.position.y())
+                prop.position = (0 - diff_w, prop.position[1])
             case LayerAlign.HORIZONTAL_CENTER:
-                self.position = QPointF(
-                    (hoop_size[0] * INCHES_TO_MM - rot_w) / 2 - diff_w, self.position.y()
+                prop.position = (
+                    (hoop_size[0] * INCHES_TO_MM - rot_w) / 2 - diff_w,
+                    prop.position[1],
                 )
             case LayerAlign.HORIZONTAL_RIGHT:
-                self.position = QPointF(
-                    (hoop_size[0] * INCHES_TO_MM - rot_w - diff_w), self.position.y()
-                )
+                prop.position = ((hoop_size[0] * INCHES_TO_MM - rot_w - diff_w), prop.position[1])
             case LayerAlign.VERTICAL_TOP:
-                self.position = QPointF(self.position.x(), 0.0 - diff_h)
+                prop.position = (prop.position[1], 0.0 - diff_h)
             case LayerAlign.VERTICAL_CENTER:
-                self.position = QPointF(
-                    self.position.x(), (hoop_size[1] * INCHES_TO_MM - rot_h) / 2 - diff_h
+                prop.position = (
+                    prop.position[0],
+                    (hoop_size[1] * INCHES_TO_MM - rot_h) / 2 - diff_h,
                 )
             case LayerAlign.VERTICAL_BOTTOM:
-                self.position = QPointF(
-                    self.position.x(), (hoop_size[1] * INCHES_TO_MM - rot_h - diff_h)
-                )
+                prop.position = (prop.position[0], (hoop_size[1] * INCHES_TO_MM - rot_h - diff_h))
 
 
 class ImageLayer(Layer):
