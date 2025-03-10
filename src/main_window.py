@@ -56,6 +56,16 @@ class MainWindow(QMainWindow):
         self._setup_ui()
         self._load_settings()
 
+        self._cleanup_state()
+
+        open_on_startup = global_preferences.get_open_file_on_startup()
+        if open_on_startup:
+            files = global_preferences.get_recent_files()
+            if len(files) > 0:
+                self._open_filename(files[0])
+
+        self._update_window_title()
+
     def _setup_ui(self):
         menu_bar = self.menuBar()
         file_menu = QMenu("&File", self)
@@ -374,15 +384,6 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(scroll_area)
 
-        self._update_window_title()
-
-        # After setting up the main window, open latest file
-        open_on_startup = global_preferences.get_open_file_on_startup()
-        if open_on_startup:
-            files = global_preferences.get_recent_files()
-            if len(files) > 0:
-                self._open_filename(files[0])
-
     def _populate_recent_menu(self):
         self._recent_menu.clear()
         recent_files = global_preferences.get_recent_files()
@@ -486,7 +487,6 @@ class MainWindow(QMainWindow):
             logger.warning(f"Failed to load state from filename {filename}")
             return
 
-        # FIXME: Add a method that sets the new state
         self._setup_state(state)
 
         self._disconnect_layer_partition_callbacks()
@@ -542,6 +542,9 @@ class MainWindow(QMainWindow):
         self._undo_dock.setEnabled(True)
 
     def _cleanup_state(self):
+        if self._state is not None:
+            self._undo_action.triggered.disconnect(self._state.undo_stack.undo)
+            self._redo_action.triggered.disconnect(self._state.undo_stack.redo)
         self._state = None
         self._canvas.state = None
         self._undo_view.setStack(QUndoStack())
@@ -780,15 +783,12 @@ class MainWindow(QMainWindow):
         s = self.sender()
         if self._state is None or self._state.selected_layer is None:
             return
-        self._state.selected_layer.align(s.data(), global_preferences.get_hoop_size())
-        new_pos = self._state.selected_layer.position
-        self._disconnect_property_callbacks()
-        self._position_x_spinbox.setValue(new_pos.x())
-        self._position_y_spinbox.setValue(new_pos.y())
-        self._connect_property_callbacks()
-
-        self._canvas.recalculate_fixed_size()
-        self.update()
+        x, y = self._state.selected_layer.calculate_pos_for_align(
+            s.data(), global_preferences.get_hoop_size()
+        )
+        logger.info(f"align new values {x}, {y}")
+        self._position_x_spinbox.setValue(x)
+        self._position_y_spinbox.setValue(y)
 
     def _on_zoom_changed(self, value: int) -> None:
         self._state.zoom_factor = value / 100.0
@@ -928,7 +928,9 @@ class MainWindow(QMainWindow):
             logger.warning("Unexpected state. Should not be none")
             return
         if self._state.selected_layer != layer:
-            logger.warning("Unexpected selected layer")
+            logger.warning(
+                f"Unexpected selected layer. Got '{layer.name}', expected: '{self._state.selected_layer.name}'"
+            )
             return
 
         properties = layer.render_properties

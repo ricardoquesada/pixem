@@ -12,7 +12,13 @@ from PySide6.QtGui import QUndoStack
 import preferences
 from export import ExportParameters, ExportToSVG
 from layer import Layer, LayerRenderProperties
-from undo_commands import UpdateLayerRenderPropertiesCommand
+from undo_commands import (
+    UpdateLayerOpacityCommand,
+    UpdateLayerPixelSizeCommand,
+    UpdateLayerPositionCommand,
+    UpdateLayerRotationCommand,
+    UpdateLayerVisibleCommand,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -91,6 +97,7 @@ class State(QObject):
         try:
             with open(filename, "w", encoding="utf-8") as f:
                 toml.dump(d, f)
+                self._undo_stack.setClean()
         except FileNotFoundError as e:
             logger.error(f"Could not save file to {filename}, error: {e}")
         except Exception:
@@ -137,7 +144,27 @@ class State(QObject):
             self._current_layer_key = None
 
     def set_layer_render_properties(self, layer: Layer, properties: LayerRenderProperties):
-        self._undo_stack.push(UpdateLayerRenderPropertiesCommand(self, layer, properties, None))
+        if properties == layer.render_properties:
+            return
+
+        # To make it easier for the user, we split the Undo Commands in multiple ones.
+        # Easier to create "mergeables"
+        if properties.rotation != layer.render_properties.rotation:
+            self._undo_stack.push(
+                UpdateLayerRotationCommand(self, layer, properties.rotation, None)
+            )
+        if properties.position != layer.render_properties.position:
+            self._undo_stack.push(
+                UpdateLayerPositionCommand(self, layer, properties.position, None)
+            )
+        if properties.pixel_size != layer.render_properties.pixel_size:
+            self._undo_stack.push(
+                UpdateLayerPixelSizeCommand(self, layer, properties.pixel_size, None)
+            )
+        if properties.visible != layer.render_properties.visible:
+            self._undo_stack.push(UpdateLayerVisibleCommand(self, layer, properties.visible, None))
+        if properties.opacity != layer.render_properties.opacity:
+            self._undo_stack.push(UpdateLayerOpacityCommand(self, layer, properties.opacity, None))
 
     @property
     def undo_stack(self) -> QUndoStack:

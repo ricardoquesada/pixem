@@ -72,20 +72,17 @@ class Layer:
         return layer
 
     def populate_from_dict(self, d: dict) -> None:
-        if "position" in d:
-            pos = d["position"]
-            self._render_properties.position = (pos["x"], pos["y"])
-        if "rotation" in d:
-            self._render_properties.rotation = d["rotation"]
-        if "pixel_size" in d:
-            pixel_size = d["pixel_size"]
-            self._render_properties.pixel_size = (pixel_size["width"], pixel_size["height"])
-        if "visible" in d:
-            self._render_properties.visible = d["visible"]
-        if "opacity" in d:
-            self._render_properties.opacity = d["opacity"]
         if "render_properties" in d:
             self._render_properties = LayerRenderProperties(**d["render_properties"])
+            # Convert list to tuple
+            self._render_properties.position = (
+                self._render_properties.position[0],
+                self._render_properties.position[1],
+            )
+            self._render_properties.pixel_size = (
+                self._render_properties.pixel_size[0],
+                self._render_properties.pixel_size[1],
+            )
         if "partitions" in d:
             for p in d["partitions"]:
                 part_dict = d["partitions"][p]
@@ -215,7 +212,9 @@ class Layer:
         transformed_point = inverse_transform.map(point)
         return rect.contains(transformed_point)
 
-    def align(self, align_mode: LayerAlign, hoop_size: tuple[float, float]):
+    def calculate_pos_for_align(
+        self, align_mode: LayerAlign, hoop_size: tuple[float, float]
+    ) -> tuple[float, float]:
         orig_w = self._image.width() * self._render_properties.pixel_size[0]
         orig_h = self._image.height() * self._render_properties.pixel_size[1]
         rot_w, rot_h = image_utils.rotated_rectangle_dimensions(
@@ -228,26 +227,23 @@ class Layer:
         diff_h = (orig_h - rot_h) / 2
 
         # shorter, easier to type
-        prop = self._render_properties
+        new_pos = (0, 0)
+        old_pos = self._render_properties.position
         match align_mode:
             case LayerAlign.HORIZONTAL_LEFT:
-                prop.position = (0 - diff_w, prop.position[1])
+                new_pos = (0 - diff_w, old_pos[1])
             case LayerAlign.HORIZONTAL_CENTER:
-                prop.position = (
-                    (hoop_size[0] * INCHES_TO_MM - rot_w) / 2 - diff_w,
-                    prop.position[1],
-                )
+                new_pos = ((hoop_size[0] * INCHES_TO_MM - rot_w) / 2 - diff_w, old_pos[1])
             case LayerAlign.HORIZONTAL_RIGHT:
-                prop.position = ((hoop_size[0] * INCHES_TO_MM - rot_w - diff_w), prop.position[1])
+                new_pos = ((hoop_size[0] * INCHES_TO_MM - rot_w - diff_w), old_pos[1])
             case LayerAlign.VERTICAL_TOP:
-                prop.position = (prop.position[1], 0.0 - diff_h)
+                new_pos = (old_pos[0], 0.0 - diff_h)
             case LayerAlign.VERTICAL_CENTER:
-                prop.position = (
-                    prop.position[0],
-                    (hoop_size[1] * INCHES_TO_MM - rot_h) / 2 - diff_h,
-                )
+                new_pos = (old_pos[0], (hoop_size[1] * INCHES_TO_MM - rot_h) / 2 - diff_h)
             case LayerAlign.VERTICAL_BOTTOM:
-                prop.position = (prop.position[0], (hoop_size[1] * INCHES_TO_MM - rot_h - diff_h))
+                new_pos = (old_pos[0], (hoop_size[1] * INCHES_TO_MM - rot_h - diff_h))
+
+        return new_pos
 
 
 class ImageLayer(Layer):

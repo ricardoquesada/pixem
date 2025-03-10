@@ -8,7 +8,7 @@ layer_type = "ImageLayer"
 image_file_name = "/home/riq/progs/pixem/bc2_sprite.png"
 
 [layers.render_properties]
-position = [ 2.6999999999999886, 0.0,]
+position = [ 2.7, 0.0,]
 rotation = 0
 pixel_size = [ 3.5, 3.5,]
 visible = true
