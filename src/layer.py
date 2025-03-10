@@ -2,6 +2,7 @@
 # Copyright 2025 - Ricardo Quesada
 
 import logging
+import uuid
 from dataclasses import asdict, dataclass
 from enum import Enum
 from typing import Optional, Self, overload
@@ -34,18 +35,20 @@ class LayerProperties:
     pixel_size: tuple[float, float]
     visible: bool
     opacity: float
+    uuid: str | None = None
 
 
 class Layer:
     def __init__(self, name: str, image: QImage):
         self._image: QImage = image
-        self._name: str = name
+        self._name = name
         self._properties = LayerProperties(
             position=(0.0, 0.0),
             rotation=0,
             pixel_size=(2.5, 2.5),
             visible=True,
             opacity=1.0,
+            uuid=str(uuid.uuid4()),
         )
         self._partitions: dict[str, Partition] = {}
         self._current_partition_key = None
@@ -76,6 +79,9 @@ class Layer:
             self._properties = LayerProperties(**d["render_properties"])
         if "properties" in d:
             self._properties = LayerProperties(**d["properties"])
+            if self._properties.uuid is None:
+                # Backward compatible for files without one
+                self._properties.uuid = str(uuid.uuid4())
         # Convert list to tuple
         self._properties.position = (
             self._properties.position[0],
@@ -123,20 +129,24 @@ class Layer:
         return self._image
 
     @property
-    def name(self) -> str:
-        return self._name
-
-    @name.setter
-    def name(self, value: str):
-        self._name = value
-
-    @property
     def properties(self) -> LayerProperties:
         return self._properties
 
     @properties.setter
     def properties(self, value: LayerProperties):
         self._properties = value
+
+    @property
+    def uuid(self) -> str:
+        return self._properties.uuid
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @name.setter
+    def name(self, value: str):
+        self._name = value
 
     @property
     def visible(self) -> bool:
