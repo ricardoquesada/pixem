@@ -71,5 +71,5 @@ name = "#cdcdcd_1"
 filename = "/home/riq/progs/pixem/examples/bcquest.svg"
 pull_compensation_mm = 0.25
 max_stitch_length_mm = 1000.0
-fill_method = "legacy_fill"
+fill_method = "auto_fill"
 initial_angle_degrees = 0
