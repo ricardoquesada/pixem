@@ -19,846 +19,1057 @@ name = "ImageLayer 1"
 path = [ [ 2, 19,], [ 1, 19,], [ 0, 19,], [ 0, 18,],]
 size = 4
 name = "#d4a0a1_0"
+color = "#d4a0a1"
 [layers.partitions.7a96a7ff-fa03-4eb0-8da5-61f868ff6ad4]
 path = [ [ 0, 27,],]
 size = 1
 name = "#d4a0a1_1"
+color = "#d4a0a1"
 [layers.partitions.ede69f9d-86da-42ba-b0ec-95bb5e44beed]
 path = [ [ 4, 15,], [ 5, 15,], [ 4, 16,],]
 size = 3
 name = "#d4a0a1_2"
+color = "#d4a0a1"
 [layers.partitions.76b1ad38-3ec4-4ce6-9148-6fa5cb2e54f3]
 path = [ [ 7, 4,], [ 8, 4,],]
 size = 2
 name = "#d4a0a1_3"
+color = "#d4a0a1"
 [layers.partitions.c7490f82-ee1b-4b7b-a330-52d16d06907c]
 path = [ [ 9, 16,], [ 8, 16,], [ 7, 16,],]
 size = 3
 name = "#d4a0a1_4"
+color = "#d4a0a1"
 [layers.partitions.ae06a8eb-0e1f-44f3-8197-1bab0d6bd2f9]
 path = [ [ 7, 26,], [ 8, 26,],]
 size = 2
 name = "#d4a0a1_5"
+color = "#d4a0a1"
 [layers.partitions.a7546e0a-01f5-4ae6-be97-ef92f9757688]
 path = [ [ 9, 13,], [ 9, 14,],]
 size = 2
 name = "#d4a0a1_6"
+color = "#d4a0a1"
 [layers.partitions.8a5e740e-bf9e-4d17-8a0b-1029d1364786]
 path = [ [ 11, 12,],]
 size = 1
 name = "#d4a0a1_7"
+color = "#d4a0a1"
 [layers.partitions.1ff482ea-bba7-44e3-b954-8b1d451b9bcc]
 path = [ [ 11, 15,], [ 12, 15,],]
 size = 2
 name = "#d4a0a1_8"
+color = "#d4a0a1"
 [layers.partitions.7ec489dd-4f3b-4922-ad1a-670df5345856]
 path = [ [ 13, 12,], [ 13, 13,], [ 14, 13,],]
 size = 3
 name = "#d4a0a1_9"
+color = "#d4a0a1"
 [layers.partitions.af2769a8-6232-4235-a750-033187b1600f]
 path = [ [ 16, 5,],]
 size = 1
 name = "#d4a0a1_10"
+color = "#d4a0a1"
 [layers.partitions.dacc8f8c-4f21-40d2-b7a7-d36a7d43475e]
 path = [ [ 17, 26,], [ 18, 26,], [ 17, 27,], [ 16, 27,], [ 17, 28,], [ 18, 28,], [ 18, 29,], [ 19, 28,], [ 20, 28,], [ 20, 27,], [ 21, 27,], [ 21, 26,], [ 19, 27,],]
 size = 13
 name = "#d4a0a1_11"
+color = "#d4a0a1"
 [layers.partitions.64ef9a29-d4e3-4a95-a788-e5c6187250af]
 path = [ [ 18, 17,], [ 19, 17,], [ 20, 17,], [ 21, 17,], [ 22, 17,], [ 23, 17,], [ 24, 17,], [ 24, 16,], [ 25, 16,], [ 26, 16,], [ 23, 16,],]
 size = 11
 name = "#d4a0a1_12"
+color = "#d4a0a1"
 [layers.partitions.bccfe05d-9cbb-4c86-ab40-5b8223f67957]
 path = [ [ 23, 13,], [ 24, 13,],]
 size = 2
 name = "#d4a0a1_13"
+color = "#d4a0a1"
 [layers.partitions.6e9738eb-5fc2-4b2b-8df5-699493836b4b]
 path = [ [ 23, 26,], [ 24, 26,], [ 25, 26,], [ 26, 26,],]
 size = 4
 name = "#d4a0a1_14"
+color = "#d4a0a1"
 [layers.partitions.30592e06-72ce-4d59-b8e4-495289470001]
 path = [ [ 34, 16,], [ 33, 16,],]
 size = 2
 name = "#d4a0a1_15"
+color = "#d4a0a1"
 [layers.partitions.f354513a-4b12-4cdb-9c52-99e21af62aab]
 path = [ [ 37, 26,], [ 36, 26,], [ 35, 26,], [ 34, 26,], [ 33, 26,],]
 size = 5
 name = "#d4a0a1_16"
+color = "#d4a0a1"
 [layers.partitions.64afaf1e-8611-4603-879e-08a3a602e0f9]
 path = [ [ 40, 17,], [ 41, 17,],]
 size = 2
 name = "#d4a0a1_17"
+color = "#d4a0a1"
 [layers.partitions.18088015-f445-4946-9230-67eb5fe6e52f]
 path = [ [ 41, 26,], [ 42, 26,], [ 43, 26,], [ 44, 26,], [ 45, 26,], [ 46, 26,], [ 47, 26,], [ 48, 26,],]
 size = 8
 name = "#d4a0a1_18"
+color = "#d4a0a1"
 [layers.partitions.58a95bfe-9c23-4b0e-894a-3e7db1d0be5a]
 path = [ [ 44, 17,], [ 43, 17,],]
 size = 2
 name = "#d4a0a1_19"
+color = "#d4a0a1"
 [layers.partitions.7174fdeb-e7ec-4b7e-b6a8-3c75dab22477]
 path = [ [ 44, 12,],]
 size = 1
 name = "#d4a0a1_20"
+color = "#d4a0a1"
 [layers.partitions.640f8418-79b9-4403-b146-f247f547690f]
 path = [ [ 46, 17,], [ 47, 17,], [ 48, 17,], [ 49, 17,], [ 50, 17,], [ 51, 17,],]
 size = 6
 name = "#d4a0a1_21"
+color = "#d4a0a1"
 [layers.partitions.00c3e3ae-80da-4693-b18e-95f0cae4afa1]
 path = [ [ 50, 10,],]
 size = 1
 name = "#d4a0a1_22"
+color = "#d4a0a1"
 [layers.partitions.a7801299-2957-4ec2-a797-6f4ebd052555]
 path = [ [ 52, 14,],]
 size = 1
 name = "#d4a0a1_23"
+color = "#d4a0a1"
 [layers.partitions.a4e72de4-115a-4189-8463-ad7f3be91c58]
 path = [ [ 55, 12,],]
 size = 1
 name = "#d4a0a1_24"
+color = "#d4a0a1"
 [layers.partitions.d5145eac-d0c6-4082-972d-b865cb6c022a]
 path = [ [ 60, 26,], [ 59, 26,], [ 58, 26,], [ 57, 26,], [ 56, 26,], [ 55, 26,],]
 size = 6
 name = "#d4a0a1_25"
+color = "#d4a0a1"
 [layers.partitions.6ff0164e-b05d-4e95-b380-ec9d5f80b524]
 path = [ [ 57, 17,],]
 size = 1
 name = "#d4a0a1_26"
+color = "#d4a0a1"
 [layers.partitions.9d072341-6adf-4ba6-979d-b8e8bf3af1d6]
 path = [ [ 63, 17,],]
 size = 1
 name = "#d4a0a1_27"
+color = "#d4a0a1"
 [layers.partitions.e6793441-8e12-4aa4-9350-cc172808533d]
 path = [ [ 66, 11,],]
 size = 1
 name = "#d4a0a1_28"
+color = "#d4a0a1"
 [layers.partitions.ecd3df5b-9aac-4cfe-8c27-89ca67456e93]
 path = [ [ 68, 16,], [ 67, 16,],]
 size = 2
 name = "#d4a0a1_29"
+color = "#d4a0a1"
 [layers.partitions.7b8e56fe-9bf2-4ee4-994f-30c4e8456ab3]
 path = [ [ 67, 3,], [ 68, 3,], [ 69, 3,],]
 size = 3
 name = "#d4a0a1_30"
+color = "#d4a0a1"
 [layers.partitions.1c5e998c-eb5e-4575-b0bf-dd8d1da172da]
 path = [ [ 73, 17,], [ 74, 17,], [ 75, 17,], [ 75, 16,],]
 size = 4
 name = "#d4a0a1_31"
+color = "#d4a0a1"
 [layers.partitions.23b1afb4-780e-4d77-a9a1-b4810102f264]
 path = [ [ 75, 26,], [ 74, 26,], [ 73, 26,], [ 72, 26,],]
 size = 4
 name = "#d4a0a1_32"
+color = "#d4a0a1"
 [layers.partitions.c41747ae-eb9a-4e51-bc5f-7802df6ce971]
 path = [ [ 38, 25,],]
 size = 1
 name = "#000000_0"
+color = "#000000"
 [layers.partitions.7d580055-9b00-436c-8bf9-474c91b1584b]
 path = [ [ 1, 34,], [ 2, 34,], [ 2, 35,], [ 1, 35,], [ 1, 36,], [ 1, 37,], [ 1, 38,], [ 2, 38,], [ 2, 37,], [ 3, 37,], [ 4, 37,], [ 4, 38,], [ 4, 39,], [ 3, 39,], [ 3, 40,], [ 5, 38,], [ 6, 38,], [ 7, 38,], [ 7, 39,], [ 7, 40,], [ 6, 40,], [ 5, 40,], [ 7, 41,], [ 8, 41,], [ 9, 41,], [ 10, 41,], [ 11, 41,], [ 12, 41,], [ 12, 40,], [ 13, 40,], [ 14, 40,], [ 15, 40,], [ 16, 40,], [ 16, 41,], [ 17, 41,], [ 16, 39,], [ 17, 39,], [ 18, 39,], [ 18, 40,], [ 12, 39,], [ 12, 38,], [ 11, 39,], [ 10, 39,], [ 9, 39,], [ 8, 39,], [ 8, 38,], [ 8, 40,], [ 6, 37,], [ 5, 37,], [ 3, 36,], [ 2, 36,],]
 size = 51
 name = "#000000_1"
+color = "#000000"
 [layers.partitions.c004cf85-7590-4b66-bf6e-24ad646b99d5]
 path = [ [ 21, 13,], [ 20, 13,], [ 19, 13,], [ 18, 13,], [ 17, 13,], [ 17, 14,], [ 16, 14,], [ 16, 15,], [ 15, 15,], [ 17, 15,], [ 18, 15,], [ 19, 15,], [ 20, 15,], [ 21, 15,], [ 22, 15,], [ 23, 15,], [ 24, 15,], [ 25, 15,], [ 26, 15,], [ 27, 15,], [ 28, 15,], [ 29, 15,], [ 30, 15,], [ 31, 15,], [ 32, 15,], [ 33, 15,], [ 34, 15,], [ 35, 15,], [ 36, 15,], [ 37, 15,], [ 38, 15,], [ 39, 15,], [ 40, 15,], [ 41, 15,], [ 42, 15,], [ 43, 15,], [ 44, 15,], [ 45, 15,], [ 46, 15,], [ 47, 15,], [ 48, 15,], [ 49, 15,], [ 50, 15,], [ 51, 15,], [ 52, 15,], [ 53, 15,], [ 54, 15,], [ 55, 15,], [ 56, 15,], [ 57, 15,], [ 58, 15,], [ 59, 15,], [ 58, 14,], [ 58, 13,], [ 57, 13,], [ 57, 12,], [ 56, 12,], [ 56, 13,], [ 55, 13,], [ 54, 13,], [ 53, 13,], [ 54, 14,], [ 55, 14,], [ 56, 14,], [ 57, 14,], [ 18, 14,],]
 size = 66
 name = "#000000_2"
+color = "#000000"
 [layers.partitions.1c1d65b9-f5b8-4680-bf98-71e8d1fde224]
 path = [ [ 15, 36,],]
 size = 1
 name = "#000000_3"
+color = "#000000"
 [layers.partitions.94c5484d-aa4a-4428-b718-317bb3072ae6]
 path = [ [ 17, 31,],]
 size = 1
 name = "#000000_4"
+color = "#000000"
 [layers.partitions.79c88019-db2b-4ad2-8073-c7d8a0f79963]
 path = [ [ 58, 39,], [ 57, 39,], [ 56, 39,], [ 55, 39,], [ 54, 39,], [ 53, 39,], [ 52, 39,], [ 51, 39,], [ 50, 39,], [ 49, 39,], [ 48, 39,], [ 47, 39,], [ 46, 39,], [ 45, 39,], [ 44, 39,], [ 43, 39,], [ 42, 39,], [ 41, 39,], [ 40, 39,], [ 39, 39,], [ 38, 39,], [ 37, 39,], [ 36, 39,], [ 35, 39,], [ 34, 39,], [ 33, 39,], [ 32, 39,], [ 31, 39,], [ 30, 39,], [ 29, 39,], [ 28, 39,], [ 27, 39,], [ 26, 39,], [ 25, 39,], [ 24, 39,], [ 23, 39,], [ 22, 39,],]
 size = 37
 name = "#000000_5"
+color = "#000000"
 [layers.partitions.17a9e30e-66cf-4110-8302-afd2bc216b42]
 path = [ [ 33, 29,],]
 size = 1
 name = "#000000_6"
+color = "#000000"
 [layers.partitions.80702592-c8d9-4f2f-83de-d6cfc667072d]
 path = [ [ 34, 32,],]
 size = 1
 name = "#000000_7"
+color = "#000000"
 [layers.partitions.1a943ee3-5e1f-4aa7-8f7b-ab01397422c0]
 path = [ [ 35, 30,],]
 size = 1
 name = "#000000_8"
+color = "#000000"
 [layers.partitions.4e4e787b-9eeb-460b-be49-e839b26adf8c]
 path = [ [ 36, 4,], [ 36, 5,],]
 size = 2
 name = "#000000_9"
+color = "#000000"
 [layers.partitions.3223df30-91e0-4757-95ca-7baccbd4e125]
 path = [ [ 38, 32,], [ 37, 32,], [ 36, 32,],]
 size = 3
 name = "#000000_10"
+color = "#000000"
 [layers.partitions.47c2616a-940d-4221-8d02-78d811f6fd7b]
 path = [ [ 40, 3,], [ 39, 3,],]
 size = 2
 name = "#000000_11"
+color = "#000000"
 [layers.partitions.cae9f1e7-f29f-4377-9078-f60b2c925e5b]
 path = [ [ 76, 25,], [ 75, 25,], [ 74, 25,], [ 73, 25,], [ 72, 25,], [ 71, 25,], [ 70, 25,], [ 69, 25,], [ 68, 25,], [ 67, 25,], [ 66, 25,], [ 65, 25,], [ 64, 25,], [ 63, 25,], [ 62, 25,], [ 61, 25,], [ 61, 24,], [ 61, 23,], [ 61, 22,], [ 61, 21,], [ 61, 20,], [ 62, 20,], [ 63, 20,], [ 64, 20,], [ 65, 20,], [ 66, 20,], [ 67, 20,], [ 68, 20,], [ 69, 20,], [ 70, 20,], [ 71, 20,], [ 72, 20,], [ 73, 20,], [ 74, 20,], [ 75, 20,], [ 76, 20,], [ 60, 20,], [ 59, 20,], [ 58, 20,], [ 57, 20,], [ 56, 20,], [ 55, 20,], [ 54, 20,], [ 53, 20,], [ 52, 20,], [ 51, 20,], [ 50, 20,], [ 49, 20,], [ 48, 20,], [ 47, 20,], [ 46, 20,], [ 45, 20,], [ 44, 20,], [ 43, 20,], [ 42, 20,], [ 41, 20,], [ 40, 20,], [ 39, 20,], [ 40, 21,], [ 40, 22,], [ 39, 22,], [ 40, 23,], [ 41, 22,], [ 42, 22,], [ 42, 23,], [ 42, 24,], [ 41, 24,], [ 41, 25,], [ 40, 25,], [ 42, 25,], [ 43, 25,], [ 44, 25,], [ 45, 25,], [ 46, 25,], [ 47, 25,], [ 48, 25,], [ 49, 25,], [ 50, 25,], [ 51, 25,], [ 52, 25,], [ 53, 25,], [ 54, 25,], [ 55, 25,], [ 56, 25,], [ 57, 25,], [ 58, 25,], [ 59, 25,], [ 60, 25,], [ 60, 24,], [ 60, 23,], [ 60, 22,], [ 60, 21,], [ 59, 21,], [ 58, 21,], [ 57, 21,], [ 56, 21,], [ 55, 21,], [ 54, 21,], [ 53, 21,], [ 52, 21,], [ 51, 21,], [ 50, 21,], [ 49, 21,], [ 48, 21,], [ 47, 21,], [ 46, 21,], [ 45, 21,], [ 44, 21,], [ 43, 21,], [ 42, 21,], [ 41, 21,], [ 43, 22,], [ 43, 23,], [ 43, 24,], [ 44, 24,], [ 45, 24,], [ 46, 24,], [ 47, 24,], [ 48, 24,], [ 49, 24,], [ 50, 24,], [ 51, 24,], [ 52, 24,], [ 53, 24,], [ 54, 24,], [ 55, 24,], [ 56, 24,], [ 57, 24,], [ 58, 24,], [ 59, 24,], [ 59, 23,], [ 59, 22,], [ 58, 22,], [ 57, 22,], [ 56, 22,], [ 55, 22,], [ 54, 22,], [ 53, 22,], [ 52, 22,], [ 51, 22,], [ 50, 22,], [ 49, 22,], [ 48, 22,], [ 47, 22,], [ 46, 22,], [ 45, 22,], [ 44, 22,], [ 44, 23,], [ 45, 23,], [ 46, 23,], [ 47, 23,], [ 48, 23,], [ 49, 23,], [ 50, 23,], [ 51, 23,], [ 52, 23,], [ 53, 23,], [ 54, 23,], [ 55, 23,], [ 56, 23,], [ 57, 23,], [ 58, 23,],]
 size = 162
 name = "#000000_12"
+color = "#000000"
 [layers.partitions.99be439c-5123-4987-a697-2530882b32a9]
 path = [ [ 40, 32,], [ 40, 31,], [ 40, 30,],]
 size = 3
 name = "#000000_13"
+color = "#000000"
 [layers.partitions.c52ddeea-dc16-41da-9243-368dc3866087]
 path = [ [ 42, 32,],]
 size = 1
 name = "#000000_14"
+color = "#000000"
 [layers.partitions.188ad8bb-d4d8-4f69-92cb-6bbc26bfb21e]
 path = [ [ 43, 4,], [ 43, 5,],]
 size = 2
 name = "#000000_15"
+color = "#000000"
 [layers.partitions.8190fc96-595d-47f7-913e-c89d1a39fb19]
 path = [ [ 45, 29,], [ 45, 30,], [ 45, 31,],]
 size = 3
 name = "#000000_16"
+color = "#000000"
 [layers.partitions.d1dce5bc-47b6-4f39-a3a3-a6d4f0e9da19]
 path = [ [ 67, 37,], [ 68, 37,], [ 69, 37,],]
 size = 3
 name = "#000000_17"
+color = "#000000"
 [layers.partitions.a3e5f918-8354-4630-b565-7e172ca9c056]
 path = [ [ 0, 21,], [ 1, 21,], [ 1, 22,], [ 0, 22,], [ 0, 23,], [ 0, 24,], [ 1, 24,], [ 2, 24,], [ 3, 24,], [ 4, 24,], [ 5, 24,], [ 6, 24,], [ 7, 24,], [ 8, 24,], [ 9, 24,], [ 10, 24,], [ 11, 24,], [ 12, 24,], [ 13, 24,], [ 14, 24,], [ 15, 24,], [ 15, 23,], [ 14, 23,], [ 13, 23,], [ 12, 23,], [ 11, 23,], [ 10, 23,], [ 9, 23,], [ 8, 23,], [ 7, 23,], [ 6, 23,], [ 5, 23,], [ 4, 23,], [ 3, 23,], [ 3, 22,], [ 3, 21,], [ 2, 21,], [ 2, 22,], [ 2, 23,], [ 1, 23,],]
 size = 40
 name = "#860002_0"
+color = "#860002"
 [layers.partitions.119f035e-73f6-4b32-bbd4-5d144c91d329]
 path = [ [ 17, 35,],]
 size = 1
 name = "#860002_1"
+color = "#860002"
 [layers.partitions.76753781-733e-4ed8-b1fb-198e7a922cae]
 path = [ [ 12, 35,],]
 size = 1
 name = "#860002_2"
+color = "#860002"
 [layers.partitions.6964a257-2f9b-468f-af53-b0c2c5d3efee]
 path = [ [ 22, 14,],]
 size = 1
 name = "#860002_3"
+color = "#860002"
 [layers.partitions.f9554903-9429-4aa2-b938-2ea998364206]
 path = [ [ 30, 28,], [ 30, 29,], [ 30, 30,], [ 29, 30,], [ 30, 31,],]
 size = 5
 name = "#860002_4"
+color = "#860002"
 [layers.partitions.dbb906ec-b5ab-4f5a-ab39-613879c6ee69]
 path = [ [ 34, 36,],]
 size = 1
 name = "#860002_5"
+color = "#860002"
 [layers.partitions.65257370-2d80-48cf-a67c-b99b10bafb85]
 path = [ [ 38, 2,], [ 37, 2,],]
 size = 2
 name = "#860002_6"
+color = "#860002"
 [layers.partitions.fc7e7185-c05d-4eb6-91d0-16c4ee25509c]
 path = [ [ 42, 2,], [ 41, 2,], [ 40, 2,],]
 size = 3
 name = "#860002_7"
+color = "#860002"
 [layers.partitions.f49b06de-ed18-4466-9cea-13ceeffb997b]
 path = [ [ 47, 28,], [ 47, 29,], [ 47, 30,], [ 47, 31,], [ 48, 31,], [ 48, 30,], [ 48, 29,],]
 size = 7
 name = "#860002_8"
+color = "#860002"
 [layers.partitions.37eba1ad-34d4-48f2-aa84-9d6009194bc4]
 path = [ [ 57, 3,],]
 size = 1
 name = "#860002_9"
+color = "#860002"
 [layers.partitions.86ca3ca0-6fbb-4223-b2e1-21a3104262c5]
 path = [ [ 62, 9,], [ 61, 9,],]
 size = 2
 name = "#860002_10"
+color = "#860002"
 [layers.partitions.ed22d689-c3b7-4200-ad9c-7601578eadc3]
 path = [ [ 62, 23,], [ 63, 23,], [ 63, 24,], [ 62, 24,], [ 64, 24,], [ 65, 24,], [ 66, 24,], [ 67, 24,], [ 68, 24,], [ 69, 24,], [ 70, 24,], [ 71, 24,], [ 72, 24,], [ 73, 24,], [ 74, 24,], [ 75, 24,], [ 76, 24,], [ 76, 23,], [ 76, 22,], [ 76, 21,], [ 75, 21,], [ 74, 21,], [ 74, 22,], [ 74, 23,], [ 73, 23,], [ 72, 23,], [ 71, 23,], [ 70, 23,], [ 69, 23,], [ 68, 23,], [ 67, 23,], [ 66, 23,], [ 65, 23,], [ 64, 23,], [ 75, 23,], [ 75, 22,],]
 size = 36
 name = "#860002_11"
+color = "#860002"
 [layers.partitions.19416672-ebf9-4bb0-aeaa-cf248c0aabb0]
 path = [ [ 0, 26,], [ 1, 26,], [ 2, 26,], [ 3, 26,],]
 size = 4
 name = "#d6d7d2_0"
+color = "#d6d7d2"
 [layers.partitions.89dca8d4-be82-4655-882a-c8c855aa0f05]
 path = [ [ 5, 16,],]
 size = 1
 name = "#d6d7d2_1"
+color = "#d6d7d2"
 [layers.partitions.51263fd4-6e10-4ed7-9b6b-ba2768cadc40]
 path = [ [ 8, 14,], [ 7, 14,],]
 size = 2
 name = "#d6d7d2_2"
+color = "#d6d7d2"
 [layers.partitions.4d7f9632-ebd5-4c21-9e90-8165b46b074c]
 path = [ [ 9, 4,], [ 10, 4,], [ 10, 5,], [ 9, 5,], [ 11, 5,], [ 12, 5,], [ 12, 4,], [ 11, 4,],]
 size = 8
 name = "#d6d7d2_3"
+color = "#d6d7d2"
 [layers.partitions.37ac6845-bc85-49c0-8d62-1729ec641d74]
 path = [ [ 10, 13,],]
 size = 1
 name = "#d6d7d2_4"
+color = "#d6d7d2"
 [layers.partitions.2e98d969-c5d7-494a-9677-e08f1eb86bfb]
 path = [ [ 11, 21,], [ 12, 21,], [ 12, 22,], [ 11, 22,], [ 13, 22,], [ 14, 22,], [ 15, 22,], [ 15, 21,], [ 14, 21,], [ 13, 21,],]
 size = 10
 name = "#d6d7d2_5"
+color = "#d6d7d2"
 [layers.partitions.81b0cc41-6bdb-4ed6-8888-30e4895f8f74]
 path = [ [ 13, 11,],]
 size = 1
 name = "#d6d7d2_6"
+color = "#d6d7d2"
 [layers.partitions.99d14ea6-a372-48d5-ade4-fc0f64ba21d4]
 path = [ [ 17, 32,],]
 size = 1
 name = "#d6d7d2_7"
+color = "#d6d7d2"
 [layers.partitions.d73e84a7-eaac-45c3-892a-46bf0d78e314]
 path = [ [ 31, 28,], [ 32, 28,], [ 32, 29,], [ 31, 29,], [ 31, 30,], [ 31, 31,], [ 31, 32,], [ 31, 33,], [ 32, 33,], [ 33, 33,], [ 34, 33,], [ 35, 33,], [ 36, 33,], [ 37, 33,], [ 38, 33,], [ 39, 33,], [ 40, 33,], [ 41, 33,], [ 42, 33,], [ 43, 33,], [ 44, 33,], [ 45, 33,], [ 46, 33,], [ 46, 32,], [ 46, 31,], [ 46, 30,], [ 46, 29,], [ 46, 28,], [ 45, 28,], [ 44, 28,], [ 43, 28,], [ 42, 28,], [ 41, 28,], [ 40, 28,], [ 39, 28,], [ 38, 28,], [ 37, 28,], [ 36, 28,], [ 35, 28,], [ 34, 28,], [ 33, 28,], [ 34, 29,], [ 34, 30,], [ 33, 30,], [ 32, 30,], [ 32, 31,], [ 32, 32,], [ 33, 32,], [ 34, 31,], [ 35, 31,], [ 35, 32,], [ 36, 31,], [ 37, 31,], [ 38, 31,], [ 39, 31,], [ 39, 32,], [ 39, 30,], [ 38, 30,], [ 38, 29,], [ 37, 29,], [ 37, 30,], [ 36, 30,], [ 35, 29,], [ 40, 29,], [ 42, 29,], [ 43, 29,], [ 43, 30,], [ 43, 31,], [ 42, 31,], [ 41, 31,], [ 41, 30,], [ 41, 32,], [ 43, 32,], [ 44, 32,], [ 45, 32,], [ 44, 31,], [ 44, 30,], [ 44, 29,],]
 size = 78
 name = "#d6d7d2_8"
+color = "#d6d7d2"
 [layers.partitions.07372e76-7d15-420a-b64b-5abb60bf05b3]
 path = [ [ 33, 17,], [ 34, 17,], [ 35, 17,], [ 36, 17,], [ 37, 17,], [ 38, 17,],]
 size = 6
 name = "#d6d7d2_9"
+color = "#d6d7d2"
 [layers.partitions.7462e2c7-153d-4020-a032-f8a50f369dab]
 path = [ [ 36, 21,],]
 size = 1
 name = "#d6d7d2_10"
+color = "#d6d7d2"
 [layers.partitions.0081439c-b04b-4766-b4dd-036157fe3565]
 path = [ [ 37, 4,], [ 38, 4,], [ 38, 5,], [ 37, 5,], [ 39, 5,], [ 40, 5,], [ 41, 5,], [ 42, 5,], [ 42, 4,], [ 41, 4,], [ 40, 4,], [ 39, 4,],]
 size = 12
 name = "#d6d7d2_11"
+color = "#d6d7d2"
 [layers.partitions.5eb0cda1-01af-4e79-9173-5bb2db543d8a]
 path = [ [ 52, 13,],]
 size = 1
 name = "#d6d7d2_12"
+color = "#d6d7d2"
 [layers.partitions.622e5d1d-529b-4cf4-a67c-2ee5990842b6]
 path = [ [ 57, 31,], [ 56, 31,], [ 55, 31,],]
 size = 3
 name = "#d6d7d2_13"
+color = "#d6d7d2"
 [layers.partitions.e61bc978-d582-4942-9f0e-ad652fb80013]
 path = [ [ 59, 10,], [ 58, 10,],]
 size = 2
 name = "#d6d7d2_14"
+color = "#d6d7d2"
 [layers.partitions.d54ebfcb-2589-4abd-ba8c-d09aee6bac94]
 path = [ [ 62, 17,], [ 61, 17,], [ 60, 17,], [ 59, 17,], [ 58, 17,],]
 size = 5
 name = "#d6d7d2_15"
+color = "#d6d7d2"
 [layers.partitions.ac459d9f-4930-4ac2-871f-42ca40a811bb]
 path = [ [ 62, 31,], [ 61, 31,], [ 60, 31,],]
 size = 3
 name = "#d6d7d2_16"
+color = "#d6d7d2"
 [layers.partitions.b15fd4ef-6ba8-4764-943e-c61ab346d378]
 path = [ [ 62, 21,], [ 63, 21,], [ 63, 22,], [ 62, 22,], [ 64, 22,], [ 65, 22,], [ 66, 22,], [ 66, 21,], [ 65, 21,], [ 64, 21,],]
 size = 10
 name = "#d6d7d2_17"
+color = "#d6d7d2"
 [layers.partitions.773447b5-a9f4-490c-bcb1-e8089cb209db]
 path = [ [ 64, 11,], [ 65, 11,],]
 size = 2
 name = "#d6d7d2_18"
+color = "#d6d7d2"
 [layers.partitions.a412946b-f487-4631-b241-8ead6e8864a9]
 path = [ [ 65, 4,], [ 66, 4,], [ 66, 5,], [ 65, 5,], [ 67, 5,], [ 68, 5,], [ 69, 5,], [ 69, 4,], [ 68, 4,], [ 67, 4,],]
 size = 10
 name = "#d6d7d2_19"
+color = "#d6d7d2"
 [layers.partitions.8862f214-32c1-4422-8d66-c4e9fa64bc98]
 path = [ [ 68, 13,], [ 67, 13,], [ 66, 13,],]
 size = 3
 name = "#d6d7d2_20"
+color = "#d6d7d2"
 [layers.partitions.a18e64b4-0cbc-4c73-827c-7858b1c368e1]
 path = [ [ 74, 16,], [ 73, 16,], [ 72, 16,], [ 72, 17,], [ 71, 17,],]
 size = 5
 name = "#d6d7d2_21"
+color = "#d6d7d2"
 [layers.partitions.aa77c711-0b8a-47bf-a811-8dd6096de6c7]
 path = [ [ 1, 27,], [ 2, 27,], [ 2, 28,], [ 1, 28,], [ 0, 28,], [ 3, 27,],]
 size = 6
 name = "#a52f2e_0"
+color = "#a52f2e"
 [layers.partitions.4b7b4f34-bfb0-4da7-aa35-5936cfbdf756]
 path = [ [ 3, 33,],]
 size = 1
 name = "#a52f2e_1"
+color = "#a52f2e"
 [layers.partitions.d625d8d1-15e6-4edc-94fc-5fb25294024b]
 path = [ [ 9, 6,], [ 10, 6,], [ 11, 6,], [ 12, 6,], [ 13, 6,], [ 14, 6,], [ 15, 6,], [ 14, 5,], [ 14, 4,], [ 13, 4,], [ 13, 5,],]
 size = 11
 name = "#a52f2e_2"
+color = "#a52f2e"
 [layers.partitions.b2f76c7b-ac46-48d4-a3dd-29190440f405]
 path = [ [ 17, 9,],]
 size = 1
 name = "#a52f2e_3"
+color = "#a52f2e"
 [layers.partitions.2c3953f6-5aab-48f6-b266-3ff9dd1eef59]
 path = [ [ 21, 14,], [ 20, 14,], [ 19, 14,],]
 size = 3
 name = "#a52f2e_4"
+color = "#a52f2e"
 [layers.partitions.a680e68d-3709-4206-b2b3-64786c2bc89a]
 path = [ [ 23, 14,],]
 size = 1
 name = "#a52f2e_5"
+color = "#a52f2e"
 [layers.partitions.0f65424e-8b62-4217-acbc-d7acb839d9a4]
 path = [ [ 24, 30,], [ 24, 31,],]
 size = 2
 name = "#a52f2e_6"
+color = "#a52f2e"
 [layers.partitions.851c5754-4479-48b1-95a3-8d4366cd3b9f]
 path = [ [ 27, 28,], [ 28, 28,], [ 29, 28,], [ 29, 29,], [ 29, 27,], [ 30, 27,],]
 size = 6
 name = "#a52f2e_7"
+color = "#a52f2e"
 [layers.partitions.e16ac5e6-f8b3-4844-8e2e-7072500f64ff]
 path = [ [ 30, 2,], [ 31, 2,], [ 32, 2,], [ 33, 2,], [ 34, 2,], [ 35, 2,], [ 36, 2,],]
 size = 7
 name = "#a52f2e_8"
+color = "#a52f2e"
 [layers.partitions.50de2134-fba8-4147-8adc-d525e48354a0]
 path = [ [ 36, 19,], [ 37, 19,], [ 38, 19,], [ 39, 19,],]
 size = 4
 name = "#a52f2e_9"
+color = "#a52f2e"
 [layers.partitions.563a095f-661a-42a6-a520-d7808913b8a1]
 path = [ [ 36, 27,],]
 size = 1
 name = "#a52f2e_10"
+color = "#a52f2e"
 [layers.partitions.7b69e488-77c9-4b05-b8db-27012745f8fa]
 path = [ [ 38, 26,],]
 size = 1
 name = "#a52f2e_11"
+color = "#a52f2e"
 [layers.partitions.64302ddf-4e95-41ba-a218-14e83f5755fd]
 path = [ [ 39, 2,],]
 size = 1
 name = "#a52f2e_12"
+color = "#a52f2e"
 [layers.partitions.450eeba7-4f65-49ab-87df-8539f39cc1c5]
 path = [ [ 40, 26,],]
 size = 1
 name = "#a52f2e_13"
+color = "#a52f2e"
 [layers.partitions.5f9ed0bd-34a6-4055-8c88-024e95a01dd8]
 path = [ [ 42, 37,], [ 43, 37,], [ 44, 37,], [ 45, 37,], [ 45, 36,], [ 46, 36,], [ 47, 36,], [ 47, 37,], [ 48, 36,], [ 44, 36,], [ 43, 36,],]
 size = 11
 name = "#a52f2e_14"
+color = "#a52f2e"
 [layers.partitions.21f94766-0f31-44b8-ae43-1f3e82408b23]
 path = [ [ 45, 2,], [ 44, 2,], [ 43, 2,],]
 size = 3
 name = "#a52f2e_15"
+color = "#a52f2e"
 [layers.partitions.33c13ca2-b661-4125-a81e-2a58007d82c5]
 path = [ [ 52, 27,],]
 size = 1
 name = "#a52f2e_16"
+color = "#a52f2e"
 [layers.partitions.848db01e-3fd7-4e6a-bdea-28feb39f8240]
 path = [ [ 52, 2,],]
 size = 1
 name = "#a52f2e_17"
+color = "#a52f2e"
 [layers.partitions.a28082b4-106b-476b-a636-1a7b92dd6402]
 path = [ [ 62, 8,], [ 61, 8,],]
 size = 2
 name = "#a52f2e_18"
+color = "#a52f2e"
 [layers.partitions.24ee1c56-e176-4db1-ad07-af105a0208af]
 path = [ [ 70, 35,], [ 70, 34,], [ 70, 33,], [ 71, 33,], [ 71, 32,], [ 71, 31,], [ 72, 31,], [ 73, 31,], [ 73, 32,], [ 74, 32,], [ 74, 31,], [ 71, 30,], [ 70, 30,], [ 69, 30,], [ 69, 29,], [ 69, 28,], [ 70, 28,], [ 70, 27,], [ 71, 27,], [ 68, 28,], [ 67, 28,], [ 66, 28,], [ 65, 28,], [ 64, 28,], [ 65, 29,], [ 66, 29,], [ 69, 31,], [ 68, 31,], [ 67, 31,], [ 66, 31,], [ 65, 31,], [ 64, 31,], [ 63, 31,], [ 63, 30,], [ 63, 29,], [ 62, 29,], [ 62, 28,], [ 61, 28,], [ 61, 29,], [ 61, 30,], [ 60, 30,], [ 59, 30,], [ 62, 30,], [ 63, 32,], [ 63, 33,], [ 63, 34,], [ 62, 34,], [ 61, 34,], [ 61, 35,], [ 61, 36,], [ 60, 36,], [ 62, 36,], [ 63, 36,], [ 63, 35,], [ 62, 35,], [ 64, 34,], [ 65, 34,], [ 66, 34,], [ 67, 34,], [ 67, 35,], [ 68, 35,], [ 68, 34,], [ 68, 33,], [ 69, 33,], [ 69, 32,], [ 68, 32,], [ 67, 32,], [ 67, 33,], [ 66, 33,], [ 65, 33,], [ 65, 32,], [ 64, 32,], [ 64, 33,], [ 70, 31,],]
 size = 74
 name = "#a52f2e_19"
+color = "#a52f2e"
 [layers.partitions.fcce39b6-7523-4925-98cc-4c77d8cf3c04]
 path = [ [ 66, 6,], [ 65, 6,], [ 64, 6,],]
 size = 3
 name = "#a52f2e_20"
+color = "#a52f2e"
 [layers.partitions.ca6fa7ad-b7b3-4711-aea3-c03e8f76968e]
 path = [ [ 65, 36,],]
 size = 1
 name = "#a52f2e_21"
+color = "#a52f2e"
 [layers.partitions.9d209c58-e7a8-4965-8bd9-7176f11042fa]
 path = [ [ 69, 12,],]
 size = 1
 name = "#a52f2e_22"
+color = "#a52f2e"
 [layers.partitions.4e8c4c28-ebd7-4c1d-bd2e-49896fa23c04]
 path = [ [ 75, 18,], [ 76, 18,], [ 76, 19,], [ 75, 19,],]
 size = 4
 name = "#a52f2e_23"
+color = "#a52f2e"
 [layers.partitions.8c3795d8-5d28-4827-a26a-72929b4dfe01]
 path = [ [ 16, 26,], [ 15, 26,], [ 14, 26,], [ 13, 26,], [ 12, 26,], [ 11, 26,], [ 10, 26,], [ 10, 27,], [ 9, 27,], [ 8, 27,], [ 7, 27,], [ 6, 27,], [ 5, 27,], [ 4, 27,], [ 4, 26,], [ 4, 28,], [ 3, 28,], [ 3, 29,], [ 2, 29,], [ 1, 29,], [ 0, 29,], [ 1, 30,], [ 2, 30,], [ 3, 30,], [ 4, 30,], [ 5, 30,], [ 4, 29,], [ 5, 28,], [ 7, 28,], [ 7, 29,], [ 8, 29,], [ 9, 29,], [ 10, 29,], [ 10, 30,], [ 11, 30,], [ 12, 30,], [ 13, 30,], [ 14, 30,], [ 15, 30,], [ 16, 30,], [ 17, 30,], [ 18, 30,], [ 19, 30,], [ 20, 30,], [ 21, 30,], [ 22, 30,], [ 23, 30,], [ 23, 29,], [ 24, 29,], [ 25, 29,], [ 25, 30,], [ 25, 31,], [ 26, 31,], [ 26, 30,], [ 26, 29,], [ 27, 29,], [ 28, 29,], [ 26, 28,], [ 26, 27,], [ 27, 27,], [ 28, 27,], [ 25, 27,], [ 24, 27,], [ 23, 27,], [ 22, 27,], [ 25, 28,], [ 14, 29,], [ 13, 29,], [ 12, 29,], [ 11, 29,], [ 11, 28,], [ 11, 27,], [ 12, 27,], [ 10, 28,], [ 9, 28,], [ 8, 28,],]
 size = 76
 name = "#cd5859_0"
+color = "#cd5859"
 [layers.partitions.e596cad1-ff5d-4ca0-b4c0-63357a10f073]
 path = [ [ 18, 19,],]
 size = 1
 name = "#cd5859_1"
+color = "#cd5859"
 [layers.partitions.dd300868-49f3-4f49-b18c-3030db572ff1]
 path = [ [ 1, 33,], [ 2, 33,],]
 size = 2
 name = "#cd5859_2"
+color = "#cd5859"
 [layers.partitions.0ddf2e9a-aa38-4ae8-b0bd-c35122cf7e4c]
 path = [ [ 4, 34,],]
 size = 1
 name = "#cd5859_3"
+color = "#cd5859"
 [layers.partitions.9a048d0d-9209-44fb-80fc-93d3f3697902]
 path = [ [ 5, 14,],]
 size = 1
 name = "#cd5859_4"
+color = "#cd5859"
 [layers.partitions.bb0def4a-2f01-401f-92f8-3eebe3913aed]
 path = [ [ 6, 35,],]
 size = 1
 name = "#cd5859_5"
+color = "#cd5859"
 [layers.partitions.912e1791-9280-4fc4-92eb-75d9e9663202]
 path = [ [ 7, 5,], [ 8, 5,],]
 size = 2
 name = "#cd5859_6"
+color = "#cd5859"
 [layers.partitions.9a0d5790-0e67-46ae-a1ec-e71a58cfc7ee]
 path = [ [ 9, 32,], [ 10, 32,], [ 10, 33,], [ 11, 33,], [ 11, 32,],]
 size = 5
 name = "#cd5859_7"
+color = "#cd5859"
 [layers.partitions.be08310b-fe4d-43b2-92f1-37dd75491919]
 path = [ [ 10, 36,],]
 size = 1
 name = "#cd5859_8"
+color = "#cd5859"
 [layers.partitions.b38e3bfe-ee18-47e7-8e86-4d01adf845d0]
 path = [ [ 23, 1,],]
 size = 1
 name = "#cd5859_9"
+color = "#cd5859"
 [layers.partitions.0ca1436f-c96e-45ac-83eb-00d6007bf9e4]
 path = [ [ 14, 36,], [ 13, 36,], [ 12, 36,],]
 size = 3
 name = "#cd5859_10"
+color = "#cd5859"
 [layers.partitions.a0aa2e65-de4b-4552-882b-22dd149b8653]
 path = [ [ 13, 33,], [ 14, 33,],]
 size = 2
 name = "#cd5859_11"
+color = "#cd5859"
 [layers.partitions.c98394d4-2973-4b87-a60d-80c88ad3db6e]
 path = [ [ 19, 26,], [ 20, 26,],]
 size = 2
 name = "#cd5859_12"
+color = "#cd5859"
 [layers.partitions.1d26cdb5-c993-4f60-8026-be781bb026a7]
 path = [ [ 23, 19,],]
 size = 1
 name = "#cd5859_13"
+color = "#cd5859"
 [layers.partitions.5775efab-e319-4e46-a7ea-663b5b116be2]
 path = [ [ 50, 14,], [ 49, 14,], [ 48, 14,], [ 48, 13,], [ 47, 13,], [ 46, 13,], [ 45, 13,], [ 44, 13,], [ 43, 13,], [ 42, 13,], [ 41, 13,], [ 40, 13,], [ 39, 13,], [ 38, 13,], [ 37, 13,], [ 36, 13,], [ 35, 13,], [ 34, 13,], [ 33, 13,], [ 32, 13,], [ 31, 13,], [ 30, 13,], [ 29, 13,], [ 28, 13,], [ 27, 13,], [ 26, 13,], [ 25, 13,], [ 25, 14,], [ 24, 14,], [ 26, 14,], [ 27, 14,], [ 28, 14,], [ 29, 14,], [ 30, 14,], [ 31, 14,], [ 32, 14,], [ 33, 14,], [ 34, 14,], [ 35, 14,], [ 36, 14,], [ 37, 14,], [ 38, 14,], [ 39, 14,], [ 40, 14,], [ 41, 14,], [ 42, 14,], [ 43, 14,], [ 44, 14,], [ 45, 14,], [ 46, 14,], [ 47, 14,],]
 size = 51
 name = "#cd5859_14"
+color = "#cd5859"
 [layers.partitions.45f3a186-2b45-41d1-98d1-5c03f898bc75]
 path = [ [ 65, 3,],]
 size = 1
 name = "#cd5859_15"
+color = "#cd5859"
 [layers.partitions.a42cb4f2-d849-4b9f-82f1-d6687378f317]
 path = [ [ 30, 1,], [ 31, 1,], [ 32, 1,], [ 33, 1,], [ 34, 1,], [ 35, 1,], [ 36, 1,], [ 37, 1,], [ 38, 1,], [ 39, 1,], [ 40, 1,], [ 41, 1,], [ 42, 1,], [ 43, 1,], [ 44, 1,], [ 45, 1,], [ 46, 1,],]
 size = 17
 name = "#cd5859_16"
+color = "#cd5859"
 [layers.partitions.01db2076-640b-4b65-b6eb-8930ba77fac9]
 path = [ [ 35, 27,], [ 34, 27,], [ 33, 27,], [ 32, 27,], [ 31, 27,],]
 size = 5
 name = "#cd5859_17"
+color = "#cd5859"
 [layers.partitions.4aa1bfb9-ccd7-44df-9d44-540cee139e8e]
 path = [ [ 37, 27,], [ 38, 27,], [ 39, 27,], [ 40, 27,],]
 size = 4
 name = "#cd5859_18"
+color = "#cd5859"
 [layers.partitions.336e0411-2598-4f8d-a4c1-f373eaaab8ad]
 path = [ [ 50, 16,], [ 49, 16,], [ 48, 16,], [ 47, 16,], [ 46, 16,], [ 45, 16,], [ 44, 16,], [ 43, 16,], [ 42, 16,], [ 41, 16,],]
 size = 10
 name = "#cd5859_19"
+color = "#cd5859"
 [layers.partitions.869a1535-0756-4716-a2f6-21cf5679a9f7]
 path = [ [ 51, 30,], [ 52, 30,], [ 53, 30,], [ 53, 31,], [ 54, 30,], [ 55, 30,], [ 56, 30,], [ 57, 30,], [ 58, 30,], [ 58, 29,], [ 59, 29,], [ 60, 29,], [ 60, 28,], [ 60, 27,], [ 61, 27,], [ 62, 27,], [ 59, 27,], [ 58, 27,], [ 57, 27,], [ 56, 27,], [ 55, 27,], [ 54, 27,], [ 53, 27,], [ 59, 28,], [ 56, 29,], [ 55, 29,], [ 54, 29,], [ 53, 29,],]
 size = 28
 name = "#cd5859_20"
+color = "#cd5859"
 [layers.partitions.3936bcf8-39b7-40a1-ba9a-e4c2e1b4a0dc]
 path = [ [ 71, 14,],]
 size = 1
 name = "#cd5859_21"
+color = "#cd5859"
 [layers.partitions.8fb6b046-b736-4572-85ec-ade8cf879b53]
 path = [ [ 66, 32,],]
 size = 1
 name = "#cd5859_22"
+color = "#cd5859"
 [layers.partitions.46322740-f33d-43c5-ad7c-23054c6d2b19]
 path = [ [ 70, 5,],]
 size = 1
 name = "#cd5859_23"
+color = "#cd5859"
 [layers.partitions.dc2c9969-4c9f-4d59-af2c-544ef14e60cd]
 path = [ [ 76, 26,],]
 size = 1
 name = "#cd5859_24"
+color = "#cd5859"
 [layers.partitions.251277c0-6632-47be-8e52-be79865d1543]
 path = [ [ 70, 32,],]
 size = 1
 name = "#cd5859_25"
+color = "#cd5859"
 [layers.partitions.ed4b9704-f749-48fb-8928-6ba32a50debd]
 path = [ [ 72, 32,],]
 size = 1
 name = "#cd5859_26"
+color = "#cd5859"
 [layers.partitions.ee0e03d3-af7d-4e40-a8c8-adfd1b469472]
 path = [ [ 3, 18,], [ 3, 19,], [ 4, 19,],]
 size = 3
 name = "#d88284_0"
+color = "#d88284"
 [layers.partitions.ccb398fb-be42-4322-a590-214fb3934f81]
 path = [ [ 5, 26,], [ 6, 26,],]
 size = 2
 name = "#d88284_1"
+color = "#d88284"
 [layers.partitions.839add78-8d78-4de9-a3ba-c34e3248cdbf]
 path = [ [ 8, 15,], [ 7, 15,], [ 6, 15,], [ 6, 14,], [ 6, 16,],]
 size = 5
 name = "#d88284_2"
+color = "#d88284"
 [layers.partitions.076a2656-cb47-4d13-8da5-aa87e0b47d44]
 path = [ [ 9, 3,], [ 10, 3,],]
 size = 2
 name = "#d88284_3"
+color = "#d88284"
 [layers.partitions.6012da9a-12ce-4db3-901d-f1acca8cc348]
 path = [ [ 9, 26,],]
 size = 1
 name = "#d88284_4"
+color = "#d88284"
 [layers.partitions.65b609cf-e864-491f-9630-a6686b07276e]
 path = [ [ 12, 12,], [ 12, 13,], [ 11, 13,], [ 11, 14,], [ 12, 14,],]
 size = 5
 name = "#d88284_5"
+color = "#d88284"
 [layers.partitions.1506ece5-5520-4b2e-89ec-786ad1b0246c]
 path = [ [ 13, 27,], [ 14, 27,], [ 14, 28,], [ 13, 28,], [ 12, 28,], [ 15, 28,], [ 15, 29,], [ 16, 29,], [ 17, 29,], [ 16, 28,], [ 15, 27,],]
 size = 11
 name = "#d88284_6"
+color = "#d88284"
 [layers.partitions.2845f662-33f1-448f-bf8e-fb6e6b2f0d58]
 path = [ [ 15, 12,],]
 size = 1
 name = "#d88284_7"
+color = "#d88284"
 [layers.partitions.ccb9ebca-81e9-49e5-9832-e76d9a7396b0]
 path = [ [ 27, 19,], [ 26, 19,], [ 25, 19,], [ 24, 19,], [ 24, 18,], [ 23, 18,], [ 22, 18,], [ 21, 18,], [ 20, 18,], [ 19, 18,], [ 18, 18,], [ 19, 19,], [ 20, 19,], [ 21, 19,], [ 22, 19,],]
 size = 15
 name = "#d88284_8"
+color = "#d88284"
 [layers.partitions.5d6e4476-4dc9-44a6-8674-0db1d08de5b5]
 path = [ [ 17, 5,], [ 18, 5,],]
 size = 2
 name = "#d88284_9"
+color = "#d88284"
 [layers.partitions.aa8958a7-839b-40e5-8f82-402df8fa350e]
 path = [ [ 18, 27,],]
 size = 1
 name = "#d88284_10"
+color = "#d88284"
 [layers.partitions.a7f69e1d-70ae-466c-ba95-6ee073b6ca87]
 path = [ [ 19, 29,], [ 20, 29,], [ 21, 29,], [ 22, 29,], [ 22, 28,], [ 23, 28,], [ 24, 28,], [ 21, 28,],]
 size = 8
 name = "#d88284_11"
+color = "#d88284"
 [layers.partitions.89a31b06-43e5-4b60-a767-99df741bd55d]
 path = [ [ 22, 13,],]
 size = 1
 name = "#d88284_12"
+color = "#d88284"
 [layers.partitions.64034c13-732d-4a01-8e66-95dcc80261da]
 path = [ [ 22, 26,],]
 size = 1
 name = "#d88284_13"
+color = "#d88284"
 [layers.partitions.17a58828-a311-4f87-a2fc-22b976cac932]
 path = [ [ 25, 9,],]
 size = 1
 name = "#d88284_14"
+color = "#d88284"
 [layers.partitions.dba8c29e-561c-41e3-a4ac-1a112a3430b7]
 path = [ [ 27, 16,], [ 28, 16,], [ 28, 17,], [ 27, 17,], [ 29, 16,],]
 size = 5
 name = "#d88284_15"
+color = "#d88284"
 [layers.partitions.8a8e394c-1d58-4d0f-a53e-aa92a192e8cc]
 path = [ [ 32, 26,], [ 31, 26,], [ 30, 26,], [ 29, 26,], [ 28, 26,], [ 27, 26,],]
 size = 6
 name = "#d88284_16"
+color = "#d88284"
 [layers.partitions.a54ee612-d4b9-4a27-a986-28c3ef3b5291]
 path = [ [ 30, 6,],]
 size = 1
 name = "#d88284_17"
+color = "#d88284"
 [layers.partitions.aeb5da4d-bb64-41f9-aca7-3bcc368217d8]
 path = [ [ 31, 16,], [ 32, 16,],]
 size = 2
 name = "#d88284_18"
+color = "#d88284"
 [layers.partitions.4044289d-18f5-478c-af55-f6bf3505f0fe]
 path = [ [ 33, 11,],]
 size = 1
 name = "#d88284_19"
+color = "#d88284"
 [layers.partitions.8f2343e5-2cc4-4301-9d57-ed6e3de16c0f]
 path = [ [ 40, 16,], [ 39, 16,], [ 38, 16,], [ 37, 16,], [ 36, 16,], [ 35, 16,],]
 size = 6
 name = "#d88284_20"
+color = "#d88284"
 [layers.partitions.925fa908-4031-42f5-a7c1-666d829f5f4f]
 path = [ [ 42, 17,],]
 size = 1
 name = "#d88284_21"
+color = "#d88284"
 [layers.partitions.cb98692f-1e4b-48bf-8792-b2265e7f8afa]
 path = [ [ 45, 17,],]
 size = 1
 name = "#d88284_22"
+color = "#d88284"
 [layers.partitions.eca7b3b0-69f0-4abc-b945-585f811e7547]
 path = [ [ 49, 13,], [ 50, 13,],]
 size = 2
 name = "#d88284_23"
+color = "#d88284"
 [layers.partitions.6c895c5e-7b2c-413c-b608-cdea27b11c8e]
 path = [ [ 49, 26,], [ 50, 26,],]
 size = 2
 name = "#d88284_24"
+color = "#d88284"
 [layers.partitions.399c0764-5e67-4db0-bc49-6495f9db2b0b]
 path = [ [ 51, 16,], [ 52, 16,], [ 52, 17,], [ 53, 16,],]
 size = 4
 name = "#d88284_25"
+color = "#d88284"
 [layers.partitions.c1d6fed5-8038-411f-b136-ceeedcdb23eb]
 path = [ [ 54, 26,], [ 53, 26,],]
 size = 2
 name = "#d88284_26"
+color = "#d88284"
 [layers.partitions.5726c2e3-645a-477e-b6da-65c1ed2b2cbe]
 path = [ [ 54, 18,],]
 size = 1
 name = "#d88284_27"
+color = "#d88284"
 [layers.partitions.4d038893-332d-4d32-88b3-e318b5c483a6]
 path = [ [ 61, 14,], [ 62, 14,],]
 size = 2
 name = "#d88284_28"
+color = "#d88284"
 [layers.partitions.fbf7b20f-cb15-4d05-9faa-684a637b5930]
 path = [ [ 63, 18,], [ 62, 18,], [ 61, 18,],]
 size = 3
 name = "#d88284_29"
+color = "#d88284"
 [layers.partitions.26e88740-7b7b-4c8c-a4af-4dcb9c064625]
 path = [ [ 62, 26,], [ 61, 26,],]
 size = 2
 name = "#d88284_30"
+color = "#d88284"
 [layers.partitions.b9008f5d-fdf9-4bc9-a789-4fb2b11b9900]
 path = [ [ 66, 3,],]
 size = 1
 name = "#d88284_31"
+color = "#d88284"
 [layers.partitions.8668202a-b9a2-4165-b284-e7f2eb69a6d4]
 path = [ [ 70, 16,],]
 size = 1
 name = "#d88284_32"
+color = "#d88284"
 [layers.partitions.0d7a43b2-dec7-4b59-96ec-717be474ecd6]
 path = [ [ 71, 26,], [ 70, 26,], [ 69, 26,],]
 size = 3
 name = "#d88284_33"
+color = "#d88284"
 [layers.partitions.b44e531c-b34d-4309-b600-237e8a042795]
 path = [ [ 70, 4,],]
 size = 1
 name = "#d88284_34"
+color = "#d88284"
 [layers.partitions.794a6b72-f9bf-4139-804d-c7624b1f1c86]
 path = [ [ 72, 14,],]
 size = 1
 name = "#d88284_35"
+color = "#d88284"
 [layers.partitions.4044bbf7-02e5-414b-bcd8-eac7a34c5f56]
 path = [ [ 76, 17,],]
 size = 1
 name = "#d88284_36"
+color = "#d88284"
 [layers.partitions.036c9306-10cc-40e8-9b14-19f2d1636422]
 path = [ [ 3, 38,],]
 size = 1
 name = "#6a6062_0"
+color = "#6a6062"
 [layers.partitions.0ff73d7d-21a7-41f2-9a98-6f2b4506761f]
 path = [ [ 5, 39,], [ 6, 39,],]
 size = 2
 name = "#6a6062_1"
+color = "#6a6062"
 [layers.partitions.f75f290e-37e9-422a-993b-e3b649b73e58]
 path = [ [ 9, 38,], [ 10, 38,], [ 11, 38,],]
 size = 3
 name = "#6a6062_2"
+color = "#6a6062"
 [layers.partitions.83052369-4134-482d-9c1c-738a563c277a]
 path = [ [ 15, 39,], [ 14, 39,], [ 13, 39,],]
 size = 3
 name = "#6a6062_3"
+color = "#6a6062"
 [layers.partitions.396448f8-05b6-4ebe-8cf8-1006656682a0]
 path = [ [ 16, 12,],]
 size = 1
 name = "#6a6062_4"
+color = "#6a6062"
 [layers.partitions.f7ebc973-1cfd-46de-a02a-07c30428e424]
 path = [ [ 18, 12,], [ 19, 12,], [ 19, 11,],]
 size = 3
 name = "#6a6062_5"
+color = "#6a6062"
 [layers.partitions.0601b813-b6c1-4c54-b935-0e8829f71737]
 path = [ [ 28, 9,],]
 size = 1
 name = "#6a6062_6"
+color = "#6a6062"
 [layers.partitions.e77a1440-916c-4739-b565-9f4ec6f37aef]
 path = [ [ 33, 12,],]
 size = 1
 name = "#6a6062_7"
+color = "#6a6062"
 [layers.partitions.1e194d7e-2a15-48ee-ada0-7460c24aef30]
 path = [ [ 63, 39,], [ 64, 39,],]
 size = 2
 name = "#6a6062_8"
+color = "#6a6062"
 [layers.partitions.12d5f187-d5c3-4312-82c2-4a26a305bbe5]
 path = [ [ 66, 38,], [ 67, 38,], [ 68, 38,], [ 69, 38,],]
 size = 4
 name = "#6a6062_9"
+color = "#6a6062"
 [layers.partitions.8aa2401b-eefa-4cfe-add5-47e85821d83f]
 path = [ [ 71, 39,], [ 72, 39,],]
 size = 2
 name = "#6a6062_10"
+color = "#6a6062"
 [layers.partitions.950dfbb1-2e27-41a5-9935-51ba56d62ffe]
 path = [ [ 75, 38,],]
 size = 1
 name = "#6a6062_11"
+color = "#6a6062"
 [layers.partitions.2a943102-2d52-4611-bf20-46f9ce212791]
 path = [ [ 4, 21,], [ 5, 21,], [ 5, 22,], [ 4, 22,], [ 6, 22,], [ 7, 22,], [ 8, 22,], [ 9, 22,], [ 10, 22,], [ 10, 21,], [ 9, 21,], [ 8, 21,], [ 7, 21,], [ 6, 21,],]
 size = 14
 name = "#d87200_0"
+color = "#d87200"
 [layers.partitions.d4dccfc5-95c8-4a85-a0b1-09846d300f1d]
 path = [ [ 67, 21,], [ 68, 21,], [ 68, 22,], [ 67, 22,], [ 69, 22,], [ 70, 22,], [ 71, 22,], [ 72, 22,], [ 73, 22,], [ 73, 21,], [ 72, 21,], [ 71, 21,], [ 70, 21,], [ 69, 21,],]
 size = 14
 name = "#d87200_1"
+color = "#d87200"
 [layers.partitions.fb5c8d29-44a8-4936-9204-3a9c8be05d92]
 path = [ [ 4, 40,],]
 size = 1
 name = "#a9988b_0"
+color = "#a9988b"
 [layers.partitions.adee9b1e-1324-46a7-aaae-1a0570466ee2]
 path = [ [ 11, 40,], [ 10, 40,], [ 9, 40,],]
 size = 3
 name = "#a9988b_1"
+color = "#a9988b"
 [layers.partitions.1e24da1a-992e-4d0e-93f3-2028b5cf1055]
 path = [ [ 17, 40,],]
 size = 1
 name = "#a9988b_2"
+color = "#a9988b"
 [layers.partitions.ac185600-7d86-4869-bd94-11f1c2c5c9ae]
 path = [ [ 34, 10,], [ 35, 10,], [ 35, 11,], [ 36, 11,], [ 36, 12,], [ 37, 12,], [ 38, 12,], [ 39, 12,], [ 40, 12,], [ 41, 12,], [ 41, 11,], [ 42, 11,], [ 40, 11,], [ 39, 11,], [ 38, 11,], [ 37, 11,],]
 size = 16
 name = "#a9988b_3"
+color = "#a9988b"
 [layers.partitions.95747c61-e435-4098-80e5-f58e3c4a2c5c]
 path = [ [ 46, 10,],]
 size = 1
 name = "#a9988b_4"
+color = "#a9988b"
 [layers.partitions.3724b6fc-91f6-43eb-a612-57d744919f5a]
 path = [ [ 51, 10,], [ 52, 10,], [ 53, 10,], [ 54, 10,], [ 55, 10,], [ 55, 11,], [ 56, 11,], [ 57, 11,], [ 58, 11,], [ 58, 12,], [ 59, 12,], [ 60, 12,], [ 59, 11,], [ 57, 10,], [ 56, 10,],]
 size = 15
 name = "#a9988b_5"
+color = "#a9988b"
 [layers.partitions.dce5a47b-554a-4895-91b5-43d2c13dd46c]
 path = [ [ 66, 40,], [ 67, 40,], [ 68, 40,], [ 69, 40,],]
 size = 4
 name = "#a9988b_6"
+color = "#a9988b"
 [layers.partitions.a5f8a60a-a3eb-422d-9f3a-28cf185bee53]
 path = [ [ 70, 37,], [ 71, 37,],]
 size = 2
 name = "#a9988b_7"
+color = "#a9988b"
 [layers.partitions.26a85aff-2bd3-4ffb-b44c-b4872d2028ef]
 path = [ [ 73, 36,], [ 74, 36,],]
 size = 2
 name = "#a9988b_8"
+color = "#a9988b"
 [layers.partitions.b3737221-862a-4eb8-a801-d9e56f7017f5]
 path = [ [ 75, 40,],]
 size = 1
 name = "#a9988b_9"
+color = "#a9988b"
 [layers.partitions.530b9839-aaff-4260-b100-f4299574121e]
 path = [ [ 19, 10,], [ 18, 10,], [ 17, 10,], [ 16, 10,], [ 15, 10,], [ 15, 11,], [ 14, 11,], [ 14, 12,],]
 size = 8
 name = "#e8b495_0"
+color = "#e8b495"
 [layers.partitions.de0788e5-b548-4b17-8fe6-049e8ce51470]
 path = [ [ 23, 6,],]
 size = 1
 name = "#e8b495_1"
+color = "#e8b495"
 [layers.partitions.644eda43-05b6-46bb-99af-14e583d6cf03]
 path = [ [ 27, 9,], [ 26, 9,],]
 size = 2
 name = "#e8b495_2"
+color = "#e8b495"
 [layers.partitions.5a7da440-fff1-474e-aeb9-a5ed77ef2133]
 path = [ [ 33, 10,],]
 size = 1
 name = "#e8b495_3"
+color = "#e8b495"
 [layers.partitions.f8f69152-6dd8-4305-afe6-4249f16dcd11]
 path = [ [ 42, 12,], [ 43, 12,], [ 43, 11,], [ 44, 11,],]
 size = 4
 name = "#e8b495_4"
+color = "#e8b495"
 [layers.partitions.21ea0982-049a-4a69-a29d-a8d0a95dea4f]
 path = [ [ 51, 11,], [ 50, 11,], [ 49, 11,], [ 49, 10,], [ 48, 10,], [ 47, 10,], [ 47, 11,], [ 46, 11,], [ 48, 11,],]
 size = 9
 name = "#e8b495_5"
+color = "#e8b495"
 [layers.partitions.63f31698-f11d-438f-8a31-88d7fe59fa59]
 path = [ [ 53, 11,], [ 54, 11,], [ 54, 12,], [ 53, 12,],]
 size = 4
 name = "#e8b495_6"
+color = "#e8b495"
 [layers.partitions.6027acb4-aa81-4ce9-9bd8-7ad20dda46b7]
 path = [ [ 31, 10,], [ 30, 10,], [ 29, 10,], [ 28, 10,], [ 27, 10,], [ 26, 10,], [ 25, 10,], [ 24, 10,], [ 23, 10,], [ 22, 10,], [ 21, 10,], [ 20, 10,], [ 20, 11,], [ 25, 11,], [ 26, 11,],]
 size = 15
 name = "#8472d7_0"
+color = "#8472d7"
 [layers.partitions.9c6009e0-e0a6-4974-a71b-cf1c27c9f0fc]
 path = [ [ 32, 10,],]
 size = 1
 name = "#0063b8_0"
+color = "#0063b8"
 [layers.partitions.5e84d64c-f638-4c19-a786-b23983b782ae]
 path = [ [ 23, 12,], [ 22, 12,],]
 size = 2
 name = "#6b0084_0"
+color = "#6b0084"
 [layers.partitions.8491c552-fc6e-4c22-802e-9dc9540e9297]
 path = [ [ 28, 12,], [ 29, 12,], [ 30, 12,], [ 31, 12,], [ 32, 12,], [ 32, 11,],]
 size = 6
 name = "#6b0084_1"
+color = "#6b0084"
 [layers.partitions.6e655f4a-0f44-4c95-99a2-e32e4dc05d5f]
 path = [ [ 45, 11,], [ 45, 12,], [ 46, 12,], [ 47, 12,], [ 48, 12,], [ 49, 12,], [ 50, 12,], [ 51, 12,], [ 52, 12,], [ 52, 11,],]
 size = 10
 name = "#6b0084_2"
+color = "#6b0084"
 [layers.partitions.b532110c-082a-4061-9108-e6f9588ac669]
 path = [ [ 23, 3,], [ 24, 3,], [ 24, 4,], [ 23, 4,], [ 23, 5,], [ 24, 5,], [ 24, 6,], [ 24, 7,], [ 25, 7,], [ 25, 8,], [ 26, 8,], [ 27, 8,], [ 28, 8,], [ 28, 7,], [ 29, 7,], [ 29, 6,], [ 29, 5,], [ 30, 5,], [ 30, 4,], [ 30, 3,], [ 29, 3,], [ 29, 2,], [ 29, 1,], [ 28, 1,], [ 28, 0,], [ 27, 0,], [ 26, 0,], [ 25, 0,], [ 25, 1,], [ 24, 1,], [ 24, 2,], [ 25, 2,], [ 25, 3,], [ 25, 4,], [ 25, 5,], [ 25, 6,], [ 26, 6,], [ 26, 7,], [ 27, 7,], [ 27, 6,], [ 28, 6,], [ 28, 5,], [ 28, 4,], [ 29, 4,], [ 28, 3,], [ 28, 2,], [ 27, 2,], [ 27, 1,], [ 26, 1,], [ 26, 2,], [ 26, 3,], [ 26, 4,], [ 26, 5,], [ 27, 5,], [ 27, 4,], [ 27, 3,],]
 size = 56
 name = "#7d4b01_0"
+color = "#7d4b01"
 [layers.partitions.ed743dfa-7c7b-4521-8555-55f5b90eafcd]
 path = [ [ 44, 6,], [ 45, 6,], [ 45, 7,], [ 44, 7,], [ 44, 8,], [ 45, 8,], [ 45, 9,], [ 46, 9,], [ 47, 9,], [ 48, 9,], [ 49, 9,], [ 50, 9,], [ 51, 9,], [ 52, 9,], [ 52, 8,], [ 53, 8,], [ 53, 7,], [ 53, 6,], [ 52, 6,], [ 52, 5,], [ 52, 4,], [ 52, 3,], [ 51, 3,], [ 51, 2,], [ 50, 2,], [ 50, 1,], [ 49, 1,], [ 48, 1,], [ 47, 1,], [ 47, 2,], [ 46, 2,], [ 46, 3,], [ 45, 3,], [ 45, 4,], [ 45, 5,], [ 46, 5,], [ 46, 6,], [ 46, 7,], [ 46, 8,], [ 47, 8,], [ 48, 8,], [ 49, 8,], [ 50, 8,], [ 51, 8,], [ 51, 7,], [ 52, 7,], [ 51, 6,], [ 51, 5,], [ 51, 4,], [ 50, 4,], [ 50, 3,], [ 49, 3,], [ 49, 2,], [ 48, 2,], [ 48, 3,], [ 47, 3,], [ 47, 4,], [ 46, 4,], [ 47, 5,], [ 47, 6,], [ 47, 7,], [ 48, 7,], [ 49, 7,], [ 50, 7,], [ 50, 6,], [ 50, 5,], [ 49, 5,], [ 49, 4,], [ 48, 4,], [ 48, 5,], [ 48, 6,], [ 49, 6,],]
 size = 72
 name = "#f3d600_0"
+color = "#f3d600"
 
 [export_params]
 filename = "/home/riq/progs/pixem/export/outrun.svg"

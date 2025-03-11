@@ -84,7 +84,7 @@ class ImageParser:
                     continue
                 self._image[x][y] = argb & 0xFFFFFF
 
-    def _create_partitions(self, image_graph, color) -> None:
+    def _create_partitions(self, image_graph, color: int) -> None:
         # image_graph is a dict of:
         #   key: node
         #   value: edges
@@ -107,10 +107,11 @@ class ImageParser:
             nodes = list(s.nodes())
 
             name = f"#{color:06x}_{idx}"
+            color_str = f"#{color:06x}"
+
+            partition = Partition(nodes, name, color_str)
+
             partition_uuid = str(uuid.uuid4())
-
-            partition = Partition(nodes, name)
-
             if partition_uuid not in self._partitions:
                 self._partitions[partition_uuid] = partition
 

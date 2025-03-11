@@ -5,7 +5,7 @@ import logging
 import random
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Optional, Self
+from typing import Self
 
 logger = logging.getLogger(__name__)
 
@@ -21,10 +21,14 @@ class Partition:
         coord: tuple[int, int]
         dir: str
 
-    def __init__(self, path: list[tuple[int, int]], name: Optional[str] = None):
+    def __init__(
+        self, path: list[tuple[int, int]], name: str | None = None, color: str | None = None
+    ):
         self._path = path
         self._size = len(path)
         self._name = name
+        # color format "#FFFFFF"
+        self._color = color
 
     @staticmethod
     def _rotate_offsets(offsets: list[Node], dir: str) -> list[Node]:
@@ -63,10 +67,17 @@ class Partition:
         part = Partition(path)
 
         if "name" in d:
-            part.name = d["name"]
+            part._name = d["name"]
 
         if "size" in d and d["size"] != len(path):
             logger.warning(f"Unexpected size in Partition. Wanted {len(path)}, got {d['size']}")
+
+        if "color" in d:
+            part._color = d["color"]
+        else:
+            # FIXME: remove me
+            # Backward compatible for files that don't have color
+            part._color = part._name.split("_")[0]
 
         return part
 
@@ -76,6 +87,7 @@ class Partition:
             "path": self._path,
             "size": len(self._path),
             "name": self._name,
+            "color": self._color,
         }
         return d
 
@@ -120,3 +132,7 @@ class Partition:
     @name.setter
     def name(self, value: str):
         self._name = value
+
+    @property
+    def color(self) -> str:
+        return self._color
