@@ -1,11 +1,13 @@
 # Pixem
 # Copyright 2025 - Ricardo Quesada
+
 import copy
 import logging
 
 from PySide6.QtGui import QUndoCommand
 
 from layer import Layer
+from state_properties import StatePropertyFlags
 
 logger = logging.getLogger(__name__)  # __name__ gets the current module's name
 
@@ -142,3 +144,25 @@ class UpdateLayerNameCommand(QUndoCommand):
     def redo(self) -> None:
         self._layer.properties = self._new_properties
         self._state.layer_property_changed.emit(self._layer)
+
+
+class UpdateStateHoopSizeCommand(QUndoCommand):
+    def __init__(self, state, hoop_size: tuple[float, float], parent: QUndoCommand | None):
+        super().__init__(f"Hoop Size: {hoop_size}", parent)
+        copy_properties = copy.deepcopy(state.properties)
+        copy_properties.hoop_size = hoop_size
+        self._new_properties = copy_properties
+        self._old_properties = state.properties
+        self._state = state
+
+    def undo(self) -> None:
+        self._state.properties = self._old_properties
+        self._state.state_property_changed.emit(
+            StatePropertyFlags.HOOP_SIZE, self._state.properties
+        )
+
+    def redo(self) -> None:
+        self._state.properties = self._new_properties
+        self._state.state_property_changed.emit(
+            StatePropertyFlags.HOOP_SIZE, self._state.properties
+        )

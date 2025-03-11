@@ -2,8 +2,8 @@
 # Copyright 2025 - Ricardo Quesada
 
 import logging
-from dataclasses import asdict, dataclass
-from typing import Optional, Self
+from dataclasses import asdict
+from typing import Self
 
 import toml
 from PySide6.QtCore import QObject, Signal
@@ -12,6 +12,7 @@ from PySide6.QtGui import QUndoStack
 import preferences
 from export import ExportParameters, ExportToSVG
 from layer import Layer, LayerProperties
+from state_properties import StateProperties, StatePropertyFlags
 from undo_commands import (
     UpdateLayerNameCommand,
     UpdateLayerOpacityCommand,
@@ -19,21 +20,16 @@ from undo_commands import (
     UpdateLayerPositionCommand,
     UpdateLayerRotationCommand,
     UpdateLayerVisibleCommand,
+    UpdateStateHoopSizeCommand,
 )
 
 logger = logging.getLogger(__name__)
 
 
-@dataclass
-class StateProperties:
-    hoop_size: tuple[float, float]
-    zoom_factor: float
-    current_layer_uuid: str | None
-
-
 class State(QObject):
     layer_property_changed = Signal(Layer)
-    state_property_changed = Signal()
+    # FIXME: Should pass State as parameter, but failed using forward refs, including "State"
+    state_property_changed = Signal(StatePropertyFlags, StateProperties)
 
     def __init__(self):
         super().__init__()
@@ -194,7 +190,7 @@ class State(QObject):
         return self._undo_stack
 
     @property
-    def selected_layer(self) -> Optional[Layer]:
+    def selected_layer(self) -> Layer | None:
         if self._properties.current_layer_uuid is None:
             return None
         for layer in self._layers:
@@ -212,6 +208,14 @@ class State(QObject):
         # Must be a re-order of the existing list
         # FIXME: add checks, or rename function, or add a proper "reorder layers" method
         self._layers = value
+
+    @property
+    def properties(self) -> StateProperties:
+        return self._properties
+
+    @properties.setter
+    def properties(self, value: StateProperties):
+        self._properties = value
 
     @property
     def zoom_factor(self) -> float:
@@ -243,4 +247,4 @@ class State(QObject):
 
     @hoop_size.setter
     def hoop_size(self, value: tuple[float, float]) -> None:
-        self._properties.hoop_size = value
+        self._undo_stack.push(UpdateStateHoopSizeCommand(self, value, None))

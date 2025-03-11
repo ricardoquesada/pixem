@@ -42,6 +42,7 @@ from partition_dialog import PartitionDialog
 from preference_dialog import PreferenceDialog
 from preferences import global_preferences
 from state import State
+from state_properties import StateProperties, StatePropertyFlags
 
 logger = logging.getLogger(__name__)  # __name__ gets the current module's name
 
@@ -541,6 +542,7 @@ class MainWindow(QMainWindow):
         self._state = state
         self._canvas.state = state
         self._state.layer_property_changed.connect(self._on_layer_property_changed_from_state)
+        self._state.state_property_changed.connect(self._on_state_property_changed_from_state)
 
         self._undo_action.triggered.connect(self._state.undo_stack.undo)
         self._redo_action.triggered.connect(self._state.undo_stack.redo)
@@ -551,6 +553,12 @@ class MainWindow(QMainWindow):
 
     def _cleanup_state(self):
         if self._state is not None:
+            self._state.layer_property_changed.disconnect(
+                self._on_layer_property_changed_from_state
+            )
+            self._state.state_property_changed.disconnect(
+                self._on_state_property_changed_from_state
+            )
             self._undo_action.triggered.disconnect(self._state.undo_stack.undo)
             self._redo_action.triggered.disconnect(self._state.undo_stack.redo)
             self._state.undo_stack.indexChanged.disconnect(self._on_undo_stack_index_changed)
@@ -778,9 +786,6 @@ class MainWindow(QMainWindow):
         if dialog.exec() == QDialog.Accepted:
             if self._state:
                 self._state.hoop_size = global_preferences.get_hoop_size()
-            self._canvas.on_preferences_updated()
-            self._canvas.update()
-            self.update()
 
     def _on_layer_add_image(self) -> None:
         file_name, _ = QFileDialog.getOpenFileName(
@@ -993,6 +998,15 @@ class MainWindow(QMainWindow):
         self._update_qactions()
         self._canvas.recalculate_fixed_size()
         self.update()
+
+    def _on_state_property_changed_from_state(
+        self, flags: StatePropertyFlags, properties: StateProperties
+    ):
+        # Needed when Hoop Size is changed
+        if flags == StatePropertyFlags.HOOP_SIZE:
+            self._canvas.on_preferences_updated()
+            self._canvas.update()
+            self.update()
 
     def _on_canvas_mode_move(self):
         self._canvas_mode_move_action.setChecked(True)
