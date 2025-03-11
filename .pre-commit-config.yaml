@@ -21,7 +21,7 @@ repos:
         exclude: "^(pixem/resources_rc.py)"
         args: [--line-length, '100']
 -   repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: v19.1.7
+    rev: v20.1.0
     hooks:
     -   id: clang-format
         exclude: "^(design/|pixel/|setup.py$|pixem/resources_rc.py)"
