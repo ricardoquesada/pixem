@@ -774,6 +774,8 @@ class MainWindow(QMainWindow):
     def _on_preferences(self) -> None:
         dialog = PreferenceDialog()
         if dialog.exec() == QDialog.Accepted:
+            if self._state:
+                self._state.hoop_size = global_preferences.get_hoop_size()
             self._canvas.on_preferences_updated()
             self._canvas.update()
             self.update()

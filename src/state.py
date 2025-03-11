@@ -38,6 +38,7 @@ class State(QObject):
             initial_angle_degrees=0,
         )
         self._zoom_factor = 1.0
+        self._hoop_size = preferences.global_preferences.get_hoop_size()
         self._layers: list[Layer] = []
         self._current_layer_uuid = None
 
@@ -62,6 +63,8 @@ class State(QObject):
                     break
         if "current_layer_uuid" in d:
             state._current_layer_uuid = d["current_layer_uuid"]
+        if "hoop_size" in d:
+            state._hoop_size = d["hoop_size"]
         return state
 
     def to_dict(self) -> dict:
@@ -70,6 +73,7 @@ class State(QObject):
             "zoom_factor": self._zoom_factor,
             "layers": [],
             "current_layer_uuid": self._current_layer_uuid,
+            "hoop_size": self._hoop_size,
         }
 
         for layer in self._layers:
@@ -220,3 +224,11 @@ class State(QObject):
     @property
     def project_filename(self) -> str:
         return self._project_filename
+
+    @property
+    def hoop_size(self) -> tuple[float, float]:
+        return self._hoop_size
+
+    @hoop_size.setter
+    def hoop_size(self, value: tuple[float, float]) -> None:
+        self._hoop_size = value

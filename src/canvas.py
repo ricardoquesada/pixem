@@ -35,10 +35,13 @@ class Canvas(QWidget):
 
     def __init__(self, state: State | None):
         super().__init__()
-        self.state = state
+        self._state = state
 
         self._cached_hoop_visible = global_preferences.get_hoop_visible()
-        self._cached_hoop_size = global_preferences.get_hoop_size()
+        if self._state is None:
+            self._cached_hoop_size = global_preferences.get_hoop_size()
+        else:
+            self._cached_hoop_size = self._state.hoop_size
         # FIXME: must be set according to layer size
         self.setFixedSize(QSize(152 * 2, 254 * 2))
 
@@ -51,18 +54,18 @@ class Canvas(QWidget):
     # Pyside6 events
     #
     def paintEvent(self, event: QPaintEvent) -> None:
-        if not self.state or not self.state.layers:
+        if not self._state or not self._state.layers:
             return
 
         painter = QPainter(self)
         painter.scale(
-            self.state.zoom_factor * DEFAULT_SCALE_FACTOR,
-            self.state.zoom_factor * DEFAULT_SCALE_FACTOR,
+            self._state.zoom_factor * DEFAULT_SCALE_FACTOR,
+            self._state.zoom_factor * DEFAULT_SCALE_FACTOR,
         )
 
-        for i, layer in enumerate(self.state.layers):
+        for i, layer in enumerate(self._state.layers):
             offset = layer.position
-            if layer.name == self.state.selected_layer.name:
+            if layer.name == self._state.selected_layer.name:
                 offset = layer.position + self._mouse_delta
             if layer.visible:
                 painter.save()
@@ -87,7 +90,7 @@ class Canvas(QWidget):
                 # Draw rect around it
                 if (
                     self._mode_status == Canvas.ModeStatus.MOVING
-                    and self.state.selected_layer == layer
+                    and self._state.selected_layer == layer
                 ):
                     brush = painter.brush()
                     brush.setColor(QColor(0, 0, 255, 16))  # Red, semi-transparent fill
@@ -100,7 +103,7 @@ class Canvas(QWidget):
                 painter.restore()
 
         # Draw selected partition pixels
-        layer = self.state.selected_layer
+        layer = self._state.selected_layer
         if (
             layer is not None
             and layer.current_partition_uuid is not None
@@ -172,14 +175,14 @@ class Canvas(QWidget):
         if event.button() != Qt.LeftButton:
             return
         # Layer on top (visually) first
-        for layer in reversed(self.state.layers):
+        for layer in reversed(self._state.layers):
             point = event.position()
-            scale = self.state.zoom_factor * DEFAULT_SCALE_FACTOR
+            scale = self._state.zoom_factor * DEFAULT_SCALE_FACTOR
             point = QPointF(point.x() / scale, point.y() / scale)
             if layer.is_point_inside(point):
                 self._mouse_start_coords = event.position()
                 self._mode_status = Canvas.ModeStatus.MOVING
-                if layer != self.state.selected_layer:
+                if layer != self._state.selected_layer:
                     self.layer_selection_changed.emit(layer)
                 self.update()
                 break
@@ -191,7 +194,7 @@ class Canvas(QWidget):
             return
         event.accept()
         delta = event.position() - self._mouse_start_coords
-        scale_factor = self.state.zoom_factor * DEFAULT_SCALE_FACTOR
+        scale_factor = self._state.zoom_factor * DEFAULT_SCALE_FACTOR
         self._mouse_delta = QPointF(delta.x() / scale_factor, delta.y() / scale_factor)
         self.update()
 
@@ -206,8 +209,8 @@ class Canvas(QWidget):
 
         self._mode_status = Canvas.ModeStatus.IDLE
         delta = event.position() - self._mouse_start_coords
-        scale_factor = self.state.zoom_factor * DEFAULT_SCALE_FACTOR
-        orig_pos = self.state.selected_layer.position
+        scale_factor = self._state.zoom_factor * DEFAULT_SCALE_FACTOR
+        orig_pos = self._state.selected_layer.position
         new_pos = QPointF(
             orig_pos.x() + delta.x() / scale_factor, orig_pos.y() + delta.y() / scale_factor
         )
@@ -218,10 +221,10 @@ class Canvas(QWidget):
     def sizeHint(self) -> QSize:
         max_w = self._cached_hoop_size[0] * INCHES_TO_MM
         max_h = self._cached_hoop_size[1] * INCHES_TO_MM
-        if self.state is None:
+        if self._state is None:
             return QSize(max_w * DEFAULT_SCALE_FACTOR, max_h * DEFAULT_SCALE_FACTOR)
 
-        for layer in self.state.layers:
+        for layer in self._state.layers:
             orig_w = layer.image.width() * layer.pixel_size.width()
             orig_h = layer.image.height() * layer.pixel_size.height()
             rot_w, rot_h = image_utils.rotated_rectangle_dimensions(orig_w, orig_h, layer.rotation)
@@ -240,8 +243,8 @@ class Canvas(QWidget):
 
         margin = 5
         ret = QSize(
-            (max_w + margin) * self.state.zoom_factor * DEFAULT_SCALE_FACTOR,
-            (max_h + margin) * self.state.zoom_factor * DEFAULT_SCALE_FACTOR,
+            (max_w + margin) * self._state.zoom_factor * DEFAULT_SCALE_FACTOR,
+            (max_h + margin) * self._state.zoom_factor * DEFAULT_SCALE_FACTOR,
         )
         return ret
 
@@ -251,7 +254,10 @@ class Canvas(QWidget):
     def on_preferences_updated(self):
         """Updates the preference cache"""
         self._cached_hoop_visible = global_preferences.get_hoop_visible()
-        self._cached_hoop_size = global_preferences.get_hoop_size()
+        if self._state:
+            self._cached_hoop_size = self._state.hoop_size
+        else:
+            self._cached_hoop_size = global_preferences.get_hoop_size()
 
     def recalculate_fixed_size(self):
         self.updateGeometry()
@@ -266,3 +272,15 @@ class Canvas(QWidget):
     @mode.setter
     def mode(self, value: Mode) -> None:
         self._mode = value
+
+    @property
+    def state(self) -> State:
+        return self._state
+
+    @state.setter
+    def state(self, value: State) -> None:
+        self._state = value
+        if self._state:
+            self._cached_hoop_size = self._state.hoop_size
+        else:
+            self._cached_hoop_size = global_preferences.get_hoop_size()
