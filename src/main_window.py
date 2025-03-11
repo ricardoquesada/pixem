@@ -657,7 +657,9 @@ class MainWindow(QMainWindow):
                 self._open_filename(filename)
             else:
                 self._on_new_project()
-                layer = ImageLayer(f"ImageLayer {len(self._state.layers) + 1}", filename)
+                name = f"ImageLayer {len(self._state.layers) + 1}"
+                layer = ImageLayer(filename)
+                layer.name = name
                 self._add_layer(layer)
         else:
             logger.warning("Could not open file. Invalid filename")
@@ -771,14 +773,18 @@ class MainWindow(QMainWindow):
             self, "Open Image", "", "Images (*.png *.jpg *.bmp);;All files (*)"
         )
         if file_name:
-            layer = ImageLayer(f"ImageLayer {len(self._state.layers) + 1}", file_name)
+            name = f"ImageLayer {len(self._state.layers) + 1}"
+            layer = ImageLayer(file_name)
+            layer.name = name
             self._add_layer(layer)
 
     def _on_layer_add_text(self) -> None:
         dialog = FontDialog()
         if dialog.exec() == QDialog.Accepted:
             text, font_name = dialog.get_data()
-            layer = TextLayer(f"TextLayer {len(self._state.layers) + 1}", text, font_name)
+            name = f"TextLayer {len(self._state.layers) + 1}"
+            layer = TextLayer(text, font_name)
+            layer.name = name
             self._add_layer(layer)
 
     def _on_layer_delete(self) -> None:

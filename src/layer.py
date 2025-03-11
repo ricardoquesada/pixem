@@ -36,12 +36,12 @@ class LayerProperties:
     visible: bool
     opacity: float
     uuid: str | None = None
+    name: str | None = None
 
 
 class Layer:
-    def __init__(self, name: str, image: QImage):
+    def __init__(self, image: QImage):
         self._image: QImage = image
-        self._name = name
         self._properties = LayerProperties(
             position=(0.0, 0.0),
             rotation=0,
@@ -49,6 +49,7 @@ class Layer:
             visible=True,
             opacity=1.0,
             uuid=str(uuid.uuid4()),
+            name=None,
         )
         self._partitions: dict[str, Partition] = {}
         self._current_partition_key = None
@@ -59,18 +60,17 @@ class Layer:
     @classmethod
     def from_dict(cls, d: dict) -> Self:
         """Creates a Layer from a dict"""
-        name = d["name"]
         image = image_utils.base64_string_to_qimage(d["image"])
         layer_type = "Layer"
         if "layer_type" in d:
             layer_type = d["layer_type"]
 
         if layer_type == "ImageLayer":
-            layer = ImageLayer(name, image)
+            layer = ImageLayer(image)
         elif layer_type == "TextLayer":
-            layer = TextLayer(name, image)
+            layer = TextLayer(image)
         else:
-            layer = Layer(name, image)
+            layer = Layer(image)
         layer.populate_from_dict(d)
         return layer
 
@@ -82,6 +82,8 @@ class Layer:
             if self._properties.uuid is None:
                 # Backward compatible for files without one
                 self._properties.uuid = str(uuid.uuid4())
+        if "name" in d:
+            self._properties.name = d["name"]
         # Convert list to tuple
         self._properties.position = (
             self._properties.position[0],
@@ -102,7 +104,6 @@ class Layer:
     def to_dict(self) -> dict:
         """Returns a dictionary that represents the Layer"""
         d = {
-            "name": self._name,
             "properties": asdict(self._properties),
             "partitions": {},
             "image": image_utils.qimage_to_base64_string(self._image),
@@ -142,11 +143,11 @@ class Layer:
 
     @property
     def name(self) -> str:
-        return self._name
+        return self._properties.name
 
     @name.setter
     def name(self, value: str):
-        self._name = value
+        self._properties.name = value
 
     @property
     def visible(self) -> bool:
@@ -260,12 +261,12 @@ class Layer:
 
 class ImageLayer(Layer):
     @overload
-    def __init__(self, layer_name: str, filename: str): ...
+    def __init__(self, filename: str): ...
 
     @overload
-    def __init__(self, layer_name: str, image: QImage): ...
+    def __init__(self, image: QImage): ...
 
-    def __init__(self, layer_name, filename_or_image):
+    def __init__(self, filename_or_image):
         self._image_file_name = None
         if isinstance(filename_or_image, QImage):
             image = filename_or_image
@@ -276,7 +277,7 @@ class ImageLayer(Layer):
                 raise ValueError(f"Invalid image: {filename_or_image}")
         else:
             raise ValueError(f"Invalid image type: {filename_or_image}")
-        super().__init__(layer_name, image)
+        super().__init__(image)
 
     def populate_from_dict(self, d: dict) -> None:
         super().populate_from_dict(d)
@@ -291,12 +292,12 @@ class ImageLayer(Layer):
 
 class TextLayer(Layer):
     @overload
-    def __init__(self, layer_name: str, text: str, font_name): ...
+    def __init__(self, text: str, font_name): ...
 
     @overload
-    def __init__(self, layer_name: str, image: QImage): ...
+    def __init__(self, image: QImage): ...
 
-    def __init__(self, layer_name, text_or_image, font_name=None):
+    def __init__(self, text_or_image, font_name=None):
         self._text = None
         self._font_name = None
         if isinstance(text_or_image, QImage):
@@ -310,7 +311,7 @@ class TextLayer(Layer):
         else:
             raise ValueError(f"Invalid type for text_or_image: {text_or_image}")
 
-        super().__init__(layer_name, image)
+        super().__init__(image)
 
     def populate_from_dict(self, d: dict) -> None:
         super().populate_from_dict(d)
