@@ -2,7 +2,7 @@
 # Copyright 2025 - Ricardo Quesada
 
 import logging
-from dataclasses import asdict
+from dataclasses import asdict, dataclass
 from typing import Optional, Self
 
 import toml
@@ -24,8 +24,16 @@ from undo_commands import (
 logger = logging.getLogger(__name__)
 
 
+@dataclass
+class StateProperties:
+    hoop_size: tuple[float, float]
+    zoom_factor: float
+    current_layer_uuid: str | None
+
+
 class State(QObject):
     layer_property_changed = Signal(Layer)
+    state_property_changed = Signal()
 
     def __init__(self):
         super().__init__()
@@ -37,10 +45,12 @@ class State(QObject):
             fill_method="auto_fill",
             initial_angle_degrees=0,
         )
-        self._zoom_factor = 1.0
-        self._hoop_size = preferences.global_preferences.get_hoop_size()
+        self._properties = StateProperties(
+            hoop_size=preferences.global_preferences.get_hoop_size(),
+            zoom_factor=1.0,
+            current_layer_uuid=None,
+        )
         self._layers: list[Layer] = []
-        self._current_layer_uuid = None
 
         self._undo_stack = QUndoStack()
 
@@ -50,30 +60,32 @@ class State(QObject):
         if "export_params" in d:
             state._export_params = ExportParameters(**d["export_params"])
         if "zoom_factor" in d:
-            state._zoom_factor = d["zoom_factor"]
+            state._properties.zoom_factor = d["zoom_factor"]
         dict_layers = d["layers"]
         for dict_layer in dict_layers:
             layer = Layer.from_dict(dict_layer)
             state._layers.append(layer)
         if "current_layer_key" in d:
+            # FIXME: Remove me.
+            # Backward compatible for old formats
             current_key = d["current_layer_key"]
             for layer in state._layers:
                 if layer.name == current_key:
-                    state._current_layer_uuid = layer.uuid
+                    state._properties.current_layer_uuid = layer.uuid
                     break
         if "current_layer_uuid" in d:
-            state._current_layer_uuid = d["current_layer_uuid"]
+            state._properties.current_layer_uuid = d["current_layer_uuid"]
         if "hoop_size" in d:
-            state._hoop_size = d["hoop_size"]
+            state._properties.hoop_size = d["hoop_size"]
+        if "properties" in d:
+            state._properties = StateProperties(**d["properties"])
         return state
 
     def to_dict(self) -> dict:
         project = {
+            "properties": asdict(self._properties),
             "export_params": asdict(self._export_params),
-            "zoom_factor": self._zoom_factor,
             "layers": [],
-            "current_layer_uuid": self._current_layer_uuid,
-            "hoop_size": self._hoop_size,
         }
 
         for layer in self._layers:
@@ -138,7 +150,7 @@ class State(QObject):
 
     def add_layer(self, layer: Layer) -> None:
         self._layers.append(layer)
-        self._current_layer_uuid = layer.uuid
+        self._properties.current_layer_uuid = layer.uuid
 
     def delete_layer(self, layer: Layer) -> None:
         try:
@@ -148,9 +160,9 @@ class State(QObject):
 
         # if there are no elements left, idx = -1
         if len(self._layers) > 0:
-            self._current_layer_uuid = self._layers[-1].uuid
+            self._properties.current_layer_uuid = self._layers[-1].uuid
         else:
-            self._current_layer_uuid = None
+            self._properties.current_layer_uuid = None
 
     def set_layer_properties(self, layer: Layer, properties: LayerProperties):
         if properties == layer.properties:
@@ -183,12 +195,12 @@ class State(QObject):
 
     @property
     def selected_layer(self) -> Optional[Layer]:
-        if self._current_layer_uuid is None:
+        if self._properties.current_layer_uuid is None:
             return None
         for layer in self._layers:
-            if layer.uuid == self._current_layer_uuid:
+            if layer.uuid == self._properties.current_layer_uuid:
                 return layer
-        logger.warning(f"selected_layer. Layer '{self._current_layer_uuid}' not found")
+        logger.warning(f"selected_layer. Layer '{self._properties.current_layer_uuid}' not found")
         return None
 
     @property
@@ -203,19 +215,19 @@ class State(QObject):
 
     @property
     def zoom_factor(self) -> float:
-        return self._zoom_factor
+        return self._properties.zoom_factor
 
     @zoom_factor.setter
     def zoom_factor(self, value: float):
-        self._zoom_factor = value
+        self._properties.zoom_factor = value
 
     @property
     def current_layer_uuid(self) -> str:
-        return self._current_layer_uuid
+        return self._properties.current_layer_uuid
 
     @current_layer_uuid.setter
     def current_layer_uuid(self, value: str):
-        self._current_layer_uuid = value
+        self._properties.current_layer_uuid = value
 
     @property
     def export_params(self) -> ExportParameters:
@@ -227,8 +239,8 @@ class State(QObject):
 
     @property
     def hoop_size(self) -> tuple[float, float]:
-        return self._hoop_size
+        return self._properties.hoop_size
 
     @hoop_size.setter
     def hoop_size(self, value: tuple[float, float]) -> None:
-        self._hoop_size = value
+        self._properties.hoop_size = value
