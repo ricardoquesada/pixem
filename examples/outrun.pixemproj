@@ -1,4 +1,4 @@
-zoom_factor = 1.0
+zoom_factor = 0.75
 current_layer_uuid = "f963ebcd-7cce-416b-bc46-343e9304bbea"
 hoop_size = [ 10.0, 6.0,]
 [[layers]]
