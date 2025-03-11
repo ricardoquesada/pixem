@@ -127,9 +127,11 @@ class MainWindow(QMainWindow):
 
         self._undo_action = QAction(QIcon.fromTheme("edit-undo"), "&Undo", self)
         self._undo_action.setShortcut("Ctrl+Z")
+        self._undo_action.setEnabled(False)
         edit_menu.addAction(self._undo_action)
         self._redo_action = QAction(QIcon.fromTheme("edit-redo"), "&Redo", self)
         self._redo_action.setShortcut("Ctrl+Shift+Z")
+        self._redo_action.setEnabled(False)
         edit_menu.addAction(self._redo_action)
 
         edit_menu.addSeparator()
@@ -424,10 +426,6 @@ class MainWindow(QMainWindow):
             action = self._align_actions[key]
             action.setEnabled(enabled)
 
-        # short circuit
-        self._undo_action.setEnabled(enabled and self._state.undo_stack.canUndo())
-        self._redo_action.setEnabled(enabled and self._state.undo_stack.canRedo())
-
     def _connect_property_callbacks(self):
         self._name_edit.editingFinished.connect(self._on_update_layer_property)
         self._position_x_spinbox.valueChanged.connect(self._on_update_layer_property)
@@ -547,6 +545,7 @@ class MainWindow(QMainWindow):
 
         self._undo_action.triggered.connect(self._state.undo_stack.undo)
         self._redo_action.triggered.connect(self._state.undo_stack.redo)
+        self._state.undo_stack.indexChanged.connect(self._on_undo_stack_index_changed)
 
         self._undo_view.setStack(self._state.undo_stack)
         self._undo_dock.setEnabled(True)
@@ -555,6 +554,10 @@ class MainWindow(QMainWindow):
         if self._state is not None:
             self._undo_action.triggered.disconnect(self._state.undo_stack.undo)
             self._redo_action.triggered.disconnect(self._state.undo_stack.redo)
+            self._state.undo_stack.indexChanged.disconnect(self._on_undo_stack_index_changed)
+        self._undo_action.setEnabled(False)
+        self._redo_action.setEnabled(False)
+
         self._state = None
         self._canvas.state = None
         self._undo_view.setStack(QUndoStack())
@@ -1001,6 +1004,11 @@ class MainWindow(QMainWindow):
         self._canvas_mode_move_action.setChecked(False)
         self._canvas_mode_drawing_action.setChecked(True)
         self._canvas.mode = Canvas.Mode.DRAWING
+
+    def _on_undo_stack_index_changed(self, index: int):
+        if self._state:
+            self._undo_action.setEnabled(self._state.undo_stack.canUndo())
+            self._redo_action.setEnabled(self._state.undo_stack.canRedo())
 
 
 if __name__ == "__main__":

@@ -169,10 +169,14 @@ class Canvas(QWidget):
         painter.end()
 
     def mousePressEvent(self, event: QMouseEvent):
-        event.accept()
+        if not self._state or not self._state.layers:
+            event.ignore()
+            return
         if self._mode != Canvas.Mode.MOVE:
+            event.ignore()
             return
         if event.button() != Qt.LeftButton:
+            event.ignore()
             return
         # Layer on top (visually) first
         for layer in reversed(self._state.layers):
@@ -188,9 +192,14 @@ class Canvas(QWidget):
                 break
 
     def mouseMoveEvent(self, event: QMouseEvent):
+        if not self._state or not self._state.layers:
+            event.ignore()
+            return
         if self._mode != Canvas.Mode.MOVE:
+            event.ignore()
             return
         if self._mode_status != Canvas.ModeStatus.MOVING:
+            event.ignore()
             return
         event.accept()
         delta = event.position() - self._mouse_start_coords
@@ -199,13 +208,19 @@ class Canvas(QWidget):
         self.update()
 
     def mouseReleaseEvent(self, event: QMouseEvent):
-        event.accept()
+        if not self._state or not self._state.layers:
+            event.ignore()
+            return
         if self._mode != Canvas.Mode.MOVE:
+            event.ignore()
             return
         if self._mode_status != Canvas.ModeStatus.MOVING:
+            event.ignore()
             return
         if event.button() != Qt.LeftButton:
+            event.ignore()
             return
+        event.accept()
 
         self._mode_status = Canvas.ModeStatus.IDLE
         delta = event.position() - self._mouse_start_coords
