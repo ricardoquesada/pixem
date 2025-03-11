@@ -69,7 +69,7 @@ size = 32
 name = "#cdcdcd_1"
 
 [export_params]
-filename = "/home/riq/progs/pixem/examples/bcquest.svg"
+filename = "/home/riq/progs/pixem/export/bcquest.svg"
 pull_compensation_mm = 0.25
 max_stitch_length_mm = 1000.0
 fill_method = "auto_fill"

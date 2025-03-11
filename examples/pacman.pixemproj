@@ -97,8 +97,8 @@ size = 4
 name = "#2121ff_7"
 
 [export_params]
-filename = "/Volumes/riq_data/progs/pixem/examples/pacman.svg"
-pull_compensation_mm = 0.0
+filename = "/home/riq/progs/pixem/export/pacman.svg"
+pull_compensation_mm = 0.25
 max_stitch_length_mm = 1000.0
 fill_method = "auto_fill"
 initial_angle_degrees = 0
