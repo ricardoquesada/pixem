@@ -31,7 +31,6 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-import rc_resources  # noqa: F401
 from about_dialog import AboutDialog
 from canvas import Canvas
 from export_dialog import ExportDialog

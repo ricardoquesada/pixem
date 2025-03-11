@@ -7,6 +7,7 @@ import sys
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication
 
+import rc_resources  # noqa: F401
 from main_window import MainWindow
 
 logger = logging.getLogger(__name__)
