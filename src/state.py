@@ -13,6 +13,7 @@ import preferences
 from export import ExportParameters, ExportToSVG
 from layer import Layer, LayerProperties
 from undo_commands import (
+    UpdateLayerNameCommand,
     UpdateLayerOpacityCommand,
     UpdateLayerPixelSizeCommand,
     UpdateLayerPositionCommand,
@@ -38,7 +39,7 @@ class State(QObject):
         )
         self._zoom_factor = 1.0
         self._layers: list[Layer] = []
-        self._current_layer_key = None
+        self._current_layer_uuid = None
 
         self._undo_stack = QUndoStack()
 
@@ -54,7 +55,13 @@ class State(QObject):
             layer = Layer.from_dict(dict_layer)
             state._layers.append(layer)
         if "current_layer_key" in d:
-            state._current_layer_key = d["current_layer_key"]
+            current_key = d["current_layer_key"]
+            for layer in state._layers:
+                if layer.name == current_key:
+                    state._current_layer_uuid = layer.uuid
+                    break
+        if "current_layer_uuid" in d:
+            state._current_layer_uuid = d["current_layer_uuid"]
         return state
 
     def to_dict(self) -> dict:
@@ -62,14 +69,12 @@ class State(QObject):
             "export_params": asdict(self._export_params),
             "zoom_factor": self._zoom_factor,
             "layers": [],
-            "current_layer_key": self._current_layer_key,
+            "current_layer_uuid": self._current_layer_uuid,
         }
 
         for layer in self._layers:
             layer_dict = layer.to_dict()
             project["layers"].append(layer_dict)
-
-        project["current_layer_key"] = self._current_layer_key
 
         return project
 
@@ -129,7 +134,7 @@ class State(QObject):
 
     def add_layer(self, layer: Layer) -> None:
         self._layers.append(layer)
-        self._current_layer_key = layer.name
+        self._current_layer_uuid = layer.uuid
 
     def delete_layer(self, layer: Layer) -> None:
         try:
@@ -139,9 +144,9 @@ class State(QObject):
 
         # if there are no elements left, idx = -1
         if len(self._layers) > 0:
-            self._current_layer_key = self._layers[-1].name
+            self._current_layer_uuid = self._layers[-1].uuid
         else:
-            self._current_layer_key = None
+            self._current_layer_uuid = None
 
     def set_layer_properties(self, layer: Layer, properties: LayerProperties):
         if properties == layer.properties:
@@ -165,6 +170,8 @@ class State(QObject):
             self._undo_stack.push(UpdateLayerVisibleCommand(self, layer, properties.visible, None))
         if properties.opacity != layer.properties.opacity:
             self._undo_stack.push(UpdateLayerOpacityCommand(self, layer, properties.opacity, None))
+        if properties.name != layer.properties.name:
+            self._undo_stack.push(UpdateLayerNameCommand(self, layer, properties.name, None))
 
     @property
     def undo_stack(self) -> QUndoStack:
@@ -172,13 +179,12 @@ class State(QObject):
 
     @property
     def selected_layer(self) -> Optional[Layer]:
-        if self._current_layer_key is None:
+        if self._current_layer_uuid is None:
             return None
         for layer in self._layers:
-            if layer.name == self._current_layer_key:
+            if layer.uuid == self._current_layer_uuid:
                 return layer
-        logger.info(f"layers: {self._layers}")
-        logger.warning(f"selected_layer. Layer '{self._current_layer_key}' not found")
+        logger.warning(f"selected_layer. Layer '{self._current_layer_uuid}' not found")
         return None
 
     @property
@@ -200,12 +206,12 @@ class State(QObject):
         self._zoom_factor = value
 
     @property
-    def current_layer_key(self) -> str:
-        return self._current_layer_key
+    def current_layer_uuid(self) -> str:
+        return self._current_layer_uuid
 
-    @current_layer_key.setter
-    def current_layer_key(self, value: str):
-        self._current_layer_key = value
+    @current_layer_uuid.setter
+    def current_layer_uuid(self, value: str):
+        self._current_layer_uuid = value
 
     @property
     def export_params(self) -> ExportParameters:

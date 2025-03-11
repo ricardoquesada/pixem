@@ -123,3 +123,22 @@ class UpdateLayerVisibleCommand(QUndoCommand):
     def redo(self) -> None:
         self._layer.properties = self._new_properties
         self._state.layer_property_changed.emit(self._layer)
+
+
+class UpdateLayerNameCommand(QUndoCommand):
+    def __init__(self, state, layer: Layer, name: str, parent: QUndoCommand | None):
+        super().__init__(f"Name: {name}", parent)
+        self._layer = layer
+        copy_properties = copy.deepcopy(layer.properties)
+        copy_properties.name = name
+        self._new_properties = copy_properties
+        self._old_properties = layer.properties
+        self._state = state
+
+    def undo(self) -> None:
+        self._layer.properties = self._old_properties
+        self._state.layer_property_changed.emit(self._layer)
+
+    def redo(self) -> None:
+        self._layer.properties = self._new_properties
+        self._state.layer_property_changed.emit(self._layer)

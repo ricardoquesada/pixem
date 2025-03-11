@@ -505,8 +505,10 @@ class MainWindow(QMainWindow):
         selected_partition_idx = -1
 
         for i, layer in enumerate(self._state.layers):
-            self._layer_list.addItem(layer.name)
-            if selected_layer is not None and layer.name == selected_layer.name:
+            item = QListWidgetItem(layer.name)
+            item.setData(Qt.UserRole, layer.uuid)
+            self._layer_list.addItem(item)
+            if selected_layer is not None and layer.uuid == selected_layer.uuid:
                 selected_layer_idx = i
 
         if selected_layer is not None:
@@ -657,9 +659,8 @@ class MainWindow(QMainWindow):
                 self._open_filename(filename)
             else:
                 self._on_new_project()
-                name = f"ImageLayer {len(self._state.layers) + 1}"
                 layer = ImageLayer(filename)
-                layer.name = name
+                layer.name = f"ImageLayer {len(self._state.layers) + 1}"
                 self._add_layer(layer)
         else:
             logger.warning("Could not open file. Invalid filename")
@@ -773,18 +774,16 @@ class MainWindow(QMainWindow):
             self, "Open Image", "", "Images (*.png *.jpg *.bmp);;All files (*)"
         )
         if file_name:
-            name = f"ImageLayer {len(self._state.layers) + 1}"
             layer = ImageLayer(file_name)
-            layer.name = name
+            layer.name = f"ImageLayer {len(self._state.layers) + 1}"
             self._add_layer(layer)
 
     def _on_layer_add_text(self) -> None:
         dialog = FontDialog()
         if dialog.exec() == QDialog.Accepted:
             text, font_name = dialog.get_data()
-            name = f"TextLayer {len(self._state.layers) + 1}"
             layer = TextLayer(text, font_name)
-            layer.name = name
+            layer.name = f"TextLayer {len(self._state.layers) + 1}"
             self._add_layer(layer)
 
     def _on_layer_delete(self) -> None:
@@ -849,12 +848,12 @@ class MainWindow(QMainWindow):
 
             self._connect_property_callbacks()
 
-            self._state.current_layer_key = layer.name
+            self._state.current_layer_uuid = layer.uuid
 
             self._refresh_partitions()
         else:
             if self._state is not None:
-                self._state.current_layer_key = None
+                self._state.current_layer_uuid = None
 
     def _on_layer_rows_moved(self, parent, start, end, destination):
         if self._state is None:
@@ -924,18 +923,15 @@ class MainWindow(QMainWindow):
         enabled = current_layer is not None
         self._property_editor.setEnabled(enabled)
         if enabled:
-            current_layer.name = self._name_edit.text()
-
             properties = LayerProperties(
                 position=(self._position_x_spinbox.value(), self._position_y_spinbox.value()),
                 rotation=self._rotation_slider.value(),
                 pixel_size=(self._pixel_width_spinbox.value(), self._pixel_height_spinbox.value()),
                 visible=self._visible_checkbox.isChecked(),
                 opacity=self._opacity_slider.value() / 100.0,
+                name=self._name_edit.text(),
             )
             self._state.set_layer_properties(current_layer, properties)
-
-            self._layer_list.currentItem().setText(current_layer.name)
 
             self._canvas.recalculate_fixed_size()
             self.update()
