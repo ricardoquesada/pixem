@@ -2,6 +2,7 @@
 # Copyright 2024 - Ricardo Quesada
 
 import logging
+import uuid
 
 import networkx as nx
 from PySide6.QtGui import QColor, QImage
@@ -97,9 +98,6 @@ class ImageParser:
         G.add_nodes_from(nodes)
         G.add_edges_from(edges)
 
-        # List of lists
-        ret = []
-
         # The graph might include disconnected nodes, identify them
         # and process each subgraph independently
         S = [G.subgraph(c).copy() for c in nx.connected_components(G)]
@@ -107,19 +105,20 @@ class ImageParser:
             # nx.draw(s, with_labels=True)
             # plt.show()
             nodes = list(s.nodes())
-            key = f"#{color:06x}_{idx}"
 
-            partition = Partition(nodes, key)
+            name = f"#{color:06x}_{idx}"
+            partition_uuid = str(uuid.uuid4())
 
-            if key not in self._partitions:
-                self._partitions[key] = partition
+            partition = Partition(nodes, name)
+
+            if partition_uuid not in self._partitions:
+                self._partitions[partition_uuid] = partition
 
                 if len(nodes) > 1:
-                    start_node = self._get_starting_node(s, key)
+                    start_node = self._get_starting_node(s)
                     partition.walk_path(Partition.WalkMode.SPIRAL_CW, start_node)
-        return ret
 
-    def _get_starting_node(self, G, key):
+    def _get_starting_node(self, G):
         node = _get_node_with_one_neighbor(G)
         if node is None:
             node = _get_top_left_node(G)

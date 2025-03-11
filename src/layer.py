@@ -5,7 +5,7 @@ import logging
 import uuid
 from dataclasses import asdict, dataclass
 from enum import Enum
-from typing import Optional, Self, overload
+from typing import Self, overload
 
 from PySide6.QtCore import QPointF, QRectF, QSizeF
 from PySide6.QtGui import QImage, QTransform
@@ -52,7 +52,7 @@ class Layer:
             name=None,
         )
         self._partitions: dict[str, Partition] = {}
-        self._current_partition_key = None
+        self._current_partition_uuid = None
 
     #
     # Public methods
@@ -99,7 +99,9 @@ class Layer:
                 part = Partition.from_dict(part_dict)
                 self._partitions[p] = part
         if "current_partition_key" in d:
-            self._current_partition_key = d["current_partition_key"]
+            self._current_partition_uuid = d["current_partition_key"]
+        if "current_partition_uuid" in d:
+            self._current_partition_uuid = d["current_partition_uuid"]
 
     def to_dict(self) -> dict:
         """Returns a dictionary that represents the Layer"""
@@ -107,7 +109,7 @@ class Layer:
             "properties": asdict(self._properties),
             "partitions": {},
             "image": image_utils.qimage_to_base64_string(self._image),
-            "current_partition_key": self._current_partition_key,
+            "current_partition_uuid": self._current_partition_uuid,
             "layer_type": self.__class__.__name__,
         }
         for p in self._partitions:
@@ -116,14 +118,14 @@ class Layer:
         return d
 
     @property
-    def selected_partition(self) -> Optional[Partition]:
-        if self._current_partition_key is None:
+    def selected_partition(self) -> Partition | None:
+        if self._current_partition_uuid is None:
             return None
 
-        if self._current_partition_key not in self._partitions:
-            logger.warning(f"partition {self._current_partition_key} not found")
+        if self._current_partition_uuid not in self._partitions:
+            logger.warning(f"partition {self._current_partition_uuid} not found")
             return None
-        return self._partitions[self._current_partition_key]
+        return self._partitions[self._current_partition_uuid]
 
     @property
     def image(self) -> QImage:
@@ -190,12 +192,12 @@ class Layer:
         self._properties.rotation = value
 
     @property
-    def current_partition_key(self) -> str:
-        return self._current_partition_key
+    def current_partition_uuid(self) -> str:
+        return self._current_partition_uuid
 
-    @current_partition_key.setter
-    def current_partition_key(self, value: str):
-        self._current_partition_key = value
+    @current_partition_uuid.setter
+    def current_partition_uuid(self, value: str):
+        self._current_partition_uuid = value
 
     @property
     def partitions(self) -> dict[str, Partition]:

@@ -512,10 +512,13 @@ class MainWindow(QMainWindow):
                 selected_layer_idx = i
 
         if selected_layer is not None:
-            selected_partition_key = selected_layer.current_partition_key
-            for i, partition in enumerate(selected_layer.partitions):
-                self._partition_list.addItem(partition)
-                if partition == selected_partition_key:
+            selected_partition_uuid = selected_layer.current_partition_uuid
+            for i, partition_key in enumerate(selected_layer.partitions):
+                partition = selected_layer.partitions[partition_key]
+                item = QListWidgetItem(partition.name)
+                item.setData(Qt.UserRole, partition_key)
+                self._partition_list.addItem(item)
+                if partition_key == selected_partition_uuid:
                     selected_partition_idx = i
 
         # This will trigger "on_" callback
@@ -564,8 +567,11 @@ class MainWindow(QMainWindow):
 
         parser = ImageParser(layer.image)
         layer.partitions = parser.partitions
-        for partition_name in layer.partitions:
-            self._partition_list.addItem(partition_name)
+        for partition_key in layer.partitions:
+            partition = layer.partitions[partition_key]
+            item = QListWidgetItem(partition.name)
+            item.setData(Qt.UserRole, partition_key)
+            self._partition_list.addItem(item)
         if len(layer.partitions) > 0:
             self._partition_list.setCurrentRow(0)
 
@@ -585,9 +591,12 @@ class MainWindow(QMainWindow):
 
         selected_partition_idx = -1
         # First: add all items
-        for i, partition in enumerate(layer.partitions):
-            self._partition_list.addItem(partition)
-            if layer.current_partition_key == partition:
+        for i, partition_key in enumerate(layer.partitions):
+            partition = layer.partitions[partition_key]
+            item = QListWidgetItem(partition.name)
+            item.setData(Qt.UserRole, partition_key)
+            self._partition_list.addItem(item)
+            if layer.current_partition_uuid == partition_key:
                 selected_partition_idx = i
 
         # Second: select the correct one if present
@@ -596,7 +605,7 @@ class MainWindow(QMainWindow):
 
         if len(layer.partitions) == 0:
             # Sanity check
-            layer.current_partition_key = None
+            layer.current_partition_uuid = None
             logger.info("Failed to select partition, perhaps layer has not been analyzed yet")
 
     #
@@ -873,13 +882,12 @@ class MainWindow(QMainWindow):
     def _on_change_partition(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
         enabled = current is not None
         selected_layer = self._state.selected_layer
-        new_key = None
+        new_uuid = None
         if enabled:
-            idx = self._partition_list.row(current)
-            new_key = self._partition_list.item(idx).text()
+            new_uuid = current.data(Qt.UserRole)
 
         if selected_layer is not None:
-            selected_layer.current_partition_key = new_key
+            selected_layer.current_partition_uuid = new_uuid
 
         self._canvas.update()
         self.update()
@@ -910,12 +918,13 @@ class MainWindow(QMainWindow):
             return
         layer = self._state.selected_layer
         partitions = layer.partitions
-        # reorder dict keys
+
+        # reorder dict keys. Dictionary mantains order
         new_partitions = {}
         for row in range(self._partition_list.count()):
             item = self._partition_list.item(row)
-            partition_key = item.text()
-            new_partitions[partition_key] = partitions[partition_key]
+            partition_uuid = item.data(Qt.UserRole)
+            new_partitions[partition_uuid] = partitions[partition_uuid]
         layer.partitions = new_partitions
 
     def _on_update_layer_property(self) -> None:

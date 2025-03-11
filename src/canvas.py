@@ -103,7 +103,7 @@ class Canvas(QWidget):
         layer = self.state.selected_layer
         if (
             layer is not None
-            and layer.current_partition_key is not None
+            and layer.current_partition_uuid is not None
             and layer.visible
             and self._mode_status != Canvas.ModeStatus.MOVING
         ):
@@ -130,8 +130,8 @@ class Canvas(QWidget):
 
             W = layer.pixel_size.width()
             H = layer.pixel_size.height()
-            if layer.current_partition_key in layer.partitions:
-                partition = layer.partitions[layer.current_partition_key]
+            if layer.current_partition_uuid in layer.partitions:
+                partition = layer.partitions[layer.current_partition_uuid]
 
                 for x, y in partition.path:
                     polygon = [
@@ -143,7 +143,7 @@ class Canvas(QWidget):
                     # Use drawPolygon instead of drawRects because drawPolygon supports floats
                     painter.drawPolygon(polygon)
             else:
-                logger.warning(f"paintEvent: key {layer.current_partition_key} not found")
+                logger.warning(f"paintEvent: key {layer.current_partition_uuid} not found")
             painter.restore()
 
         # Draw hoop
