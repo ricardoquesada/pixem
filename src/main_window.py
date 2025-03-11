@@ -863,9 +863,9 @@ class MainWindow(QMainWindow):
         new_layers = []
         for row in range(self._layer_list.count()):
             item = self._layer_list.item(row)
-            layer_name = item.text()
+            layer_uuid = item.data(Qt.UserRole)
             for layer in layers:
-                if layer.name == layer_name:
+                if layer.uuid == layer_uuid:
                     new_layers.append(layer)
                     break
         self._state.layers = new_layers
@@ -947,7 +947,7 @@ class MainWindow(QMainWindow):
     def _on_layer_selection_changed_from_canvas(self, layer: Layer):
         for i in range(self._layer_list.count()):
             item = self._layer_list.item(i)
-            if item.text() == layer.name:
+            if item.data(Qt.UserRole) == layer.uuid:
                 self._layer_list.setCurrentRow(i)
                 break
 
