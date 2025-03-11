@@ -969,6 +969,12 @@ class MainWindow(QMainWindow):
         self._rotation_spinbox.setValue(round(properties.rotation))
         self._pixel_width_spinbox.setValue(properties.pixel_size[0])
         self._pixel_height_spinbox.setValue(properties.pixel_size[1])
+        self._name_edit.setText(properties.name)
+
+        item = self._layer_list.item(self._layer_list.currentRow())
+        if item.data(Qt.UserRole) == layer.uuid:
+            item.setText(layer.name)
+
         self._connect_property_callbacks()
 
         self._update_qactions()
