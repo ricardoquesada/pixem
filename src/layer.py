@@ -80,9 +80,12 @@ class Layer:
         if "properties" in d:
             self._properties = LayerProperties(**d["properties"])
             if self._properties.uuid is None:
-                # Backward compatible for files without one
+                # FIXME: remove me
+                # Backward compatible for old formats
                 self._properties.uuid = str(uuid.uuid4())
         if "name" in d:
+            # FIXME: remove me
+            # Backward compatible for old formats
             self._properties.name = d["name"]
         # Convert list to tuple
         self._properties.position = (
@@ -98,13 +101,16 @@ class Layer:
                 part_dict = d["partitions"][p]
                 part = Partition.from_dict(part_dict)
                 if p.startswith("#"):
-                    # FIXME: backward compatible. Remove it after migrating all projects
+                    # FIXME: remove me
+                    # Backward compatible for old formats
                     key = str(uuid.uuid4())
                     part.name = p
                 else:
                     key = p
                 self._partitions[key] = part
         if "current_partition_key" in d:
+            # FIXME: remove me
+            # Backward compatible for old formats
             self._current_partition_uuid = d["current_partition_key"]
         if "current_partition_uuid" in d:
             self._current_partition_uuid = d["current_partition_uuid"]
