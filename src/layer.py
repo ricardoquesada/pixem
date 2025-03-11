@@ -97,7 +97,13 @@ class Layer:
             for p in d["partitions"]:
                 part_dict = d["partitions"][p]
                 part = Partition.from_dict(part_dict)
-                self._partitions[p] = part
+                if p.startswith("#"):
+                    # FIXME: backward compatible. Remove it after migrating all projects
+                    key = str(uuid.uuid4())
+                    part.name = p
+                else:
+                    key = p
+                self._partitions[key] = part
         if "current_partition_key" in d:
             self._current_partition_uuid = d["current_partition_key"]
         if "current_partition_uuid" in d:
