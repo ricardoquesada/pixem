@@ -25,7 +25,7 @@ def main():
     app = QApplication(sys.argv)
     app.setApplicationName("Pixem")
     app.setOrganizationName("Retro Moe")
-    app.setOrganizationDomain("retro.moe")
+    app.setOrganizationDomain("moe.retro")
     app.setWindowIcon(QIcon(":/res/icons/pixem.png"))
 
     window = MainWindow()
