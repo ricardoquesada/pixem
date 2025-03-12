@@ -589,7 +589,7 @@ class MainWindow(QMainWindow):
         self.update()
 
     def _refresh_partitions(self):
-        # Called from on_layer_changed
+        # Called from on_change_layer
         self._disconnect_layer_partition_callbacks()
         self._partition_list.clear()
         self._connect_layer_partition_callbacks()
@@ -616,7 +616,7 @@ class MainWindow(QMainWindow):
         if len(layer.partitions) == 0:
             # Sanity check
             layer.current_partition_uuid = None
-            logger.info("Failed to select partition, perhaps layer has not been analyzed yet")
+            logger.warning("Failed to select partition, perhaps layer has not been analyzed yet")
 
     #
     # pyside6 events
@@ -836,15 +836,11 @@ class MainWindow(QMainWindow):
         x, y = self._state.selected_layer.calculate_pos_for_align(
             s.data(), global_preferences.get_hoop_size()
         )
-        logger.info(f"align new values {x}, {y}")
         self._position_x_spinbox.setValue(x)
         self._position_y_spinbox.setValue(y)
 
     def _on_zoom_changed(self, value: int) -> None:
         self._state.zoom_factor = value / 100.0
-        self._canvas.recalculate_fixed_size()
-        self._canvas.update()
-        self.update()
 
     def _on_change_layer(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
         enabled = current is not None
@@ -1000,11 +996,19 @@ class MainWindow(QMainWindow):
         self.update()
 
     def _on_state_property_changed_from_state(
-        self, flags: StatePropertyFlags, properties: StateProperties
+        self, flag: StatePropertyFlags, properties: StateProperties
     ):
-        # Needed when Hoop Size is changed
-        if flags == StatePropertyFlags.HOOP_SIZE:
+        if flag not in [
+            StatePropertyFlags.HOOP_SIZE,
+            StatePropertyFlags.ZOOM_FACTOR,
+            StatePropertyFlags.CURRENT_LAYER_UUID,
+        ]:
+            return
+        if flag == StatePropertyFlags.HOOP_SIZE:
             self._canvas.on_preferences_updated()
+
+        if flag == StatePropertyFlags.HOOP_SIZE or flag == StatePropertyFlags.ZOOM_FACTOR:
+            self._canvas.recalculate_fixed_size()
             self._canvas.update()
             self.update()
 

@@ -149,20 +149,48 @@ class UpdateLayerNameCommand(QUndoCommand):
 class UpdateStateHoopSizeCommand(QUndoCommand):
     def __init__(self, state, hoop_size: tuple[float, float], parent: QUndoCommand | None):
         super().__init__(f"Hoop Size: {hoop_size}", parent)
-        copy_properties = copy.deepcopy(state.properties)
-        copy_properties.hoop_size = hoop_size
-        self._new_properties = copy_properties
-        self._old_properties = state.properties
+        self._new_hoop_size = hoop_size
+        self._old_hoop_size = state.properties.hoop_size
         self._state = state
 
     def undo(self) -> None:
-        self._state.properties = self._old_properties
+        self._state.properties.hoop_size = self._old_hoop_size
         self._state.state_property_changed.emit(
             StatePropertyFlags.HOOP_SIZE, self._state.properties
         )
 
     def redo(self) -> None:
-        self._state.properties = self._new_properties
+        self._state.properties.hoop_size = self._new_hoop_size
         self._state.state_property_changed.emit(
             StatePropertyFlags.HOOP_SIZE, self._state.properties
         )
+
+
+class UpdateStateZoomFactorCommand(QUndoCommand):
+    def __init__(self, state, zoom_factor: float, parent: QUndoCommand | None):
+        super().__init__(f"Zoom Factor: {zoom_factor}", parent)
+        self._new_zoom_factor = zoom_factor
+        self._old_zoom_factor = state.properties.zoom_factor
+        self._state = state
+
+    def undo(self) -> None:
+        self._state.properties.zoom_factor = self._old_zoom_factor
+        self._state.state_property_changed.emit(
+            StatePropertyFlags.ZOOM_FACTOR, self._state.properties
+        )
+
+    def redo(self) -> None:
+        self._state.properties.zoom_factor = self._new_zoom_factor
+        self._state.state_property_changed.emit(
+            StatePropertyFlags.ZOOM_FACTOR, self._state.properties
+        )
+
+    def mergeWith(self, other: QUndoCommand) -> bool:
+        # FIXME: NOT WORKING, not sure why
+        if not isinstance(other, UpdateStateZoomFactorCommand):
+            return False
+        if self._state != other._state:
+            return False
+        self._new_zoom_factor = other._new_zoom_factor
+        self.setObsolete(False)
+        return True

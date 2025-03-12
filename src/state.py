@@ -21,6 +21,7 @@ from undo_commands import (
     UpdateLayerRotationCommand,
     UpdateLayerVisibleCommand,
     UpdateStateHoopSizeCommand,
+    UpdateStateZoomFactorCommand,
 )
 
 logger = logging.getLogger(__name__)
@@ -160,6 +161,12 @@ class State(QObject):
         else:
             self._properties.current_layer_uuid = None
 
+    def get_layer_for_uuid(self, layer_uuid: str) -> Layer | None:
+        for layer in self._layers:
+            if layer.uuid == layer_uuid:
+                return layer
+        return None
+
     def set_layer_properties(self, layer: Layer, properties: LayerProperties):
         if properties == layer.properties:
             return
@@ -204,34 +211,35 @@ class State(QObject):
         return self._layers
 
     @layers.setter
-    def layers(self, value: list[Layer]) -> None:
+    def layers(self, layers: list[Layer]) -> None:
         # Must be a re-order of the existing list
         # FIXME: add checks, or rename function, or add a proper "reorder layers" method
-        self._layers = value
+        self._layers = layers
 
     @property
     def properties(self) -> StateProperties:
         return self._properties
 
     @properties.setter
-    def properties(self, value: StateProperties):
-        self._properties = value
+    def properties(self, properties: StateProperties):
+        self._properties = properties
 
     @property
     def zoom_factor(self) -> float:
         return self._properties.zoom_factor
 
     @zoom_factor.setter
-    def zoom_factor(self, value: float):
-        self._properties.zoom_factor = value
+    def zoom_factor(self, zoom_factor: float):
+        if self._properties.zoom_factor != zoom_factor:
+            self._undo_stack.push(UpdateStateZoomFactorCommand(self, zoom_factor, None))
 
     @property
     def current_layer_uuid(self) -> str:
         return self._properties.current_layer_uuid
 
     @current_layer_uuid.setter
-    def current_layer_uuid(self, value: str):
-        self._properties.current_layer_uuid = value
+    def current_layer_uuid(self, uuid: str):
+        self._properties.current_layer_uuid = uuid
 
     @property
     def export_params(self) -> ExportParameters:
@@ -246,5 +254,6 @@ class State(QObject):
         return self._properties.hoop_size
 
     @hoop_size.setter
-    def hoop_size(self, value: tuple[float, float]) -> None:
-        self._undo_stack.push(UpdateStateHoopSizeCommand(self, value, None))
+    def hoop_size(self, hoop_size: tuple[float, float]) -> None:
+        if self._properties.hoop_size != hoop_size:
+            self._undo_stack.push(UpdateStateHoopSizeCommand(self, hoop_size, None))
