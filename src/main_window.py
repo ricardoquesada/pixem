@@ -10,6 +10,7 @@ from PySide6.QtGui import QAction, QCloseEvent, QGuiApplication, QIcon, QKeySequ
 from PySide6.QtWidgets import (
     QApplication,
     QCheckBox,
+    QComboBox,
     QDialog,
     QDockWidget,
     QDoubleSpinBox,
@@ -285,11 +286,14 @@ class MainWindow(QMainWindow):
         self._toolbar.addAction(self._redo_action)
         self._toolbar.addSeparator()
 
-        self._zoom_slider = QSlider(Qt.Horizontal)
-        self._zoom_slider.setRange(1, 500)
-        self._zoom_slider.setValue(100)
-        self._zoom_slider.valueChanged.connect(self._on_zoom_changed)
-        self._toolbar.addWidget(self._zoom_slider)
+        # Zoom Widget
+        self._zoom_values = ["25%", "50%", "75%", "100%", "150%", "200%"]
+        self._zoom_factors = [0.25, 0.5, 0.75, 1.0, 1.5, 2.0]
+        self._zoom_combobox = QComboBox()
+        self._zoom_combobox.addItems(self._zoom_values)
+        self._zoom_combobox.setCurrentIndex(3)  # Default to 100%
+        self._zoom_combobox.currentIndexChanged.connect(self._on_zoom_changed)
+        self._toolbar.addWidget(self._zoom_combobox)
 
         # Layers Dock
         self._layer_list = QListWidget()
@@ -418,7 +422,7 @@ class MainWindow(QMainWindow):
 
         self._edit_partition_action.setEnabled(enabled)
 
-        self._zoom_slider.setEnabled(enabled)
+        self._zoom_combobox.setEnabled(enabled)
 
         self._property_editor.setEnabled(enabled)
 
@@ -435,7 +439,7 @@ class MainWindow(QMainWindow):
         self._pixel_height_spinbox.valueChanged.connect(self._on_update_layer_property)
         self._visible_checkbox.stateChanged.connect(self._on_update_layer_property)
         self._opacity_slider.valueChanged.connect(self._on_update_layer_property)
-        self._zoom_slider.valueChanged.connect(self._on_zoom_changed)
+        self._zoom_combobox.currentIndexChanged.connect(self._on_zoom_changed)
 
     def _disconnect_property_callbacks(self):
         self._name_edit.editingFinished.disconnect(self._on_update_layer_property)
@@ -446,7 +450,7 @@ class MainWindow(QMainWindow):
         self._pixel_height_spinbox.valueChanged.disconnect(self._on_update_layer_property)
         self._visible_checkbox.stateChanged.disconnect(self._on_update_layer_property)
         self._opacity_slider.valueChanged.disconnect(self._on_update_layer_property)
-        self._zoom_slider.valueChanged.disconnect(self._on_zoom_changed)
+        self._zoom_combobox.currentIndexChanged.disconnect(self._on_zoom_changed)
 
     def _connect_layer_partition_callbacks(self):
         self._layer_list.currentItemChanged.connect(self._on_change_layer)
@@ -526,7 +530,13 @@ class MainWindow(QMainWindow):
             self._partition_list.setCurrentRow(selected_partition_idx)
 
         self._disconnect_property_callbacks()
-        self._zoom_slider.setValue(self._state.zoom_factor * 100)
+        index = 3  # Default: 100%
+        for i, zoom_factor in enumerate(self._zoom_factors):
+            if abs(self._state.zoom_factor - zoom_factor) <= 0.01:
+                index = i
+                break
+
+        self._zoom_combobox.setCurrentIndex(index)
         self._connect_property_callbacks()
 
         # FIXME: update state should be done in one method
@@ -841,8 +851,8 @@ class MainWindow(QMainWindow):
         self._position_x_spinbox.setValue(x)
         self._position_y_spinbox.setValue(y)
 
-    def _on_zoom_changed(self, value: int) -> None:
-        self._state.zoom_factor = value / 100.0
+    def _on_zoom_changed(self, index: int) -> None:
+        self._state.zoom_factor = self._zoom_factors[index]
 
     def _on_change_layer(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
         enabled = current is not None

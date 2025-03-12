@@ -80,7 +80,7 @@ color = "#cdcdcd"
 
 [properties]
 hoop_size = [ 6.0, 10.0,]
-zoom_factor = 0.69
+zoom_factor = 0.75
 current_layer_uuid = "7bb4daa4-9d62-4515-8307-0f926b0d2200"
 
 [export_params]
