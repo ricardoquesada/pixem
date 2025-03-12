@@ -99,11 +99,21 @@ class Preferences:
                 self._recent_files.remove(filename)
 
 
+_global_preferences = None
+
+
 # Singleton
-global_preferences = Preferences()
+def get_global_preferences() -> Preferences:
+    # Using a function to return the global instance so that we can delay
+    # the creation of QSettings() after QApplication.setOrganizationName() is called
+    global _global_preferences
+    if _global_preferences is None:
+        _global_preferences = Preferences()
+    return _global_preferences
+
 
 if __name__ == "__main__":
-    preferences = global_preferences
+    preferences = get_global_preferences()
     preferences.set_hoop_size((5, 8))
 
     print(f"State: {preferences.get_window_state()}")

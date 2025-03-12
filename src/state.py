@@ -9,9 +9,9 @@ import toml
 from PySide6.QtCore import QObject, Signal
 from PySide6.QtGui import QUndoStack
 
-import preferences
 from export import ExportParameters, ExportToSVG
 from layer import Layer, LayerProperties
+from preferences import get_global_preferences
 from state_properties import StateProperties, StatePropertyFlags
 from undo_commands import (
     UpdateLayerNameCommand,
@@ -43,7 +43,7 @@ class State(QObject):
             initial_angle_degrees=0,
         )
         self._properties = StateProperties(
-            hoop_size=preferences.global_preferences.get_hoop_size(),
+            hoop_size=get_global_preferences().get_hoop_size(),
             zoom_factor=1.0,
             current_layer_uuid=None,
         )
@@ -127,7 +127,7 @@ class State(QObject):
             logger.warning("No layers found. Cannot export file")
             return
 
-        export = ExportToSVG(preferences.global_preferences.get_hoop_size(), export_params)
+        export = ExportToSVG(get_global_preferences().get_hoop_size(), export_params)
 
         for i, layer in enumerate(self._layers):
             export.add_layer(

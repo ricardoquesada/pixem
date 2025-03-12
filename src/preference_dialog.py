@@ -15,7 +15,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
-import preferences
+from preferences import get_global_preferences
 
 
 class PreferenceDialog(QDialog):
@@ -74,7 +74,7 @@ class PreferenceDialog(QDialog):
         self.setLayout(main_layout)
 
         # Populate from global preferences
-        hoop_visible = preferences.global_preferences.get_hoop_visible()
+        hoop_visible = get_global_preferences().get_hoop_visible()
 
         # Pre-defined, convert it to integers so it is easier to match them
         hoop_size_i = (int(hoop_size[0]), int(hoop_size[1]))
@@ -101,7 +101,7 @@ class PreferenceDialog(QDialog):
         radio_button.setChecked(True)
 
         self._open_file_startup_checkbox.setChecked(
-            preferences.global_preferences.get_open_file_on_startup()
+            get_global_preferences().get_open_file_on_startup()
         )
 
     def accept(self) -> None:
@@ -124,11 +124,10 @@ class PreferenceDialog(QDialog):
                 self._custom_size_y_spinbox.value(),
             )
         hoop_visible = self._visibility_checkbox.isChecked()
-        preferences.global_preferences.set_hoop_size(hoop_size)
-        preferences.global_preferences.set_hoop_visible(hoop_visible)
-        preferences.global_preferences.set_open_file_on_startup(
-            self._open_file_startup_checkbox.isChecked()
-        )
+        prefs = get_global_preferences()
+        prefs.set_hoop_size(hoop_size)
+        prefs.set_hoop_visible(hoop_visible)
+        prefs.set_open_file_on_startup(self._open_file_startup_checkbox.isChecked())
 
 
 if __name__ == "__main__":

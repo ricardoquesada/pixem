@@ -17,6 +17,7 @@
         "src/rc_resources.py",
         "src/resources.qrc",
         "src/state.py",
+        "src/state_properties.py",
         "src/undo_commands.py"
     ]
 }

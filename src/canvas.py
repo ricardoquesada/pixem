@@ -9,7 +9,7 @@ from PySide6.QtGui import QColor, QMouseEvent, QPainter, QPainterPath, QPaintEve
 from PySide6.QtWidgets import QWidget
 
 import image_utils
-from preferences import global_preferences
+from preferences import get_global_preferences
 from state import State
 
 logger = logging.getLogger(__name__)
@@ -36,9 +36,9 @@ class Canvas(QWidget):
         super().__init__()
         self._state = state
 
-        self._cached_hoop_visible = global_preferences.get_hoop_visible()
+        self._cached_hoop_visible = get_global_preferences().get_hoop_visible()
         if self._state is None:
-            self._cached_hoop_size = global_preferences.get_hoop_size()
+            self._cached_hoop_size = get_global_preferences().get_hoop_size()
         else:
             self._cached_hoop_size = self._state.hoop_size
         # FIXME: must be set according to layer size
@@ -270,11 +270,11 @@ class Canvas(QWidget):
     #
     def on_preferences_updated(self):
         """Updates the preference cache"""
-        self._cached_hoop_visible = global_preferences.get_hoop_visible()
+        self._cached_hoop_visible = get_global_preferences().get_hoop_visible()
         if self._state:
             self._cached_hoop_size = self._state.hoop_size
         else:
-            self._cached_hoop_size = global_preferences.get_hoop_size()
+            self._cached_hoop_size = get_global_preferences().get_hoop_size()
 
     def recalculate_fixed_size(self):
         self.updateGeometry()
@@ -300,4 +300,4 @@ class Canvas(QWidget):
         if self._state:
             self._cached_hoop_size = self._state.hoop_size
         else:
-            self._cached_hoop_size = global_preferences.get_hoop_size()
+            self._cached_hoop_size = get_global_preferences().get_hoop_size()

@@ -41,7 +41,7 @@ from image_utils import create_icon_from_svg
 from layer import ImageLayer, Layer, LayerAlign, LayerProperties, TextLayer
 from partition_dialog import PartitionDialog
 from preference_dialog import PreferenceDialog
-from preferences import global_preferences
+from preferences import get_global_preferences
 from state import State
 from state_properties import StateProperties, StatePropertyFlags
 
@@ -60,9 +60,9 @@ class MainWindow(QMainWindow):
 
         self._cleanup_state()
 
-        open_on_startup = global_preferences.get_open_file_on_startup()
+        open_on_startup = get_global_preferences().get_open_file_on_startup()
         if open_on_startup:
-            files = global_preferences.get_recent_files()
+            files = get_global_preferences().get_recent_files()
             if len(files) > 0:
                 self._open_filename(files[0])
 
@@ -173,7 +173,7 @@ class MainWindow(QMainWindow):
             lambda: self._on_show_hoop_size(self._show_hoop_action)
         )
         view_menu.addAction(self._show_hoop_action)
-        self._show_hoop_action.setChecked(global_preferences.get_hoop_visible())
+        self._show_hoop_action.setChecked(get_global_preferences().get_hoop_visible())
 
         view_menu.addSeparator()
 
@@ -318,14 +318,18 @@ class MainWindow(QMainWindow):
         # Undo Dock
         self._undo_dock = QDockWidget("Undo List", self)
         self._undo_dock.setObjectName("undo_dock")
+        self._undo_dock.setHidden(True)
+        self._undo_dock.setFloating(True)
         self._undo_view = QUndoView()
+        self._undo_view.setObjectName("undo_view")
         self._undo_dock.setWidget(self._undo_view)
         self.addDockWidget(Qt.RightDockWidgetArea, self._undo_dock)
 
         # Property Dock
         self._property_editor = QWidget()
-        self._property_layout = QFormLayout(self._property_editor)
+        self._property_editor.setObjectName("property_widget")
         self._property_editor.setEnabled(False)
+        self._property_layout = QFormLayout(self._property_editor)
         self._name_edit = QLineEdit()
         self._property_layout.addRow("Name:", self._name_edit)
 
@@ -393,7 +397,7 @@ class MainWindow(QMainWindow):
 
     def _populate_recent_menu(self):
         self._recent_menu.clear()
-        recent_files = global_preferences.get_recent_files()
+        recent_files = get_global_preferences().get_recent_files()
         for file_name in recent_files:
             action = QAction(os.path.basename(file_name), self)
             action.setData(file_name)
@@ -465,27 +469,29 @@ class MainWindow(QMainWindow):
     def _load_settings(self):
         # Save defaults before restoring saved settings
         # FIXME: Probably there is a more efficient way to do it.
-        global_preferences.set_default_window_geometry(self.saveGeometry())
-        global_preferences.set_default_window_state(
-            self.saveState(global_preferences.STATE_VERSION)
-        )
+        # get_global_preferences().set_default_window_geometry(self.saveGeometry())
+        # get_global_preferences().set_default_window_state(
+        #     self.saveState(get_global_preferences().STATE_VERSION)
+        # )
 
-        geometry = global_preferences.get_window_geometry()
+        prefs = get_global_preferences()
+        geometry = prefs.get_window_geometry()
         if geometry is not None:
             self.restoreGeometry(geometry)
-        state = global_preferences.get_window_state()
+        state = prefs.get_window_state()
         if state is not None:
             self.restoreState(state)
 
     def _save_settings(self):
-        global_preferences.set_window_geometry(self.saveGeometry())
-        global_preferences.set_window_state(self.saveState(global_preferences.STATE_VERSION))
-        global_preferences.save_recent_files()
+        prefs = get_global_preferences()
+        prefs.set_window_geometry(self.saveGeometry())
+        prefs.set_window_state(self.saveState(prefs.STATE_VERSION))
+        prefs.save_recent_files()
 
     def _update_window_title(self):
         title = "Pixem"
         if self._state is not None and self._state.project_filename is not None:
-            title = f"{title} - {os.path.basename(self._state.project_filename)}"
+            title = f"{os.path.basename(self._state.project_filename)} - {title}"
         self.setWindowTitle(title)
 
     def _open_filename(self, filename: str) -> None:
@@ -545,7 +551,7 @@ class MainWindow(QMainWindow):
         self.update()
 
         self._update_window_title()
-        global_preferences.add_recent_file(filename)
+        get_global_preferences().add_recent_file(filename)
         self._populate_recent_menu()
 
     def _setup_state(self, state: State):
@@ -701,7 +707,7 @@ class MainWindow(QMainWindow):
         self._open_filename(filename)
 
     def _on_clear_recent_files(self) -> None:
-        global_preferences.clear_recent_files()
+        get_global_preferences().clear_recent_files()
         self._populate_recent_menu()
 
     def _on_save_project(self) -> None:
@@ -721,7 +727,7 @@ class MainWindow(QMainWindow):
                 filename = filename + ".pixemproj"
             self._state.save_to_filename(filename)
             self._update_window_title()
-            global_preferences.add_recent_file(filename)
+            get_global_preferences().add_recent_file(filename)
             self._populate_recent_menu()
 
     def _on_export_project(self) -> None:
@@ -773,16 +779,17 @@ class MainWindow(QMainWindow):
 
     def _on_show_hoop_size(self, action: QAction) -> None:
         is_checked = action.isChecked()
-        global_preferences.set_hoop_visible(is_checked)
+        get_global_preferences().set_hoop_visible(is_checked)
         self._canvas.on_preferences_updated()
         self._canvas.update()
         self.update()
 
     def _on_reset_layout(self) -> None:
-        default_geometry = global_preferences.get_default_window_geometry()
-        default_state = global_preferences.get_default_window_state()
+        prefs = get_global_preferences()
+        default_geometry = prefs.get_default_window_geometry()
+        default_state = prefs.get_default_window_state()
         self.restoreGeometry(default_geometry)
-        self.restoreState(default_state, global_preferences.STATE_VERSION)
+        self.restoreState(default_state, prefs.STATE_VERSION)
 
         self.setGeometry(
             QStyle.alignedRect(
@@ -794,13 +801,13 @@ class MainWindow(QMainWindow):
         )
 
     def _on_preferences(self) -> None:
-        hoop_size = global_preferences.get_hoop_size()
+        hoop_size = get_global_preferences().get_hoop_size()
         if self._state is not None:
             hoop_size = self._state.hoop_size
         dialog = PreferenceDialog(hoop_size)
         if dialog.exec() == QDialog.Accepted:
             if self._state:
-                self._state.hoop_size = global_preferences.get_hoop_size()
+                self._state.hoop_size = get_global_preferences().get_hoop_size()
 
     def _on_layer_add_image(self) -> None:
         file_name, _ = QFileDialog.getOpenFileName(
