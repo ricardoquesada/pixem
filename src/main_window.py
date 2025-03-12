@@ -848,9 +848,7 @@ class MainWindow(QMainWindow):
         s = self.sender()
         if self._state is None or self._state.selected_layer is None:
             return
-        x, y = self._state.selected_layer.calculate_pos_for_align(
-            s.data(), global_preferences.get_hoop_size()
-        )
+        x, y = self._state.selected_layer.calculate_pos_for_align(s.data(), self._state.hoop_size)
         self._position_x_spinbox.setValue(x)
         self._position_y_spinbox.setValue(y)
 
