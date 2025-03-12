@@ -1116,7 +1116,7 @@ color = "#000000"
 [properties]
 hoop_size = [ 10.0, 6.0,]
 zoom_factor = 0.75
-current_layer_uuid = "2ea24b00-d0ca-4bd9-b062-5a4294cc19fc"
+current_layer_uuid = "f963ebcd-7cce-416b-bc46-343e9304bbea"
 
 [export_params]
 filename = "/home/riq/progs/pixem/export/outrun.svg"

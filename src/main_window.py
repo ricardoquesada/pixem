@@ -794,7 +794,10 @@ class MainWindow(QMainWindow):
         )
 
     def _on_preferences(self) -> None:
-        dialog = PreferenceDialog()
+        hoop_size = global_preferences.get_hoop_size()
+        if self._state is not None:
+            hoop_size = self._state.hoop_size
+        dialog = PreferenceDialog(hoop_size)
         if dialog.exec() == QDialog.Accepted:
             if self._state:
                 self._state.hoop_size = global_preferences.get_hoop_size()

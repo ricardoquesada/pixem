@@ -19,7 +19,7 @@ import preferences
 
 
 class PreferenceDialog(QDialog):
-    def __init__(self):
+    def __init__(self, hoop_size: tuple[float, float]):
         super().__init__()
 
         self.setWindowTitle("Preference Dialog")
@@ -76,11 +76,8 @@ class PreferenceDialog(QDialog):
         # Populate from global preferences
         hoop_visible = preferences.global_preferences.get_hoop_visible()
 
-        # Custom supports floats
-        hoop_size_f = preferences.global_preferences.get_hoop_size()
-
         # Pre-defined, convert it to integers so it is easier to match them
-        hoop_size_i = (int(hoop_size_f[0]), int(hoop_size_f[1]))
+        hoop_size_i = (int(hoop_size[0]), int(hoop_size[1]))
         self._visibility_checkbox.setChecked(hoop_visible)
 
         d = {
@@ -98,8 +95,8 @@ class PreferenceDialog(QDialog):
             # so that it should remember both things: which predefined is used, and the
             # custom value
             radio_button = self._hoop_custom_radio
-            self._custom_size_x_spinbox.setValue(hoop_size_f[0])
-            self._custom_size_y_spinbox.setValue(hoop_size_f[1])
+            self._custom_size_x_spinbox.setValue(hoop_size[0])
+            self._custom_size_y_spinbox.setValue(hoop_size[1])
 
         radio_button.setChecked(True)
 
