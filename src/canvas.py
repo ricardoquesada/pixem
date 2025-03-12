@@ -9,7 +9,6 @@ from PySide6.QtGui import QColor, QMouseEvent, QPainter, QPainterPath, QPaintEve
 from PySide6.QtWidgets import QWidget
 
 import image_utils
-from layer import Layer
 from preferences import global_preferences
 from state import State
 
@@ -21,7 +20,7 @@ INCHES_TO_MM = 25.4
 
 class Canvas(QWidget):
     position_changed = Signal(QPointF)
-    layer_selection_changed = Signal(Layer)
+    layer_selection_changed = Signal(str)
 
     class Mode(Enum):
         INVALID = 0
@@ -178,16 +177,19 @@ class Canvas(QWidget):
         if event.button() != Qt.LeftButton:
             event.ignore()
             return
+        event.accept()
         # Layer on top (visually) first
         for layer in reversed(self._state.layers):
+            if not layer.visible or layer.opacity == 0:
+                continue
             point = event.position()
             scale = self._state.zoom_factor * DEFAULT_SCALE_FACTOR
             point = QPointF(point.x() / scale, point.y() / scale)
             if layer.is_point_inside(point):
                 self._mouse_start_coords = event.position()
                 self._mode_status = Canvas.ModeStatus.MOVING
-                if layer != self._state.selected_layer:
-                    self.layer_selection_changed.emit(layer)
+                if layer.uuid != self._state.current_layer_uuid:
+                    self.layer_selection_changed.emit(layer.uuid)
                 self.update()
                 break
 

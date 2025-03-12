@@ -572,7 +572,9 @@ class MainWindow(QMainWindow):
 
     def _add_layer(self, layer: Layer):
         self._state.add_layer(layer)
-        self._layer_list.addItem(layer.name)
+        item = QListWidgetItem(layer.name)
+        item.setData(Qt.UserRole, layer.uuid)
+        self._layer_list.addItem(item)
         self._layer_list.setCurrentRow(len(self._state.layers) - 1)
 
         parser = ImageParser(layer.image)
@@ -958,10 +960,10 @@ class MainWindow(QMainWindow):
         self._position_x_spinbox.setValue(position.x())
         self._position_y_spinbox.setValue(position.y())
 
-    def _on_layer_selection_changed_from_canvas(self, layer: Layer):
+    def _on_layer_selection_changed_from_canvas(self, layer_uuid: str):
         for i in range(self._layer_list.count()):
             item = self._layer_list.item(i)
-            if item.data(Qt.UserRole) == layer.uuid:
+            if item.data(Qt.UserRole) == layer_uuid:
                 self._layer_list.setCurrentRow(i)
                 break
 
