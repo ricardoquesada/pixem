@@ -49,6 +49,10 @@ logger = logging.getLogger(__name__)  # __name__ gets the current module's name
 
 ICON_SIZE = 22
 
+# FIXME: Move to a better place
+# Matches "100%", which is the default zoom factor in a new state
+DEFAULT_ZOOM_FACTOR_IDX = 3
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -291,7 +295,7 @@ class MainWindow(QMainWindow):
         self._zoom_factors = [0.25, 0.5, 0.75, 1.0, 1.5, 2.0]
         self._zoom_combobox = QComboBox()
         self._zoom_combobox.addItems(self._zoom_values)
-        self._zoom_combobox.setCurrentIndex(3)  # Default to 100%
+        self._zoom_combobox.setCurrentIndex(DEFAULT_ZOOM_FACTOR_IDX)
         self._zoom_combobox.currentIndexChanged.connect(self._on_zoom_changed)
         self._toolbar.addWidget(self._zoom_combobox)
 
@@ -490,8 +494,11 @@ class MainWindow(QMainWindow):
 
     def _update_window_title(self):
         title = "Pixem"
-        if self._state is not None and self._state.project_filename is not None:
-            title = f"{os.path.basename(self._state.project_filename)} - {title}"
+        if self._state is not None:
+            if self._state.project_filename is not None:
+                title = f"{os.path.basename(self._state.project_filename)} - {title}"
+            else:
+                title = f"(untitled) - {title}"
         self.setWindowTitle(title)
 
     def _open_filename(self, filename: str) -> None:
@@ -668,7 +675,7 @@ class MainWindow(QMainWindow):
         self._partition_list.clear()
 
         self._disconnect_property_callbacks()
-        self._zoom_slider.setValue(self._state.zoom_factor * 100)
+        self._zoom_combobox.setCurrentIndex(DEFAULT_ZOOM_FACTOR_IDX)
         self._connect_property_callbacks()
 
         # FIXME: update state should be done in one method

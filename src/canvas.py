@@ -53,7 +53,7 @@ class Canvas(QWidget):
     # Pyside6 events
     #
     def paintEvent(self, event: QPaintEvent) -> None:
-        if not self._state or not self._state.layers:
+        if not self._state:
             return
 
         painter = QPainter(self)
