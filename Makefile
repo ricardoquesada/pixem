@@ -32,6 +32,8 @@ lint:
 
 clean:
 	pyside6-project clean
+
+purge: clean
 	rm -rf venv
 	rm -rf dist
 
