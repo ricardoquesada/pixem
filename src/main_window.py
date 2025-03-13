@@ -74,67 +74,71 @@ class MainWindow(QMainWindow):
 
     def _setup_ui(self):
         menu_bar = self.menuBar()
-        file_menu = QMenu("&File", self)
+        file_menu = QMenu(self.tr("&File"), self)
         menu_bar.addMenu(file_menu)
 
-        self._new_action = QAction(QIcon.fromTheme("document-new"), "New Project", self)
+        self._new_action = QAction(QIcon.fromTheme("document-new"), self.tr("New Project"), self)
         self._new_action.setShortcut(QKeySequence("Ctrl+N"))
         self._new_action.triggered.connect(self._on_new_project)
         file_menu.addAction(self._new_action)
 
-        self._open_action = QAction(QIcon.fromTheme("document-open"), "Open Image or Project", self)
+        self._open_action = QAction(
+            QIcon.fromTheme("document-open"), self.tr("Open Image or Project"), self
+        )
         self._open_action.setShortcut(QKeySequence("Ctrl+O"))
         self._open_action.triggered.connect(self._on_open_image_or_project)
         file_menu.addAction(self._open_action)
 
-        self._recent_menu = QMenu("Recent Files", file_menu)
+        self._recent_menu = QMenu(self.tr("Recent Files"), file_menu)
         file_menu.addMenu(self._recent_menu)
         self._populate_recent_menu()
 
-        self._close_action = QAction(QIcon.fromTheme("window-close"), "Close Project", self)
+        self._close_action = QAction(
+            QIcon.fromTheme("window-close"), self.tr("Close Project"), self
+        )
         self._close_action.setShortcut(QKeySequence("Ctrl+W"))
         self._close_action.triggered.connect(self._on_close_project)
         file_menu.addAction(self._close_action)
 
         file_menu.addSeparator()
 
-        self._save_action = QAction(QIcon.fromTheme("document-save"), "Save Project", self)
+        self._save_action = QAction(QIcon.fromTheme("document-save"), self.tr("Save Project"), self)
         self._save_action.setShortcut(QKeySequence("Ctrl+S"))
         self._save_action.triggered.connect(self._on_save_project)
         file_menu.addAction(self._save_action)
 
         self._save_as_action = QAction(
-            QIcon.fromTheme("document-save-as"), "Save Project As...", self
+            QIcon.fromTheme("document-save-as"), self.tr("Save Project As..."), self
         )
         self._save_as_action.setShortcut(QKeySequence("Ctrl+Shift+S"))
         self._save_as_action.triggered.connect(self._on_save_project_as)
         file_menu.addAction(self._save_as_action)
 
-        self._export_action = QAction("Export Project", self)
+        self._export_action = QAction(self.tr("Export Project"), self)
         self._export_action.setShortcut(QKeySequence("Ctrl+E"))
         self._export_action.triggered.connect(self._on_export_project)
         file_menu.addAction(self._export_action)
 
-        self._export_as_action = QAction("Export Project As...", self)
+        self._export_as_action = QAction(self.tr("Export Project As..."), self)
         self._export_as_action.setShortcut(QKeySequence("Ctrl+Shift+E"))
         self._export_as_action.triggered.connect(self._on_export_project_as)
         file_menu.addAction(self._export_as_action)
 
         file_menu.addSeparator()
 
-        self._exit_action = QAction(QIcon.fromTheme("application-exit"), "Exit", self)
+        self._exit_action = QAction(QIcon.fromTheme("application-exit"), self.tr("Exit"), self)
         self._exit_action.setShortcut(QKeySequence("Ctrl+Q"))
         self._exit_action.triggered.connect(self._on_exit_application)
         file_menu.addAction(self._exit_action)
 
-        edit_menu = QMenu("&Edit", self)
+        edit_menu = QMenu(self.tr("&Edit"), self)
         menu_bar.addMenu(edit_menu)
 
-        self._undo_action = QAction(QIcon.fromTheme("edit-undo"), "&Undo", self)
+        self._undo_action = QAction(QIcon.fromTheme("edit-undo"), self.tr("&Undo"), self)
         self._undo_action.setShortcut("Ctrl+Z")
         self._undo_action.setEnabled(False)
         edit_menu.addAction(self._undo_action)
-        self._redo_action = QAction(QIcon.fromTheme("edit-redo"), "&Redo", self)
+        self._redo_action = QAction(QIcon.fromTheme("edit-redo"), self.tr("&Redo"), self)
         self._redo_action.setShortcut("Ctrl+Shift+Z")
         self._redo_action.setEnabled(False)
         edit_menu.addAction(self._redo_action)
@@ -142,14 +146,14 @@ class MainWindow(QMainWindow):
         edit_menu.addSeparator()
 
         icon = create_icon_from_svg(":/res/icons/svg/actions/object-select-symbolic.svg")
-        self._canvas_mode_move_action = QAction(icon, "Select Mode", self)
+        self._canvas_mode_move_action = QAction(icon, self.tr("Select Mode"), self)
         self._canvas_mode_move_action.setCheckable(True)
         self._canvas_mode_move_action.setChecked(True)
         self._canvas_mode_move_action.triggered.connect(self._on_canvas_mode_move)
         edit_menu.addAction(self._canvas_mode_move_action)
 
         icon = create_icon_from_svg(":/res/icons/svg/actions/draw-freehand-symbolic.svg")
-        self._canvas_mode_drawing_action = QAction(icon, "Drawing Mode", self)
+        self._canvas_mode_drawing_action = QAction(icon, self.tr("Drawing Mode"), self)
         self._canvas_mode_drawing_action.setCheckable(True)
         self._canvas_mode_drawing_action.setChecked(False)
         self._canvas_mode_drawing_action.triggered.connect(self._on_canvas_mode_drawing)
@@ -160,7 +164,7 @@ class MainWindow(QMainWindow):
         edit_menu.addSeparator()
 
         self._preferences_action = QAction(
-            QIcon.fromTheme("preferences-system"), "&Preferences", self
+            QIcon.fromTheme("preferences-system"), self.tr("&Preferences"), self
         )
         self._preferences_action.triggered.connect(self._on_preferences)
         edit_menu.addAction(self._preferences_action)
@@ -171,7 +175,7 @@ class MainWindow(QMainWindow):
 
         show_hoop_separator_action = view_menu.addSeparator()
 
-        self._show_hoop_action = QAction("&Show hoop size", self)
+        self._show_hoop_action = QAction(self.tr("&Show hoop size"), self)
         self._show_hoop_action.setCheckable(True)
         self._show_hoop_action.triggered.connect(
             lambda: self._on_show_hoop_size(self._show_hoop_action)
@@ -181,24 +185,30 @@ class MainWindow(QMainWindow):
 
         view_menu.addSeparator()
 
-        self._reset_layout_action = QAction("Reset Layout", self)
+        self._reset_layout_action = QAction(self.tr("Reset Layout"), self)
         self._reset_layout_action.triggered.connect(self._on_reset_layout)
         view_menu.addAction(self._reset_layout_action)
 
-        layer_menu = QMenu("&Layer", self)
+        layer_menu = QMenu(self.tr("&Layer"), self)
         menu_bar.addMenu(layer_menu)
 
-        self._add_image_action = QAction(QIcon.fromTheme("insert-image"), "Add Image Layer", self)
+        self._add_image_action = QAction(
+            QIcon.fromTheme("insert-image"), self.tr("Add Image Layer"), self
+        )
         self._add_image_action.setShortcut(QKeySequence("Ctrl+I"))
         self._add_image_action.triggered.connect(self._on_layer_add_image)
         layer_menu.addAction(self._add_image_action)
 
-        self._add_text_action = QAction(QIcon.fromTheme("insert-text"), "Add Text Layer", self)
+        self._add_text_action = QAction(
+            QIcon.fromTheme("insert-text"), self.tr("Add Text Layer"), self
+        )
         self._add_text_action.setShortcut(QKeySequence("Ctrl+T"))
         self._add_text_action.triggered.connect(self._on_layer_add_text)
         layer_menu.addAction(self._add_text_action)
 
-        self._delete_layer_action = QAction(QIcon.fromTheme("edit-delete"), "Delete Layer", self)
+        self._delete_layer_action = QAction(
+            QIcon.fromTheme("edit-delete"), self.tr("Delete Layer"), self
+        )
         self._delete_layer_action.triggered.connect(self._on_layer_delete)
         layer_menu.addAction(self._delete_layer_action)
 
@@ -206,28 +216,28 @@ class MainWindow(QMainWindow):
         aligns = [
             (
                 LayerAlign.HORIZONTAL_LEFT,
-                "Align Horizontal Left",
+                self.tr("Align Horizontal Left"),
                 "align-horizontal-left-symbolic.svg",
             ),
             (
                 LayerAlign.HORIZONTAL_CENTER,
-                "Align Horizontal Center",
+                self.tr("Align Horizontal Center"),
                 "align-horizontal-center-symbolic.svg",
             ),
             (
                 LayerAlign.HORIZONTAL_RIGHT,
-                "Align Horizontal Right",
+                self.tr("Align Horizontal Right"),
                 "align-horizontal-right-symbolic.svg",
             ),
             (LayerAlign.VERTICAL_TOP, "Align Vertical Top", "align-vertical-top-symbolic.svg"),
             (
                 LayerAlign.VERTICAL_CENTER,
-                "Align Vertical Center",
+                self.tr("Align Vertical Center"),
                 "align-vertical-center-symbolic.svg",
             ),
             (
                 LayerAlign.VERTICAL_BOTTOM,
-                "Align Vertical Bottom",
+                self.tr("Align Vertical Bottom"),
                 "align-vertical-bottom-symbolic.svg",
             ),
         ]
@@ -245,22 +255,22 @@ class MainWindow(QMainWindow):
             if i == 2:
                 layer_menu.addSeparator()
 
-        partition_menu = QMenu("&Partition", self)
+        partition_menu = QMenu(self.tr("&Partition"), self)
         menu_bar.addMenu(partition_menu)
 
-        self._edit_partition_action = QAction("Edit Partition", self)
+        self._edit_partition_action = QAction(self.tr("Edit Partition"), self)
         self._edit_partition_action.setShortcut(QKeySequence("Ctrl+P"))
         self._edit_partition_action.triggered.connect(self._on_partition_edit)
         partition_menu.addAction(self._edit_partition_action)
 
-        help_menu = QMenu("&Help", self)
+        help_menu = QMenu(self.tr("&Help"), self)
         menu_bar.addMenu(help_menu)
 
-        self.about_action = QAction("About", self)
+        self.about_action = QAction(self.tr("About"), self)
         self.about_action.triggered.connect(self._on_show_about_dialog)
         help_menu.addAction(self.about_action)
 
-        self._toolbar = QToolBar("Tools")
+        self._toolbar = QToolBar(self.tr("Tools"))
         self._toolbar.setObjectName("main_window_toolbar")
         self._toolbar.setIconSize(QSize(16, 16))
         self.addToolBar(self._toolbar)
@@ -303,7 +313,7 @@ class MainWindow(QMainWindow):
         self._layer_list = QListWidget()
         self._layer_list.setDragDropMode(QListWidget.InternalMove)  # Enable reordering
         self._layer_list.model().rowsMoved.connect(self._on_layer_rows_moved)
-        layer_dock = QDockWidget("Layers", self)
+        layer_dock = QDockWidget(self.tr("Layers"), self)
         layer_dock.setObjectName("layer_dock")
         layer_dock.setWidget(self._layer_list)
         self.addDockWidget(Qt.RightDockWidgetArea, layer_dock)
@@ -312,7 +322,7 @@ class MainWindow(QMainWindow):
         self._partition_list = QListWidget()
         self._partition_list.setDragDropMode(QListWidget.InternalMove)  # Enable reordering
         self._partition_list.model().rowsMoved.connect(self._on_partition_rows_moved)
-        partitions_dock = QDockWidget("Partitions", self)
+        partitions_dock = QDockWidget(self.tr("Partitions"), self)
         partitions_dock.setObjectName("partitions_dock")
         partitions_dock.setWidget(self._partition_list)
         self.addDockWidget(Qt.RightDockWidgetArea, partitions_dock)
@@ -320,7 +330,7 @@ class MainWindow(QMainWindow):
         self._connect_layer_partition_callbacks()
 
         # Undo Dock
-        self._undo_dock = QDockWidget("Undo List", self)
+        self._undo_dock = QDockWidget(self.tr("Undo List"), self)
         self._undo_dock.setObjectName("undo_dock")
         self._undo_dock.setHidden(True)
         self._undo_dock.setFloating(True)
@@ -335,21 +345,21 @@ class MainWindow(QMainWindow):
         self._property_editor.setEnabled(False)
         self._property_layout = QFormLayout(self._property_editor)
         self._name_edit = QLineEdit()
-        self._property_layout.addRow("Name:", self._name_edit)
+        self._property_layout.addRow(self.tr("Name:"), self._name_edit)
 
         self._position_x_spinbox = QDoubleSpinBox()
         self._position_x_spinbox.setRange(-1000.0, 1000.0)
-        self._property_layout.addRow("Position X:", self._position_x_spinbox)
+        self._property_layout.addRow(self.tr("Position X:"), self._position_x_spinbox)
         self._position_y_spinbox = QDoubleSpinBox()
         self._position_y_spinbox.setRange(-1000.0, 1000.0)
-        self._property_layout.addRow("Position Y:", self._position_y_spinbox)
+        self._property_layout.addRow(self.tr("Position Y:"), self._position_y_spinbox)
 
         self._pixel_width_spinbox = QDoubleSpinBox()
         self._pixel_width_spinbox.setMinimum(1.0)
-        self._property_layout.addRow("Pixel Width:", self._pixel_width_spinbox)
+        self._property_layout.addRow(self.tr("Pixel Width:"), self._pixel_width_spinbox)
         self._pixel_height_spinbox = QDoubleSpinBox()
         self._pixel_height_spinbox.setMinimum(1.0)
-        self._property_layout.addRow("Pixel Height:", self._pixel_height_spinbox)
+        self._property_layout.addRow(self.tr("Pixel Height:"), self._pixel_height_spinbox)
 
         self._rotation_slider = QSlider(Qt.Horizontal)
         self._rotation_slider.setRange(0, 360)
@@ -361,16 +371,16 @@ class MainWindow(QMainWindow):
         hbox.addWidget(self._rotation_spinbox)
         hbox.addWidget(self._rotation_slider)
         self._rotation_spinbox.valueChanged.connect(self._rotation_slider.setValue)
-        self._property_layout.addRow("Rotation:", hbox)
+        self._property_layout.addRow(self.tr("Rotation:"), hbox)
 
         self._visible_checkbox = QCheckBox()
-        self._property_layout.addRow("Visible:", self._visible_checkbox)
+        self._property_layout.addRow(self.tr("Visible:"), self._visible_checkbox)
         self._opacity_slider = QSlider(Qt.Horizontal)
         self._opacity_slider.setRange(0, 100)
         self._opacity_slider.setValue(100)
-        self._property_layout.addRow("Opacity:", self._opacity_slider)
+        self._property_layout.addRow(self.tr("Opacity:"), self._opacity_slider)
 
-        property_dock = QDockWidget("Layer Properties", self)
+        property_dock = QDockWidget(self.tr("Layer Properties"), self)
         property_dock.setObjectName("property_dock")
         property_dock.setWidget(self._property_editor)
         self.addDockWidget(Qt.RightDockWidgetArea, property_dock)
@@ -409,7 +419,7 @@ class MainWindow(QMainWindow):
             self._recent_menu.addAction(action)
 
         self._recent_menu.addSeparator()
-        action = QAction(QIcon.fromTheme("edit-clear"), "Clear Menu", self)
+        action = QAction(QIcon.fromTheme("edit-clear"), self.tr("Clear Menu"), self)
         action.triggered.connect(self._on_clear_recent_files)
         self._recent_menu.addAction(action)
 
@@ -650,8 +660,8 @@ class MainWindow(QMainWindow):
         if self._state and not self._state.undo_stack.isClean():
             reply = QMessageBox.question(
                 self,
-                "Warning",
-                "Changes will be lost. Continue?",
+                self.tr("Warning"),
+                self.tr("Changes will be lost. Continue?"),
                 QMessageBox.Yes | QMessageBox.No,
                 QMessageBox.No,
             )
@@ -690,11 +700,11 @@ class MainWindow(QMainWindow):
         options = QFileDialog.Options()  # For more options if needed
         filename, _ = QFileDialog.getOpenFileName(
             self,
-            "Open Pixem Project File",
+            self.tr("Open Pixem Project File"),
             "",
-            "All Supported Files (*.pixemproj *.png *.jpg *.bmp );;"
-            "Pixem project (*.pixemproj);;"
-            "All files (*)",
+            self.tr(
+                "All Supported Files (*.pixemproj *.png *.jpg *.bmp );;Pixem project (*.pixemproj);;All files (*)"
+            ),
             options=options,
         )
         if filename:
@@ -726,7 +736,7 @@ class MainWindow(QMainWindow):
 
     def _on_save_project_as(self) -> None:
         filename, _ = QFileDialog.getSaveFileName(
-            self, "Save Project", "", "Pixem files (*.pixemproj);;All files (*)"
+            self, self.tr("Save Project"), "", self.tr("Pixem files (*.pixemproj);;All files (*)")
         )
         if filename:
             _, ext = os.path.splitext(filename)
@@ -759,8 +769,8 @@ class MainWindow(QMainWindow):
         if self._state and not self._state.undo_stack.isClean():
             reply = QMessageBox.question(
                 self,
-                "Warning",
-                "Changes will be lost. Continue?",
+                self.tr("Warning"),
+                self.tr("Changes will be lost. Continue?"),
                 QMessageBox.Yes | QMessageBox.No,
                 QMessageBox.No,
             )
@@ -818,7 +828,7 @@ class MainWindow(QMainWindow):
 
     def _on_layer_add_image(self) -> None:
         file_name, _ = QFileDialog.getOpenFileName(
-            self, "Open Image", "", "Images (*.png *.jpg *.bmp);;All files (*)"
+            self, self.tr("Open Image"), "", self.tr("Images (*.png *.jpg *.bmp);;All files (*)")
         )
         if file_name:
             layer = ImageLayer(file_name)
