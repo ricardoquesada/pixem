@@ -14,6 +14,10 @@ dist: resources
 resources:
 	pyside6-rcc src/resources.qrc -o src/rc_resources.py
 
+lupdate:
+	lupdate ./src/*.py -ts translations/pixem_en.ts
+
+
 venv:
 	rm -rf venv
 	python3 -m venv venv
