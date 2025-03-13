@@ -632,6 +632,6 @@
         <file>icons/svg/actions/zoom-symbolic.svg</file>
         <file>icons/svg/actions/arrow-clockwise-pixem.svg</file>
         <file>icons/svg/actions/arrow-counter-clockwise-pixem.svg</file>
-        <file>translations/pixem_en.qm</file>
+        <file>translations/en/pixem_en.qm</file>
     </qresource>
 </RCC>

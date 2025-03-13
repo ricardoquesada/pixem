@@ -14,10 +14,10 @@ resources:
 	pyside6-rcc src/res/resources.qrc -o src/res/rc_resources.py
 
 lupdate:
-	lupdate ./src/*.py -ts src/res/translations/pixem_en.ts
+	lupdate ./src/*.py -ts src/res/translations/**/*.ts
 
 lrelease:
-	lrelease ./src/res/translations/*.ts
+	lrelease ./src/res/translations/**/*.ts
 
 venv:
 	rm -rf venv

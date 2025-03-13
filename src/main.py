@@ -25,9 +25,13 @@ def main():
 
     app = QApplication(sys.argv)
 
-    translator = QTranslator()
-    translator.load(":/translations/your_app_en.qm")
-    app.installTranslator(translator)
+    translator_en = QTranslator()
+    translator_en.load(":/translations/en/pixem_en.qm")
+    translator_es = QTranslator()
+    translator_es.load(":/translations/es/pixem_es.qm")
+
+    app.installTranslator(translator_en)
+    app.installTranslator(translator_es)
 
     app.setApplicationName("Pixem")
     app.setOrganizationName("RetroMoe")
