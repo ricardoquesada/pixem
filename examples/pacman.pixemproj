@@ -1,6 +1,6 @@
 [[layers]]
 image = "iVBORw0KGgoAAAANSUhEUgAAAD4AAAAOCAYAAAB3u6/pAAABjGlDQ1BHSU1QIGJ1aWx0LWluIHNSR0IAACiRfZE7SMNQFIb/pooPKg5WEHHIUJ2sg4o41ioUoUKoFVp1MLnpC5o0JCkujoJrwcHHYtXBxVlXB1dBEHyAuAtOii5S4rlJoUWMBy7347/n/7n3XECol5lmdcQATbfNVCIuZrKrYtcrguhBABMYlJllzElSEr71dU+dVHdRnuXf92f1qTmLAQGROMYM0ybeIJ7ZtA3O+8RhVpRV4nPicZMuSPzIdcXjN84FlwWeGTbTqXniMLFYaGOljVnR1IiniSOqplO+kPFY5bzFWStXWfOe/IWhnL6yzHVaI0hgEUuQIEJBFSWUYSNKu06KhRSdx338w65fIpdCrhIYORZQgQbZ9YP/we/ZWvmpSS8pFAc6XxznYxTo2gUaNcf5PnacxgkQfAau9Ja/UgdmP0mvtbTIEdC/DVxctzRlD7jcAYaeDNmUXSlIS8jngfcz+qYsMHAL9K55c2ue4/QBSNOskjfAwSEwVqDsdZ93d7fP7d+e5vx+AGfwcqIUfZlEAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAGXRFWHRDb21tZW50AENyZWF0ZWQgd2l0aCBHSU1QV4EOFwAAAXNJREFUSIntVzGSwyAMlDz+iN34IalcOg89l678kDTwlL3Cgy2EMDDJFXdzO5OJsllBFgFWmAyACPIzE7GlywEb4vyZm/IJcT5xWz62Rc2/Jvl9lKAMa760ANqw5osLoA1rvrAAwxDynybv/ZXfnWNnTEfz32hypqs1OdOVGueu7/z0RVYsNT1RnelzbiLoyktDfjreh1ecF3hsQFJ5AM4f4TjEeQkPQFce2wJPRPtu/2bJY1vA88qdFHgH8i5dgxyf6Ka2OCCYq40/gdO4NFYT3+HxOF4/xVsYXs+muG/Z5gFyu9ec7SRfbncANLYOcG13eYNLYxKax7YgutXD6uqzkuPTCY6tvO/xGc/xAd4ZZ/mG/wRYVnwcjtD5+O6x+HcqTiQebTW3uTlAWvEWRBXXhkv8b0ZXlvxN/BvXTQkTscWVBrTa0qpeXbejzGxy2XnjfpznlS0uxB3RZejOWE4jTYW4lksM3fXiN5pgyPozktN8Ay7R3itG7lH5AAAAAElFTkSuQmCC"
-current_partition_uuid = "e7bfd59b-4c91-4a4d-924f-beadd0ce4668"
+current_partition_uuid = "b521173d-1811-44c4-8682-393764fae880"
 layer_type = "ImageLayer"
 image_file_name = "/Volumes/riq_data/progs/embroidery/pixel/sprites/pacman.png"
 
@@ -18,7 +18,7 @@ size = 126
 name = "#ff0000_0"
 color = "#ff0000"
 [layers.partitions.185bc94b-ed6a-4e01-884e-e868310d5279]
-path = [ [ 28, 3,], [ 27, 2,], [ 26, 2,], [ 26, 1,], [ 25, 1,], [ 24, 1,], [ 24, 0,], [ 23, 0,], [ 22, 0,], [ 21, 0,], [ 21, 1,], [ 20, 1,], [ 19, 1,], [ 19, 2,], [ 18, 2,], [ 18, 3,], [ 17, 3,], [ 17, 4,], [ 17, 5,], [ 17, 6,], [ 16, 6,], [ 16, 7,], [ 16, 8,], [ 16, 9,], [ 16, 10,], [ 16, 11,], [ 16, 12,], [ 17, 12,], [ 17, 13,], [ 18, 13,], [ 18, 12,], [ 19, 12,], [ 19, 11,], [ 20, 11,], [ 21, 11,], [ 21, 12,], [ 22, 12,], [ 22, 13,], [ 23, 13,], [ 23, 12,], [ 24, 12,], [ 24, 11,], [ 25, 11,], [ 26, 11,], [ 26, 12,], [ 27, 12,], [ 27, 13,], [ 28, 13,], [ 28, 12,], [ 29, 12,], [ 29, 11,], [ 29, 10,], [ 29, 9,], [ 29, 8,], [ 29, 7,], [ 29, 6,], [ 28, 7,], [ 28, 8,], [ 27, 8,], [ 26, 8,], [ 25, 8,], [ 25, 7,], [ 24, 7,], [ 24, 6,], [ 24, 5,], [ 24, 4,], [ 24, 3,], [ 25, 3,], [ 25, 2,], [ 24, 2,], [ 23, 2,], [ 23, 1,], [ 22, 1,], [ 22, 2,], [ 21, 2,], [ 20, 2,], [ 22, 3,], [ 23, 3,], [ 23, 4,], [ 23, 5,], [ 23, 6,], [ 23, 7,], [ 22, 7,], [ 21, 8,], [ 22, 8,], [ 23, 8,], [ 24, 8,], [ 25, 9,], [ 26, 9,], [ 27, 9,], [ 28, 9,], [ 28, 10,], [ 28, 11,], [ 27, 11,], [ 27, 10,], [ 26, 10,], [ 25, 10,], [ 24, 10,], [ 24, 9,], [ 23, 9,], [ 23, 10,], [ 23, 11,], [ 22, 11,], [ 22, 10,], [ 22, 9,], [ 21, 9,], [ 21, 10,], [ 20, 10,], [ 20, 9,], [ 20, 8,], [ 19, 7,], [ 19, 8,], [ 19, 9,], [ 19, 10,], [ 18, 11,], [ 17, 11,], [ 17, 10,], [ 18, 10,], [ 18, 9,], [ 17, 9,], [ 17, 8,], [ 18, 8,], [ 17, 7,], [ 18, 7,], [ 18, 6,], [ 18, 5,], [ 18, 4,], [ 19, 3,],]
+path = [ [ 28, 3,], [ 27, 2,], [ 26, 2,], [ 26, 1,], [ 25, 1,], [ 24, 1,], [ 24, 0,], [ 23, 0,], [ 22, 0,], [ 21, 0,], [ 21, 1,], [ 20, 1,], [ 19, 1,], [ 19, 2,], [ 18, 2,], [ 18, 3,], [ 17, 3,], [ 17, 4,], [ 17, 5,], [ 17, 6,], [ 16, 6,], [ 16, 7,], [ 16, 8,], [ 16, 9,], [ 16, 10,], [ 16, 11,], [ 16, 12,], [ 17, 12,], [ 17, 13,], [ 18, 13,], [ 18, 12,], [ 19, 12,], [ 19, 11,], [ 20, 11,], [ 21, 11,], [ 21, 12,], [ 22, 12,], [ 22, 13,], [ 23, 13,], [ 23, 12,], [ 24, 12,], [ 24, 11,], [ 25, 11,], [ 26, 11,], [ 26, 12,], [ 27, 12,], [ 27, 13,], [ 28, 13,], [ 28, 12,], [ 29, 12,], [ 29, 11,], [ 29, 10,], [ 29, 9,], [ 29, 8,], [ 29, 7,], [ 29, 6,], [ 28, 7,], [ 28, 8,], [ 28, 9,], [ 28, 10,], [ 28, 11,], [ 27, 11,], [ 27, 10,], [ 27, 9,], [ 27, 8,], [ 26, 8,], [ 26, 9,], [ 26, 10,], [ 25, 10,], [ 25, 9,], [ 25, 8,], [ 25, 7,], [ 24, 7,], [ 24, 6,], [ 24, 5,], [ 24, 4,], [ 24, 3,], [ 25, 3,], [ 25, 2,], [ 24, 2,], [ 23, 2,], [ 23, 1,], [ 22, 1,], [ 22, 2,], [ 22, 3,], [ 23, 3,], [ 23, 4,], [ 23, 5,], [ 23, 6,], [ 23, 7,], [ 23, 8,], [ 24, 8,], [ 24, 9,], [ 24, 10,], [ 23, 10,], [ 23, 11,], [ 22, 11,], [ 22, 10,], [ 22, 9,], [ 23, 9,], [ 22, 8,], [ 22, 7,], [ 21, 8,], [ 21, 9,], [ 21, 10,], [ 20, 10,], [ 20, 9,], [ 20, 8,], [ 19, 7,], [ 19, 8,], [ 19, 9,], [ 19, 10,], [ 18, 10,], [ 18, 11,], [ 17, 11,], [ 17, 10,], [ 17, 9,], [ 18, 9,], [ 18, 8,], [ 17, 8,], [ 17, 7,], [ 18, 7,], [ 18, 6,], [ 18, 5,], [ 18, 4,], [ 19, 3,], [ 20, 2,], [ 21, 2,],]
 size = 128
 name = "#ffb7ff_0"
 color = "#ffb7ff"
@@ -53,7 +53,7 @@ size = 12
 name = "#dedeff_3"
 color = "#dedeff"
 [layers.partitions.b521173d-1811-44c4-8682-393764fae880]
-path = [ [ 34, 7,], [ 35, 7,], [ 35, 6,], [ 36, 6,], [ 36, 5,], [ 36, 4,], [ 35, 4,], [ 35, 3,], [ 34, 3,], [ 33, 4,], [ 34, 4,], [ 35, 5,],]
+path = [ [ 33, 4,], [ 34, 4,], [ 34, 3,], [ 35, 3,], [ 35, 4,], [ 36, 4,], [ 36, 5,], [ 35, 5,], [ 36, 6,], [ 35, 6,], [ 35, 7,], [ 34, 7,],]
 size = 12
 name = "#dedeff_4"
 color = "#dedeff"
