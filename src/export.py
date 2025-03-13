@@ -2,6 +2,7 @@
 # Copyright 2024 - Ricardo Quesada
 
 import logging
+import os.path
 from dataclasses import asdict, dataclass
 from typing import TextIO
 
@@ -63,11 +64,14 @@ class ExportToSVG:
                 f'  viewBox="0 0 {round(self._hoop_size[0] * INCHES_TO_MM)}'
                 f' {round(self._hoop_size[1] * INCHES_TO_MM)}"\n'
                 f'  version="1.1"\n'
-                f'  id="{self._export_params.fill_method}"\n'
+                f'  id="svg8"\n'
                 f'  xmlns="http://www.w3.org/2000/svg"\n'
                 f'  xmlns:svg="http://www.w3.org/2000/svg"\n'
                 f'  xmlns:inkstitch="http://inkstitch.org/namespace"\n'
                 ">\n"
+            )
+            f.write(
+                f'<title id="title1023">{os.path.basename(self._export_params.filename)}</title>\n'
             )
             f.write(
                 "<sodipodi:namedview\n"
@@ -107,17 +111,20 @@ class ExportToSVG:
                     '">\n'
                 )
 
-                for partition in partitions:
+                for partition_key in partitions:
                     # Each partition is a list of list. Each list is a connected graph.
-                    path = partitions[partition].path
-                    f.write(f'<g id="partition_{layer_idx}_{partition}">\n')
+                    partition = partitions[partition_key]
+                    path = partition.path
+                    color = partition.color
+                    part_id = f"partition_{layer_idx}_{partition.name}"
+                    part_id = part_id.replace("#", "")
+                    f.write(f'<g id="{part_id}">\n')
                     for coord in path:
                         # coord is a tuple (x,y)
                         x, y = coord
                         angle = self._export_params.initial_angle_degrees
                         if (x + y) % 2 == 0:
                             angle += 90
-                        color = partition.split("_")[0]
                         self._write_rect_svg(
                             f,
                             layer_idx,

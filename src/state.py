@@ -127,7 +127,7 @@ class State(QObject):
             logger.warning("No layers found. Cannot export file")
             return
 
-        export = ExportToSVG(get_global_preferences().get_hoop_size(), export_params)
+        export = ExportToSVG(self._properties.hoop_size, export_params)
 
         for i, layer in enumerate(self._layers):
             export.add_layer(
