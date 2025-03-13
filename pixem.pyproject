@@ -14,8 +14,8 @@
         "src/partition_dialog.py",
         "src/preference_dialog.py",
         "src/preferences.py",
-        "src/rc_resources.py",
-        "src/resources.qrc",
+        "src/res/rc_resources.py",
+        "src/res/resources.qrc",
         "src/state.py",
         "src/state_properties.py",
         "src/undo_commands.py"

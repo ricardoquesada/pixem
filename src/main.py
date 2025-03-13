@@ -4,11 +4,12 @@
 import logging
 import sys
 
+from PySide6.QtCore import QTranslator
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication
 
-import rc_resources  # noqa: F401
 from main_window import MainWindow
+from res import rc_resources  # noqa: F401
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +24,11 @@ def main():
     )
 
     app = QApplication(sys.argv)
+
+    translator = QTranslator()
+    translator.load(":/translations/your_app_en.qm")
+    app.installTranslator(translator)
+
     app.setApplicationName("Pixem")
     app.setOrganizationName("RetroMoe")
     app.setOrganizationDomain("retro.moe")

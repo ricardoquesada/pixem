@@ -18,7 +18,7 @@ class AboutDialog(QDialog):
 
         # Create an icon label
         icon_label = QLabel()
-        pixmap = QPixmap(":/res/logo512.png")  # Replace with your icon path
+        pixmap = QPixmap(":/logo512.png")  # Replace with your icon path
         icon_label.setPixmap(pixmap)
         icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # Center the icon
 

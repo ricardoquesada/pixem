@@ -10,14 +10,14 @@ run:
 dist: resources
 	pyinstaller --name Pixem src/main.py
 
-
 resources:
-	pyside6-rcc src/resources.qrc -o src/rc_resources.py
+	pyside6-rcc src/res/resources.qrc -o src/res/rc_resources.py
 
-lupdate: clean
-	# "clean" is needed to remove the rc_resources.py that breaks lupdate
-	lupdate ./src/*.py -ts translations/pixem_en.ts
+lupdate:
+	lupdate ./src/*.py -ts src/res/translations/pixem_en.ts
 
+lrelease:
+	lrelease ./src/res/translations/*.ts
 
 venv:
 	rm -rf venv

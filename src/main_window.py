@@ -145,14 +145,14 @@ class MainWindow(QMainWindow):
 
         edit_menu.addSeparator()
 
-        icon = create_icon_from_svg(":/res/icons/svg/actions/object-select-symbolic.svg")
+        icon = create_icon_from_svg(":/icons/svg/actions/object-select-symbolic.svg")
         self._canvas_mode_move_action = QAction(icon, self.tr("Select Mode"), self)
         self._canvas_mode_move_action.setCheckable(True)
         self._canvas_mode_move_action.setChecked(True)
         self._canvas_mode_move_action.triggered.connect(self._on_canvas_mode_move)
         edit_menu.addAction(self._canvas_mode_move_action)
 
-        icon = create_icon_from_svg(":/res/icons/svg/actions/draw-freehand-symbolic.svg")
+        icon = create_icon_from_svg(":/icons/svg/actions/draw-freehand-symbolic.svg")
         self._canvas_mode_drawing_action = QAction(icon, self.tr("Drawing Mode"), self)
         self._canvas_mode_drawing_action.setCheckable(True)
         self._canvas_mode_drawing_action.setChecked(False)
@@ -245,7 +245,7 @@ class MainWindow(QMainWindow):
         self._align_actions = {}
 
         for i, align in enumerate(aligns):
-            path = f":/res/icons/svg/actions/{align[2]}"
+            path = f":/icons/svg/actions/{align[2]}"
             icon = create_icon_from_svg(path)
             action = QAction(icon, align[1], self)
             action.triggered.connect(self._on_layer_align)

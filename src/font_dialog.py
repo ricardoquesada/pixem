@@ -24,8 +24,8 @@ class FontDialog(QDialog):
         self._text_edit = QLineEdit()
         self._font_label = QLabel("Font:")
         self._font_combo = QComboBox()
-        self._font_combo.addItem("PETSCII (Commodore 8-bit)", ":/res/fonts/petscii-charset.bin")
-        self._font_combo.addItem("ATASCII (Atari 8-bit)", ":/res/fonts/atascii-charset.bin")
+        self._font_combo.addItem("PETSCII (Commodore 8-bit)", ":/fonts/petscii-charset.bin")
+        self._font_combo.addItem("ATASCII (Atari 8-bit)", ":/fonts/atascii-charset.bin")
 
         # Create QDialogButtonBox
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)

@@ -210,7 +210,7 @@ class PartitionDialog(QDialog):
             (ImageWidget.EditMode.SELECT, "Select", "dialog-layers-symbolic.svg"),
         ]
         for mode in action_modes:
-            path = f":/res/icons/svg/actions/{mode[2]}"
+            path = f":/icons/svg/actions/{mode[2]}"
             icon = create_icon_from_svg(path, ICON_SIZE)
             action = QAction(icon, mode[1], self)
             toolbar.addAction(action)
@@ -230,7 +230,7 @@ class PartitionDialog(QDialog):
         ]
 
         for mode in fill_modes:
-            path = f":/res/icons/svg/actions/{mode[2]}"
+            path = f":/icons/svg/actions/{mode[2]}"
             icon = create_icon_from_svg(path, ICON_SIZE)
             action = QAction(icon, mode[1], self)
             toolbar.addAction(action)
