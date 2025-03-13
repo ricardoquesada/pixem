@@ -633,5 +633,6 @@
         <file>icons/svg/actions/arrow-clockwise-pixem.svg</file>
         <file>icons/svg/actions/arrow-counter-clockwise-pixem.svg</file>
         <file>translations/en/pixem_en.qm</file>
+        <file>translations/es/pixem_es.qm</file>
     </qresource>
 </RCC>

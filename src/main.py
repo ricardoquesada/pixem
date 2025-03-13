@@ -4,7 +4,7 @@
 import logging
 import sys
 
-from PySide6.QtCore import QTranslator
+from PySide6.QtCore import QLocale, QTranslator
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication
 
@@ -25,13 +25,23 @@ def main():
 
     app = QApplication(sys.argv)
 
-    translator_en = QTranslator()
-    translator_en.load(":/translations/en/pixem_en.qm")
-    translator_es = QTranslator()
-    translator_es.load(":/translations/es/pixem_es.qm")
+    translators = {
+        "en": ":/translations/en/pixem_en.qm",
+        "es": ":/translations/es/pixem_es.qm",
+    }
 
-    app.installTranslator(translator_en)
-    app.installTranslator(translator_es)
+    locale = QLocale.system()
+    lang_code = locale.name()[:2]
+    logger.info(f"Detected language: {lang_code}")
+
+    if lang_code not in translators:
+        lang_code = "en"
+    path = translators[lang_code]
+    translator = QTranslator()
+    if not translator.load(path):
+        logger.warning(f"Failed to load: {path}")
+    else:
+        app.installTranslator(translator)
 
     app.setApplicationName("Pixem")
     app.setOrganizationName("RetroMoe")
