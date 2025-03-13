@@ -14,7 +14,7 @@ dist: resources
 resources:
 	pyside6-rcc src/resources.qrc -o src/rc_resources.py
 
-lupdate:
+lupdate: clean
 	lupdate ./src/*.py -ts translations/pixem_en.ts
 
 
