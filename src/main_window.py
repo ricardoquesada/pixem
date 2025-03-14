@@ -5,7 +5,7 @@ import logging
 import os.path
 import sys
 
-from PySide6.QtCore import QPointF, QSize, Qt
+from PySide6.QtCore import QPointF, QSize, Qt, Slot
 from PySide6.QtGui import QAction, QCloseEvent, QGuiApplication, QIcon, QKeySequence, QUndoStack
 from PySide6.QtWidgets import (
     QApplication,
@@ -674,8 +674,9 @@ class MainWindow(QMainWindow):
         super().closeEvent(event)
 
     #
-    # local events / callbacks
+    # Slots (callbacks, events):
     #
+    @Slot()
     def _on_new_project(self) -> None:
         # FIXME: If an existing state is dirty, it should ask for "are you sure"
         state = State()
@@ -695,6 +696,7 @@ class MainWindow(QMainWindow):
 
         self._update_window_title()
 
+    @Slot()
     def _on_open_image_or_project(self) -> None:
         # FIXME: If an existing state is dirty, it should ask for "are you sure"
         options = QFileDialog.Options()  # For more options if needed
@@ -719,14 +721,17 @@ class MainWindow(QMainWindow):
         else:
             logger.warning("Could not open file. Invalid filename")
 
+    @Slot()
     def _on_recent_file(self) -> None:
         filename = self.sender().data()
         self._open_filename(filename)
 
+    @Slot()
     def _on_clear_recent_files(self) -> None:
         get_global_preferences().clear_recent_files()
         self._populate_recent_menu()
 
+    @Slot()
     def _on_save_project(self) -> None:
         filename = self._state.project_filename
         if filename is None:
@@ -734,6 +739,7 @@ class MainWindow(QMainWindow):
             return
         self._state.save_to_filename(filename)
 
+    @Slot()
     def _on_save_project_as(self) -> None:
         filename, _ = QFileDialog.getSaveFileName(
             self, self.tr("Save Project"), "", self.tr("Pixem files (*.pixemproj);;All files (*)")
@@ -747,6 +753,7 @@ class MainWindow(QMainWindow):
             get_global_preferences().add_recent_file(filename)
             self._populate_recent_menu()
 
+    @Slot()
     def _on_export_project(self) -> None:
         export_params = self._state.export_params
         if (
@@ -759,12 +766,14 @@ class MainWindow(QMainWindow):
 
         self._state.export_to_filename(export_params)
 
+    @Slot()
     def _on_export_project_as(self) -> None:
         dialog = ExportDialog(self._state.export_params)
         if dialog.exec() == QDialog.Accepted:
             export_params = dialog.get_export_parameters()
             self._state.export_to_filename(export_params)
 
+    @Slot()
     def _on_close_project(self) -> None:
         if self._state and not self._state.undo_stack.isClean():
             reply = QMessageBox.question(
@@ -791,9 +800,11 @@ class MainWindow(QMainWindow):
 
         self._update_window_title()
 
+    @Slot()
     def _on_exit_application(self) -> None:
         QApplication.quit()
 
+    @Slot()
     def _on_show_hoop_size(self, action: QAction) -> None:
         is_checked = action.isChecked()
         get_global_preferences().set_hoop_visible(is_checked)
@@ -801,6 +812,7 @@ class MainWindow(QMainWindow):
         self._canvas.update()
         self.update()
 
+    @Slot()
     def _on_reset_layout(self) -> None:
         prefs = get_global_preferences()
         default_geometry = prefs.get_default_window_geometry()
@@ -817,6 +829,7 @@ class MainWindow(QMainWindow):
             )
         )
 
+    @Slot()
     def _on_preferences(self) -> None:
         hoop_size = get_global_preferences().get_hoop_size()
         if self._state is not None:
@@ -826,6 +839,7 @@ class MainWindow(QMainWindow):
             if self._state:
                 self._state.hoop_size = get_global_preferences().get_hoop_size()
 
+    @Slot()
     def _on_layer_add_image(self) -> None:
         file_name, _ = QFileDialog.getOpenFileName(
             self, self.tr("Open Image"), "", self.tr("Images (*.png *.jpg *.bmp);;All files (*)")
@@ -835,6 +849,7 @@ class MainWindow(QMainWindow):
             layer.name = f"ImageLayer {len(self._state.layers) + 1}"
             self._add_layer(layer)
 
+    @Slot()
     def _on_layer_add_text(self) -> None:
         dialog = FontDialog()
         if dialog.exec() == QDialog.Accepted:
@@ -843,6 +858,7 @@ class MainWindow(QMainWindow):
             layer.name = f"TextLayer {len(self._state.layers) + 1}"
             self._add_layer(layer)
 
+    @Slot()
     def _on_layer_delete(self) -> None:
         selected_items = self._layer_list.selectedItems()
         layer = self._state.selected_layer
@@ -868,6 +884,7 @@ class MainWindow(QMainWindow):
         self._canvas.recalculate_fixed_size()
         self.update()
 
+    @Slot()
     def _on_layer_align(self):
         s = self.sender()
         if self._state is None or self._state.selected_layer is None:
@@ -876,9 +893,11 @@ class MainWindow(QMainWindow):
         self._position_x_spinbox.setValue(x)
         self._position_y_spinbox.setValue(y)
 
+    @Slot()
     def _on_zoom_changed(self, index: int) -> None:
         self._state.zoom_factor = self._zoom_factors[index]
 
+    @Slot()
     def _on_change_layer(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
         enabled = current is not None
         self._property_editor.setEnabled(enabled)
@@ -906,6 +925,7 @@ class MainWindow(QMainWindow):
             if self._state is not None:
                 self._state.current_layer_uuid = None
 
+    @Slot()
     def _on_layer_rows_moved(self, parent, start, end, destination):
         if self._state is None:
             logger.warning("Cannot reorder layers, no active state")
@@ -921,6 +941,7 @@ class MainWindow(QMainWindow):
                     break
         self._state.layers = new_layers
 
+    @Slot()
     def _on_change_partition(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
         enabled = current is not None
         selected_layer = self._state.selected_layer
@@ -934,12 +955,14 @@ class MainWindow(QMainWindow):
         self._canvas.update()
         self.update()
 
+    @Slot()
     def _on_double_click_partition(self, current: QListWidgetItem) -> None:
         if current is None:
             return
 
         self._on_partition_edit()
 
+    @Slot()
     def _on_partition_edit(self):
         layer = self._state.selected_layer
         if layer is None:
@@ -954,6 +977,7 @@ class MainWindow(QMainWindow):
             path = dialog.get_path()
             partition.path = path
 
+    @Slot()
     def _on_partition_rows_moved(self, parent, start, end, destination):
         if self._state is None or self._state.selected_layer is None:
             logger.warning("Cannot reorder partitions, no layer selected")
@@ -969,6 +993,7 @@ class MainWindow(QMainWindow):
             new_partitions[partition_uuid] = partitions[partition_uuid]
         layer.partitions = new_partitions
 
+    @Slot()
     def _on_update_layer_property(self) -> None:
         current_layer = self._state.selected_layer
         enabled = current_layer is not None
@@ -987,14 +1012,17 @@ class MainWindow(QMainWindow):
             self._canvas.recalculate_fixed_size()
             self.update()
 
+    @Slot()
     def _on_show_about_dialog(self) -> None:
         dialog = AboutDialog()
         dialog.exec()
 
+    @Slot()
     def _on_position_changed_from_canvas(self, position: QPointF):
         self._position_x_spinbox.setValue(position.x())
         self._position_y_spinbox.setValue(position.y())
 
+    @Slot()
     def _on_layer_selection_changed_from_canvas(self, layer_uuid: str):
         for i in range(self._layer_list.count()):
             item = self._layer_list.item(i)
@@ -1002,6 +1030,7 @@ class MainWindow(QMainWindow):
                 self._layer_list.setCurrentRow(i)
                 break
 
+    @Slot()
     def _on_layer_property_changed_from_state(self, layer: Layer):
         if self._state is None:
             logger.warning("Unexpected state. Should not be none")
@@ -1032,6 +1061,7 @@ class MainWindow(QMainWindow):
         self._canvas.recalculate_fixed_size()
         self.update()
 
+    @Slot()
     def _on_state_property_changed_from_state(
         self, flag: StatePropertyFlags, properties: StateProperties
     ):
@@ -1049,16 +1079,19 @@ class MainWindow(QMainWindow):
             self._canvas.update()
             self.update()
 
+    @Slot()
     def _on_canvas_mode_move(self):
         self._canvas_mode_move_action.setChecked(True)
         self._canvas_mode_drawing_action.setChecked(False)
         self._canvas.mode = Canvas.Mode.MOVE
 
+    @Slot()
     def _on_canvas_mode_drawing(self):
         self._canvas_mode_move_action.setChecked(False)
         self._canvas_mode_drawing_action.setChecked(True)
         self._canvas.mode = Canvas.Mode.DRAWING
 
+    @Slot()
     def _on_undo_stack_index_changed(self, index: int):
         if self._state:
             self._undo_action.setEnabled(self._state.undo_stack.canUndo())
