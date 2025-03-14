@@ -4,7 +4,7 @@
 import logging
 import sys
 
-from PySide6.QtCore import QLocale, QTranslator
+from PySide6.QtCore import QLibraryInfo, QLocale, QTranslator
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication
 
@@ -24,6 +24,12 @@ def main():
     )
 
     app = QApplication(sys.argv)
+
+    # System translations
+    path = QLibraryInfo.location(QLibraryInfo.TranslationsPath)
+    translator = QTranslator(app)
+    if translator.load(QLocale.system(), "qtbase", "_", path):
+        app.installTranslator(translator)
 
     translators = {
         "en": ":/translations/en/pixem_en.qm",
