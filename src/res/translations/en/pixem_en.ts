@@ -96,12 +96,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../font_dialog.py" line="27"/>
+        <location filename="../../../font_dialog.py" line="28"/>
         <source>PETSCII (Commodore 8-bit)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../font_dialog.py" line="28"/>
+        <location filename="../../../font_dialog.py" line="30"/>
         <source>ATASCII (Atari 8-bit)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -400,12 +400,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../partition_dialog.py" line="228"/>
+        <location filename="../../../partition_dialog.py" line="230"/>
         <source>Spiral CCW</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../partition_dialog.py" line="229"/>
+        <location filename="../../../partition_dialog.py" line="233"/>
         <source>Random</source>
         <translation type="unfinished"></translation>
     </message>
@@ -466,7 +466,7 @@
 <context>
     <name>QCoreApplication</name>
     <message>
-        <location filename="../../../undo_commands.py" line="19"/>
+        <location filename="../../../undo_commands.py" line="18"/>
         <source>Rotation {rotation}</source>
         <translation type="unfinished"></translation>
     </message>

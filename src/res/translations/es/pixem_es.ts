@@ -70,7 +70,7 @@
     <message>
         <location filename="../../../export_dialog.py" line="103"/>
         <source>Export Project</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Exportar Proyecto</translation>
     </message>
     <message>
         <location filename="../../../export_dialog.py" line="104"/>
@@ -96,12 +96,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../font_dialog.py" line="27"/>
+        <location filename="../../../font_dialog.py" line="28"/>
         <source>PETSCII (Commodore 8-bit)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../font_dialog.py" line="28"/>
+        <location filename="../../../font_dialog.py" line="30"/>
         <source>ATASCII (Atari 8-bit)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -147,22 +147,22 @@
     <message>
         <location filename="../../../main_window.py" line="117"/>
         <source>Export Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportar Proyecto</translation>
     </message>
     <message>
         <location filename="../../../main_window.py" line="122"/>
         <source>Export Project As...</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportar Proyecto Como...</translation>
     </message>
     <message>
         <location filename="../../../main_window.py" line="129"/>
         <source>Exit</source>
-        <translation type="unfinished"></translation>
+        <translation>Salir</translation>
     </message>
     <message>
         <location filename="../../../main_window.py" line="134"/>
         <source>&amp;Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Editar</translation>
     </message>
     <message>
         <location filename="../../../main_window.py" line="137"/>
@@ -400,12 +400,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../partition_dialog.py" line="228"/>
+        <location filename="../../../partition_dialog.py" line="230"/>
         <source>Spiral CCW</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../partition_dialog.py" line="229"/>
+        <location filename="../../../partition_dialog.py" line="233"/>
         <source>Random</source>
         <translation type="unfinished"></translation>
     </message>
@@ -466,9 +466,9 @@
 <context>
     <name>QCoreApplication</name>
     <message>
-        <location filename="../../../undo_commands.py" line="19"/>
+        <location filename="../../../undo_commands.py" line="18"/>
         <source>Rotation {rotation}</source>
-        <translation type="unfinished"></translation>
+        <translation>Rotación {rotation}</translation>
     </message>
 </context>
 </TS>
