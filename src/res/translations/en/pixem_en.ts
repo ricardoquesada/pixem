@@ -2,6 +2,111 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="en_US">
 <context>
+    <name>AboutDialog</name>
+    <message>
+        <location filename="../../../about_dialog.py" line="17"/>
+        <source>About Pixem</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../about_dialog.py" line="36"/>
+        <source>
+            &lt;p&gt;&lt;b&gt;Pixem&lt;/b&gt;&lt;/p&gt;
+            &lt;p&gt;A pixel-art to machine-embroidery application&lt;/p&gt;
+            &lt;p&gt;Version {VERSION}&lt;/p&gt;
+            &lt;p&gt;Copyright (c) 2024-2025 Ricardo Quesada&lt;/p&gt;
+            &lt;a href=&quot;https://github.com/ricardoquesada/pixem&quot;&gt;https://github.com/ricardoquesada/pixem&lt;/a&gt;
+            </source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ExportDialog</name>
+    <message>
+        <location filename="../../../export_dialog.py" line="29"/>
+        <source>Export As Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../export_dialog.py" line="35"/>
+        <source>File Name:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../export_dialog.py" line="38"/>
+        <source>Browse</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../export_dialog.py" line="48"/>
+        <source>Fill Method:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../export_dialog.py" line="52"/>
+        <source>Auto Fill</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../export_dialog.py" line="53"/>
+        <source>Legacy Fill</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../export_dialog.py" line="65"/>
+        <source>Pull Compensation (mm):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../export_dialog.py" line="74"/>
+        <source>Max Stitch Length (mm):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../export_dialog.py" line="84"/>
+        <source>Initial Angle (degrees):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../export_dialog.py" line="103"/>
+        <source>Export Project</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../export_dialog.py" line="104"/>
+        <source>SVG (*.svg);;All files (*)</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FontDialog</name>
+    <message>
+        <location filename="../../../font_dialog.py" line="20"/>
+        <source>Font Selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../font_dialog.py" line="23"/>
+        <source>Text:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../font_dialog.py" line="25"/>
+        <source>Font:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../font_dialog.py" line="27"/>
+        <source>PETSCII (Commodore 8-bit)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../font_dialog.py" line="28"/>
+        <source>ATASCII (Atari 8-bit)</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>MainWindow</name>
     <message>
         <location filename="../../../main_window.py" line="77"/>
@@ -264,6 +369,105 @@
     <message>
         <location filename="../../../main_window.py" line="832"/>
         <source>Images (*.png *.jpg *.bmp);;All files (*)</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PartitionDialog</name>
+    <message>
+        <location filename="../../../partition_dialog.py" line="181"/>
+        <source>Partition Editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../partition_dialog.py" line="208"/>
+        <source>Paint</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../partition_dialog.py" line="209"/>
+        <source>Fill</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../partition_dialog.py" line="210"/>
+        <source>Select</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../partition_dialog.py" line="227"/>
+        <source>Spiral CW</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../partition_dialog.py" line="228"/>
+        <source>Spiral CCW</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../partition_dialog.py" line="229"/>
+        <source>Random</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PreferenceDialog</name>
+    <message>
+        <location filename="../../../preference_dialog.py" line="25"/>
+        <source>Preference Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../preference_dialog.py" line="27"/>
+        <source>Hoop Size (inches)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../preference_dialog.py" line="29"/>
+        <source>4x4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../preference_dialog.py" line="30"/>
+        <source>5x7</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../preference_dialog.py" line="31"/>
+        <source>7x5</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../preference_dialog.py" line="32"/>
+        <source>6x10</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../preference_dialog.py" line="33"/>
+        <source>10x6</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../preference_dialog.py" line="34"/>
+        <source>Custom:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../preference_dialog.py" line="56"/>
+        <source>Show Hoop Frame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../preference_dialog.py" line="61"/>
+        <source>Open latest file on startup</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>QCoreApplication</name>
+    <message>
+        <location filename="../../../undo_commands.py" line="19"/>
+        <source>Rotation {rotation}</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

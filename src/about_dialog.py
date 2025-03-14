@@ -14,7 +14,7 @@ class AboutDialog(QDialog):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle("About Pixem")
+        self.setWindowTitle(self.tr("About Pixem"))
 
         # Create an icon label
         icon_label = QLabel()
@@ -24,13 +24,15 @@ class AboutDialog(QDialog):
 
         # Create a label for the description
         description_label = QLabel(
-            f"""
+            self.tr(
+                f"""
             <p><b>Pixem</b></p>
             <p>A pixel-art to machine-embroidery application</p>
             <p>Version {VERSION}</p>
             <p>Copyright (c) 2024-2025 Ricardo Quesada</p>
             <a href="https://github.com/ricardoquesada/pixem">https://github.com/ricardoquesada/pixem</a>
             """
+            )
         )
         description_label.setWordWrap(True)  # Enable word wrap
         description_label.setTextFormat(Qt.RichText)

@@ -26,16 +26,16 @@ class ExportDialog(QDialog):
     def __init__(self, export_parameters: ExportParameters, parent=None):
         super().__init__(parent)
 
-        self.setWindowTitle("Export As Dialog")
+        self.setWindowTitle(self.tr("Export As Dialog"))
 
         layout = QVBoxLayout()
 
         # File Name
         file_layout = QHBoxLayout()
-        file_label = QLabel("File Name:")
+        file_label = QLabel(self.tr("File Name:"))
         self._file_edit = QLineEdit()
         self._file_edit.setText(export_parameters.filename)
-        browse_button = QPushButton("Browse")
+        browse_button = QPushButton(self.tr("Browse"))
         browse_button.clicked.connect(self._on_browse_file)
 
         file_layout.addWidget(file_label)
@@ -45,12 +45,12 @@ class ExportDialog(QDialog):
 
         # Fill method
         fill_method_layout = QHBoxLayout()
-        fill_method_label = QLabel("Fill Method:")
+        fill_method_label = QLabel(self.tr("Fill Method:"))
         self._fill_method_combo = QComboBox()
 
         items = {
-            "auto_fill": "Auto Fill",
-            "legacy_fill": "Legacy Fill",
+            "auto_fill": self.tr("Auto Fill"),
+            "legacy_fill": self.tr("Legacy Fill"),
         }
         for item in items:
             self._fill_method_combo.addItem(items[item], item)
@@ -62,7 +62,7 @@ class ExportDialog(QDialog):
 
         # Pull Compensation
         pull_layout = QHBoxLayout()
-        pull_label = QLabel("Pull Compensation (mm):")
+        pull_label = QLabel(self.tr("Pull Compensation (mm):"))
         self._pull_spinbox = QDoubleSpinBox()
         self._pull_spinbox.setValue(export_parameters.pull_compensation_mm)
         pull_layout.addWidget(pull_label)
@@ -71,7 +71,7 @@ class ExportDialog(QDialog):
 
         # Max Stitch Length
         max_stitch_layout = QHBoxLayout()
-        max_stitch_label = QLabel("Max Stitch Length (mm):")
+        max_stitch_label = QLabel(self.tr("Max Stitch Length (mm):"))
         self._max_stitch_spinbox = QDoubleSpinBox()
         self._max_stitch_spinbox.setRange(0.1, 2000.0)
         self._max_stitch_spinbox.setValue(export_parameters.max_stitch_length_mm)
@@ -81,7 +81,7 @@ class ExportDialog(QDialog):
 
         # Angle
         angle_layout = QHBoxLayout()
-        angle_label = QLabel("Initial Angle (degrees):")
+        angle_label = QLabel(self.tr("Initial Angle (degrees):"))
         self._angle_spinbox = QSpinBox()
         self._angle_spinbox.setRange(0, 89)
         self._angle_spinbox.setValue(export_parameters.initial_angle_degrees)
@@ -100,7 +100,7 @@ class ExportDialog(QDialog):
     def _on_browse_file(self):
         dirname = os.path.dirname(self._file_edit.text())
         filename, _ = QFileDialog.getSaveFileName(
-            self, "Export Project", dirname, "SVG (*.svg);;All files (*)"
+            self, self.tr("Export Project"), dirname, self.tr("SVG (*.svg);;All files (*)")
         )
         if filename:
             _, ext = os.path.splitext(filename)

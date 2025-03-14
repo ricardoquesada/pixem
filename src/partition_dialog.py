@@ -178,7 +178,7 @@ class PartitionDialog(QDialog):
     def __init__(self, image: QImage, partition: Partition):
         super().__init__()
 
-        self.setWindowTitle("Partition Editor")
+        self.setWindowTitle(self.tr("Partition Editor"))
         coords = partition.path
 
         # Create Image Widget
@@ -205,9 +205,9 @@ class PartitionDialog(QDialog):
 
         # Edit modes
         action_modes = [
-            (ImageWidget.EditMode.PAINT, "Paint", "draw-freehand-symbolic.svg"),
-            (ImageWidget.EditMode.FILL, "Fill", "color-fill-symbolic.svg"),
-            (ImageWidget.EditMode.SELECT, "Select", "dialog-layers-symbolic.svg"),
+            (ImageWidget.EditMode.PAINT, self.tr("Paint"), "draw-freehand-symbolic.svg"),
+            (ImageWidget.EditMode.FILL, self.tr("Fill"), "color-fill-symbolic.svg"),
+            (ImageWidget.EditMode.SELECT, self.tr("Select"), "dialog-layers-symbolic.svg"),
         ]
         for mode in action_modes:
             path = f":/icons/svg/actions/{mode[2]}"
@@ -224,9 +224,13 @@ class PartitionDialog(QDialog):
 
         # Fill modes
         fill_modes = [
-            (Partition.WalkMode.SPIRAL_CW, "Spiral CW", "arrow-clockwise-pixem.svg"),
-            (Partition.WalkMode.SPIRAL_CCW, "Spiral CCW", "arrow-counter-clockwise-pixem.svg"),
-            (Partition.WalkMode.RANDOM, "Random ", "randomize-symbolic.svg"),
+            (Partition.WalkMode.SPIRAL_CW, self.tr("Spiral CW"), "arrow-clockwise-pixem.svg"),
+            (
+                Partition.WalkMode.SPIRAL_CCW,
+                self.tr("Spiral CCW"),
+                "arrow-counter-clockwise-pixem.svg",
+            ),
+            (Partition.WalkMode.RANDOM, self.tr("Random"), "randomize-symbolic.svg"),
         ]
 
         for mode in fill_modes:

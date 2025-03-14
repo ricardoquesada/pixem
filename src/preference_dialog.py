@@ -22,16 +22,16 @@ class PreferenceDialog(QDialog):
     def __init__(self, hoop_size: tuple[float, float]):
         super().__init__()
 
-        self.setWindowTitle("Preference Dialog")
+        self.setWindowTitle(self.tr("Preference Dialog"))
 
-        hoop_group_box = QGroupBox("Hoop Size (inches)")
+        hoop_group_box = QGroupBox(self.tr("Hoop Size (inches)"))
         self._hoop_group = QVBoxLayout()
-        self._hoop_4_4_radio = QRadioButton("4x4")
-        self._hoop_5_7_radio = QRadioButton("5x7")
-        self._hoop_7_5_radio = QRadioButton("7x5")
-        self._hoop_6_10_radio = QRadioButton("6x10")
-        self._hoop_10_6_radio = QRadioButton("10x6")
-        self._hoop_custom_radio = QRadioButton("Custom:")
+        self._hoop_4_4_radio = QRadioButton(self.tr("4x4"))
+        self._hoop_5_7_radio = QRadioButton(self.tr("5x7"))
+        self._hoop_7_5_radio = QRadioButton(self.tr("7x5"))
+        self._hoop_6_10_radio = QRadioButton(self.tr("6x10"))
+        self._hoop_10_6_radio = QRadioButton(self.tr("10x6"))
+        self._hoop_custom_radio = QRadioButton(self.tr("Custom:"))
         self._custom_size_x_spinbox = QDoubleSpinBox()
         self._custom_size_x_spinbox.setValue(10.0)
         self._custom_size_x_spinbox.setEnabled(False)
@@ -53,12 +53,12 @@ class PreferenceDialog(QDialog):
         self._hoop_group.addWidget(self._hoop_10_6_radio)
         self._hoop_group.addLayout(custom_layout)
 
-        self._visibility_checkbox = QCheckBox("Show Hoop Frame")
+        self._visibility_checkbox = QCheckBox(self.tr("Show Hoop Frame"))
         self._hoop_group.addWidget(self._visibility_checkbox)
 
         hoop_group_box.setLayout(self._hoop_group)  # Set the layout to the group box
 
-        self._open_file_startup_checkbox = QCheckBox("Open file on startup")
+        self._open_file_startup_checkbox = QCheckBox(self.tr("Open latest file on startup"))
 
         # Buttons
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)

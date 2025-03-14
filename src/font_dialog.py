@@ -17,15 +17,17 @@ from PySide6.QtWidgets import (
 class FontDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Font Selection")
+        self.setWindowTitle(self.tr("Font Selection"))
 
         # Create widgets
-        self._text_label = QLabel("Text:")
+        self._text_label = QLabel(self.tr("Text:"))
         self._text_edit = QLineEdit()
-        self._font_label = QLabel("Font:")
+        self._font_label = QLabel(self.tr("Font:"))
         self._font_combo = QComboBox()
-        self._font_combo.addItem("PETSCII (Commodore 8-bit)", ":/fonts/petscii-charset.bin")
-        self._font_combo.addItem("ATASCII (Atari 8-bit)", ":/fonts/atascii-charset.bin")
+        self._font_combo.addItem(
+            self.tr("PETSCII (Commodore 8-bit)"), ":/fonts/petscii-charset.bin"
+        )
+        self._font_combo.addItem(self.tr("ATASCII (Atari 8-bit)"), ":/fonts/atascii-charset.bin")
 
         # Create QDialogButtonBox
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)

@@ -4,6 +4,7 @@
 import copy
 import logging
 
+from PySide6.QtCore import QCoreApplication
 from PySide6.QtGui import QUndoCommand
 
 from layer import Layer
@@ -14,7 +15,7 @@ logger = logging.getLogger(__name__)  # __name__ gets the current module's name
 
 class UpdateLayerRotationCommand(QUndoCommand):
     def __init__(self, state, layer: Layer, rotation: int, parent: QUndoCommand | None):
-        super().__init__(f"Rotation: {rotation}", parent)
+        super().__init__(QCoreApplication.tr(f"Rotation {rotation}"), parent)
         self._layer = layer
         copy_properties = copy.deepcopy(layer.properties)
         copy_properties.rotation = rotation
