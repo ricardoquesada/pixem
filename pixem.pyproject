@@ -16,6 +16,8 @@
         "src/preferences.py",
         "src/res/rc_resources.py",
         "src/res/resources.qrc",
+        "src/res/translations/en/pixem_en.ts",
+        "src/res/translations/es/pixem_es.ts",
         "src/state.py",
         "src/state_properties.py",
         "src/undo_commands.py"
