@@ -99,16 +99,15 @@ class Layer:
             self._properties.pixel_size[1],
         )
         if "partitions" in d:
-            for p in d["partitions"]:
-                part_dict = d["partitions"][p]
-                part = Partition.from_dict(part_dict)
-                if p.startswith("#"):
+            for k, v in d["partitions"].items():
+                part = Partition.from_dict(v)
+                if k.startswith("#"):
                     # FIXME: remove me
                     # Backward compatible for old formats
                     key = str(uuid.uuid4())
-                    part.name = p
+                    part.name = k
                 else:
-                    key = p
+                    key = k
                 self._partitions[key] = part
         if "current_partition_key" in d:
             # FIXME: remove me
@@ -126,9 +125,9 @@ class Layer:
             "current_partition_uuid": self._current_partition_uuid,
             "layer_type": self.__class__.__name__,
         }
-        for p in self._partitions:
-            part = self._partitions[p].to_dict()
-            d["partitions"][p] = part
+        for k, v in self._partitions.items():
+            part = v.to_dict()
+            d["partitions"][k] = part
         return d
 
     @property

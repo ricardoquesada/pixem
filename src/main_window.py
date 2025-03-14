@@ -288,8 +288,7 @@ class MainWindow(QMainWindow):
         self._toolbar.addSeparator()
 
         # Add Align actions
-        for i, key in enumerate(self._align_actions):
-            action = self._align_actions[key]
+        for i, action in enumerate(self._align_actions.values()):
             self._toolbar.addAction(action)
             if i == 2:
                 self._toolbar.addSeparator()
@@ -444,8 +443,7 @@ class MainWindow(QMainWindow):
 
         self._property_editor.setEnabled(enabled)
 
-        for key in self._align_actions:
-            action = self._align_actions[key]
+        for action in self._align_actions.values():
             action.setEnabled(enabled)
 
     def _connect_property_callbacks(self):
@@ -612,8 +610,7 @@ class MainWindow(QMainWindow):
 
         parser = ImageParser(layer.image)
         layer.partitions = parser.partitions
-        for partition_key in layer.partitions:
-            partition = layer.partitions[partition_key]
+        for partition_key, partition in layer.partitions.items():
             item = QListWidgetItem(partition.name)
             item.setData(Qt.UserRole, partition_key)
             self._partition_list.addItem(item)
@@ -636,8 +633,7 @@ class MainWindow(QMainWindow):
 
         selected_partition_idx = -1
         # First: add all items
-        for i, partition_key in enumerate(layer.partitions):
-            partition = layer.partitions[partition_key]
+        for i, (partition_key, partition) in enumerate(layer.partitions.items()):
             item = QListWidgetItem(partition.name)
             item.setData(Qt.UserRole, partition_key)
             self._partition_list.addItem(item)
