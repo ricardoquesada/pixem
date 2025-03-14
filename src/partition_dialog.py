@@ -4,7 +4,7 @@
 import logging
 from enum import Enum, auto
 
-from PySide6.QtCore import QRect, QSize, Qt
+from PySide6.QtCore import QRect, QSize, Qt, Slot
 from PySide6.QtGui import QAction, QColor, QImage, QMouseEvent, QPainter, QPen, QPixmap
 from PySide6.QtWidgets import (
     QDialog,
@@ -293,6 +293,7 @@ class PartitionDialog(QDialog):
     def _set_walk_mode(self, mode: Partition.WalkMode):
         self._image_widget.set_walk_mode(mode)
 
+    @Slot()
     def _on_action_edit_mode(self, value):
         sender: QAction = self.sender()
         if sender not in self._mode_actions.values():
@@ -306,6 +307,7 @@ class PartitionDialog(QDialog):
         mode: ImageWidget.EditMode = sender.data()
         self._set_edit_mode(mode)
 
+    @Slot()
     def _on_action_fill_mode(self, value):
         sender: QAction = self.sender()
         if sender not in self._fill_mode_actions.values():
@@ -318,6 +320,7 @@ class PartitionDialog(QDialog):
         mode: Partition.WalkMode = sender.data()
         self._set_walk_mode(mode)
 
+    @Slot()
     def _on_rows_moved(self, parent, start, end, destination):
         # FIXME: Do something ? It seems that the partition data was automatically updated (???)
         # You can access the new order of items here
@@ -325,6 +328,7 @@ class PartitionDialog(QDialog):
         #     item = self._list_widget.item(row)
         pass
 
+    @Slot()
     def _on_selection_changed(self):
         selected_items = self._list_widget.selectedItems()
         selected_coords = [item.data(Qt.UserRole) for item in selected_items]

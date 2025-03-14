@@ -4,6 +4,7 @@
 import os
 import sys
 
+from PySide6.QtCore import Slot
 from PySide6.QtWidgets import (
     QApplication,
     QComboBox,
@@ -97,6 +98,7 @@ class ExportDialog(QDialog):
 
         self.setLayout(layout)
 
+    @Slot()
     def _on_browse_file(self):
         dirname = os.path.dirname(self._file_edit.text())
         filename, _ = QFileDialog.getSaveFileName(
