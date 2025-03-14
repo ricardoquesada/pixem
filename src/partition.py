@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class Partition:
-    class WalkMode(Enum):
+    class WalkMode(int, Enum):
         SPIRAL_CW = auto()
         SPIRAL_CCW = auto()
         RANDOM = auto()

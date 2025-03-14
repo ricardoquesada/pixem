@@ -27,11 +27,13 @@ logger = logging.getLogger(__name__)
 
 
 class ImageWidget(QWidget):
-    class CoordMode(Enum):
+    class CoordMode(int, Enum):
+        INVALID = auto()
         ADD = auto()
         REMOVE = auto()
 
-    class EditMode(Enum):
+    class EditMode(int, Enum):
+        INVALID = auto()
         PAINT = auto()
         FILL = auto()
         SELECT = auto()

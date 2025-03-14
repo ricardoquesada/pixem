@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 
-class StatePropertyFlags(Enum):
+class StatePropertyFlags(int, Enum):
     HOOP_SIZE = 1 << 0
     ZOOM_FACTOR = 1 << 1
     CURRENT_LAYER_UUID = 1 << 2

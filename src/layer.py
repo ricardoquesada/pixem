@@ -4,7 +4,7 @@
 import logging
 import uuid
 from dataclasses import asdict, dataclass
-from enum import Enum
+from enum import Enum, auto
 from typing import Self, overload
 
 from PySide6.QtCore import QPointF, QRectF, QSizeF
@@ -18,14 +18,16 @@ logger = logging.getLogger(__name__)
 INCHES_TO_MM = 25.4
 
 
-class LayerAlign(Enum):
-    HORIZONTAL_LEFT = 1
-    HORIZONTAL_CENTER = 2
-    HORIZONTAL_RIGHT = 3
+class LayerAlign(int, Enum):
+    INVALID = auto()
 
-    VERTICAL_TOP = 4
-    VERTICAL_CENTER = 5
-    VERTICAL_BOTTOM = 6
+    HORIZONTAL_LEFT = auto()
+    HORIZONTAL_CENTER = auto()
+    HORIZONTAL_RIGHT = auto()
+
+    VERTICAL_TOP = auto()
+    VERTICAL_CENTER = auto()
+    VERTICAL_BOTTOM = auto()
 
 
 @dataclass
