@@ -2,6 +2,7 @@
 # Copyright 2025 - Ricardo Quesada
 
 import logging
+import traceback
 import uuid
 from dataclasses import asdict, dataclass
 from enum import Enum, auto
@@ -33,22 +34,23 @@ class LayerAlign(int, Enum):
 
 @dataclass
 class LayerProperties:
+    uuid: str
     position: tuple[float, float] = (0.0, 0.0)
     rotation: int = 0
     pixel_size: tuple[float, float] = (2.5, 2.5)
     visible: bool = True
     opacity: float = 1.0
-    uuid: str = str(uuid.uuid4())
     name: str | None = None
 
 
 class Layer:
     def __init__(self, image: QImage):
         self._image: QImage = image
-        self._properties = LayerProperties()
+        self._properties = LayerProperties(uuid=str(uuid.uuid4()))
         self._partitions: dict[str, Partition] = {}
         self._current_partition_uuid = None
         self._export_params = ExportParameters()
+        logger.info(f"**** creating new layer with {self._properties}")
 
     #
     # Public methods
@@ -204,6 +206,11 @@ class Layer:
 
     @current_partition_uuid.setter
     def current_partition_uuid(self, value: str):
+        if value not in self.partitions:
+            logger.error(f"Invalid partition uuid: {value} for layer {self.uuid}")
+            traceback.print_stack()
+            return
+        logger.info(f"**** Setting new current partition to {value}")
         self._current_partition_uuid = value
 
     @property

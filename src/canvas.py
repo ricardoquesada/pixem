@@ -62,6 +62,7 @@ class Canvas(QWidget):
             self._state.zoom_factor * DEFAULT_SCALE_FACTOR,
         )
 
+        # 1. Draw the layers. Use the cached image to draw them
         for i, layer in enumerate(self._state.layers):
             offset = layer.position
             if layer.name == self._state.selected_layer.name:
@@ -101,7 +102,7 @@ class Canvas(QWidget):
 
                 painter.restore()
 
-        # Draw selected partition pixels
+        # 2. Draw selected partition pixels
         layer = self._state.selected_layer
         if (
             layer is not None
@@ -150,7 +151,7 @@ class Canvas(QWidget):
                 )
             painter.restore()
 
-        # Draw hoop
+        # 3. Draw hoop
         if self._cached_hoop_visible:
             painter.save()
             painter.setPen(QPen(Qt.GlobalColor.gray, 1, Qt.PenStyle.DashDotDotLine))

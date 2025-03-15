@@ -327,7 +327,7 @@ class MainWindow(QMainWindow):
         partitions_dock.setWidget(self._partition_list)
         self.addDockWidget(Qt.RightDockWidgetArea, partitions_dock)
 
-        self._connect_layer_partition_callbacks()
+        self._connect_layer_and_partition_callbacks()
 
         # Property Dock
         self._property_editor = QWidget()
@@ -537,12 +537,12 @@ class MainWindow(QMainWindow):
         self._initial_angle_spinbox.valueChanged.disconnect(self._on_update_embroidery_property)
         self._fill_method_combo.currentIndexChanged.disconnect(self._on_update_embroidery_property)
 
-    def _connect_layer_partition_callbacks(self):
+    def _connect_layer_and_partition_callbacks(self):
         self._layer_list.currentItemChanged.connect(self._on_change_layer)
         self._partition_list.currentItemChanged.connect(self._on_change_partition)
         self._partition_list.itemDoubleClicked.connect(self._on_double_click_partition)
 
-    def _disconnect_layer_partition_callbacks(self):
+    def _disconnect_layer_and_partition_callbacks(self):
         self._layer_list.currentItemChanged.disconnect(self._on_change_layer)
         self._partition_list.currentItemChanged.disconnect(self._on_change_partition)
         self._partition_list.itemDoubleClicked.disconnect(self._on_double_click_partition)
@@ -586,15 +586,13 @@ class MainWindow(QMainWindow):
 
         self._setup_state(state)
 
-        self._disconnect_layer_partition_callbacks()
-        self._layer_list.clear()
-        self._partition_list.clear()
-        self._connect_layer_partition_callbacks()
-
-        selected_layer = self._state.selected_layer
-
         selected_layer_idx = -1
         selected_partition_idx = -1
+        selected_layer = self._state.selected_layer
+
+        self._disconnect_layer_and_partition_callbacks()
+        self._layer_list.clear()
+        self._partition_list.clear()
 
         for i, layer in enumerate(self._state.layers):
             item = QListWidgetItem(layer.name)
@@ -612,6 +610,8 @@ class MainWindow(QMainWindow):
                 self._partition_list.addItem(item)
                 if partition_key == selected_partition_uuid:
                     selected_partition_idx = i
+
+        self._connect_layer_and_partition_callbacks()
 
         # This will trigger "on_" callback
         if selected_layer_idx >= 0:
@@ -671,6 +671,7 @@ class MainWindow(QMainWindow):
         self._undo_dock.setEnabled(False)
 
     def _add_layer(self, layer: Layer):
+        logger.info(f"**** adding new layer  with UUID {layer.uuid}")
         # Order matters. First create partitions, then add it
         parser = ImageParser(layer.image)
         layer.partitions = parser.partitions
@@ -678,13 +679,19 @@ class MainWindow(QMainWindow):
         self._state.add_layer(layer)
         item = QListWidgetItem(layer.name)
         item.setData(Qt.UserRole, layer.uuid)
-        self._layer_list.addItem(item)
-        self._layer_list.setCurrentRow(len(self._state.layers) - 1)
 
+        self._disconnect_layer_and_partition_callbacks()
+        self._layer_list.addItem(item)
         for partition_key, partition in layer.partitions.items():
             item = QListWidgetItem(partition.name)
             item.setData(Qt.UserRole, partition_key)
             self._partition_list.addItem(item)
+        self._connect_layer_and_partition_callbacks()
+
+        # Order matters: first layer, then partition
+        # Triggers on_change_layer
+        self._layer_list.setCurrentRow(len(self._state.layers) - 1)
+        # Triggers on_change_partition
         if len(layer.partitions) > 0:
             self._partition_list.setCurrentRow(0)
 
@@ -693,9 +700,17 @@ class MainWindow(QMainWindow):
 
     def _populate_partitions(self, layer: Layer):
         # Called from on_change_layer
-        self._disconnect_layer_partition_callbacks()
+        self._disconnect_layer_and_partition_callbacks()
         self._partition_list.clear()
-        self._connect_layer_partition_callbacks()
+        self._connect_layer_and_partition_callbacks()
+
+        if len(layer.partitions) == 0:
+            # Sanity check
+            layer.current_partition_uuid = None
+            logger.warning(
+                f"Failed to select partition, perhaps layer {layer.uuid} has not been analyzed yet"
+            )
+            return
 
         selected_partition_idx = -1
         # First: add all items
@@ -709,14 +724,6 @@ class MainWindow(QMainWindow):
         # Second: select the correct one if present
         if selected_partition_idx >= 0:
             self._partition_list.setCurrentRow(selected_partition_idx)
-
-        if len(layer.partitions) == 0:
-            # Sanity check
-            logger.info(f"Layer: {layer}")
-            layer.current_partition_uuid = None
-            logger.warning(
-                f"Failed to select partition, perhaps layer {layer.uuid} has not been analyzed yet"
-            )
 
     def _populate_property_editor(self, properties: LayerProperties) -> None:
         self._disconnect_property_callbacks()
@@ -875,10 +882,10 @@ class MainWindow(QMainWindow):
 
         self._cleanup_state()
 
-        self._disconnect_layer_partition_callbacks()
+        self._disconnect_layer_and_partition_callbacks()
         self._layer_list.clear()
         self._partition_list.clear()
-        self._connect_layer_partition_callbacks()
+        self._connect_layer_and_partition_callbacks()
 
         # FIXME: update state should be done in one method
         self._update_qactions()
@@ -986,14 +993,13 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_change_layer(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
+        logger.info(f"**** _on_change_layer {current}")
         enabled = current is not None
         self._property_editor.setEnabled(enabled)
         self._embroidery_params_editor.setEnabled(enabled)
         if enabled:
             idx = self._layer_list.row(current)
             layer = self._state.layers[idx]
-
-            logger.info(f"... partitions: {layer.partitions}")
 
             self._state.current_layer_uuid = layer.uuid
 
@@ -1022,6 +1028,7 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_change_partition(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
+        logger.info(f"**** _on_change_partition {current}")
         enabled = current is not None
         selected_layer = self._state.selected_layer
         new_uuid = None
@@ -1079,6 +1086,7 @@ class MainWindow(QMainWindow):
         self._property_editor.setEnabled(enabled)
         if enabled:
             properties = LayerProperties(
+                uuid=current_layer.uuid,
                 position=(self._position_x_spinbox.value(), self._position_y_spinbox.value()),
                 rotation=self._rotation_slider.value(),
                 pixel_size=(self._pixel_width_spinbox.value(), self._pixel_height_spinbox.value()),
