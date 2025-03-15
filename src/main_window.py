@@ -671,7 +671,6 @@ class MainWindow(QMainWindow):
         self._undo_dock.setEnabled(False)
 
     def _add_layer(self, layer: Layer):
-        logger.info(f"**** adding new layer  with UUID {layer.uuid}")
         # Order matters. First create partitions, then add it
         parser = ImageParser(layer.image)
         layer.partitions = parser.partitions
@@ -993,7 +992,6 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_change_layer(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
-        logger.info(f"**** _on_change_layer {current}")
         enabled = current is not None
         self._property_editor.setEnabled(enabled)
         self._embroidery_params_editor.setEnabled(enabled)
@@ -1028,7 +1026,6 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_change_partition(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
-        logger.info(f"**** _on_change_partition {current}")
         enabled = current is not None
         selected_layer = self._state.selected_layer
         new_uuid = None

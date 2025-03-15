@@ -241,7 +241,6 @@ class State(QObject):
         if not found:
             logger.error(f"Layer UUID '{uuid}' not found in state layers: {self._layers}")
             return
-        logger.info(f"***** setting new current layer UUID {uuid}")
         self._properties.current_layer_uuid = uuid
 
     @property
