@@ -376,38 +376,36 @@ class MainWindow(QMainWindow):
         self.addDockWidget(Qt.RightDockWidgetArea, property_dock)
 
         # Layer Embroidery Properties
-        self._layer_embroidery_params_widget = QWidget()
-        self._layer_embroidery_params_widget.setObjectName("layer_embroidery_params_widget")
-        self._layer_embroidery_params_widget.setEnabled(False)
-        self._layer_embroidery_params_widget_layout = QFormLayout(
-            self._layer_embroidery_params_widget
-        )
+        self._embroidery_params_editor = QWidget()
+        self._embroidery_params_editor.setObjectName("embroidery_params_editor")
+        self._embroidery_params_editor.setEnabled(False)
+        self._embroidery_params_layout = QFormLayout(self._embroidery_params_editor)
 
         self._pull_compensation_spinbox = QDoubleSpinBox()
         self._pull_compensation_spinbox.setMinimum(0.0)
         self._pull_compensation_spinbox.setMaximum(1000.0)
-        self._layer_embroidery_params_widget_layout.addRow(
+        self._embroidery_params_layout.addRow(
             self.tr("Pull Compensation (mm):"), self._pull_compensation_spinbox
         )
 
         self._max_stitch_length_spinbox = QDoubleSpinBox()
         self._max_stitch_length_spinbox.setMinimum(0.0)
         self._max_stitch_length_spinbox.setMaximum(2000.0)
-        self._layer_embroidery_params_widget_layout.addRow(
+        self._embroidery_params_layout.addRow(
             self.tr("Max Stitch Length (mm):"), self._max_stitch_length_spinbox
         )
 
         self._min_jump_stitch_length_spinbox = QDoubleSpinBox()
         self._min_jump_stitch_length_spinbox.setMinimum(0.0)
         self._min_jump_stitch_length_spinbox.setMaximum(2000.0)
-        self._layer_embroidery_params_widget_layout.addRow(
+        self._embroidery_params_layout.addRow(
             self.tr("Min Jump Stitch Length (mm):"), self._min_jump_stitch_length_spinbox
         )
 
         self._initial_angle_spinbox = QSpinBox()
         self._initial_angle_spinbox.setMinimum(0)
         self._initial_angle_spinbox.setMaximum(360)
-        self._layer_embroidery_params_widget_layout.addRow(
+        self._embroidery_params_layout.addRow(
             self.tr("Initial Angle (degrees):"), self._initial_angle_spinbox
         )
 
@@ -418,13 +416,11 @@ class MainWindow(QMainWindow):
         }
         for k, v in fill_items.items():
             self._fill_method_combo.addItem(v, k)
-        self._layer_embroidery_params_widget_layout.addRow(
-            self.tr("Fill Method:"), self._fill_method_combo
-        )
+        self._embroidery_params_layout.addRow(self.tr("Fill Method:"), self._fill_method_combo)
 
         embroidery_params_dock = QDockWidget(self.tr("Layer Embroidery Properties"), self)
         embroidery_params_dock.setObjectName("layer_embroidery_dock")
-        embroidery_params_dock.setWidget(self._layer_embroidery_params_widget)
+        embroidery_params_dock.setWidget(self._embroidery_params_editor)
         self.addDockWidget(Qt.RightDockWidgetArea, embroidery_params_dock)
 
         # Undo Dock
@@ -992,7 +988,7 @@ class MainWindow(QMainWindow):
     def _on_change_layer(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
         enabled = current is not None
         self._property_editor.setEnabled(enabled)
-        self._layer_embroidery_params_widget.setEnabled(enabled)
+        self._embroidery_params_editor.setEnabled(enabled)
         if enabled:
             idx = self._layer_list.row(current)
             layer = self._state.layers[idx]
@@ -1098,7 +1094,7 @@ class MainWindow(QMainWindow):
     def _on_update_embroidery_property(self) -> None:
         current_layer = self._state.selected_layer
         enabled = current_layer is not None
-        self._layer_embroidery_params_widget.setEnabled(enabled)
+        self._embroidery_params_editor.setEnabled(enabled)
         if enabled:
             export_params = ExportParameters(
                 pull_compensation_mm=self._pull_compensation_spinbox.value(),
