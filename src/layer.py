@@ -72,6 +72,7 @@ class Layer:
 
     def populate_from_dict(self, d: dict) -> None:
         if "render_properties" in d:
+            # FIXME: Remove me, obsolete
             self._properties = LayerProperties(**d["render_properties"])
         if "properties" in d:
             self._properties = LayerProperties(**d["properties"])
@@ -79,6 +80,8 @@ class Layer:
                 # FIXME: remove me
                 # Backward compatible for old formats
                 self._properties.uuid = str(uuid.uuid4())
+        if "embroidery_params" in d:
+            self._export_params = ExportParameters(**d["embroidery_params"])
         if "name" in d:
             # FIXME: remove me
             # Backward compatible for old formats
@@ -114,6 +117,7 @@ class Layer:
         """Returns a dictionary that represents the Layer"""
         d = {
             "properties": asdict(self._properties),
+            "embroidery_params": asdict(self._export_params),
             "partitions": {},
             "image": image_utils.qimage_to_base64_string(self._image),
             "current_partition_uuid": self._current_partition_uuid,
