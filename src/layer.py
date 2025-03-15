@@ -11,6 +11,7 @@ from PySide6.QtCore import QPointF, QRectF, QSizeF
 from PySide6.QtGui import QImage, QTransform
 
 import image_utils
+from export import ExportParameters
 from partition import Partition
 
 logger = logging.getLogger(__name__)
@@ -32,29 +33,22 @@ class LayerAlign(int, Enum):
 
 @dataclass
 class LayerProperties:
-    position: tuple[float, float]
-    rotation: int
-    pixel_size: tuple[float, float]
-    visible: bool
-    opacity: float
-    uuid: str | None = None
+    position: tuple[float, float] = (0.0, 0.0)
+    rotation: int = 0
+    pixel_size: tuple[float, float] = (2.5, 2.5)
+    visible: bool = True
+    opacity: float = 1.0
+    uuid: str = str(uuid.uuid4())
     name: str | None = None
 
 
 class Layer:
     def __init__(self, image: QImage):
         self._image: QImage = image
-        self._properties = LayerProperties(
-            position=(0.0, 0.0),
-            rotation=0,
-            pixel_size=(2.5, 2.5),
-            visible=True,
-            opacity=1.0,
-            uuid=str(uuid.uuid4()),
-            name=None,
-        )
+        self._properties = LayerProperties()
         self._partitions: dict[str, Partition] = {}
         self._current_partition_uuid = None
+        self._export_params = ExportParameters()
 
     #
     # Public methods

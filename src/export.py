@@ -13,11 +13,11 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class ExportParameters:
-    filename: str
-    pull_compensation_mm: float
-    max_stitch_length_mm: float
-    fill_method: str
-    initial_angle_degrees: int
+    filename: str = ""
+    pull_compensation_mm: float = 0.0
+    max_stitch_length_mm: float = 1000.0
+    fill_method: str = "auto_fill"
+    initial_angle_degrees: int = 0
     min_jump_stitch_length_mm: float = 0.0
 
 

@@ -35,14 +35,7 @@ class State(QObject):
     def __init__(self):
         super().__init__()
         self._project_filename = None
-        self._export_params = ExportParameters(
-            filename="",
-            pull_compensation_mm=0.0,
-            max_stitch_length_mm=1000.0,
-            fill_method="auto_fill",
-            initial_angle_degrees=0,
-            min_jump_stitch_length_mm=0,
-        )
+        self._export_params = ExportParameters()
         self._properties = StateProperties(
             hoop_size=get_global_preferences().get_hoop_size(),
             zoom_factor=1.0,

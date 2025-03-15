@@ -328,16 +328,6 @@ class MainWindow(QMainWindow):
 
         self._connect_layer_partition_callbacks()
 
-        # Undo Dock
-        self._undo_dock = QDockWidget(self.tr("Undo List"), self)
-        self._undo_dock.setObjectName("undo_dock")
-        self._undo_dock.setHidden(True)
-        self._undo_dock.setFloating(True)
-        self._undo_view = QUndoView()
-        self._undo_view.setObjectName("undo_view")
-        self._undo_dock.setWidget(self._undo_view)
-        self.addDockWidget(Qt.RightDockWidgetArea, self._undo_dock)
-
         # Property Dock
         self._property_editor = QWidget()
         self._property_editor.setObjectName("property_widget")
@@ -383,6 +373,68 @@ class MainWindow(QMainWindow):
         property_dock.setObjectName("property_dock")
         property_dock.setWidget(self._property_editor)
         self.addDockWidget(Qt.RightDockWidgetArea, property_dock)
+
+        # Layer Embroidery Properties
+        self._layer_embroidery_params_widget = QWidget()
+        self._layer_embroidery_params_widget.setObjectName("layer_embroidery_params_widget")
+        self._layer_embroidery_params_widget.setEnabled(False)
+        self._layer_embroidery_params_widget_layout = QFormLayout(
+            self._layer_embroidery_params_widget
+        )
+
+        self._pull_compensation_spinbox = QDoubleSpinBox()
+        self._pull_compensation_spinbox.setMinimum(0.0)
+        self._pull_compensation_spinbox.setMaximum(1000.0)
+        self._layer_embroidery_params_widget_layout.addRow(
+            self.tr("Pull Compensation (mm):"), self._pull_compensation_spinbox
+        )
+
+        self._max_stitch_length_spinbox = QDoubleSpinBox()
+        self._max_stitch_length_spinbox.setMinimum(0.0)
+        self._max_stitch_length_spinbox.setMaximum(2000.0)
+        self._layer_embroidery_params_widget_layout.addRow(
+            self.tr("Max Stitch Length (mm):"), self._max_stitch_length_spinbox
+        )
+
+        self._min_jump_stitch_length_spinbox = QDoubleSpinBox()
+        self._min_jump_stitch_length_spinbox.setMinimum(0.0)
+        self._min_jump_stitch_length_spinbox.setMaximum(2000.0)
+        self._layer_embroidery_params_widget_layout.addRow(
+            self.tr("Min Jump Stitch Length (mm):"), self._min_jump_stitch_length_spinbox
+        )
+
+        self._initial_angle_spinbox = QSpinBox()
+        self._initial_angle_spinbox.setMinimum(0)
+        self._initial_angle_spinbox.setMaximum(360)
+        self._layer_embroidery_params_widget_layout.addRow(
+            self.tr("Initial Angle (degrees):"), self._initial_angle_spinbox
+        )
+
+        self._fill_method_combo = QComboBox()
+        items = {
+            "auto_fill": self.tr("Auto Fill"),
+            "legacy_fill": self.tr("Legacy Fill"),
+        }
+        for item in items:
+            self._fill_method_combo.addItem(items[item], item)
+        self._layer_embroidery_params_widget_layout.addRow(
+            self.tr("Fill Method:"), self._fill_method_combo
+        )
+
+        embroidery_params_dock = QDockWidget(self.tr("Layer Embroidery Properties"), self)
+        embroidery_params_dock.setObjectName("layer_embroidery_dock")
+        embroidery_params_dock.setWidget(self._layer_embroidery_params_widget)
+        self.addDockWidget(Qt.RightDockWidgetArea, embroidery_params_dock)
+
+        # Undo Dock
+        self._undo_dock = QDockWidget(self.tr("Undo List"), self)
+        self._undo_dock.setObjectName("undo_dock")
+        self._undo_dock.setHidden(True)
+        self._undo_dock.setFloating(True)
+        self._undo_view = QUndoView()
+        self._undo_view.setObjectName("undo_view")
+        self._undo_dock.setWidget(self._undo_view)
+        self.addDockWidget(Qt.RightDockWidgetArea, self._undo_dock)
 
         self._connect_property_callbacks()
         self._update_qactions()
