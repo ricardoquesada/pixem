@@ -80,6 +80,16 @@ class ExportDialog(QDialog):
         max_stitch_layout.addWidget(self._max_stitch_spinbox)
         layout.addLayout(max_stitch_layout)
 
+        # Min Jump Stitch Length
+        min_jump_stitch_layout = QHBoxLayout()
+        min_jump_stitch_label = QLabel(self.tr("Min Jump Stitch Length (mm):"))
+        self._min_jump_stitch_spinbox = QDoubleSpinBox()
+        self._min_jump_stitch_spinbox.setRange(0.0, 2000.0)
+        self._min_jump_stitch_spinbox.setValue(export_parameters.min_jump_stitch_length_mm)
+        min_jump_stitch_layout.addWidget(min_jump_stitch_label)
+        min_jump_stitch_layout.addWidget(self._min_jump_stitch_spinbox)
+        layout.addLayout(min_jump_stitch_layout)
+
         # Angle
         angle_layout = QHBoxLayout()
         angle_label = QLabel(self.tr("Initial Angle (degrees):"))
@@ -117,6 +127,7 @@ class ExportDialog(QDialog):
             max_stitch_length_mm=self._max_stitch_spinbox.value(),
             fill_method=self._fill_method_combo.currentData(),
             initial_angle_degrees=self._angle_spinbox.value(),
+            min_jump_stitch_length_mm=self._min_jump_stitch_spinbox.value(),
         )
 
 

@@ -18,6 +18,7 @@ class ExportParameters:
     max_stitch_length_mm: float
     fill_method: str
     initial_angle_degrees: int
+    min_jump_stitch_length_mm: float = 0.0
 
 
 class ExportToSVG:
@@ -50,8 +51,13 @@ class ExportToSVG:
             f'inkstitch:angle="{angle}" '
             f'inkstitch:max_stitch_length_mm="{self._export_params.max_stitch_length_mm}" '
             f'inkstitch:pull_compensation_mm="{self._export_params.pull_compensation_mm}" '
-            "/>\n"
         )
+        # To be backward compatible. Not sure what is the default one when the parameter is not defined.
+        if self._export_params.min_jump_stitch_length_mm > 0.0:
+            file.write(
+                f'inkstitch:min_jump_stitch_length_mm="{self._export_params.min_jump_stitch_length_mm}" '
+            )
+        file.write("/>\n")
 
     def write_to_svg(self):
         logger.info(f"writing SVG {self._export_params.filename}")

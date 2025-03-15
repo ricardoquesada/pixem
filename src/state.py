@@ -41,6 +41,7 @@ class State(QObject):
             max_stitch_length_mm=1000.0,
             fill_method="auto_fill",
             initial_angle_degrees=0,
+            min_jump_stitch_length_mm=0,
         )
         self._properties = StateProperties(
             hoop_size=get_global_preferences().get_hoop_size(),
