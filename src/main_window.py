@@ -743,6 +743,9 @@ class MainWindow(QMainWindow):
         self._max_stitch_length_spinbox.setValue(export_params.max_stitch_length_mm)
         self._min_jump_stitch_length_spinbox.setValue(export_params.min_jump_stitch_length_mm)
         self._initial_angle_spinbox.setValue(export_params.initial_angle_degrees)
+        index = self._fill_method_combo.findData(export_params.fill_method)
+        if index != -1:
+            self._fill_method_combo.setCurrentIndex(index)
         self._connect_embroidery_callbacks()
 
     #
