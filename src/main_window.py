@@ -671,14 +671,16 @@ class MainWindow(QMainWindow):
         self._undo_dock.setEnabled(False)
 
     def _add_layer(self, layer: Layer):
+        # Order matters. First create partitions, then add it
+        parser = ImageParser(layer.image)
+        layer.partitions = parser.partitions
+
         self._state.add_layer(layer)
         item = QListWidgetItem(layer.name)
         item.setData(Qt.UserRole, layer.uuid)
         self._layer_list.addItem(item)
         self._layer_list.setCurrentRow(len(self._state.layers) - 1)
 
-        parser = ImageParser(layer.image)
-        layer.partitions = parser.partitions
         for partition_key, partition in layer.partitions.items():
             item = QListWidgetItem(partition.name)
             item.setData(Qt.UserRole, partition_key)
@@ -689,16 +691,11 @@ class MainWindow(QMainWindow):
         self._canvas.recalculate_fixed_size()
         self.update()
 
-    def _refresh_partitions(self):
+    def _populate_partitions(self, layer: Layer):
         # Called from on_change_layer
         self._disconnect_layer_partition_callbacks()
         self._partition_list.clear()
         self._connect_layer_partition_callbacks()
-
-        if self._state is None or self._state.selected_layer is None:
-            return
-
-        layer = self._state.selected_layer
 
         selected_partition_idx = -1
         # First: add all items
@@ -715,8 +712,11 @@ class MainWindow(QMainWindow):
 
         if len(layer.partitions) == 0:
             # Sanity check
+            logger.info(f"Layer: {layer}")
             layer.current_partition_uuid = None
-            logger.warning("Failed to select partition, perhaps layer has not been analyzed yet")
+            logger.warning(
+                f"Failed to select partition, perhaps layer {layer.uuid} has not been analyzed yet"
+            )
 
     def _populate_property_editor(self, properties: LayerProperties) -> None:
         self._disconnect_property_callbacks()
@@ -993,12 +993,13 @@ class MainWindow(QMainWindow):
             idx = self._layer_list.row(current)
             layer = self._state.layers[idx]
 
-            self._populate_property_editor(layer.properties)
-            self._populate_embroidery_editor(layer.export_params)
+            logger.info(f"... partitions: {layer.partitions}")
 
             self._state.current_layer_uuid = layer.uuid
 
-            self._refresh_partitions()
+            self._populate_partitions(layer)
+            self._populate_property_editor(layer.properties)
+            self._populate_embroidery_editor(layer.export_params)
         else:
             if self._state is not None:
                 self._state.current_layer_uuid = None

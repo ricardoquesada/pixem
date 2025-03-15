@@ -145,7 +145,9 @@ class Canvas(QWidget):
                     # Use drawPolygon instead of drawRects because drawPolygon supports floats
                     painter.drawPolygon(polygon)
             else:
-                logger.warning(f"paintEvent: key {layer.current_partition_uuid} not found")
+                logger.warning(
+                    f"paintEvent: key {layer.current_partition_uuid} not found in layer {layer.uuid}"
+                )
             painter.restore()
 
         # Draw hoop
