@@ -214,6 +214,15 @@ class Layer:
     def partitions(self, value: dict[str, Partition]):
         self._partitions = value
 
+    @property
+    def export_params(self) -> ExportParameters:
+        return self._export_params
+
+    @export_params.setter
+    def export_params(self, value: ExportParameters):
+        logger.info(f"Export params: {value}")
+        self._export_params = value
+
     def is_point_inside(self, point: QPointF) -> bool:
         rect = QRectF(
             self._properties.position[0],

@@ -34,6 +34,7 @@ from PySide6.QtWidgets import (
 
 from about_dialog import AboutDialog
 from canvas import Canvas
+from export import ExportParameters
 from export_dialog import ExportDialog
 from font_dialog import FontDialog
 from image_parser import ImageParser
@@ -411,12 +412,12 @@ class MainWindow(QMainWindow):
         )
 
         self._fill_method_combo = QComboBox()
-        items = {
+        fill_items = {
             "auto_fill": self.tr("Auto Fill"),
             "legacy_fill": self.tr("Legacy Fill"),
         }
-        for item in items:
-            self._fill_method_combo.addItem(items[item], item)
+        for k, v in fill_items.items():
+            self._fill_method_combo.addItem(v, k)
         self._layer_embroidery_params_widget_layout.addRow(
             self.tr("Fill Method:"), self._fill_method_combo
         )
@@ -437,6 +438,7 @@ class MainWindow(QMainWindow):
         self.addDockWidget(Qt.RightDockWidgetArea, self._undo_dock)
 
         self._connect_property_callbacks()
+        self._connect_embroidery_callbacks()
         self._update_qactions()
 
         # Insert all docks in Menu
@@ -446,6 +448,7 @@ class MainWindow(QMainWindow):
                 layer_dock.toggleViewAction(),
                 partitions_dock.toggleViewAction(),
                 property_dock.toggleViewAction(),
+                embroidery_params_dock.toggleViewAction(),
                 self._undo_dock.toggleViewAction(),
             ],
         )
@@ -519,6 +522,24 @@ class MainWindow(QMainWindow):
         self._visible_checkbox.stateChanged.disconnect(self._on_update_layer_property)
         self._opacity_slider.valueChanged.disconnect(self._on_update_layer_property)
         self._zoom_combobox.currentIndexChanged.disconnect(self._on_zoom_changed)
+
+    def _connect_embroidery_callbacks(self):
+        self._pull_compensation_spinbox.valueChanged.connect(self._on_update_embroidery_property)
+        self._max_stitch_length_spinbox.valueChanged.connect(self._on_update_embroidery_property)
+        self._min_jump_stitch_length_spinbox.valueChanged.connect(
+            self._on_update_embroidery_property
+        )
+        self._initial_angle_spinbox.valueChanged.connect(self._on_update_embroidery_property)
+        self._fill_method_combo.currentIndexChanged.connect(self._on_update_embroidery_property)
+
+    def _disconnect_embroidery_callbacks(self):
+        self._pull_compensation_spinbox.valueChanged.disconnect(self._on_update_embroidery_property)
+        self._max_stitch_length_spinbox.valueChanged.disconnect(self._on_update_embroidery_property)
+        self._min_jump_stitch_length_spinbox.valueChanged.disconnect(
+            self._on_update_embroidery_property
+        )
+        self._initial_angle_spinbox.valueChanged.disconnect(self._on_update_embroidery_property)
+        self._fill_method_combo.currentIndexChanged.disconnect(self._on_update_embroidery_property)
 
     def _connect_layer_partition_callbacks(self):
         self._layer_list.currentItemChanged.connect(self._on_change_layer)
@@ -701,6 +722,27 @@ class MainWindow(QMainWindow):
             layer.current_partition_uuid = None
             logger.warning("Failed to select partition, perhaps layer has not been analyzed yet")
 
+    def _populate_property_editor(self, properties: LayerProperties) -> None:
+        self._disconnect_property_callbacks()
+        self._name_edit.setText(properties.name)
+        self._position_x_spinbox.setValue(properties.position[0])
+        self._position_y_spinbox.setValue(properties.position[1])
+        self._rotation_slider.setValue(round(properties.rotation))
+        self._rotation_spinbox.setValue(round(properties.rotation))
+        self._pixel_width_spinbox.setValue(properties.pixel_size[0])
+        self._pixel_height_spinbox.setValue(properties.pixel_size[1])
+        self._visible_checkbox.setChecked(properties.visible)
+        self._opacity_slider.setValue(round(properties.opacity * 100))
+        self._connect_property_callbacks()
+
+    def _populate_embroidery_editor(self, export_params: ExportParameters):
+        self._disconnect_embroidery_callbacks()
+        self._pull_compensation_spinbox.setValue(export_params.pull_compensation_mm)
+        self._max_stitch_length_spinbox.setValue(export_params.max_stitch_length_mm)
+        self._min_jump_stitch_length_spinbox.setValue(export_params.min_jump_stitch_length_mm)
+        self._initial_angle_spinbox.setValue(export_params.initial_angle_degrees)
+        self._connect_embroidery_callbacks()
+
     #
     # pyside6 events
     #
@@ -736,6 +778,7 @@ class MainWindow(QMainWindow):
         self._disconnect_property_callbacks()
         self._zoom_combobox.setCurrentIndex(DEFAULT_ZOOM_FACTOR_IDX)
         self._connect_property_callbacks()
+        self._connect_embroidery_callbacks()
 
         # FIXME: update state should be done in one method
         self._update_qactions()
@@ -949,22 +992,13 @@ class MainWindow(QMainWindow):
     def _on_change_layer(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
         enabled = current is not None
         self._property_editor.setEnabled(enabled)
+        self._layer_embroidery_params_widget.setEnabled(enabled)
         if enabled:
             idx = self._layer_list.row(current)
             layer = self._state.layers[idx]
 
-            self._disconnect_property_callbacks()
-
-            self._name_edit.setText(layer.name)
-            self._position_x_spinbox.setValue(layer.position.x())
-            self._position_y_spinbox.setValue(layer.position.y())
-            self._rotation_spinbox.setValue(round(layer.rotation))
-            self._pixel_width_spinbox.setValue(layer.pixel_size.width())
-            self._pixel_height_spinbox.setValue(layer.pixel_size.height())
-            self._visible_checkbox.setChecked(layer.visible)
-            self._opacity_slider.setValue(round(layer.opacity * 100))
-
-            self._connect_property_callbacks()
+            self._populate_property_editor(layer.properties)
+            self._populate_embroidery_editor(layer.export_params)
 
             self._state.current_layer_uuid = layer.uuid
 
@@ -1061,6 +1095,21 @@ class MainWindow(QMainWindow):
             self.update()
 
     @Slot()
+    def _on_update_embroidery_property(self) -> None:
+        current_layer = self._state.selected_layer
+        enabled = current_layer is not None
+        self._layer_embroidery_params_widget.setEnabled(enabled)
+        if enabled:
+            export_params = ExportParameters(
+                pull_compensation_mm=self._pull_compensation_spinbox.value(),
+                max_stitch_length_mm=self._max_stitch_length_spinbox.value(),
+                min_jump_stitch_length_mm=self._min_jump_stitch_length_spinbox.value(),
+                initial_angle_degrees=self._initial_angle_spinbox.value(),
+                fill_method=self._fill_method_combo.currentData(),
+            )
+            current_layer.export_params = export_params
+
+    @Slot()
     def _on_show_about_dialog(self) -> None:
         dialog = AboutDialog()
         dialog.exec()
@@ -1089,21 +1138,12 @@ class MainWindow(QMainWindow):
             )
             return
 
-        properties = layer.properties
-        self._disconnect_property_callbacks()
-        self._position_x_spinbox.setValue(properties.position[0])
-        self._position_y_spinbox.setValue(properties.position[1])
-        self._rotation_slider.setValue(round(properties.rotation))
-        self._rotation_spinbox.setValue(round(properties.rotation))
-        self._pixel_width_spinbox.setValue(properties.pixel_size[0])
-        self._pixel_height_spinbox.setValue(properties.pixel_size[1])
-        self._name_edit.setText(properties.name)
+        self._populate_property_editor(layer.properties)
 
+        # Update Layer Name. Could have been changed from the editor
         item = self._layer_list.item(self._layer_list.currentRow())
         if item.data(Qt.UserRole) == layer.uuid:
             item.setText(layer.name)
-
-        self._connect_property_callbacks()
 
         self._update_qactions()
         self._canvas.recalculate_fixed_size()
