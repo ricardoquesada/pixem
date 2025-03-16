@@ -1081,7 +1081,6 @@ class MainWindow(QMainWindow):
         self._property_editor.setEnabled(enabled)
         if enabled:
             properties = LayerProperties(
-                uuid=current_layer.uuid,
                 position=(self._position_x_spinbox.value(), self._position_y_spinbox.value()),
                 rotation=self._rotation_slider.value(),
                 pixel_size=(self._pixel_width_spinbox.value(), self._pixel_height_spinbox.value()),

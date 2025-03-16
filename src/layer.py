@@ -18,15 +18,6 @@ logger = logging.getLogger(__name__)
 INCHES_TO_MM = 25.4
 
 
-@dataclass
-class EmbroideryParameters:
-    pull_compensation_mm: float = 0.0
-    max_stitch_length_mm: float = 1000.0
-    fill_method: str = "auto_fill"
-    initial_angle_degrees: int = 0
-    min_jump_stitch_length_mm: float = 0.0
-
-
 class LayerAlign(int, Enum):
     INVALID = auto()
 
@@ -40,8 +31,18 @@ class LayerAlign(int, Enum):
 
 
 @dataclass
+class EmbroideryParameters:
+    pull_compensation_mm: float = 0.0
+    max_stitch_length_mm: float = 1000.0
+    fill_method: str = "auto_fill"
+    initial_angle_degrees: int = 0
+    min_jump_stitch_length_mm: float = 0.0
+
+
+@dataclass
 class LayerProperties:
-    uuid: str  # FIXME: uuid should be immutable. Should be outside LayerProperties
+    """Mutable properties for the class. Immutables, like UUID, should not be in this class"""
+
     position: tuple[float, float] = (0.0, 0.0)
     rotation: int = 0
     pixel_size: tuple[float, float] = (2.5, 2.5)
@@ -53,7 +54,8 @@ class LayerProperties:
 class Layer:
     def __init__(self, image: QImage):
         self._image: QImage = image
-        self._properties = LayerProperties(uuid=str(uuid.uuid4()))
+        self._uuid = str(uuid.uuid4())
+        self._properties = LayerProperties()
         self._partitions: dict[str, Partition] = {}
         self._current_partition_uuid = None
         self._embroidery_params = EmbroideryParameters()
@@ -68,7 +70,6 @@ class Layer:
         layer_type = "Layer"
         if "layer_type" in d:
             layer_type = d["layer_type"]
-
         if layer_type == "ImageLayer":
             layer = ImageLayer(image)
         elif layer_type == "TextLayer":
@@ -98,10 +99,13 @@ class Layer:
                 self._partitions[k] = part
         if "current_partition_uuid" in d:
             self._current_partition_uuid = d["current_partition_uuid"]
+        if "uuid" in d:
+            self._uuid = d["uuid"]
 
     def to_dict(self) -> dict:
         """Returns a dictionary that represents the Layer"""
         d = {
+            "uuid": self._uuid,
             "properties": asdict(self._properties),
             "embroidery_params": asdict(self._embroidery_params),
             "partitions": {},
@@ -138,7 +142,7 @@ class Layer:
 
     @property
     def uuid(self) -> str:
-        return self._properties.uuid
+        return self._uuid
 
     @property
     def name(self) -> str:

@@ -169,6 +169,8 @@ class State(QObject):
             if layer.uuid == self._properties.current_layer_uuid:
                 return layer
         logger.warning(f"selected_layer. Layer '{self._properties.current_layer_uuid}' not found")
+        # Should it return valid one ? No, Let it fail, and fix the root cause
+        # return self._layers[0]
         return None
 
     @property

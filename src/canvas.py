@@ -65,7 +65,7 @@ class Canvas(QWidget):
         # 1. Draw the layers. Use the cached image to draw them
         for i, layer in enumerate(self._state.layers):
             offset = layer.position
-            if layer.name == self._state.selected_layer.name:
+            if layer.uuid == self._state.selected_layer.uuid:
                 offset = layer.position + self._mouse_delta
             if layer.visible:
                 painter.save()
