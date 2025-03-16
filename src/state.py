@@ -10,7 +10,7 @@ from PySide6.QtCore import QObject, Signal
 from PySide6.QtGui import QUndoStack
 
 from export import ExportToSVG
-from layer import EmbroideryParameters, Layer, LayerProperties
+from layer import Layer, LayerProperties
 from preferences import get_global_preferences
 from state_properties import StateProperties, StatePropertyFlags
 from undo_commands import (
@@ -35,7 +35,6 @@ class State(QObject):
     def __init__(self):
         super().__init__()
         self._project_filename = None
-        self._export_params = EmbroideryParameters()
         self._properties = StateProperties(
             hoop_size=get_global_preferences().get_hoop_size(),
             zoom_factor=1.0,
@@ -50,25 +49,27 @@ class State(QObject):
     def from_dict(cls, d: dict) -> Self:
         state = State()
         if "export_params" in d:
+            # FIXME: Remove me. Backward compatible for old formats.
             state._properties.export_filename = d["export_params"]["filename"]
-            # state._export_params = ExportParameters(**d["export_params"])
         if "zoom_factor" in d:
+            # FIXME: Remove me. Backward compatible for old formats.
             state._properties.zoom_factor = d["zoom_factor"]
         dict_layers = d["layers"]
         for dict_layer in dict_layers:
             layer = Layer.from_dict(dict_layer)
             state._layers.append(layer)
         if "current_layer_key" in d:
-            # FIXME: Remove me.
-            # Backward compatible for old formats
+            # FIXME: Remove me. Backward compatible for old formats.
             current_key = d["current_layer_key"]
             for layer in state._layers:
                 if layer.name == current_key:
                     state._properties.current_layer_uuid = layer.uuid
                     break
         if "current_layer_uuid" in d:
+            # FIXME: Remove me. Backward compatible for old formats.
             state._properties.current_layer_uuid = d["current_layer_uuid"]
         if "hoop_size" in d:
+            # FIXME: Remove me. Backward compatible for old formats.
             state._properties.hoop_size = d["hoop_size"]
         if "properties" in d:
             state._properties = StateProperties(**d["properties"])
@@ -231,10 +232,6 @@ class State(QObject):
             logger.error(f"Layer UUID '{uuid}' not found in state layers: {self._layers}")
             return
         self._properties.current_layer_uuid = uuid
-
-    @property
-    def export_params(self) -> EmbroideryParameters:
-        return self._export_params
 
     @property
     def project_filename(self) -> str:

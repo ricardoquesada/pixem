@@ -13,7 +13,6 @@ visible = true
 opacity = 1.0
 name = "ImageLayer 1"
 [layers.embroidery_params]
-filename = ""
 pull_compensation_mm = 0.0
 max_stitch_length_mm = 1000.0
 fill_method = "auto_fill"
@@ -1090,7 +1089,6 @@ visible = true
 opacity = 1.0
 name = "TextLayer 2"
 [layers.embroidery_params]
-filename = ""
 pull_compensation_mm = 0.0
 max_stitch_length_mm = 1000.0
 fill_method = "auto_fill"
