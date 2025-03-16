@@ -48,29 +48,10 @@ class State(QObject):
     @classmethod
     def from_dict(cls, d: dict) -> Self:
         state = State()
-        if "export_params" in d:
-            # FIXME: Remove me. Backward compatible for old formats.
-            state._properties.export_filename = d["export_params"]["filename"]
-        if "zoom_factor" in d:
-            # FIXME: Remove me. Backward compatible for old formats.
-            state._properties.zoom_factor = d["zoom_factor"]
         dict_layers = d["layers"]
         for dict_layer in dict_layers:
             layer = Layer.from_dict(dict_layer)
             state._layers.append(layer)
-        if "current_layer_key" in d:
-            # FIXME: Remove me. Backward compatible for old formats.
-            current_key = d["current_layer_key"]
-            for layer in state._layers:
-                if layer.name == current_key:
-                    state._properties.current_layer_uuid = layer.uuid
-                    break
-        if "current_layer_uuid" in d:
-            # FIXME: Remove me. Backward compatible for old formats.
-            state._properties.current_layer_uuid = d["current_layer_uuid"]
-        if "hoop_size" in d:
-            # FIXME: Remove me. Backward compatible for old formats.
-            state._properties.hoop_size = d["hoop_size"]
         if "properties" in d:
             state._properties = StateProperties(**d["properties"])
         return state

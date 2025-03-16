@@ -79,20 +79,10 @@ class Layer:
         return layer
 
     def populate_from_dict(self, d: dict) -> None:
-        if "render_properties" in d:
-            # FIXME: Remove me. Backward compatible for old formats.
-            self._properties = LayerProperties(**d["render_properties"])
         if "properties" in d:
             self._properties = LayerProperties(**d["properties"])
-            if self._properties.uuid is None:
-                # FIXME: Remove me. Backward compatible for old formats.
-                self._properties.uuid = str(uuid.uuid4())
         if "embroidery_params" in d:
             self._embroidery_params = EmbroideryParameters(**d["embroidery_params"])
-        if "name" in d:
-            # FIXME: Remove me. Backward compatible for old formats.
-            # Backward compatible for old formats
-            self._properties.name = d["name"]
         # Convert list to tuple. Needed for some comparisons.
         self._properties.position = (
             self._properties.position[0],
@@ -105,16 +95,7 @@ class Layer:
         if "partitions" in d:
             for k, v in d["partitions"].items():
                 part = Partition.from_dict(v)
-                if k.startswith("#"):
-                    # FIXME: Remove me. Backward compatible for old formats.
-                    key = str(uuid.uuid4())
-                    part.name = k
-                else:
-                    key = k
-                self._partitions[key] = part
-        if "current_partition_key" in d:
-            # FIXME: Remove me. Backward compatible for old formats.
-            self._current_partition_uuid = d["current_partition_key"]
+                self._partitions[k] = part
         if "current_partition_uuid" in d:
             self._current_partition_uuid = d["current_partition_uuid"]
 
@@ -131,9 +112,6 @@ class Layer:
         for k, v in self._partitions.items():
             part = v.to_dict()
             d["partitions"][k] = part
-        # FIXME: Remove me. Backward compatible for old formats.
-        if "filename" in d["embroidery_params"]:
-            del d["embroidery_params"]["filename"]
         return d
 
     @property
