@@ -231,12 +231,11 @@ class Layer:
         self._partitions = value
 
     @property
-    def export_params(self) -> EmbroideryParameters:
+    def embroidery_params(self) -> EmbroideryParameters:
         return self._embroidery_params
 
-    @export_params.setter
-    def export_params(self, value: EmbroideryParameters):
-        logger.info(f"Export params: {value}")
+    @embroidery_params.setter
+    def embroidery_params(self, value: EmbroideryParameters):
         self._embroidery_params = value
 
     def is_point_inside(self, point: QPointF) -> bool:

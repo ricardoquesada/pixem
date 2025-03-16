@@ -32,7 +32,7 @@ class ExportToSVG:
         pixel_size: tuple[float, float],
         color: str,
         angle: int,
-        export_params: EmbroideryParameters,
+        embroidery_params: EmbroideryParameters,
     ) -> None:
         file.write(
             f'<rect x="{x * pixel_size[0]}" y="{y * pixel_size[1]}" '
@@ -40,15 +40,15 @@ class ExportToSVG:
             f'fill="{color}" '
             f'id="pixel_{layer_idx}_{x}_{y}_{angle}" '
             f'style="display:inline;stroke:none" '
-            f'inkstitch:fill_method="{export_params.fill_method}" '
+            f'inkstitch:fill_method="{embroidery_params.fill_method}" '
             f'inkstitch:angle="{angle}" '
-            f'inkstitch:max_stitch_length_mm="{export_params.max_stitch_length_mm}" '
-            f'inkstitch:pull_compensation_mm="{export_params.pull_compensation_mm}" '
+            f'inkstitch:max_stitch_length_mm="{embroidery_params.max_stitch_length_mm}" '
+            f'inkstitch:pull_compensation_mm="{embroidery_params.pull_compensation_mm}" '
         )
         # To be backward compatible. Not sure what is the default one when the parameter is not defined.
-        if export_params.min_jump_stitch_length_mm > 0.0:
+        if embroidery_params.min_jump_stitch_length_mm > 0.0:
             file.write(
-                f'inkstitch:min_jump_stitch_length_mm="{export_params.min_jump_stitch_length_mm}" '
+                f'inkstitch:min_jump_stitch_length_mm="{embroidery_params.min_jump_stitch_length_mm}" '
             )
         file.write("/>\n")
 
@@ -94,7 +94,11 @@ class ExportToSVG:
 
             for layer_idx, layer in enumerate(self._layers):
                 f.write(f"<!--  layer uuid: {layer.uuid}, name: {layer.name} -->\n")
-                f.write("<!-- layer export params\n" f'  {asdict(layer.export_params)}"\n' "-->\n")
+                f.write(
+                    "<!-- layer embroidery params\n"
+                    f'  {asdict(layer.embroidery_params)}"\n'
+                    "-->\n"
+                )
                 name = layer.name
                 pixel_size = layer.properties.pixel_size
                 translate = layer.properties.position
@@ -121,7 +125,7 @@ class ExportToSVG:
                     for coord in path:
                         # coord is a tuple (x,y)
                         x, y = coord
-                        angle = layer.export_params.initial_angle_degrees
+                        angle = layer.embroidery_params.initial_angle_degrees
                         if (x + y) % 2 == 0:
                             angle += 90
                         self._write_rect_svg(
@@ -132,7 +136,7 @@ class ExportToSVG:
                             pixel_size,
                             color,
                             angle,
-                            layer.export_params,
+                            layer.embroidery_params,
                         )
 
                     # partition

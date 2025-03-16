@@ -736,13 +736,13 @@ class MainWindow(QMainWindow):
         self._opacity_slider.setValue(round(properties.opacity * 100))
         self._connect_property_callbacks()
 
-    def _populate_embroidery_editor(self, export_params: EmbroideryParameters):
+    def _populate_embroidery_editor(self, embroidery_params: EmbroideryParameters):
         self._disconnect_embroidery_callbacks()
-        self._pull_compensation_spinbox.setValue(export_params.pull_compensation_mm)
-        self._max_stitch_length_spinbox.setValue(export_params.max_stitch_length_mm)
-        self._min_jump_stitch_length_spinbox.setValue(export_params.min_jump_stitch_length_mm)
-        self._initial_angle_spinbox.setValue(export_params.initial_angle_degrees)
-        index = self._fill_method_combo.findData(export_params.fill_method)
+        self._pull_compensation_spinbox.setValue(embroidery_params.pull_compensation_mm)
+        self._max_stitch_length_spinbox.setValue(embroidery_params.max_stitch_length_mm)
+        self._min_jump_stitch_length_spinbox.setValue(embroidery_params.min_jump_stitch_length_mm)
+        self._initial_angle_spinbox.setValue(embroidery_params.initial_angle_degrees)
+        index = self._fill_method_combo.findData(embroidery_params.fill_method)
         if index != -1:
             self._fill_method_combo.setCurrentIndex(index)
         self._connect_embroidery_callbacks()
@@ -1001,7 +1001,7 @@ class MainWindow(QMainWindow):
 
             self._populate_partitions(layer)
             self._populate_property_editor(layer.properties)
-            self._populate_embroidery_editor(layer.export_params)
+            self._populate_embroidery_editor(layer.embroidery_params)
         else:
             if self._state is not None:
                 self._state.current_layer_uuid = None
@@ -1100,14 +1100,14 @@ class MainWindow(QMainWindow):
         enabled = current_layer is not None
         self._embroidery_params_editor.setEnabled(enabled)
         if enabled:
-            export_params = EmbroideryParameters(
+            embroidery_params = EmbroideryParameters(
                 pull_compensation_mm=self._pull_compensation_spinbox.value(),
                 max_stitch_length_mm=self._max_stitch_length_spinbox.value(),
                 min_jump_stitch_length_mm=self._min_jump_stitch_length_spinbox.value(),
                 initial_angle_degrees=self._initial_angle_spinbox.value(),
                 fill_method=self._fill_method_combo.currentData(),
             )
-            current_layer.export_params = export_params
+            current_layer.embroidery_params = embroidery_params
 
     @Slot()
     def _on_show_about_dialog(self) -> None:
