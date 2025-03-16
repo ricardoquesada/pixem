@@ -17,7 +17,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
-from export import ExportParameters
+from export import EmbroideryParameters
 
 
 class ExportDialog(QDialog):
@@ -67,7 +67,7 @@ class ExportDialog(QDialog):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    params = ExportParameters(
+    params = EmbroideryParameters(
         filename="test filename",
         pull_compensation_mm=10.0,
         max_stitch_length_mm=100,

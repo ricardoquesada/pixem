@@ -6,7 +6,7 @@ import os.path
 from dataclasses import asdict
 from typing import TextIO
 
-from layer import ExportParameters, Layer
+from layer import EmbroideryParameters, Layer
 
 INCHES_TO_MM = 25.4
 
@@ -32,7 +32,7 @@ class ExportToSVG:
         pixel_size: tuple[float, float],
         color: str,
         angle: int,
-        export_params: ExportParameters,
+        export_params: EmbroideryParameters,
     ) -> None:
         file.write(
             f'<rect x="{x * pixel_size[0]}" y="{y * pixel_size[1]}" '

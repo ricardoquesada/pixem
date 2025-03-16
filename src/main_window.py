@@ -38,7 +38,7 @@ from export_dialog import ExportDialog
 from font_dialog import FontDialog
 from image_parser import ImageParser
 from image_utils import create_icon_from_svg
-from layer import ExportParameters, ImageLayer, Layer, LayerAlign, LayerProperties, TextLayer
+from layer import EmbroideryParameters, ImageLayer, Layer, LayerAlign, LayerProperties, TextLayer
 from partition_dialog import PartitionDialog
 from preference_dialog import PreferenceDialog
 from preferences import get_global_preferences
@@ -736,7 +736,7 @@ class MainWindow(QMainWindow):
         self._opacity_slider.setValue(round(properties.opacity * 100))
         self._connect_property_callbacks()
 
-    def _populate_embroidery_editor(self, export_params: ExportParameters):
+    def _populate_embroidery_editor(self, export_params: EmbroideryParameters):
         self._disconnect_embroidery_callbacks()
         self._pull_compensation_spinbox.setValue(export_params.pull_compensation_mm)
         self._max_stitch_length_spinbox.setValue(export_params.max_stitch_length_mm)
@@ -1100,7 +1100,7 @@ class MainWindow(QMainWindow):
         enabled = current_layer is not None
         self._embroidery_params_editor.setEnabled(enabled)
         if enabled:
-            export_params = ExportParameters(
+            export_params = EmbroideryParameters(
                 pull_compensation_mm=self._pull_compensation_spinbox.value(),
                 max_stitch_length_mm=self._max_stitch_length_spinbox.value(),
                 min_jump_stitch_length_mm=self._min_jump_stitch_length_spinbox.value(),

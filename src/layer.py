@@ -19,7 +19,7 @@ INCHES_TO_MM = 25.4
 
 
 @dataclass
-class ExportParameters:
+class EmbroideryParameters:
     filename: str = ""
     pull_compensation_mm: float = 0.0
     max_stitch_length_mm: float = 1000.0
@@ -57,7 +57,7 @@ class Layer:
         self._properties = LayerProperties(uuid=str(uuid.uuid4()))
         self._partitions: dict[str, Partition] = {}
         self._current_partition_uuid = None
-        self._export_params = ExportParameters()
+        self._embroidery_params = EmbroideryParameters()
 
     #
     # Public methods
@@ -90,7 +90,7 @@ class Layer:
                 # Backward compatible for old formats
                 self._properties.uuid = str(uuid.uuid4())
         if "embroidery_params" in d:
-            self._export_params = ExportParameters(**d["embroidery_params"])
+            self._embroidery_params = EmbroideryParameters(**d["embroidery_params"])
         if "name" in d:
             # FIXME: remove me
             # Backward compatible for old formats
@@ -126,7 +126,7 @@ class Layer:
         """Returns a dictionary that represents the Layer"""
         d = {
             "properties": asdict(self._properties),
-            "embroidery_params": asdict(self._export_params),
+            "embroidery_params": asdict(self._embroidery_params),
             "partitions": {},
             "image": image_utils.qimage_to_base64_string(self._image),
             "current_partition_uuid": self._current_partition_uuid,
@@ -231,13 +231,13 @@ class Layer:
         self._partitions = value
 
     @property
-    def export_params(self) -> ExportParameters:
-        return self._export_params
+    def export_params(self) -> EmbroideryParameters:
+        return self._embroidery_params
 
     @export_params.setter
-    def export_params(self, value: ExportParameters):
+    def export_params(self, value: EmbroideryParameters):
         logger.info(f"Export params: {value}")
-        self._export_params = value
+        self._embroidery_params = value
 
     def is_point_inside(self, point: QPointF) -> bool:
         rect = QRectF(

@@ -10,7 +10,7 @@ from PySide6.QtCore import QObject, Signal
 from PySide6.QtGui import QUndoStack
 
 from export import ExportToSVG
-from layer import ExportParameters, Layer, LayerProperties
+from layer import EmbroideryParameters, Layer, LayerProperties
 from preferences import get_global_preferences
 from state_properties import StateProperties, StatePropertyFlags
 from undo_commands import (
@@ -35,7 +35,7 @@ class State(QObject):
     def __init__(self):
         super().__init__()
         self._project_filename = None
-        self._export_params = ExportParameters()
+        self._export_params = EmbroideryParameters()
         self._properties = StateProperties(
             hoop_size=get_global_preferences().get_hoop_size(),
             zoom_factor=1.0,
@@ -233,7 +233,7 @@ class State(QObject):
         self._properties.current_layer_uuid = uuid
 
     @property
-    def export_params(self) -> ExportParameters:
+    def export_params(self) -> EmbroideryParameters:
         return self._export_params
 
     @property
