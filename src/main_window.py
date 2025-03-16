@@ -34,12 +34,11 @@ from PySide6.QtWidgets import (
 
 from about_dialog import AboutDialog
 from canvas import Canvas
-from export import ExportParameters
 from export_dialog import ExportDialog
 from font_dialog import FontDialog
 from image_parser import ImageParser
 from image_utils import create_icon_from_svg
-from layer import ImageLayer, Layer, LayerAlign, LayerProperties, TextLayer
+from layer import ExportParameters, ImageLayer, Layer, LayerAlign, LayerProperties, TextLayer
 from partition_dialog import PartitionDialog
 from preference_dialog import PreferenceDialog
 from preferences import get_global_preferences
@@ -851,23 +850,19 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_export_project(self) -> None:
-        export_params = self._state.export_params
-        if (
-            export_params.filename is None
-            or len(export_params.filename) == 0
-            or not os.path.exists(export_params.filename)
-        ):
+        filename = self._state.properties.export_filename
+        if filename is None or len(filename) == 0 or not os.path.exists(filename):
             self._on_export_project_as()
             return
 
-        self._state.export_to_filename(export_params)
+        self._state.export_to_filename(filename)
 
     @Slot()
     def _on_export_project_as(self) -> None:
-        dialog = ExportDialog(self._state.export_params)
+        dialog = ExportDialog(self._state.properties.export_filename)
         if dialog.exec() == QDialog.Accepted:
-            export_params = dialog.get_export_parameters()
-            self._state.export_to_filename(export_params)
+            filename = dialog.get_filename()
+            self._state.export_to_filename(filename)
 
     @Slot()
     def _on_close_project(self) -> None:

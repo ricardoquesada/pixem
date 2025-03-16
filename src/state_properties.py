@@ -16,3 +16,4 @@ class StateProperties:
     hoop_size: tuple[float, float]
     zoom_factor: float
     current_layer_uuid: str | None
+    export_filename: str | None = None

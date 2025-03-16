@@ -3,33 +3,25 @@
 
 import logging
 import os.path
-from dataclasses import asdict, dataclass
+from dataclasses import asdict
 from typing import TextIO
+
+from layer import ExportParameters, Layer
 
 INCHES_TO_MM = 25.4
 
 logger = logging.getLogger(__name__)
 
 
-@dataclass
-class ExportParameters:
-    filename: str = ""
-    pull_compensation_mm: float = 0.0
-    max_stitch_length_mm: float = 1000.0
-    fill_method: str = "auto_fill"
-    initial_angle_degrees: int = 0
-    min_jump_stitch_length_mm: float = 0.0
-
-
 class ExportToSVG:
     VERSION = "0.1"
 
-    def __init__(self, hoop_size: tuple[float, float], export_params: ExportParameters):
-        self._export_params = export_params
+    def __init__(self, filename: str, hoop_size: tuple[float, float]):
+        self._export_filename = filename
         self._hoop_size = hoop_size
-        logger.info(f"Exporting to SVG {self._export_params}")
+        logger.info(f"Exporting to SVG {self._export_filename}")
 
-        self._layers = []
+        self._layers: list[Layer] = []
 
     def _write_rect_svg(
         self,
@@ -37,9 +29,10 @@ class ExportToSVG:
         layer_idx: int,
         x: int,
         y: int,
-        pixel_size: tuple[int, int],
+        pixel_size: tuple[float, float],
         color: str,
         angle: int,
+        export_params: ExportParameters,
     ) -> None:
         file.write(
             f'<rect x="{x * pixel_size[0]}" y="{y * pixel_size[1]}" '
@@ -47,21 +40,21 @@ class ExportToSVG:
             f'fill="{color}" '
             f'id="pixel_{layer_idx}_{x}_{y}_{angle}" '
             f'style="display:inline;stroke:none" '
-            f'inkstitch:fill_method="{self._export_params.fill_method}" '
+            f'inkstitch:fill_method="{export_params.fill_method}" '
             f'inkstitch:angle="{angle}" '
-            f'inkstitch:max_stitch_length_mm="{self._export_params.max_stitch_length_mm}" '
-            f'inkstitch:pull_compensation_mm="{self._export_params.pull_compensation_mm}" '
+            f'inkstitch:max_stitch_length_mm="{export_params.max_stitch_length_mm}" '
+            f'inkstitch:pull_compensation_mm="{export_params.pull_compensation_mm}" '
         )
         # To be backward compatible. Not sure what is the default one when the parameter is not defined.
-        if self._export_params.min_jump_stitch_length_mm > 0.0:
+        if export_params.min_jump_stitch_length_mm > 0.0:
             file.write(
-                f'inkstitch:min_jump_stitch_length_mm="{self._export_params.min_jump_stitch_length_mm}" '
+                f'inkstitch:min_jump_stitch_length_mm="{export_params.min_jump_stitch_length_mm}" '
             )
         file.write("/>\n")
 
     def write_to_svg(self):
-        logger.info(f"writing SVG {self._export_params.filename}")
-        with open(self._export_params.filename, "w") as f:
+        logger.info(f"writing SVG {self._export_filename}")
+        with open(self._export_filename, "w") as f:
             f.write('<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n')
             f.write(
                 f"<svg\n"
@@ -76,9 +69,7 @@ class ExportToSVG:
                 f'  xmlns:inkstitch="http://inkstitch.org/namespace"\n'
                 ">\n"
             )
-            f.write(
-                f'<title id="title1023">{os.path.basename(self._export_params.filename)}</title>\n'
-            )
+            f.write(f'<title id="title1023">{os.path.basename(self._export_filename)}</title>\n')
             f.write(
                 "<sodipodi:namedview\n"
                 '  inkscape:document-units="mm"\n'
@@ -92,28 +83,30 @@ class ExportToSVG:
                 '  units="mm"\n'
                 '  originx="0"\n'
                 '  originy="0"\n'
-                f'  spacingx="{self._layers[0]["pixel_size"][0]}"\n'
-                f'  spacingy="{self._layers[0]["pixel_size"][1]}"\n'
+                f'  spacingx="{self._layers[0].properties.pixel_size[0]}"\n'
+                f'  spacingy="{self._layers[0].properties.pixel_size[1]}"\n'
                 '  enabled="true"\n'
                 '  visible="true"\n'
                 "/>\n"
             )
             f.write("</sodipodi:namedview>\n")
             f.write("<defs\n" '  id="defs1"\n' "/>\n")
-            f.write("<!-- pixem:params\n" f'  {asdict(self._export_params)}"\n' "-->\n")
 
             for layer_idx, layer in enumerate(self._layers):
-                name = layer["name"]
-                pixel_size = layer["pixel_size"]
-                translate = layer["translate"]
-                rotation = layer["rotation"]
-                scale = layer["scale"]
-                partitions = layer["partitions"]
+                f.write(f"<!--  layer uuid: {layer.uuid}, name: {layer.name} -->\n")
+                f.write("<!-- layer export params\n" f'  {asdict(layer.export_params)}"\n' "-->\n")
+                name = layer.name
+                pixel_size = layer.properties.pixel_size
+                translate = layer.properties.position
+                rotation = layer.properties.rotation
+                rotation_anchor_x = layer.image.width() * pixel_size[0] / 2
+                rotation_anchor_y = layer.image.height() * pixel_size[1] / 2
+                partitions = layer.partitions
                 f.write(
                     f'<g id="{name}" transform="'
                     f"translate({translate[0]} {translate[1]}) "
-                    f"rotate({rotation[0]} {rotation[1]} {rotation[2]}) "
-                    f"scale({scale[0]} {scale[1]})"
+                    f"rotate({rotation} {rotation_anchor_x} {rotation_anchor_y}) "
+                    "scale(1 1)"
                     '">\n'
                 )
 
@@ -128,7 +121,7 @@ class ExportToSVG:
                     for coord in path:
                         # coord is a tuple (x,y)
                         x, y = coord
-                        angle = self._export_params.initial_angle_degrees
+                        angle = layer.export_params.initial_angle_degrees
                         if (x + y) % 2 == 0:
                             angle += 90
                         self._write_rect_svg(
@@ -139,6 +132,7 @@ class ExportToSVG:
                             pixel_size,
                             color,
                             angle,
+                            layer.export_params,
                         )
 
                     # partition
@@ -147,21 +141,5 @@ class ExportToSVG:
                 f.write("</g>\n")
             f.write("</svg>\n")
 
-    def add_layer(
-        self,
-        name: str,
-        partitions: dict,
-        pixel_size: tuple[float, float],
-        translate: tuple[float, float],
-        scale: tuple,
-        rotation: tuple[float, float, float],
-    ) -> None:
-        entry = {
-            "name": name,
-            "partitions": partitions,
-            "pixel_size": pixel_size,
-            "translate": translate,
-            "scale": scale,
-            "rotation": rotation,
-        }
-        self._layers.append(entry)
+    def add_layer(self, layer: Layer):
+        self._layers.append(layer)

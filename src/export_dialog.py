@@ -7,16 +7,13 @@ import sys
 from PySide6.QtCore import Slot
 from PySide6.QtWidgets import (
     QApplication,
-    QComboBox,
     QDialog,
     QDialogButtonBox,
-    QDoubleSpinBox,
     QFileDialog,
     QHBoxLayout,
     QLabel,
     QLineEdit,
     QPushButton,
-    QSpinBox,
     QVBoxLayout,
 )
 
@@ -24,7 +21,7 @@ from export import ExportParameters
 
 
 class ExportDialog(QDialog):
-    def __init__(self, export_parameters: ExportParameters, parent=None):
+    def __init__(self, filename: str, parent=None):
         super().__init__(parent)
 
         self.setWindowTitle(self.tr("Export As Dialog"))
@@ -35,7 +32,7 @@ class ExportDialog(QDialog):
         file_layout = QHBoxLayout()
         file_label = QLabel(self.tr("File Name:"))
         self._file_edit = QLineEdit()
-        self._file_edit.setText(export_parameters.filename)
+        self._file_edit.setText(filename)
         browse_button = QPushButton(self.tr("Browse"))
         browse_button.clicked.connect(self._on_browse_file)
 
@@ -43,62 +40,6 @@ class ExportDialog(QDialog):
         file_layout.addWidget(self._file_edit)
         file_layout.addWidget(browse_button)
         layout.addLayout(file_layout)
-
-        # Fill method
-        fill_method_layout = QHBoxLayout()
-        fill_method_label = QLabel(self.tr("Fill Method:"))
-        self._fill_method_combo = QComboBox()
-
-        items = {
-            "auto_fill": self.tr("Auto Fill"),
-            "legacy_fill": self.tr("Legacy Fill"),
-        }
-        for item in items:
-            self._fill_method_combo.addItem(items[item], item)
-            if export_parameters.fill_method == item:
-                self._fill_method_combo.setCurrentIndex(self._fill_method_combo.count() - 1)
-        fill_method_layout.addWidget(fill_method_label)
-        fill_method_layout.addWidget(self._fill_method_combo)
-        layout.addLayout(fill_method_layout)
-
-        # Pull Compensation
-        pull_layout = QHBoxLayout()
-        pull_label = QLabel(self.tr("Pull Compensation (mm):"))
-        self._pull_spinbox = QDoubleSpinBox()
-        self._pull_spinbox.setValue(export_parameters.pull_compensation_mm)
-        pull_layout.addWidget(pull_label)
-        pull_layout.addWidget(self._pull_spinbox)
-        layout.addLayout(pull_layout)
-
-        # Max Stitch Length
-        max_stitch_layout = QHBoxLayout()
-        max_stitch_label = QLabel(self.tr("Max Stitch Length (mm):"))
-        self._max_stitch_spinbox = QDoubleSpinBox()
-        self._max_stitch_spinbox.setRange(0.1, 2000.0)
-        self._max_stitch_spinbox.setValue(export_parameters.max_stitch_length_mm)
-        max_stitch_layout.addWidget(max_stitch_label)
-        max_stitch_layout.addWidget(self._max_stitch_spinbox)
-        layout.addLayout(max_stitch_layout)
-
-        # Min Jump Stitch Length
-        min_jump_stitch_layout = QHBoxLayout()
-        min_jump_stitch_label = QLabel(self.tr("Min Jump Stitch Length (mm):"))
-        self._min_jump_stitch_spinbox = QDoubleSpinBox()
-        self._min_jump_stitch_spinbox.setRange(0.0, 2000.0)
-        self._min_jump_stitch_spinbox.setValue(export_parameters.min_jump_stitch_length_mm)
-        min_jump_stitch_layout.addWidget(min_jump_stitch_label)
-        min_jump_stitch_layout.addWidget(self._min_jump_stitch_spinbox)
-        layout.addLayout(min_jump_stitch_layout)
-
-        # Angle
-        angle_layout = QHBoxLayout()
-        angle_label = QLabel(self.tr("Initial Angle (degrees):"))
-        self._angle_spinbox = QSpinBox()
-        self._angle_spinbox.setRange(0, 89)
-        self._angle_spinbox.setValue(export_parameters.initial_angle_degrees)
-        angle_layout.addWidget(angle_label)
-        angle_layout.addWidget(self._angle_spinbox)
-        layout.addLayout(angle_layout)
 
         # Create QDialogButtonBox
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
@@ -120,15 +61,8 @@ class ExportDialog(QDialog):
                 filename = filename + ".svg"
             self._file_edit.setText(filename)
 
-    def get_export_parameters(self) -> ExportParameters:
-        return ExportParameters(
-            filename=self._file_edit.text(),
-            pull_compensation_mm=self._pull_spinbox.value(),
-            max_stitch_length_mm=self._max_stitch_spinbox.value(),
-            fill_method=self._fill_method_combo.currentData(),
-            initial_angle_degrees=self._angle_spinbox.value(),
-            min_jump_stitch_length_mm=self._min_jump_stitch_spinbox.value(),
-        )
+    def get_filename(self) -> str:
+        return self._file_edit.text()
 
 
 if __name__ == "__main__":
@@ -140,10 +74,10 @@ if __name__ == "__main__":
         fill_method="auto_fill",
         initial_angle_degrees=0,
     )
-    dialog = ExportDialog(params)
+    dialog = ExportDialog("test.svg")
 
     if dialog.exec() == QDialog.Accepted:
-        params = dialog.get_export_parameters()
+        params = dialog.get_filename()
         print(params)
     else:
         print("Dialog canceled.")

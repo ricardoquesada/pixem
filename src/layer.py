@@ -11,12 +11,21 @@ from PySide6.QtCore import QPointF, QRectF, QSizeF
 from PySide6.QtGui import QImage, QTransform
 
 import image_utils
-from export import ExportParameters
 from partition import Partition
 
 logger = logging.getLogger(__name__)
 
 INCHES_TO_MM = 25.4
+
+
+@dataclass
+class ExportParameters:
+    filename: str = ""
+    pull_compensation_mm: float = 0.0
+    max_stitch_length_mm: float = 1000.0
+    fill_method: str = "auto_fill"
+    initial_angle_degrees: int = 0
+    min_jump_stitch_length_mm: float = 0.0
 
 
 class LayerAlign(int, Enum):

@@ -9,8 +9,8 @@ import toml
 from PySide6.QtCore import QObject, Signal
 from PySide6.QtGui import QUndoStack
 
-from export import ExportParameters, ExportToSVG
-from layer import Layer, LayerProperties
+from export import ExportToSVG
+from layer import ExportParameters, Layer, LayerProperties
 from preferences import get_global_preferences
 from state_properties import StateProperties, StatePropertyFlags
 from undo_commands import (
@@ -40,6 +40,7 @@ class State(QObject):
             hoop_size=get_global_preferences().get_hoop_size(),
             zoom_factor=1.0,
             current_layer_uuid=None,
+            export_filename=None,
         )
         self._layers: list[Layer] = []
 
@@ -49,7 +50,8 @@ class State(QObject):
     def from_dict(cls, d: dict) -> Self:
         state = State()
         if "export_params" in d:
-            state._export_params = ExportParameters(**d["export_params"])
+            state._properties.export_filename = d["export_params"]["filename"]
+            # state._export_params = ExportParameters(**d["export_params"])
         if "zoom_factor" in d:
             state._properties.zoom_factor = d["zoom_factor"]
         dict_layers = d["layers"]
@@ -75,7 +77,6 @@ class State(QObject):
     def to_dict(self) -> dict:
         project = {
             "properties": asdict(self._properties),
-            "export_params": asdict(self._export_params),
             "layers": [],
         }
 
@@ -115,29 +116,17 @@ class State(QObject):
         except Exception:
             logging.exception("An unexpected error occurred:")
 
-    def export_to_filename(self, export_params: ExportParameters) -> None:
-        logger.info(f"Export parameters: {export_params}")
+    def export_to_filename(self, filename: str) -> None:
         if len(self._layers) == 0:
             logger.warning("No layers found. Cannot export file")
             return
 
-        export = ExportToSVG(self._properties.hoop_size, export_params)
+        export = ExportToSVG(filename, self._properties.hoop_size)
 
         for i, layer in enumerate(self._layers):
-            export.add_layer(
-                f"layer_{i}",
-                layer.partitions,
-                (layer.pixel_size.width(), layer.pixel_size.height()),
-                (layer.position.x(), layer.position.y()),
-                (1.0, 1.0),
-                (
-                    layer.rotation,  # degrees
-                    layer.image.width() * layer.pixel_size.width() / 2,  # anchor point x
-                    layer.image.height() * layer.pixel_size.height() / 2,  # anchor point y
-                ),
-            )
+            export.add_layer(layer)
         export.write_to_svg()
-        self._export_params = export_params
+        self._properties.export_filename = filename
 
     def add_layer(self, layer: Layer) -> None:
         self._layers.append(layer)
