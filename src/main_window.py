@@ -548,6 +548,7 @@ class MainWindow(QMainWindow):
 
     def _load_settings(self):
         # Save defaults before restoring saved settings
+        # needed for "reset layout"
         # FIXME: Probably there is a more efficient way to do it.
         # get_global_preferences().set_default_window_geometry(self.saveGeometry())
         # get_global_preferences().set_default_window_state(
