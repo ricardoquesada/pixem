@@ -121,6 +121,7 @@ class State(QObject):
     def add_layer(self, layer: Layer) -> None:
         self._layers.append(layer)
         self._properties.current_layer_uuid = layer.uuid
+        self.layer_added.emit(layer)
 
     def delete_layer(self, layer: Layer) -> None:
         try:
@@ -133,6 +134,7 @@ class State(QObject):
             self._properties.current_layer_uuid = self._layers[-1].uuid
         else:
             self._properties.current_layer_uuid = None
+        self.layer_removed.emit(layer)
 
     def get_layer_for_uuid(self, layer_uuid: str) -> Layer | None:
         for layer in self._layers:

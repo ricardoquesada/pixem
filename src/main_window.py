@@ -494,19 +494,15 @@ class MainWindow(QMainWindow):
         self._statusbar.addPermanentWidget(self._total_pixels_label)
 
     def _update_statusbar(self):
-        if not self._state:
-            self._total_colors_label.setText(self.tr("Total Colors: N/A"))
-            self._total_partitions_label.setText(self.tr("Total Partitions: N/A"))
-            self._total_pixels_label.setText(self.tr("Total Pixels: N/A"))
-            return
         colors = set()
         total_partitions = 0
         total_pixels = 0
-        for layer in self._state.layers:
-            for partition in layer.partitions.values():
-                total_partitions += 1
-                colors.add(partition.color)
-                total_pixels += partition.pixel_count
+        if self._state is not None:
+            for layer in self._state.layers:
+                for partition in layer.partitions.values():
+                    total_partitions += 1
+                    colors.add(partition.color)
+                    total_pixels += partition.pixel_count
 
         self._total_colors_label.setText(self.tr(f"Total Colors: {len(colors)}"))
         self._total_partitions_label.setText(self.tr(f"Total Partitions: {total_partitions}"))
@@ -700,6 +696,8 @@ class MainWindow(QMainWindow):
         self._canvas.state = state
         self._state.layer_property_changed.connect(self._on_layer_property_changed_from_state)
         self._state.state_property_changed.connect(self._on_state_property_changed_from_state)
+        self._state.layer_added.connect(self._on_layer_added_from_state)
+        self._state.layer_removed.connect(self._on_layer_removed_from_state)
 
         self._undo_action.triggered.connect(self._state.undo_stack.undo)
         self._redo_action.triggered.connect(self._state.undo_stack.redo)
@@ -716,6 +714,8 @@ class MainWindow(QMainWindow):
             self._state.state_property_changed.disconnect(
                 self._on_state_property_changed_from_state
             )
+            self._state.layer_added.disconnect(self._on_layer_added_from_state)
+            self._state.layer_removed.disconnect(self._on_layer_removed_from_state)
             self._undo_action.triggered.disconnect(self._state.undo_stack.undo)
             self._redo_action.triggered.disconnect(self._state.undo_stack.redo)
             self._state.undo_stack.indexChanged.disconnect(self._on_undo_stack_index_changed)
@@ -1226,6 +1226,14 @@ class MainWindow(QMainWindow):
             self._canvas.recalculate_fixed_size()
             self._canvas.update()
             self.update()
+
+    @Slot()
+    def _on_layer_added_from_state(self, layer: Layer):
+        self._update_statusbar()
+
+    @Slot()
+    def _on_layer_removed_from_state(self, layer: Layer):
+        self._update_statusbar()
 
     @Slot()
     def _on_canvas_mode_move(self):
