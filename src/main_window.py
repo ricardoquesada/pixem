@@ -733,26 +733,6 @@ class MainWindow(QMainWindow):
         layer.partitions = parser.partitions
 
         self._state.add_layer(layer)
-        item = QListWidgetItem(layer.name)
-        item.setData(Qt.UserRole, layer.uuid)
-
-        self._disconnect_layer_and_partition_callbacks()
-        self._layer_list.addItem(item)
-        for partition_key, partition in layer.partitions.items():
-            item = QListWidgetItem(partition.name)
-            item.setData(Qt.UserRole, partition_key)
-            self._partition_list.addItem(item)
-        self._connect_layer_and_partition_callbacks()
-
-        # Order matters: first layer, then partition
-        # Triggers on_change_layer
-        self._layer_list.setCurrentRow(len(self._state.layers) - 1)
-        # Triggers on_change_partition
-        if len(layer.partitions) > 0:
-            self._partition_list.setCurrentRow(0)
-
-        self._canvas.recalculate_fixed_size()
-        self.update()
 
     def _populate_partitions(self, layer: Layer):
         # Called from on_change_layer
@@ -1019,22 +999,8 @@ class MainWindow(QMainWindow):
             logger.warning("Cannot delete layer, no layers selected")
             return
 
-        # Clear the "partitions"
-        self._partition_list.clear()
-
-        # Remove it from the widget
-        for item in selected_items:
-            row = self._layer_list.row(item)
-            self._layer_list.takeItem(row)
-
         # Remove it from the state
         self._state.delete_layer(layer)
-
-        # _partition_list should get auto-populated
-        # because a "on_change_layer" should be triggered
-
-        self._canvas.recalculate_fixed_size()
-        self.update()
 
     @Slot()
     def _on_layer_align(self):
@@ -1051,7 +1017,8 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_change_layer(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
-        enabled = current is not None
+        # Could be triggered when a layer has been removed.
+        enabled = current is not None and len(self._state.layers) > 0
         self._property_editor.setEnabled(enabled)
         self._embroidery_params_editor.setEnabled(enabled)
         if enabled:
@@ -1229,11 +1196,49 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_layer_added_from_state(self, layer: Layer):
+        item = QListWidgetItem(layer.name)
+        item.setData(Qt.UserRole, layer.uuid)
+
+        self._disconnect_layer_and_partition_callbacks()
+        self._layer_list.addItem(item)
+        for partition_key, partition in layer.partitions.items():
+            item = QListWidgetItem(partition.name)
+            item.setData(Qt.UserRole, partition_key)
+            self._partition_list.addItem(item)
+        self._connect_layer_and_partition_callbacks()
+
+        # Order matters: first layer, then partition
+        # Triggers on_change_layer
+        self._layer_list.setCurrentRow(len(self._state.layers) - 1)
+        # Triggers on_change_partition
+        if len(layer.partitions) > 0:
+            self._partition_list.setCurrentRow(0)
+
         self._update_statusbar()
+        self._canvas.recalculate_fixed_size()
+        self.update()
 
     @Slot()
     def _on_layer_removed_from_state(self, layer: Layer):
+        # Clear the "partitions"
+        self._partition_list.clear()
+
+        # Remove it from the widget
+        index = -1
+        for index, item in enumerate(self._layer_list.selectedItems()):
+            if item.data(Qt.UserRole) == layer.uuid:
+                break
+        if index != -1:
+            self._layer_list.takeItem(index)
+        else:
+            logger.warning(f"Failed to delete layer from list {layer.name}")
+
+        # _partition_list should get auto-populated
+        # because a "on_change_layer" should be triggered
+
         self._update_statusbar()
+        self._canvas.recalculate_fixed_size()
+        self.update()
 
     @Slot()
     def _on_canvas_mode_move(self):

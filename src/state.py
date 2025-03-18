@@ -14,6 +14,8 @@ from layer import Layer, LayerProperties
 from preferences import get_global_preferences
 from state_properties import StateProperties, StatePropertyFlags
 from undo_commands import (
+    AddLayerCommand,
+    DeleteLayerCommand,
     UpdateLayerNameCommand,
     UpdateLayerOpacityCommand,
     UpdateLayerPixelSizeCommand,
@@ -118,12 +120,15 @@ class State(QObject):
         export.write_to_svg()
         self._properties.export_filename = filename
 
-    def add_layer(self, layer: Layer) -> None:
+    def _add_layer(self, layer: Layer) -> None:
         self._layers.append(layer)
         self._properties.current_layer_uuid = layer.uuid
         self.layer_added.emit(layer)
 
-    def delete_layer(self, layer: Layer) -> None:
+    def add_layer(self, layer: Layer) -> None:
+        self._undo_stack.push(AddLayerCommand(self, layer, None))
+
+    def _delete_layer(self, layer: Layer) -> None:
         try:
             self._layers.remove(layer)
         except ValueError:
@@ -135,6 +140,9 @@ class State(QObject):
         else:
             self._properties.current_layer_uuid = None
         self.layer_removed.emit(layer)
+
+    def delete_layer(self, layer: Layer) -> None:
+        self._undo_stack.push(DeleteLayerCommand(self, layer, None))
 
     def get_layer_for_uuid(self, layer_uuid: str) -> Layer | None:
         for layer in self._layers:

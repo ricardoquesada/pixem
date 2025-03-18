@@ -195,3 +195,33 @@ class UpdateStateZoomFactorCommand(QUndoCommand):
         self._new_zoom_factor = other._new_zoom_factor
         self.setObsolete(False)
         return True
+
+
+class AddLayerCommand(QUndoCommand):
+    def __init__(self, state, layer: Layer, parent: QUndoCommand | None):
+        super().__init__(f"New Layer: {layer.properties.name}", parent)
+        self._state = state
+        self._new_layer = layer
+
+    def undo(self) -> None:
+        self._state._delete_layer(self._new_layer)
+        self._state.layer_removed.emit(self._new_layer)
+
+    def redo(self) -> None:
+        self._state._add_layer(self._new_layer)
+        self._state.layer_added.emit(self._new_layer)
+
+
+class DeleteLayerCommand(QUndoCommand):
+    def __init__(self, state, layer: Layer, parent: QUndoCommand | None):
+        super().__init__(f"Delete Layer: {layer.properties.name}", parent)
+        self._state = state
+        self._old_layer = layer
+
+    def undo(self) -> None:
+        self._state._add_layer(self._old_layer)
+        self._state.layer_added.emit(self._old_layer)
+
+    def redo(self) -> None:
+        self._state._delete_layer(self._old_layer)
+        self._state.layer_removed.emit(self._old_layer)
