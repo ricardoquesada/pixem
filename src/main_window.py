@@ -26,6 +26,7 @@ from PySide6.QtWidgets import (
     QScrollArea,
     QSlider,
     QSpinBox,
+    QStatusBar,
     QStyle,
     QToolBar,
     QUndoView,
@@ -73,6 +74,38 @@ class MainWindow(QMainWindow):
         self._update_window_title()
 
     def _setup_ui(self):
+        self._setup_menu()
+        self._setup_toolbar()
+
+        self._setup_central_widget()
+
+        self._setup_layers_dock()
+        self._setup_partitions_dock()
+        self._setup_property_dock()
+        self._setup_embroidery_params_dock()
+        self._setup_undo_dock()
+
+        # Insert all docks in Menu. Docks and menu should have been already initialized.
+        self._view_menu.insertActions(
+            self._show_hoop_separator_action,
+            [
+                self._layers_dock.toggleViewAction(),
+                self._partitions_dock.toggleViewAction(),
+                self._property_dock.toggleViewAction(),
+                self._embroidery_params_dock.toggleViewAction(),
+                self._undo_dock.toggleViewAction(),
+            ],
+        )
+
+        self._setup_statusbar()
+
+        # Slots and friends
+        self._connect_layer_and_partition_callbacks()
+        self._connect_property_callbacks()
+        self._connect_embroidery_callbacks()
+        self._update_qactions()
+
+    def _setup_menu(self):
         menu_bar = self.menuBar()
         file_menu = QMenu(self.tr("&File"), self)
         menu_bar.addMenu(file_menu)
@@ -169,25 +202,25 @@ class MainWindow(QMainWindow):
         self._preferences_action.triggered.connect(self._on_preferences)
         edit_menu.addAction(self._preferences_action)
 
-        view_menu = QMenu("&View", self)
-        menu_bar.addMenu(view_menu)
+        self._view_menu = QMenu("&View", self)
+        menu_bar.addMenu(self._view_menu)
         # The rest of the "View" actions are added once the docks are finished
 
-        show_hoop_separator_action = view_menu.addSeparator()
+        self._show_hoop_separator_action = self._view_menu.addSeparator()
 
         self._show_hoop_action = QAction(self.tr("&Show hoop size"), self)
         self._show_hoop_action.setCheckable(True)
         self._show_hoop_action.triggered.connect(
             lambda: self._on_show_hoop_size(self._show_hoop_action)
         )
-        view_menu.addAction(self._show_hoop_action)
+        self._view_menu.addAction(self._show_hoop_action)
         self._show_hoop_action.setChecked(get_global_preferences().get_hoop_visible())
 
-        view_menu.addSeparator()
+        self._view_menu.addSeparator()
 
         self._reset_layout_action = QAction(self.tr("Reset Layout"), self)
         self._reset_layout_action.triggered.connect(self._on_reset_layout)
-        view_menu.addAction(self._reset_layout_action)
+        self._view_menu.addAction(self._reset_layout_action)
 
         layer_menu = QMenu(self.tr("&Layer"), self)
         menu_bar.addMenu(layer_menu)
@@ -270,6 +303,7 @@ class MainWindow(QMainWindow):
         self.about_action.triggered.connect(self._on_show_about_dialog)
         help_menu.addAction(self.about_action)
 
+    def _setup_toolbar(self):
         self._toolbar = QToolBar(self.tr("Tools"))
         self._toolbar.setObjectName("main_window_toolbar")
         self._toolbar.setIconSize(QSize(16, 16))
@@ -308,26 +342,38 @@ class MainWindow(QMainWindow):
         self._zoom_combobox.currentIndexChanged.connect(self._on_zoom_changed)
         self._toolbar.addWidget(self._zoom_combobox)
 
+    def _setup_central_widget(self):
+        self._canvas = Canvas(self._state)
+        self._canvas.position_changed.connect(self._on_position_changed_from_canvas)
+        self._canvas.layer_selection_changed.connect(self._on_layer_selection_changed_from_canvas)
+
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setWidget(self._canvas)
+
+        self.setCentralWidget(scroll_area)
+
+    def _setup_layers_dock(self):
         # Layers Dock
         self._layer_list = QListWidget()
         self._layer_list.setDragDropMode(QListWidget.InternalMove)  # Enable reordering
         self._layer_list.model().rowsMoved.connect(self._on_layer_rows_moved)
-        layer_dock = QDockWidget(self.tr("Layers"), self)
-        layer_dock.setObjectName("layer_dock")
-        layer_dock.setWidget(self._layer_list)
-        self.addDockWidget(Qt.RightDockWidgetArea, layer_dock)
+        self._layers_dock = QDockWidget(self.tr("Layers"), self)
+        self._layers_dock.setObjectName("layers_dock")
+        self._layers_dock.setWidget(self._layer_list)
+        self.addDockWidget(Qt.RightDockWidgetArea, self._layers_dock)
 
+    def _setup_partitions_dock(self):
         # Partitions Dock
         self._partition_list = QListWidget()
         self._partition_list.setDragDropMode(QListWidget.InternalMove)  # Enable reordering
         self._partition_list.model().rowsMoved.connect(self._on_partition_rows_moved)
-        partitions_dock = QDockWidget(self.tr("Partitions"), self)
-        partitions_dock.setObjectName("partitions_dock")
-        partitions_dock.setWidget(self._partition_list)
-        self.addDockWidget(Qt.RightDockWidgetArea, partitions_dock)
+        self._partitions_dock = QDockWidget(self.tr("Partitions"), self)
+        self._partitions_dock.setObjectName("partitions_dock")
+        self._partitions_dock.setWidget(self._partition_list)
+        self.addDockWidget(Qt.RightDockWidgetArea, self._partitions_dock)
 
-        self._connect_layer_and_partition_callbacks()
-
+    def _setup_property_dock(self):
         # Property Dock
         self._property_editor = QWidget()
         self._property_editor.setObjectName("property_widget")
@@ -369,11 +415,12 @@ class MainWindow(QMainWindow):
         self._opacity_slider.setValue(100)
         self._property_layout.addRow(self.tr("Opacity:"), self._opacity_slider)
 
-        property_dock = QDockWidget(self.tr("Layer Properties"), self)
-        property_dock.setObjectName("property_dock")
-        property_dock.setWidget(self._property_editor)
-        self.addDockWidget(Qt.RightDockWidgetArea, property_dock)
+        self._property_dock = QDockWidget(self.tr("Layer Properties"), self)
+        self._property_dock.setObjectName("property_dock")
+        self._property_dock.setWidget(self._property_editor)
+        self.addDockWidget(Qt.RightDockWidgetArea, self._property_dock)
 
+    def _setup_embroidery_params_dock(self):
         # Layer Embroidery Properties
         self._embroidery_params_editor = QWidget()
         self._embroidery_params_editor.setObjectName("embroidery_params_editor")
@@ -417,12 +464,12 @@ class MainWindow(QMainWindow):
             self._fill_method_combo.addItem(v, k)
         self._embroidery_params_layout.addRow(self.tr("Fill Method:"), self._fill_method_combo)
 
-        embroidery_params_dock = QDockWidget(self.tr("Layer Embroidery Properties"), self)
-        embroidery_params_dock.setObjectName("layer_embroidery_dock")
-        embroidery_params_dock.setWidget(self._embroidery_params_editor)
-        self.addDockWidget(Qt.RightDockWidgetArea, embroidery_params_dock)
+        self._embroidery_params_dock = QDockWidget(self.tr("Layer Embroidery Properties"), self)
+        self._embroidery_params_dock.setObjectName("layer_embroidery_dock")
+        self._embroidery_params_dock.setWidget(self._embroidery_params_editor)
+        self.addDockWidget(Qt.RightDockWidgetArea, self._embroidery_params_dock)
 
-        # Undo Dock
+    def _setup_undo_dock(self):
         self._undo_dock = QDockWidget(self.tr("Undo List"), self)
         self._undo_dock.setObjectName("undo_dock")
         self._undo_dock.setHidden(True)
@@ -432,31 +479,10 @@ class MainWindow(QMainWindow):
         self._undo_dock.setWidget(self._undo_view)
         self.addDockWidget(Qt.RightDockWidgetArea, self._undo_dock)
 
-        self._connect_property_callbacks()
-        self._connect_embroidery_callbacks()
-        self._update_qactions()
-
-        # Insert all docks in Menu
-        view_menu.insertActions(
-            show_hoop_separator_action,
-            [
-                layer_dock.toggleViewAction(),
-                partitions_dock.toggleViewAction(),
-                property_dock.toggleViewAction(),
-                embroidery_params_dock.toggleViewAction(),
-                self._undo_dock.toggleViewAction(),
-            ],
-        )
-
-        self._canvas = Canvas(self._state)
-        self._canvas.position_changed.connect(self._on_position_changed_from_canvas)
-        self._canvas.layer_selection_changed.connect(self._on_layer_selection_changed_from_canvas)
-
-        scroll_area = QScrollArea()
-        scroll_area.setWidgetResizable(True)
-        scroll_area.setWidget(self._canvas)
-
-        self.setCentralWidget(scroll_area)
+    def _setup_statusbar(self):
+        # Status Bar
+        self._statusbar = QStatusBar()
+        self.setStatusBar(self._statusbar)
 
     def _populate_recent_menu(self):
         self._recent_menu.clear()
