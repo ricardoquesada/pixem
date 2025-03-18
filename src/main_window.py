@@ -1021,12 +1021,15 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_change_layer(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
-        # Could be triggered when a layer has been removed.
+        # Gets triggered when a new layers gets selected. Might happen when an entry gets removed.
         enabled = current is not None and len(self._state.layers) > 0
         self._property_editor.setEnabled(enabled)
         self._embroidery_params_editor.setEnabled(enabled)
         if enabled:
             idx = self._layer_list.row(current)
+            # Might be out of range when removing a layer from the list.
+            if idx >= len(self._state.layers):
+                idx = len(self._state.layers) - 1
             layer = self._state.layers[idx]
 
             self._state.current_layer_uuid = layer.uuid
@@ -1238,7 +1241,7 @@ class MainWindow(QMainWindow):
             logger.warning(f"Failed to delete layer from list {layer.name}")
 
         # _partition_list should get auto-populated
-        # because a "on_change_layer" should be triggered
+        # because a "on_change_layer" should be triggered by "_layer_list.takeItem()"
 
         self._update_statusbar()
         self._canvas.recalculate_fixed_size()
