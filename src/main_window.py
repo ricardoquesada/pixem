@@ -486,9 +486,9 @@ class MainWindow(QMainWindow):
         # Status Bar
         self._statusbar = QStatusBar()
         self.setStatusBar(self._statusbar)
-        self._total_colors_label = QLabel(self.tr("Total Colors: "))
-        self._total_partitions_label = QLabel(self.tr("Total Partitions: "))
-        self._total_pixels_label = QLabel(self.tr("Total Pixels: "))
+        self._total_colors_label = QLabel()
+        self._total_partitions_label = QLabel()
+        self._total_pixels_label = QLabel()
         self._statusbar.addPermanentWidget(self._total_partitions_label)
         self._statusbar.addPermanentWidget(self._total_colors_label)
         self._statusbar.addPermanentWidget(self._total_pixels_label)
