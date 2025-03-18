@@ -25,7 +25,6 @@ class Partition:
         self, path: list[tuple[int, int]], name: str | None = None, color: str | None = None
     ):
         self._path = path
-        self._size = len(path)
         self._name = name
         # color format "#FFFFFF"
         self._color = color
@@ -123,7 +122,6 @@ class Partition:
     @path.setter
     def path(self, value: list[tuple[int, int]]) -> None:
         self._path = value
-        self._size = len(value)
 
     @property
     def name(self) -> str:
@@ -136,3 +134,7 @@ class Partition:
     @property
     def color(self) -> str:
         return self._color
+
+    @property
+    def pixel_count(self) -> int:
+        return len(self._path)

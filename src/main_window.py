@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
     QFileDialog,
     QFormLayout,
     QHBoxLayout,
+    QLabel,
     QLineEdit,
     QListWidget,
     QListWidgetItem,
@@ -61,6 +62,8 @@ class MainWindow(QMainWindow):
 
         self._state = None
         self._setup_ui()
+
+        self._save_default_settings()
         self._load_settings()
 
         self._cleanup_state()
@@ -483,6 +486,31 @@ class MainWindow(QMainWindow):
         # Status Bar
         self._statusbar = QStatusBar()
         self.setStatusBar(self._statusbar)
+        self._total_colors_label = QLabel(self.tr("Total Colors: "))
+        self._total_partitions_label = QLabel(self.tr("Total Partitions: "))
+        self._total_pixels_label = QLabel(self.tr("Total Pixels: "))
+        self._statusbar.addPermanentWidget(self._total_partitions_label)
+        self._statusbar.addPermanentWidget(self._total_colors_label)
+        self._statusbar.addPermanentWidget(self._total_pixels_label)
+
+    def _update_statusbar(self):
+        if not self._state:
+            self._total_colors_label.setText(self.tr("Total Colors: N/A"))
+            self._total_partitions_label.setText(self.tr("Total Partitions: N/A"))
+            self._total_pixels_label.setText(self.tr("Total Pixels: N/A"))
+            return
+        colors = set()
+        total_partitions = 0
+        total_pixels = 0
+        for layer in self._state.layers:
+            for partition in layer.partitions.values():
+                total_partitions += 1
+                colors.add(partition.color)
+                total_pixels += partition.pixel_count
+
+        self._total_colors_label.setText(self.tr(f"Total Colors: {len(colors)}"))
+        self._total_partitions_label.setText(self.tr(f"Total Partitions: {total_partitions}"))
+        self._total_pixels_label.setText(self.tr(f"Total Pixels: {total_pixels}"))
 
     def _populate_recent_menu(self):
         self._recent_menu.clear()
@@ -573,14 +601,6 @@ class MainWindow(QMainWindow):
         self._partition_list.itemDoubleClicked.disconnect(self._on_double_click_partition)
 
     def _load_settings(self):
-        # Save defaults before restoring saved settings
-        # needed for "reset layout"
-        # FIXME: Probably there is a more efficient way to do it.
-        # get_global_preferences().set_default_window_geometry(self.saveGeometry())
-        # get_global_preferences().set_default_window_state(
-        #     self.saveState(get_global_preferences().STATE_VERSION)
-        # )
-
         prefs = get_global_preferences()
         geometry = prefs.get_window_geometry()
         if geometry is not None:
@@ -588,6 +608,12 @@ class MainWindow(QMainWindow):
         state = prefs.get_window_state()
         if state is not None:
             self.restoreState(state)
+
+    def _save_default_settings(self):
+        # Save defaults before restoring saved settings. needed for "reset layout"
+        prefs = get_global_preferences()
+        prefs.set_default_window_geometry(self.saveGeometry())
+        prefs.set_default_window_state(self.saveState(prefs.STATE_VERSION))
 
     def _save_settings(self):
         prefs = get_global_preferences()
@@ -598,10 +624,12 @@ class MainWindow(QMainWindow):
     def _update_window_title(self):
         title = "Pixem"
         if self._state is not None:
+            is_dirty = not self._state.undo_stack.isClean()
+            dirty_str = "*" if is_dirty else ""
+            filename = "(untitled)"
             if self._state.project_filename is not None:
-                title = f"{os.path.basename(self._state.project_filename)} - {title}"
-            else:
-                title = f"(untitled) - {title}"
+                filename = f"{os.path.basename(self._state.project_filename)}"
+            title = f"{filename}{dirty_str} - {title}"
         self.setWindowTitle(title)
 
     def _open_filename(self, filename: str) -> None:
@@ -663,6 +691,9 @@ class MainWindow(QMainWindow):
         self._update_window_title()
         get_global_preferences().add_recent_file(filename)
         self._populate_recent_menu()
+
+        # FIXME: Should be updated in a Slot
+        self._update_statusbar()
 
     def _setup_state(self, state: State):
         self._state = state
@@ -917,6 +948,9 @@ class MainWindow(QMainWindow):
         self.update()
 
         self._update_window_title()
+
+        # FIXME: Should be updated in a Slot
+        self._update_statusbar()
 
     @Slot()
     def _on_exit_application(self) -> None:

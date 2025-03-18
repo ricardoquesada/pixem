@@ -28,8 +28,16 @@ logger = logging.getLogger(__name__)
 
 
 class State(QObject):
+    # Triggered when a layer is added. Emitted by Undo Commands
+    # FIXME: Not implemented
+    layer_added = Signal(Layer)
+    # Triggered when a layer is removed. Emitted by Undo Commands
+    # FIXME: Not implemented
+    layer_removed = Signal(Layer)
+    # Triggered when LayerProperties (e.g: pixel_size) changes. Emitted by Undo Commands.
     layer_property_changed = Signal(Layer)
-    # FIXME: Should pass State as parameter, but failed using forward refs, including "State"
+    # Triggered when StateProperties (e.g: hoop_size) changes. Emitted by Undo Commands.
+    # FIXME: Should pass State as parameter? but failed using forward refs, including "State"
     state_property_changed = Signal(StatePropertyFlags, StateProperties)
 
     def __init__(self):
