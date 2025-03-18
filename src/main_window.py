@@ -541,10 +541,14 @@ class MainWindow(QMainWindow):
 
         self._zoom_combobox.setEnabled(enabled)
 
-        self._property_editor.setEnabled(enabled)
-
         for action in self._align_actions.values():
             action.setEnabled(enabled)
+
+        # Not really actions, but should be disabled anyway
+        self._layer_list.setEnabled(enabled)
+        self._partition_list.setEnabled(enabled)
+        self._property_editor.setEnabled(enabled)
+        self._embroidery_params_editor.setEnabled(enabled)
 
     def _connect_property_callbacks(self):
         self._name_edit.editingFinished.connect(self._on_update_layer_property)

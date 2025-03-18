@@ -123,7 +123,6 @@ class State(QObject):
     def _add_layer(self, layer: Layer) -> None:
         self._layers.append(layer)
         self._properties.current_layer_uuid = layer.uuid
-        self.layer_added.emit(layer)
 
     def add_layer(self, layer: Layer) -> None:
         self._undo_stack.push(AddLayerCommand(self, layer, None))
@@ -139,7 +138,6 @@ class State(QObject):
             self._properties.current_layer_uuid = self._layers[-1].uuid
         else:
             self._properties.current_layer_uuid = None
-        self.layer_removed.emit(layer)
 
     def delete_layer(self, layer: Layer) -> None:
         self._undo_stack.push(DeleteLayerCommand(self, layer, None))
@@ -230,7 +228,9 @@ class State(QObject):
                 found = True
                 break
         if not found:
-            logger.error(f"Layer UUID '{uuid}' not found in state layers: {self._layers}")
+            logger.error(
+                f"Failed to change current_layer_uuid. Layer UUID '{uuid}' not found in state layers: {self._layers}"
+            )
             return
         self._properties.current_layer_uuid = uuid
 
