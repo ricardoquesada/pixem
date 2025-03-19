@@ -2,7 +2,7 @@
 # Copyright 2025 - Ricardo Quesada
 
 import logging
-from enum import Enum, auto
+from enum import IntEnum, auto
 
 from PySide6.QtCore import QRect, QSize, Qt, Slot
 from PySide6.QtGui import QAction, QColor, QImage, QMouseEvent, QPainter, QPen, QPixmap
@@ -27,13 +27,11 @@ logger = logging.getLogger(__name__)
 
 
 class ImageWidget(QWidget):
-    class CoordMode(int, Enum):
-        INVALID = auto()
+    class CoordMode(IntEnum):
         ADD = auto()
         REMOVE = auto()
 
-    class EditMode(int, Enum):
-        INVALID = auto()
+    class EditMode(IntEnum):
         PAINT = auto()
         FILL = auto()
         SELECT = auto()

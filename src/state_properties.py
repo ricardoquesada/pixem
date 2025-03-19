@@ -2,13 +2,13 @@
 # Copyright 2025 - Ricardo Quesada
 
 from dataclasses import dataclass
-from enum import Enum
+from enum import IntFlag, auto
 
 
-class StatePropertyFlags(int, Enum):
-    HOOP_SIZE = 1 << 0
-    ZOOM_FACTOR = 1 << 1
-    CURRENT_LAYER_UUID = 1 << 2
+class StatePropertyFlags(IntFlag):
+    HOOP_SIZE = auto()
+    ZOOM_FACTOR = auto()
+    CURRENT_LAYER_UUID = auto()
 
 
 @dataclass

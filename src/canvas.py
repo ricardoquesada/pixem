@@ -2,7 +2,7 @@
 # Copyright 2024 Ricardo Quesada
 
 import logging
-from enum import Enum, auto
+from enum import IntEnum, auto
 
 from PySide6.QtCore import QPointF, QRectF, QSize, Qt, Signal
 from PySide6.QtGui import QColor, QMouseEvent, QPainter, QPainterPath, QPaintEvent, QPen
@@ -22,13 +22,11 @@ class Canvas(QWidget):
     position_changed = Signal(QPointF)
     layer_selection_changed = Signal(str)
 
-    class Mode(int, Enum):
-        INVALID = auto()
+    class Mode(IntEnum):
         MOVE = auto()
         DRAWING = auto()
 
-    class ModeStatus(int, Enum):
-        INVALID = auto()
+    class ModeStatus(IntEnum):
         IDLE = auto()
         MOVING = auto()
 
