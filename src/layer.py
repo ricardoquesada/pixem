@@ -39,7 +39,7 @@ class EmbroideryParameters:
 
 @dataclass
 class LayerProperties:
-    """Mutable properties for the class. Immutables, like UUID, should not be in this class"""
+    """Mutable properties only. Immutables, like UUID, should not be here."""
 
     position: tuple[float, float] = (0.0, 0.0)
     rotation: int = 0
