@@ -53,7 +53,7 @@ def main():
     app.setApplicationName("Pixem")
     app.setOrganizationName("RetroMoe")
     app.setOrganizationDomain("retro.moe")
-    app.setWindowIcon(QIcon(":/res/icons/pixem.png"))
+    app.setWindowIcon(QIcon(":/icons/pixem.png"))
 
     window = MainWindow()
     window.show()
