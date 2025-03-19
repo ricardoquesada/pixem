@@ -4,14 +4,14 @@
 import logging
 import random
 from dataclasses import dataclass
-from enum import Enum, auto
+from enum import IntEnum, auto
 from typing import Self
 
 logger = logging.getLogger(__name__)
 
 
 class Partition:
-    class WalkMode(int, Enum):
+    class WalkMode(IntEnum):
         SPIRAL_CW = auto()
         SPIRAL_CCW = auto()
         RANDOM = auto()
