@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # Pixem
 # Copyright 2024 Ricardo Quesada
 
