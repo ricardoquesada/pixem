@@ -789,10 +789,8 @@ class MainWindow(QMainWindow):
             self._fill_method_combo.setCurrentIndex(index)
         self._connect_embroidery_callbacks()
 
-    #
-    # pyside6 events
-    #
-    def closeEvent(self, event: QCloseEvent):
+    def _maybe_abort_operation_if_dirty(self) -> bool:
+        # Returns true if it should abort
         if self._state and not self._state.undo_stack.isClean():
             reply = QMessageBox.question(
                 self,
@@ -802,8 +800,17 @@ class MainWindow(QMainWindow):
                 QMessageBox.No,
             )
             if reply == QMessageBox.No:
-                event.ignore()
-                return
+                # Yes, abort
+                return True
+        return False
+
+    #
+    # pyside6 events
+    #
+    def closeEvent(self, event: QCloseEvent):
+        if self._maybe_abort_operation_if_dirty():
+            event.ignore()
+            return
 
         logger.info("Closing Pixem")
         self._save_settings()
@@ -814,7 +821,9 @@ class MainWindow(QMainWindow):
     #
     @Slot()
     def _on_new_project(self) -> None:
-        # FIXME: If an existing state is dirty, it should ask for "are you sure"
+        if self._maybe_abort_operation_if_dirty():
+            return
+
         state = State()
         self._setup_state(state)
         # Triggers on_change_layer / on_change_partition, but not an issue
@@ -835,7 +844,9 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_open_image_or_project(self) -> None:
-        # FIXME: If an existing state is dirty, it should ask for "are you sure"
+        if self._maybe_abort_operation_if_dirty():
+            return
+
         options = QFileDialog.Options()  # For more options if needed
         filename, _ = QFileDialog.getOpenFileName(
             self,
@@ -908,16 +919,8 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_close_project(self) -> None:
-        if self._state and not self._state.undo_stack.isClean():
-            reply = QMessageBox.question(
-                self,
-                self.tr("Warning"),
-                self.tr("Changes will be lost. Continue?"),
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.No,
-            )
-            if reply == QMessageBox.No:
-                return
+        if self._maybe_abort_operation_if_dirty():
+            return
 
         self._cleanup_state()
 
