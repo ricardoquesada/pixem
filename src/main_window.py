@@ -101,9 +101,6 @@ class MainWindow(QMainWindow):
         )
 
         self._setup_statusbar()
-
-        # Slots and friends
-        self._connect_layer_and_partition_callbacks()
         self._update_qactions()
 
     def _setup_menu(self):
@@ -359,6 +356,7 @@ class MainWindow(QMainWindow):
         self._layer_list = QListWidget()
         self._layer_list.setDragDropMode(QListWidget.InternalMove)  # Enable reordering
         self._layer_list.model().rowsMoved.connect(self._on_layer_rows_moved)
+        self._layer_list.currentItemChanged.connect(self._on_change_layer)
         self._layers_dock = QDockWidget(self.tr("Layers"), self)
         self._layers_dock.setObjectName("layers_dock")
         self._layers_dock.setWidget(self._layer_list)
@@ -369,6 +367,8 @@ class MainWindow(QMainWindow):
         self._partition_list = QListWidget()
         self._partition_list.setDragDropMode(QListWidget.InternalMove)  # Enable reordering
         self._partition_list.model().rowsMoved.connect(self._on_partition_rows_moved)
+        self._partition_list.currentItemChanged.connect(self._on_change_partition)
+        self._partition_list.itemDoubleClicked.connect(self._on_double_click_partition)
         self._partitions_dock = QDockWidget(self.tr("Partitions"), self)
         self._partitions_dock.setObjectName("partitions_dock")
         self._partitions_dock.setWidget(self._partition_list)
@@ -587,15 +587,9 @@ class MainWindow(QMainWindow):
         self._initial_angle_spinbox.blockSignals(blocked)
         self._fill_method_combo.blockSignals(blocked)
 
-    def _connect_layer_and_partition_callbacks(self):
-        self._layer_list.currentItemChanged.connect(self._on_change_layer)
-        self._partition_list.currentItemChanged.connect(self._on_change_partition)
-        self._partition_list.itemDoubleClicked.connect(self._on_double_click_partition)
-
-    def _disconnect_layer_and_partition_callbacks(self):
-        self._layer_list.currentItemChanged.disconnect(self._on_change_layer)
-        self._partition_list.currentItemChanged.disconnect(self._on_change_partition)
-        self._partition_list.itemDoubleClicked.disconnect(self._on_double_click_partition)
+    def _layer_and_partition_lists_block_signals(self, blocked: bool):
+        self._layer_list.blockSignals(blocked)
+        self._partition_list.blockSignals(blocked)
 
     def _load_settings(self):
         prefs = get_global_preferences()
@@ -641,7 +635,8 @@ class MainWindow(QMainWindow):
         selected_partition_idx = -1
         selected_layer = self._state.selected_layer
 
-        self._disconnect_layer_and_partition_callbacks()
+        self._layer_and_partition_lists_block_signals(True)
+
         self._layer_list.clear()
         self._partition_list.clear()
 
@@ -662,7 +657,7 @@ class MainWindow(QMainWindow):
                 if partition_key == selected_partition_uuid:
                     selected_partition_idx = i
 
-        self._connect_layer_and_partition_callbacks()
+        self._layer_and_partition_lists_block_signals(False)
 
         # This will trigger "on_" callback
         if selected_layer_idx >= 0:
@@ -737,9 +732,9 @@ class MainWindow(QMainWindow):
 
     def _populate_partitions(self, layer: Layer):
         # Called from on_change_layer
-        self._disconnect_layer_and_partition_callbacks()
+        self._layer_and_partition_lists_block_signals(True)
         self._partition_list.clear()
-        self._connect_layer_and_partition_callbacks()
+        self._layer_and_partition_lists_block_signals(False)
 
         if len(layer.partitions) == 0:
             # Sanity check
@@ -920,10 +915,10 @@ class MainWindow(QMainWindow):
 
         self._cleanup_state()
 
-        self._disconnect_layer_and_partition_callbacks()
+        self._layer_and_partition_lists_block_signals(True)
         self._layer_list.clear()
         self._partition_list.clear()
-        self._connect_layer_and_partition_callbacks()
+        self._layer_and_partition_lists_block_signals(False)
 
         # FIXME: update state should be done in one method
         self._update_qactions()
@@ -1204,13 +1199,13 @@ class MainWindow(QMainWindow):
         item = QListWidgetItem(layer.name)
         item.setData(Qt.UserRole, layer.uuid)
 
-        self._disconnect_layer_and_partition_callbacks()
+        self._layer_and_partition_lists_block_signals(True)
         self._layer_list.addItem(item)
         for partition_key, partition in layer.partitions.items():
             item = QListWidgetItem(partition.name)
             item.setData(Qt.UserRole, partition_key)
             self._partition_list.addItem(item)
-        self._connect_layer_and_partition_callbacks()
+        self._layer_and_partition_lists_block_signals(False)
 
         # Order matters: first layer, then partition
         # Triggers on_change_layer
@@ -1226,9 +1221,9 @@ class MainWindow(QMainWindow):
     @Slot()
     def _on_layer_removed_from_state(self, layer: Layer):
         # Clear the "partitions"
-        self._disconnect_layer_and_partition_callbacks()
+        self._layer_and_partition_lists_block_signals(True)
         self._partition_list.clear()
-        self._connect_layer_and_partition_callbacks()
+        self._layer_and_partition_lists_block_signals(False)
 
         # Remove it from the widget
         index = -1
