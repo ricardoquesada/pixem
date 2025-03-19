@@ -104,7 +104,6 @@ class MainWindow(QMainWindow):
 
         # Slots and friends
         self._connect_layer_and_partition_callbacks()
-        self._connect_embroidery_callbacks()
         self._update_qactions()
 
     def _setup_menu(self):
@@ -446,6 +445,7 @@ class MainWindow(QMainWindow):
         self._pull_compensation_spinbox = QDoubleSpinBox()
         self._pull_compensation_spinbox.setMinimum(0.0)
         self._pull_compensation_spinbox.setMaximum(1000.0)
+        self._pull_compensation_spinbox.valueChanged.connect(self._on_update_embroidery_property)
         self._embroidery_params_layout.addRow(
             self.tr("Pull Compensation (mm):"), self._pull_compensation_spinbox
         )
@@ -453,6 +453,7 @@ class MainWindow(QMainWindow):
         self._max_stitch_length_spinbox = QDoubleSpinBox()
         self._max_stitch_length_spinbox.setMinimum(0.0)
         self._max_stitch_length_spinbox.setMaximum(2000.0)
+        self._max_stitch_length_spinbox.valueChanged.connect(self._on_update_embroidery_property)
         self._embroidery_params_layout.addRow(
             self.tr("Max Stitch Length (mm):"), self._max_stitch_length_spinbox
         )
@@ -460,6 +461,9 @@ class MainWindow(QMainWindow):
         self._min_jump_stitch_length_spinbox = QDoubleSpinBox()
         self._min_jump_stitch_length_spinbox.setMinimum(0.0)
         self._min_jump_stitch_length_spinbox.setMaximum(2000.0)
+        self._min_jump_stitch_length_spinbox.valueChanged.connect(
+            self._on_update_embroidery_property
+        )
         self._embroidery_params_layout.addRow(
             self.tr("Min Jump Stitch Length (mm):"), self._min_jump_stitch_length_spinbox
         )
@@ -467,6 +471,7 @@ class MainWindow(QMainWindow):
         self._initial_angle_spinbox = QSpinBox()
         self._initial_angle_spinbox.setMinimum(0)
         self._initial_angle_spinbox.setMaximum(360)
+        self._initial_angle_spinbox.valueChanged.connect(self._on_update_embroidery_property)
         self._embroidery_params_layout.addRow(
             self.tr("Initial Angle (degrees):"), self._initial_angle_spinbox
         )
@@ -478,6 +483,7 @@ class MainWindow(QMainWindow):
         }
         for k, v in fill_items.items():
             self._fill_method_combo.addItem(v, k)
+        self._fill_method_combo.currentIndexChanged.connect(self._on_update_embroidery_property)
         self._embroidery_params_layout.addRow(self.tr("Fill Method:"), self._fill_method_combo)
 
         self._embroidery_params_dock = QDockWidget(self.tr("Layer Embroidery Properties"), self)
@@ -574,23 +580,12 @@ class MainWindow(QMainWindow):
         self._opacity_slider.blockSignals(blocked)
         self._zoom_combobox.blockSignals(blocked)
 
-    def _connect_embroidery_callbacks(self):
-        self._pull_compensation_spinbox.valueChanged.connect(self._on_update_embroidery_property)
-        self._max_stitch_length_spinbox.valueChanged.connect(self._on_update_embroidery_property)
-        self._min_jump_stitch_length_spinbox.valueChanged.connect(
-            self._on_update_embroidery_property
-        )
-        self._initial_angle_spinbox.valueChanged.connect(self._on_update_embroidery_property)
-        self._fill_method_combo.currentIndexChanged.connect(self._on_update_embroidery_property)
-
-    def _disconnect_embroidery_callbacks(self):
-        self._pull_compensation_spinbox.valueChanged.disconnect(self._on_update_embroidery_property)
-        self._max_stitch_length_spinbox.valueChanged.disconnect(self._on_update_embroidery_property)
-        self._min_jump_stitch_length_spinbox.valueChanged.disconnect(
-            self._on_update_embroidery_property
-        )
-        self._initial_angle_spinbox.valueChanged.disconnect(self._on_update_embroidery_property)
-        self._fill_method_combo.currentIndexChanged.disconnect(self._on_update_embroidery_property)
+    def _embroidery_editor_block_signals(self, blocked: bool):
+        self._pull_compensation_spinbox.blockSignals(blocked)
+        self._max_stitch_length_spinbox.blockSignals(blocked)
+        self._min_jump_stitch_length_spinbox.blockSignals(blocked)
+        self._initial_angle_spinbox.blockSignals(blocked)
+        self._fill_method_combo.blockSignals(blocked)
 
     def _connect_layer_and_partition_callbacks(self):
         self._layer_list.currentItemChanged.connect(self._on_change_layer)
@@ -781,7 +776,7 @@ class MainWindow(QMainWindow):
         self._property_editor_block_signals(False)
 
     def _populate_embroidery_editor(self, embroidery_params: EmbroideryParameters):
-        self._disconnect_embroidery_callbacks()
+        self._embroidery_editor_block_signals(True)
         self._pull_compensation_spinbox.setValue(embroidery_params.pull_compensation_mm)
         self._max_stitch_length_spinbox.setValue(embroidery_params.max_stitch_length_mm)
         self._min_jump_stitch_length_spinbox.setValue(embroidery_params.min_jump_stitch_length_mm)
@@ -789,7 +784,7 @@ class MainWindow(QMainWindow):
         index = self._fill_method_combo.findData(embroidery_params.fill_method)
         if index != -1:
             self._fill_method_combo.setCurrentIndex(index)
-        self._connect_embroidery_callbacks()
+        self._embroidery_editor_block_signals(False)
 
     def _maybe_abort_operation_if_dirty(self) -> bool:
         # Returns true if it should abort
@@ -835,7 +830,6 @@ class MainWindow(QMainWindow):
         self._property_editor_block_signals(True)
         self._zoom_combobox.setCurrentIndex(DEFAULT_ZOOM_FACTOR_IDX)
         self._property_editor_block_signals(False)
-        self._connect_embroidery_callbacks()
 
         # FIXME: update state should be done in one method
         self._update_qactions()
@@ -1116,8 +1110,7 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_update_layer_property(self) -> None:
-        current_layer = self._state.selected_layer
-        enabled = current_layer is not None
+        enabled = self._state is not None and self._state.selected_layer is not None
         self._property_editor.setEnabled(enabled)
         if enabled:
             properties = LayerProperties(
@@ -1128,7 +1121,7 @@ class MainWindow(QMainWindow):
                 opacity=self._opacity_slider.value() / 100.0,
                 name=self._name_edit.text(),
             )
-            self._state.set_layer_properties(current_layer, properties)
+            self._state.set_layer_properties(self._state.selected_layer, properties)
 
             self._canvas.recalculate_fixed_size()
             self.update()
