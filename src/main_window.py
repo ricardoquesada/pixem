@@ -4,8 +4,10 @@
 import logging
 import os.path
 import sys
+from collections.abc import Iterable
+from contextlib import contextmanager
 
-from PySide6.QtCore import QPointF, QSize, Qt, Slot
+from PySide6.QtCore import QObject, QPointF, QSize, Qt, Slot
 from PySide6.QtGui import QAction, QCloseEvent, QGuiApplication, QIcon, QKeySequence, QUndoStack
 from PySide6.QtWidgets import (
     QApplication,
@@ -54,6 +56,29 @@ ICON_SIZE = 22
 # FIXME: Move to a better place
 # Matches "100%", which is the default zoom factor in a new state
 DEFAULT_ZOOM_FACTOR_IDX = 3
+
+
+@contextmanager
+def block_signals(objs: QObject | tuple[QObject]):
+    """
+    Context manager to temporarily block signals for QObjects.
+
+    Args:
+        objs: The QObjects for which signals should be blocked.
+    """
+    try:
+        if isinstance(objs, Iterable):
+            for obj in objs:
+                obj.blockSignals(True)
+        else:
+            objs.blockSignals(True)
+        yield
+    finally:
+        if isinstance(objs, Iterable):
+            for obj in objs:
+                obj.blockSignals(False)
+        else:
+            objs.blockSignals(False)
 
 
 class MainWindow(QMainWindow):
@@ -435,6 +460,19 @@ class MainWindow(QMainWindow):
         self._property_dock.setWidget(self._property_editor)
         self.addDockWidget(Qt.RightDockWidgetArea, self._property_dock)
 
+        # To be used when blocking / unblocking the signals
+        self._property_editor_widgets = (
+            self._name_edit,
+            self._position_x_spinbox,
+            self._position_y_spinbox,
+            self._rotation_slider,
+            self._pixel_width_spinbox,
+            self._pixel_height_spinbox,
+            self._visible_checkbox,
+            self._opacity_slider,
+            self._zoom_combobox,
+        )
+
     def _setup_embroidery_params_dock(self):
         # Layer Embroidery Properties
         self._embroidery_params_editor = QWidget()
@@ -490,6 +528,15 @@ class MainWindow(QMainWindow):
         self._embroidery_params_dock.setObjectName("layer_embroidery_dock")
         self._embroidery_params_dock.setWidget(self._embroidery_params_editor)
         self.addDockWidget(Qt.RightDockWidgetArea, self._embroidery_params_dock)
+
+        # To be used when blocking / unblocking the signals
+        self._embroidery_params_widgets = (
+            self._pull_compensation_spinbox,
+            self._max_stitch_length_spinbox,
+            self._min_jump_stitch_length_spinbox,
+            self._initial_angle_spinbox,
+            self._fill_method_combo,
+        )
 
     def _setup_undo_dock(self):
         self._undo_dock = QDockWidget(self.tr("Undo List"), self)
@@ -569,28 +616,6 @@ class MainWindow(QMainWindow):
         self._property_editor.setEnabled(enabled)
         self._embroidery_params_editor.setEnabled(enabled)
 
-    def _property_editor_block_signals(self, blocked: bool):
-        self._name_edit.blockSignals(blocked)
-        self._position_x_spinbox.blockSignals(blocked)
-        self._position_y_spinbox.blockSignals(blocked)
-        self._rotation_slider.blockSignals(blocked)
-        self._pixel_width_spinbox.blockSignals(blocked)
-        self._pixel_height_spinbox.blockSignals(blocked)
-        self._visible_checkbox.blockSignals(blocked)
-        self._opacity_slider.blockSignals(blocked)
-        self._zoom_combobox.blockSignals(blocked)
-
-    def _embroidery_editor_block_signals(self, blocked: bool):
-        self._pull_compensation_spinbox.blockSignals(blocked)
-        self._max_stitch_length_spinbox.blockSignals(blocked)
-        self._min_jump_stitch_length_spinbox.blockSignals(blocked)
-        self._initial_angle_spinbox.blockSignals(blocked)
-        self._fill_method_combo.blockSignals(blocked)
-
-    def _layer_and_partition_lists_block_signals(self, blocked: bool):
-        self._layer_list.blockSignals(blocked)
-        self._partition_list.blockSignals(blocked)
-
     def _load_settings(self):
         prefs = get_global_preferences()
         geometry = prefs.get_window_geometry()
@@ -635,29 +660,27 @@ class MainWindow(QMainWindow):
         selected_partition_idx = -1
         selected_layer = self._state.selected_layer
 
-        self._layer_and_partition_lists_block_signals(True)
+        with block_signals(self._layer_list):
+            self._layer_list.clear()
+            for i, layer in enumerate(self._state.layers):
+                item = QListWidgetItem(layer.name)
+                item.setData(Qt.UserRole, layer.uuid)
+                self._layer_list.addItem(item)
+                if selected_layer is not None and layer.uuid == selected_layer.uuid:
+                    selected_layer_idx = i
 
-        self._layer_list.clear()
-        self._partition_list.clear()
+        with block_signals(self._partition_list):
+            self._partition_list.clear()
 
-        for i, layer in enumerate(self._state.layers):
-            item = QListWidgetItem(layer.name)
-            item.setData(Qt.UserRole, layer.uuid)
-            self._layer_list.addItem(item)
-            if selected_layer is not None and layer.uuid == selected_layer.uuid:
-                selected_layer_idx = i
-
-        if selected_layer is not None:
-            selected_partition_uuid = selected_layer.current_partition_uuid
-            for i, partition_key in enumerate(selected_layer.partitions):
-                partition = selected_layer.partitions[partition_key]
-                item = QListWidgetItem(partition.name)
-                item.setData(Qt.UserRole, partition_key)
-                self._partition_list.addItem(item)
-                if partition_key == selected_partition_uuid:
-                    selected_partition_idx = i
-
-        self._layer_and_partition_lists_block_signals(False)
+            if selected_layer is not None:
+                selected_partition_uuid = selected_layer.current_partition_uuid
+                for i, partition_key in enumerate(selected_layer.partitions):
+                    partition = selected_layer.partitions[partition_key]
+                    item = QListWidgetItem(partition.name)
+                    item.setData(Qt.UserRole, partition_key)
+                    self._partition_list.addItem(item)
+                    if partition_key == selected_partition_uuid:
+                        selected_partition_idx = i
 
         # This will trigger "on_" callback
         if selected_layer_idx >= 0:
@@ -665,15 +688,13 @@ class MainWindow(QMainWindow):
         if selected_partition_idx >= 0:
             self._partition_list.setCurrentRow(selected_partition_idx)
 
-        self._property_editor_block_signals(True)
         index = 3  # Default: 100%
         for i, zoom_factor in enumerate(self._zoom_factors):
             if abs(self._state.zoom_factor - zoom_factor) <= 0.01:
                 index = i
                 break
-
-        self._zoom_combobox.setCurrentIndex(index)
-        self._property_editor_block_signals(False)
+        with block_signals(self._zoom_combobox):
+            self._zoom_combobox.setCurrentIndex(index)
 
         # FIXME: update state should be done in one method
         self._update_qactions()
@@ -732,9 +753,8 @@ class MainWindow(QMainWindow):
 
     def _populate_partitions(self, layer: Layer):
         # Called from on_change_layer
-        self._layer_and_partition_lists_block_signals(True)
-        self._partition_list.clear()
-        self._layer_and_partition_lists_block_signals(False)
+        with block_signals(self._partition_list):
+            self._partition_list.clear()
 
         if len(layer.partitions) == 0:
             # Sanity check
@@ -758,28 +778,28 @@ class MainWindow(QMainWindow):
             self._partition_list.setCurrentRow(selected_partition_idx)
 
     def _populate_property_editor(self, properties: LayerProperties) -> None:
-        self._property_editor_block_signals(True)
-        self._name_edit.setText(properties.name)
-        self._position_x_spinbox.setValue(properties.position[0])
-        self._position_y_spinbox.setValue(properties.position[1])
-        self._rotation_slider.setValue(round(properties.rotation))
-        self._rotation_spinbox.setValue(round(properties.rotation))
-        self._pixel_width_spinbox.setValue(properties.pixel_size[0])
-        self._pixel_height_spinbox.setValue(properties.pixel_size[1])
-        self._visible_checkbox.setChecked(properties.visible)
-        self._opacity_slider.setValue(round(properties.opacity * 100))
-        self._property_editor_block_signals(False)
+        with block_signals(self._property_editor_widgets):
+            self._name_edit.setText(properties.name)
+            self._position_x_spinbox.setValue(properties.position[0])
+            self._position_y_spinbox.setValue(properties.position[1])
+            self._rotation_slider.setValue(round(properties.rotation))
+            self._rotation_spinbox.setValue(round(properties.rotation))
+            self._pixel_width_spinbox.setValue(properties.pixel_size[0])
+            self._pixel_height_spinbox.setValue(properties.pixel_size[1])
+            self._visible_checkbox.setChecked(properties.visible)
+            self._opacity_slider.setValue(round(properties.opacity * 100))
 
     def _populate_embroidery_editor(self, embroidery_params: EmbroideryParameters):
-        self._embroidery_editor_block_signals(True)
-        self._pull_compensation_spinbox.setValue(embroidery_params.pull_compensation_mm)
-        self._max_stitch_length_spinbox.setValue(embroidery_params.max_stitch_length_mm)
-        self._min_jump_stitch_length_spinbox.setValue(embroidery_params.min_jump_stitch_length_mm)
-        self._initial_angle_spinbox.setValue(embroidery_params.initial_angle_degrees)
-        index = self._fill_method_combo.findData(embroidery_params.fill_method)
-        if index != -1:
-            self._fill_method_combo.setCurrentIndex(index)
-        self._embroidery_editor_block_signals(False)
+        with block_signals(self._embroidery_params_widgets):
+            self._pull_compensation_spinbox.setValue(embroidery_params.pull_compensation_mm)
+            self._max_stitch_length_spinbox.setValue(embroidery_params.max_stitch_length_mm)
+            self._min_jump_stitch_length_spinbox.setValue(
+                embroidery_params.min_jump_stitch_length_mm
+            )
+            self._initial_angle_spinbox.setValue(embroidery_params.initial_angle_degrees)
+            index = self._fill_method_combo.findData(embroidery_params.fill_method)
+            if index != -1:
+                self._fill_method_combo.setCurrentIndex(index)
 
     def _maybe_abort_operation_if_dirty(self) -> bool:
         # Returns true if it should abort
@@ -822,9 +842,8 @@ class MainWindow(QMainWindow):
         self._layer_list.clear()
         self._partition_list.clear()
 
-        self._property_editor_block_signals(True)
-        self._zoom_combobox.setCurrentIndex(DEFAULT_ZOOM_FACTOR_IDX)
-        self._property_editor_block_signals(False)
+        with block_signals(self._zoom_combobox):
+            self._zoom_combobox.setCurrentIndex(DEFAULT_ZOOM_FACTOR_IDX)
 
         # FIXME: update state should be done in one method
         self._update_qactions()
@@ -915,10 +934,10 @@ class MainWindow(QMainWindow):
 
         self._cleanup_state()
 
-        self._layer_and_partition_lists_block_signals(True)
-        self._layer_list.clear()
-        self._partition_list.clear()
-        self._layer_and_partition_lists_block_signals(False)
+        with block_signals(self._layer_list):
+            self._layer_list.clear()
+        with block_signals(self._partition_list):
+            self._partition_list.clear()
 
         # FIXME: update state should be done in one method
         self._update_qactions()
@@ -1199,13 +1218,14 @@ class MainWindow(QMainWindow):
         item = QListWidgetItem(layer.name)
         item.setData(Qt.UserRole, layer.uuid)
 
-        self._layer_and_partition_lists_block_signals(True)
-        self._layer_list.addItem(item)
-        for partition_key, partition in layer.partitions.items():
-            item = QListWidgetItem(partition.name)
+        with block_signals(self._layer_list):
+            self._layer_list.addItem(item)
+
+        with block_signals(self._partition_list):
+            for partition_key, partition in layer.partitions.items():
+                item = QListWidgetItem(partition.name)
             item.setData(Qt.UserRole, partition_key)
             self._partition_list.addItem(item)
-        self._layer_and_partition_lists_block_signals(False)
 
         # Order matters: first layer, then partition
         # Triggers on_change_layer
@@ -1221,9 +1241,8 @@ class MainWindow(QMainWindow):
     @Slot()
     def _on_layer_removed_from_state(self, layer: Layer):
         # Clear the "partitions"
-        self._layer_and_partition_lists_block_signals(True)
-        self._partition_list.clear()
-        self._layer_and_partition_lists_block_signals(False)
+        with block_signals(self._partition_list):
+            self._partition_list.clear()
 
         # Remove it from the widget
         index = -1
