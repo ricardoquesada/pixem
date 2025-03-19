@@ -104,7 +104,6 @@ class MainWindow(QMainWindow):
 
         # Slots and friends
         self._connect_layer_and_partition_callbacks()
-        self._connect_property_callbacks()
         self._connect_embroidery_callbacks()
         self._update_qactions()
 
@@ -382,40 +381,54 @@ class MainWindow(QMainWindow):
         self._property_editor.setObjectName("property_widget")
         self._property_editor.setEnabled(False)
         self._property_layout = QFormLayout(self._property_editor)
+
         self._name_edit = QLineEdit()
+        self._name_edit.editingFinished.connect(self._on_update_layer_property)
         self._property_layout.addRow(self.tr("Name:"), self._name_edit)
 
         self._position_x_spinbox = QDoubleSpinBox()
         self._position_x_spinbox.setRange(-1000.0, 1000.0)
+        self._position_x_spinbox.valueChanged.connect(self._on_update_layer_property)
         self._property_layout.addRow(self.tr("Position X:"), self._position_x_spinbox)
+
         self._position_y_spinbox = QDoubleSpinBox()
         self._position_y_spinbox.setRange(-1000.0, 1000.0)
+        self._position_y_spinbox.valueChanged.connect(self._on_update_layer_property)
         self._property_layout.addRow(self.tr("Position Y:"), self._position_y_spinbox)
 
         self._pixel_width_spinbox = QDoubleSpinBox()
         self._pixel_width_spinbox.setMinimum(1.0)
+        self._pixel_width_spinbox.valueChanged.connect(self._on_update_layer_property)
         self._property_layout.addRow(self.tr("Pixel Width:"), self._pixel_width_spinbox)
+
         self._pixel_height_spinbox = QDoubleSpinBox()
         self._pixel_height_spinbox.setMinimum(1.0)
+        self._pixel_height_spinbox.valueChanged.connect(self._on_update_layer_property)
         self._property_layout.addRow(self.tr("Pixel Height:"), self._pixel_height_spinbox)
 
         self._rotation_slider = QSlider(Qt.Horizontal)
         self._rotation_slider.setRange(0, 360)
         self._rotation_slider.setValue(0)
+        self._rotation_slider.valueChanged.connect(self._on_update_layer_property)
+
         self._rotation_spinbox = QSpinBox()
         self._rotation_spinbox.setRange(0, 360)
         self._rotation_spinbox.setValue(0)
+        self._rotation_spinbox.valueChanged.connect(self._rotation_slider.setValue)
+
         hbox = QHBoxLayout()
         hbox.addWidget(self._rotation_spinbox)
         hbox.addWidget(self._rotation_slider)
-        self._rotation_spinbox.valueChanged.connect(self._rotation_slider.setValue)
         self._property_layout.addRow(self.tr("Rotation:"), hbox)
 
         self._visible_checkbox = QCheckBox()
+        self._visible_checkbox.stateChanged.connect(self._on_update_layer_property)
         self._property_layout.addRow(self.tr("Visible:"), self._visible_checkbox)
+
         self._opacity_slider = QSlider(Qt.Horizontal)
         self._opacity_slider.setRange(0, 100)
         self._opacity_slider.setValue(100)
+        self._opacity_slider.valueChanged.connect(self._on_update_layer_property)
         self._property_layout.addRow(self.tr("Opacity:"), self._opacity_slider)
 
         self._property_dock = QDockWidget(self.tr("Layer Properties"), self)
@@ -550,27 +563,16 @@ class MainWindow(QMainWindow):
         self._property_editor.setEnabled(enabled)
         self._embroidery_params_editor.setEnabled(enabled)
 
-    def _connect_property_callbacks(self):
-        self._name_edit.editingFinished.connect(self._on_update_layer_property)
-        self._position_x_spinbox.valueChanged.connect(self._on_update_layer_property)
-        self._position_y_spinbox.valueChanged.connect(self._on_update_layer_property)
-        self._rotation_slider.valueChanged.connect(self._on_update_layer_property)
-        self._pixel_width_spinbox.valueChanged.connect(self._on_update_layer_property)
-        self._pixel_height_spinbox.valueChanged.connect(self._on_update_layer_property)
-        self._visible_checkbox.stateChanged.connect(self._on_update_layer_property)
-        self._opacity_slider.valueChanged.connect(self._on_update_layer_property)
-        self._zoom_combobox.currentIndexChanged.connect(self._on_zoom_changed)
-
-    def _disconnect_property_callbacks(self):
-        self._name_edit.editingFinished.disconnect(self._on_update_layer_property)
-        self._position_x_spinbox.valueChanged.disconnect(self._on_update_layer_property)
-        self._position_y_spinbox.valueChanged.disconnect(self._on_update_layer_property)
-        self._rotation_slider.valueChanged.disconnect(self._on_update_layer_property)
-        self._pixel_width_spinbox.valueChanged.disconnect(self._on_update_layer_property)
-        self._pixel_height_spinbox.valueChanged.disconnect(self._on_update_layer_property)
-        self._visible_checkbox.stateChanged.disconnect(self._on_update_layer_property)
-        self._opacity_slider.valueChanged.disconnect(self._on_update_layer_property)
-        self._zoom_combobox.currentIndexChanged.disconnect(self._on_zoom_changed)
+    def _property_editor_block_signals(self, blocked: bool):
+        self._name_edit.blockSignals(blocked)
+        self._position_x_spinbox.blockSignals(blocked)
+        self._position_y_spinbox.blockSignals(blocked)
+        self._rotation_slider.blockSignals(blocked)
+        self._pixel_width_spinbox.blockSignals(blocked)
+        self._pixel_height_spinbox.blockSignals(blocked)
+        self._visible_checkbox.blockSignals(blocked)
+        self._opacity_slider.blockSignals(blocked)
+        self._zoom_combobox.blockSignals(blocked)
 
     def _connect_embroidery_callbacks(self):
         self._pull_compensation_spinbox.valueChanged.connect(self._on_update_embroidery_property)
@@ -673,7 +675,7 @@ class MainWindow(QMainWindow):
         if selected_partition_idx >= 0:
             self._partition_list.setCurrentRow(selected_partition_idx)
 
-        self._disconnect_property_callbacks()
+        self._property_editor_block_signals(True)
         index = 3  # Default: 100%
         for i, zoom_factor in enumerate(self._zoom_factors):
             if abs(self._state.zoom_factor - zoom_factor) <= 0.01:
@@ -681,7 +683,7 @@ class MainWindow(QMainWindow):
                 break
 
         self._zoom_combobox.setCurrentIndex(index)
-        self._connect_property_callbacks()
+        self._property_editor_block_signals(False)
 
         # FIXME: update state should be done in one method
         self._update_qactions()
@@ -766,7 +768,7 @@ class MainWindow(QMainWindow):
             self._partition_list.setCurrentRow(selected_partition_idx)
 
     def _populate_property_editor(self, properties: LayerProperties) -> None:
-        self._disconnect_property_callbacks()
+        self._property_editor_block_signals(True)
         self._name_edit.setText(properties.name)
         self._position_x_spinbox.setValue(properties.position[0])
         self._position_y_spinbox.setValue(properties.position[1])
@@ -776,7 +778,7 @@ class MainWindow(QMainWindow):
         self._pixel_height_spinbox.setValue(properties.pixel_size[1])
         self._visible_checkbox.setChecked(properties.visible)
         self._opacity_slider.setValue(round(properties.opacity * 100))
-        self._connect_property_callbacks()
+        self._property_editor_block_signals(False)
 
     def _populate_embroidery_editor(self, embroidery_params: EmbroideryParameters):
         self._disconnect_embroidery_callbacks()
@@ -830,9 +832,9 @@ class MainWindow(QMainWindow):
         self._layer_list.clear()
         self._partition_list.clear()
 
-        self._disconnect_property_callbacks()
+        self._property_editor_block_signals(True)
         self._zoom_combobox.setCurrentIndex(DEFAULT_ZOOM_FACTOR_IDX)
-        self._connect_property_callbacks()
+        self._property_editor_block_signals(False)
         self._connect_embroidery_callbacks()
 
         # FIXME: update state should be done in one method
