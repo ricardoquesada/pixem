@@ -756,45 +756,37 @@ class MainWindow(QMainWindow):
             self._partition_list.setCurrentRow(selected_partition_idx)
 
     def _populate_property_editor(self, properties: LayerProperties) -> None:
-        # FIXME: probably better to do an individual "with ..."
-        widgets_to_block = (
-            self._name_edit,
-            self._position_x_spinbox,
-            self._position_y_spinbox,
-            self._rotation_slider,
-            self._pixel_width_spinbox,
-            self._pixel_height_spinbox,
-            self._visible_checkbox,
-            self._opacity_slider,
-            self._zoom_combobox,
-        )
-        with block_signals(widgets_to_block):
+        with block_signals(self._name_edit):
             self._name_edit.setText(properties.name)
+        with block_signals(self._position_x_spinbox):
             self._position_x_spinbox.setValue(properties.position[0])
+        with block_signals(self._position_y_spinbox):
             self._position_y_spinbox.setValue(properties.position[1])
+        with block_signals(self._rotation_slider):
             self._rotation_slider.setValue(round(properties.rotation))
+        with block_signals(self._rotation_spinbox):
             self._rotation_spinbox.setValue(round(properties.rotation))
+        with block_signals(self._pixel_width_spinbox):
             self._pixel_width_spinbox.setValue(properties.pixel_size[0])
+        with block_signals(self._pixel_height_spinbox):
             self._pixel_height_spinbox.setValue(properties.pixel_size[1])
+        with block_signals(self._visible_checkbox):
             self._visible_checkbox.setChecked(properties.visible)
+        with block_signals(self._opacity_slider):
             self._opacity_slider.setValue(round(properties.opacity * 100))
 
     def _populate_embroidery_editor(self, embroidery_params: EmbroideryParameters):
-        # FIXME: probably better to do an individual "with ..."
-        widgets_to_block = (
-            self._pull_compensation_spinbox,
-            self._max_stitch_length_spinbox,
-            self._min_jump_stitch_length_spinbox,
-            self._initial_angle_spinbox,
-            self._fill_method_combo,
-        )
-        with block_signals(widgets_to_block):
+        with block_signals(self._pull_compensation_spinbox):
             self._pull_compensation_spinbox.setValue(embroidery_params.pull_compensation_mm)
+        with block_signals(self._max_stitch_length_spinbox):
             self._max_stitch_length_spinbox.setValue(embroidery_params.max_stitch_length_mm)
+        with block_signals(self._min_jump_stitch_length_spinbox):
             self._min_jump_stitch_length_spinbox.setValue(
                 embroidery_params.min_jump_stitch_length_mm
             )
+        with block_signals(self._initial_angle_spinbox):
             self._initial_angle_spinbox.setValue(embroidery_params.initial_angle_degrees)
+        with block_signals(self._fill_method_combo):
             index = self._fill_method_combo.findData(embroidery_params.fill_method)
             if index != -1:
                 self._fill_method_combo.setCurrentIndex(index)
