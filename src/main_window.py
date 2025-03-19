@@ -1228,20 +1228,24 @@ class MainWindow(QMainWindow):
     @Slot()
     def _on_layer_removed_from_state(self, layer: Layer):
         # Clear the "partitions"
+        self._disconnect_layer_and_partition_callbacks()
         self._partition_list.clear()
+        self._connect_layer_and_partition_callbacks()
 
         # Remove it from the widget
         index = -1
-        for index, item in enumerate(self._layer_list.selectedItems()):
+        for index in range(self._layer_list.count()):
+            item = self._layer_list.item(index)
             if item.data(Qt.UserRole) == layer.uuid:
                 break
         if index != -1:
+            # Triggers "_on_change_layer"
             self._layer_list.takeItem(index)
         else:
             logger.warning(f"Failed to delete layer from list {layer.name}")
 
         # _partition_list should get auto-populated
-        # because a "on_change_layer" should be triggered by "_layer_list.takeItem()"
+        # because a "_on_change_layer" should be triggered by "_layer_list.takeItem()"
 
         self._update_statusbar()
         self._canvas.recalculate_fixed_size()

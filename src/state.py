@@ -221,7 +221,10 @@ class State(QObject):
         return self._properties.current_layer_uuid
 
     @current_layer_uuid.setter
-    def current_layer_uuid(self, uuid: str):
+    def current_layer_uuid(self, uuid: str | None):
+        if uuid is None:
+            self._properties.current_layer_uuid = uuid
+            return
         found = False
         for layer in self._layers:
             if layer.uuid == uuid:
