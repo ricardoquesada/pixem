@@ -16,6 +16,7 @@ from state_properties import StateProperties, StatePropertyFlags
 from undo_commands import (
     AddLayerCommand,
     DeleteLayerCommand,
+    SelectLayerCommand,
     UpdateLayerNameCommand,
     UpdateLayerOpacityCommand,
     UpdateLayerPixelSizeCommand,
@@ -31,13 +32,13 @@ logger = logging.getLogger(__name__)
 
 class State(QObject):
     # Triggered when a layer is added. Emitted by Undo Commands
-    # FIXME: Not implemented
     layer_added = Signal(Layer)
     # Triggered when a layer is removed. Emitted by Undo Commands
-    # FIXME: Not implemented
     layer_removed = Signal(Layer)
     # Triggered when LayerProperties (e.g: pixel_size) changes. Emitted by Undo Commands.
     layer_property_changed = Signal(Layer)
+    # Triggered when a layer is selected. Could be None. Emitted by Undo Commands
+    layer_selected = Signal(Layer)
     # Triggered when StateProperties (e.g: hoop_size) changes. Emitted by Undo Commands.
     # FIXME: Should pass State as parameter? but failed using forward refs, including "State"
     state_property_changed = Signal(StatePropertyFlags, StateProperties)
@@ -173,6 +174,22 @@ class State(QObject):
         if properties.name != layer.properties.name:
             self._undo_stack.push(UpdateLayerNameCommand(self, layer, properties.name, None))
 
+    def _set_current_layer_uuid(self, uuid: str):
+        if uuid is None:
+            self._properties.current_layer_uuid = uuid
+            return
+        found = False
+        for layer in self._layers:
+            if layer.uuid == uuid:
+                found = True
+                break
+        if not found:
+            logger.error(
+                f"Failed to change current_layer_uuid. Layer UUID '{uuid}' not found in state layers: {self._layers}"
+            )
+            return
+        self._properties.current_layer_uuid = uuid
+
     @property
     def undo_stack(self) -> QUndoStack:
         return self._undo_stack
@@ -221,21 +238,11 @@ class State(QObject):
         return self._properties.current_layer_uuid
 
     @current_layer_uuid.setter
-    def current_layer_uuid(self, uuid: str | None):
-        if uuid is None:
-            self._properties.current_layer_uuid = uuid
+    def current_layer_uuid(self, layer_uuid: str | None):
+        if self._properties.current_layer_uuid == layer_uuid:
             return
-        found = False
-        for layer in self._layers:
-            if layer.uuid == uuid:
-                found = True
-                break
-        if not found:
-            logger.error(
-                f"Failed to change current_layer_uuid. Layer UUID '{uuid}' not found in state layers: {self._layers}"
-            )
-            return
-        self._properties.current_layer_uuid = uuid
+        layer = self.get_layer_for_uuid(layer_uuid)
+        self._undo_stack.push(SelectLayerCommand(self, layer, None))
 
     @property
     def project_filename(self) -> str:
