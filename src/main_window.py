@@ -651,7 +651,7 @@ class MainWindow(QMainWindow):
             self._partition_list.clear()
 
             if selected_layer is not None:
-                selected_partition_uuid = selected_layer.current_partition_uuid
+                selected_partition_uuid = selected_layer.selected_partition_uuid
                 for i, partition_key in enumerate(selected_layer.partitions):
                     partition = selected_layer.partitions[partition_key]
                     item = QListWidgetItem(partition.name)
@@ -736,7 +736,7 @@ class MainWindow(QMainWindow):
 
         if len(layer.partitions) == 0:
             # Sanity check
-            layer.current_partition_uuid = None
+            layer.selected_partition_uuid = None
             logger.warning(
                 f"Failed to select partition, perhaps layer {layer.uuid} has not been analyzed yet"
             )
@@ -748,7 +748,7 @@ class MainWindow(QMainWindow):
             item = QListWidgetItem(partition.name)
             item.setData(Qt.UserRole, partition_key)
             self._partition_list.addItem(item)
-            if layer.current_partition_uuid == partition_key:
+            if layer.selected_partition_uuid == partition_key:
                 selected_partition_idx = i
 
         # Second: select the correct one if present
@@ -1069,7 +1069,7 @@ class MainWindow(QMainWindow):
             new_uuid = current.data(Qt.UserRole)
 
         if selected_layer is not None:
-            selected_layer.current_partition_uuid = new_uuid
+            selected_layer.selected_partition_uuid = new_uuid
 
         self._canvas.update()
         self.update()

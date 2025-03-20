@@ -104,7 +104,7 @@ class Canvas(QWidget):
         layer = self._state.selected_layer
         if (
             layer is not None
-            and layer.current_partition_uuid is not None
+            and layer.selected_partition_uuid is not None
             and layer.visible
             and self._mode_status != Canvas.ModeStatus.MOVING
         ):
@@ -131,8 +131,8 @@ class Canvas(QWidget):
 
             W = layer.pixel_size.width()
             H = layer.pixel_size.height()
-            if layer.current_partition_uuid in layer.partitions:
-                partition = layer.partitions[layer.current_partition_uuid]
+            if layer.selected_partition_uuid in layer.partitions:
+                partition = layer.partitions[layer.selected_partition_uuid]
 
                 for x, y in partition.path:
                     polygon = [
@@ -145,7 +145,7 @@ class Canvas(QWidget):
                     painter.drawPolygon(polygon)
             else:
                 logger.warning(
-                    f"paintEvent: key {layer.current_partition_uuid} not found in layer {layer.uuid}"
+                    f"paintEvent: key {layer.selected_partition_uuid} not found in layer {layer.uuid}"
                 )
             painter.restore()
 

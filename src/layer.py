@@ -55,7 +55,7 @@ class Layer:
         self._uuid = str(uuid.uuid4())
         self._properties = LayerProperties()
         self._partitions: dict[str, Partition] = {}
-        self._current_partition_uuid = None
+        self._selected_partition_uuid = None
         self._embroidery_params = EmbroideryParameters()
 
     #
@@ -95,8 +95,8 @@ class Layer:
             for k, v in d["partitions"].items():
                 part = Partition.from_dict(v)
                 self._partitions[k] = part
-        if "current_partition_uuid" in d:
-            self._current_partition_uuid = d["current_partition_uuid"]
+        if "selected_partition_uuid" in d:
+            self._selected_partition_uuid = d["selected_partition_uuid"]
         if "uuid" in d:
             self._uuid = d["uuid"]
 
@@ -108,7 +108,7 @@ class Layer:
             "embroidery_params": asdict(self._embroidery_params),
             "partitions": {},
             "image": image_utils.qimage_to_base64_string(self._image),
-            "current_partition_uuid": self._current_partition_uuid,
+            "selected_partition_uuid": self._selected_partition_uuid,
             "layer_type": self.__class__.__name__,
         }
         for k, v in self._partitions.items():
@@ -118,13 +118,13 @@ class Layer:
 
     @property
     def selected_partition(self) -> Partition | None:
-        if self._current_partition_uuid is None:
+        if self._selected_partition_uuid is None:
             return None
 
-        if self._current_partition_uuid not in self._partitions:
-            logger.warning(f"partition {self._current_partition_uuid} not found")
+        if self._selected_partition_uuid not in self._partitions:
+            logger.warning(f"partition {self._selected_partition_uuid} not found")
             return None
-        return self._partitions[self._current_partition_uuid]
+        return self._partitions[self._selected_partition_uuid]
 
     @property
     def image(self) -> QImage:
@@ -191,15 +191,15 @@ class Layer:
         self._properties.rotation = value
 
     @property
-    def current_partition_uuid(self) -> str:
-        return self._current_partition_uuid
+    def selected_partition_uuid(self) -> str:
+        return self._selected_partition_uuid
 
-    @current_partition_uuid.setter
-    def current_partition_uuid(self, value: str):
+    @selected_partition_uuid.setter
+    def selected_partition_uuid(self, value: str):
         if value not in self.partitions:
             logger.error(f"Invalid partition uuid: {value} for layer {self.uuid}")
             return
-        self._current_partition_uuid = value
+        self._selected_partition_uuid = value
 
     @property
     def partitions(self) -> dict[str, Partition]:
