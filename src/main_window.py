@@ -1168,18 +1168,18 @@ class MainWindow(QMainWindow):
         if self._state is None:
             logger.warning("Unexpected state. Should not be none")
             return
-        if self._state.selected_layer != layer:
-            logger.warning(
-                f"Unexpected selected layer. Got '{layer.name}', expected: '{self._state.selected_layer.name}'"
-            )
-            return
 
-        self._populate_property_editor(layer.properties)
+        if self._state.selected_layer == layer:
+            self._populate_property_editor(layer.properties)
 
-        # Update Layer Name. Could have been changed from the editor
-        item = self._layer_list.item(self._layer_list.currentRow())
-        if item.data(Qt.UserRole) == layer.uuid:
-            item.setText(layer.name)
+            # Update Layer Name. Could have been changed from the editor
+            item = self._layer_list.item(self._layer_list.currentRow())
+            if item.data(Qt.UserRole) == layer.uuid:
+                item.setText(layer.name)
+        else:
+            # It is possible that the changed layer is not the selected one.
+            # Probably to an "undo" command.
+            pass
 
         self._update_qactions()
         self._canvas.recalculate_fixed_size()
