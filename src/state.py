@@ -217,11 +217,11 @@ class State(QObject):
             self._undo_stack.push(UpdateStateZoomFactorCommand(self, zoom_factor, None))
 
     @property
-    def current_layer_uuid(self) -> str:
+    def selected_layer_uuid(self) -> str:
         return self._properties.selected_layer_uuid
 
-    @current_layer_uuid.setter
-    def current_layer_uuid(self, uuid: str | None):
+    @selected_layer_uuid.setter
+    def selected_layer_uuid(self, uuid: str | None):
         if uuid is None:
             self._properties.selected_layer_uuid = uuid
             return
@@ -232,7 +232,7 @@ class State(QObject):
                 break
         if not found:
             logger.error(
-                f"Failed to change current_layer_uuid. Layer UUID '{uuid}' not found in state layers: {self._layers}"
+                f"Failed to change selected_layer_uuid. Layer UUID '{uuid}' not found in state layers: {self._layers}"
             )
             return
         self._properties.selected_layer_uuid = uuid

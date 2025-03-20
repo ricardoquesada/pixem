@@ -189,7 +189,7 @@ class Canvas(QWidget):
             if layer.is_point_inside(point):
                 self._mouse_start_coords = event.position()
                 self._mode_status = Canvas.ModeStatus.MOVING
-                if layer.uuid != self._state.current_layer_uuid:
+                if layer.uuid != self._state.selected_layer_uuid:
                     self.layer_selection_changed.emit(layer.uuid)
                 self.update()
                 break

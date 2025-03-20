@@ -1132,8 +1132,8 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_update_embroidery_property(self) -> None:
-        current_layer = self._state.selected_layer
-        enabled = current_layer is not None
+        selected_layer = self._state.selected_layer
+        enabled = selected_layer is not None
         self._embroidery_params_editor.setEnabled(enabled)
         if enabled:
             embroidery_params = EmbroideryParameters(
@@ -1143,7 +1143,7 @@ class MainWindow(QMainWindow):
                 initial_angle_degrees=self._initial_angle_spinbox.value(),
                 fill_method=self._fill_method_combo.currentData(),
             )
-            current_layer.embroidery_params = embroidery_params
+            selected_layer.embroidery_params = embroidery_params
 
     @Slot()
     def _on_show_about_dialog(self) -> None:

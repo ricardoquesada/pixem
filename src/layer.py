@@ -2,6 +2,7 @@
 # Copyright 2025 - Ricardo Quesada
 
 import logging
+import traceback
 import uuid
 from dataclasses import asdict, dataclass
 from enum import IntEnum, auto
@@ -198,6 +199,7 @@ class Layer:
     def selected_partition_uuid(self, value: str):
         if value not in self.partitions:
             logger.error(f"Invalid partition uuid: {value} for layer {self.uuid}")
+            traceback.print_stack()
             return
         self._selected_partition_uuid = value
 
