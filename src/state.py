@@ -190,6 +190,27 @@ class State(QObject):
         return None
 
     @property
+    def selected_layer_uuid(self) -> str:
+        return self._properties.selected_layer_uuid
+
+    @selected_layer_uuid.setter
+    def selected_layer_uuid(self, uuid: str | None):
+        if uuid is None:
+            self._properties.selected_layer_uuid = uuid
+            return
+        found = False
+        for layer in self._layers:
+            if layer.uuid == uuid:
+                found = True
+                break
+        if not found:
+            logger.error(
+                f"Failed to change selected_layer_uuid. Layer UUID '{uuid}' not found in state layers: {self._layers}"
+            )
+            return
+        self._properties.selected_layer_uuid = uuid
+
+    @property
     def layers(self) -> list[Layer]:
         return self._layers
 
@@ -215,27 +236,6 @@ class State(QObject):
     def zoom_factor(self, zoom_factor: float):
         if self._properties.zoom_factor != zoom_factor:
             self._undo_stack.push(UpdateStateZoomFactorCommand(self, zoom_factor, None))
-
-    @property
-    def selected_layer_uuid(self) -> str:
-        return self._properties.selected_layer_uuid
-
-    @selected_layer_uuid.setter
-    def selected_layer_uuid(self, uuid: str | None):
-        if uuid is None:
-            self._properties.selected_layer_uuid = uuid
-            return
-        found = False
-        for layer in self._layers:
-            if layer.uuid == uuid:
-                found = True
-                break
-        if not found:
-            logger.error(
-                f"Failed to change selected_layer_uuid. Layer UUID '{uuid}' not found in state layers: {self._layers}"
-            )
-            return
-        self._properties.selected_layer_uuid = uuid
 
     @property
     def project_filename(self) -> str:
