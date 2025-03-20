@@ -1035,14 +1035,14 @@ class MainWindow(QMainWindow):
                 idx = len(self._state.layers) - 1
             layer = self._state.layers[idx]
 
-            self._state.current_layer_uuid = layer.uuid
+            self._state.selected_layer_uuid = layer.uuid
 
             self._populate_partitions(layer)
             self._populate_property_editor(layer.properties)
             self._populate_embroidery_editor(layer.embroidery_params)
         else:
             if self._state is not None:
-                self._state.current_layer_uuid = None
+                self._state.selected_layer_uuid = None
 
     @Slot()
     def _on_layer_rows_moved(self, parent, start, end, destination):
@@ -1192,7 +1192,7 @@ class MainWindow(QMainWindow):
         if flag not in [
             StatePropertyFlags.HOOP_SIZE,
             StatePropertyFlags.ZOOM_FACTOR,
-            StatePropertyFlags.CURRENT_LAYER_UUID,
+            StatePropertyFlags.SELECTED_LAYER_UUID,
         ]:
             return
         if flag == StatePropertyFlags.HOOP_SIZE:

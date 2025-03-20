@@ -122,4 +122,4 @@ color = "#2121ff"
 [properties]
 hoop_size = [ 7.0, 5.0,]
 zoom_factor = 1.0
-current_layer_uuid = "63139bf4-6b50-409d-8f0a-b4d0c045aadf"
+selected_layer_uuid = "63139bf4-6b50-409d-8f0a-b4d0c045aadf"

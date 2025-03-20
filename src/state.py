@@ -48,7 +48,7 @@ class State(QObject):
         self._properties = StateProperties(
             hoop_size=get_global_preferences().get_hoop_size(),
             zoom_factor=1.0,
-            current_layer_uuid=None,
+            selected_layer_uuid=None,
             export_filename=None,
         )
         self._layers: list[Layer] = []
@@ -122,7 +122,7 @@ class State(QObject):
 
     def _add_layer(self, layer: Layer) -> None:
         self._layers.append(layer)
-        self._properties.current_layer_uuid = layer.uuid
+        self._properties.selected_layer_uuid = layer.uuid
 
     def add_layer(self, layer: Layer) -> None:
         self._undo_stack.push(AddLayerCommand(self, layer, None))
@@ -135,9 +135,9 @@ class State(QObject):
 
         # if there are no elements left, idx = -1
         if len(self._layers) > 0:
-            self._properties.current_layer_uuid = self._layers[-1].uuid
+            self._properties.selected_layer_uuid = self._layers[-1].uuid
         else:
-            self._properties.current_layer_uuid = None
+            self._properties.selected_layer_uuid = None
 
     def delete_layer(self, layer: Layer) -> None:
         self._undo_stack.push(DeleteLayerCommand(self, layer, None))
@@ -179,12 +179,12 @@ class State(QObject):
 
     @property
     def selected_layer(self) -> Layer | None:
-        if self._properties.current_layer_uuid is None:
+        if self._properties.selected_layer_uuid is None:
             return None
         for layer in self._layers:
-            if layer.uuid == self._properties.current_layer_uuid:
+            if layer.uuid == self._properties.selected_layer_uuid:
                 return layer
-        logger.warning(f"selected_layer. Layer '{self._properties.current_layer_uuid}' not found")
+        logger.warning(f"selected_layer. Layer '{self._properties.selected_layer_uuid}' not found")
         # Should it return valid one ? No, Let it fail, and fix the root cause
         # return self._layers[0]
         return None
@@ -218,12 +218,12 @@ class State(QObject):
 
     @property
     def current_layer_uuid(self) -> str:
-        return self._properties.current_layer_uuid
+        return self._properties.selected_layer_uuid
 
     @current_layer_uuid.setter
     def current_layer_uuid(self, uuid: str | None):
         if uuid is None:
-            self._properties.current_layer_uuid = uuid
+            self._properties.selected_layer_uuid = uuid
             return
         found = False
         for layer in self._layers:
@@ -235,7 +235,7 @@ class State(QObject):
                 f"Failed to change current_layer_uuid. Layer UUID '{uuid}' not found in state layers: {self._layers}"
             )
             return
-        self._properties.current_layer_uuid = uuid
+        self._properties.selected_layer_uuid = uuid
 
     @property
     def project_filename(self) -> str:
