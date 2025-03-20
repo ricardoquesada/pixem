@@ -225,25 +225,3 @@ class DeleteLayerCommand(QUndoCommand):
     def redo(self) -> None:
         self._state._delete_layer(self._old_layer)
         self._state.layer_removed.emit(self._old_layer)
-
-
-class SelectLayerCommand(QUndoCommand):
-    def __init__(self, state, layer: str | None, parent: QUndoCommand | None):
-        name = "N/A"
-        if layer is not None:
-            name = layer.name
-
-        super().__init__(f"Select Layer: {name}", parent)
-        self._state = state
-        self._new_layer = layer
-        self._old_layer = state.get_layer_for_uuid(state.current_layer_uuid)
-
-    def undo(self) -> None:
-        uuid = self._old_layer.uuid if self._old_layer else None
-        self._state._set_current_layer_uuid(uuid)
-        self._state.layer_selected.emit(self._old_layer)
-
-    def redo(self) -> None:
-        uuid = self._new_layer.uuid if self._new_layer else None
-        self._state._set_current_layer_uuid(uuid)
-        self._state.layer_selected.emit(self._new_layer)

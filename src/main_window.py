@@ -691,7 +691,6 @@ class MainWindow(QMainWindow):
         self._canvas.state = state
         self._state.layer_property_changed.connect(self._on_layer_property_changed_from_state)
         self._state.state_property_changed.connect(self._on_state_property_changed_from_state)
-        self._state.layer_selected.connect(self._on_layer_selected_from_state)
         self._state.layer_added.connect(self._on_layer_added_from_state)
         self._state.layer_removed.connect(self._on_layer_removed_from_state)
 
@@ -1036,28 +1035,14 @@ class MainWindow(QMainWindow):
                 idx = len(self._state.layers) - 1
             layer = self._state.layers[idx]
 
-            # Triggers _on_layer_selected_from_state
             self._state.current_layer_uuid = layer.uuid
-        else:
-            if self._state is not None:
-                # Triggers _on_layer_selected_from_state
-                self._state.current_layer_uuid = None
 
-    @Slot()
-    def _on_layer_selected_from_state(self, layer: Layer | None):
-        if layer is not None:
             self._populate_partitions(layer)
             self._populate_property_editor(layer.properties)
             self._populate_embroidery_editor(layer.embroidery_params)
-
-        with block_signals(self._layer_list):
-            idx = -1
-            for idx in range(self._layer_list.count()):
-                item = self._layer_list.item(idx)
-                if item.data(Qt.UserRole) == layer.uuid:
-                    break
-            if idx != -1:
-                self._layer_list.setCurrentRow(idx)
+        else:
+            if self._state is not None:
+                self._state.current_layer_uuid = None
 
     @Slot()
     def _on_layer_rows_moved(self, parent, start, end, destination):
