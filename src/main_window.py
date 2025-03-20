@@ -1104,7 +1104,7 @@ class MainWindow(QMainWindow):
         layer = self._state.selected_layer
         partitions = layer.partitions
 
-        # reorder dict keys. Dictionary mantains order
+        # reorder dict keys. Dictionary maintains order
         new_partitions = {}
         for row in range(self._partition_list.count()):
             item = self._partition_list.item(row)
