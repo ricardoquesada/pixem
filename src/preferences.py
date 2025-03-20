@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 class Preferences:
     STATE_VERSION = 1
-    MAX_RECENT_FILES = 10
+    MAX_RECENT_FILES = 20
 
     def __init__(self):
         self._settings = QSettings()
