@@ -117,16 +117,6 @@ class Layer:
         return d
 
     @property
-    def selected_partition(self) -> Partition | None:
-        if self._selected_partition_uuid is None:
-            return None
-
-        if self._selected_partition_uuid not in self._partitions:
-            logger.warning(f"partition {self._selected_partition_uuid} not found")
-            return None
-        return self._partitions[self._selected_partition_uuid]
-
-    @property
     def image(self) -> QImage:
         return self._image
 
@@ -189,6 +179,16 @@ class Layer:
     @rotation.setter
     def rotation(self, value: int):
         self._properties.rotation = value
+
+    @property
+    def selected_partition(self) -> Partition | None:
+        if self._selected_partition_uuid is None:
+            return None
+
+        if self._selected_partition_uuid not in self._partitions:
+            logger.warning(f"partition {self._selected_partition_uuid} not found")
+            return None
+        return self._partitions[self._selected_partition_uuid]
 
     @property
     def selected_partition_uuid(self) -> str:
