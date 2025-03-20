@@ -3,6 +3,7 @@
 
 import copy
 import logging
+from enum import IntEnum, auto
 
 from PySide6.QtCore import QCoreApplication
 from PySide6.QtGui import QUndoCommand
@@ -11,6 +12,10 @@ from layer import Layer
 from state_properties import StatePropertyFlags
 
 logger = logging.getLogger(__name__)  # __name__ gets the current module's name
+
+
+class CommandID(IntEnum):
+    ROTATION_COMMAND_ID = auto()
 
 
 class UpdateLayerRotationCommand(QUndoCommand):
@@ -23,6 +28,9 @@ class UpdateLayerRotationCommand(QUndoCommand):
         self._old_properties = layer.properties
         self._state = state
 
+    def id(self) -> int:
+        return CommandID.ROTATION_COMMAND_ID
+
     def undo(self) -> None:
         self._layer.properties = self._old_properties
         self._state.layer_property_changed.emit(self._layer)
@@ -32,12 +40,12 @@ class UpdateLayerRotationCommand(QUndoCommand):
         self._state.layer_property_changed.emit(self._layer)
 
     def mergeWith(self, other: QUndoCommand) -> bool:
-        # FIXME: NOT WORKING, not sure why
         if not isinstance(other, UpdateLayerRotationCommand):
             return False
         if self._layer != other._layer:
             return False
         self._new_properties = other._new_properties
+        self.setText(f"Rotation {self._new_properties.rotation}")
         self.setObsolete(False)
         return True
 
@@ -185,16 +193,6 @@ class UpdateStateZoomFactorCommand(QUndoCommand):
         self._state.state_property_changed.emit(
             StatePropertyFlags.ZOOM_FACTOR, self._state.properties
         )
-
-    def mergeWith(self, other: QUndoCommand) -> bool:
-        # FIXME: NOT WORKING, not sure why
-        if not isinstance(other, UpdateStateZoomFactorCommand):
-            return False
-        if self._state != other._state:
-            return False
-        self._new_zoom_factor = other._new_zoom_factor
-        self.setObsolete(False)
-        return True
 
 
 class AddLayerCommand(QUndoCommand):
