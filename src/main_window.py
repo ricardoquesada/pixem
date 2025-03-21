@@ -1094,6 +1094,7 @@ class MainWindow(QMainWindow):
         dialog = PartitionDialog(layer.image, partition)
         if dialog.exec():
             path = dialog.get_path()
+            self._state.update_partition_path(layer, partition, path)
             partition.path = path
 
     @Slot()

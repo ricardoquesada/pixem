@@ -81,7 +81,7 @@ class Partition:
         return part
 
     def to_dict(self) -> dict:
-        """Returns a dictionary that represents the Layer"""
+        """Returns a dictionary that represents the Partition"""
         d = {
             "path": self._path,
             "size": len(self._path),

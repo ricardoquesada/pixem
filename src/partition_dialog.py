@@ -348,7 +348,7 @@ class PartitionDialog(QDialog):
             item.setSelected(selected)
         self._connect_list_widget()
 
-    def get_path(self):
+    def get_path(self) -> list[tuple[int, int]]:
         path = [
             self._list_widget.item(i).data(Qt.UserRole) for i in range(self._list_widget.count())
         ]

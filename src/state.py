@@ -11,6 +11,7 @@ from PySide6.QtGui import QUndoStack
 
 from export import ExportToSVG
 from layer import Layer, LayerProperties
+from partition import Partition
 from preferences import get_global_preferences
 from state_properties import StateProperties, StatePropertyFlags
 from undo_commands import (
@@ -22,6 +23,7 @@ from undo_commands import (
     UpdateLayerPositionCommand,
     UpdateLayerRotationCommand,
     UpdateLayerVisibleCommand,
+    UpdatePartitionPathCommand,
     UpdateStateHoopSizeCommand,
     UpdateStateZoomFactorCommand,
 )
@@ -31,16 +33,16 @@ logger = logging.getLogger(__name__)
 
 class State(QObject):
     # Triggered when a layer is added. Emitted by Undo Commands
-    # FIXME: Not implemented
     layer_added = Signal(Layer)
     # Triggered when a layer is removed. Emitted by Undo Commands
-    # FIXME: Not implemented
     layer_removed = Signal(Layer)
     # Triggered when LayerProperties (e.g: pixel_size) changes. Emitted by Undo Commands.
     layer_property_changed = Signal(Layer)
     # Triggered when StateProperties (e.g: hoop_size) changes. Emitted by Undo Commands.
     # FIXME: Should pass State as parameter? but failed using forward refs, including "State"
     state_property_changed = Signal(StatePropertyFlags, StateProperties)
+    # Triggered when a partition'path gets updated.
+    partition_path_updated = Signal(Layer, Partition)
 
     def __init__(self):
         super().__init__()
@@ -120,24 +122,8 @@ class State(QObject):
         export.write_to_svg()
         self._properties.export_filename = filename
 
-    def _add_layer(self, layer: Layer) -> None:
-        self._layers.append(layer)
-        self._properties.selected_layer_uuid = layer.uuid
-
     def add_layer(self, layer: Layer) -> None:
         self._undo_stack.push(AddLayerCommand(self, layer, None))
-
-    def _delete_layer(self, layer: Layer) -> None:
-        try:
-            self._layers.remove(layer)
-        except ValueError:
-            logger.warning(f"Failed to remove layer, not  found {layer.name}")
-
-        # if there are no elements left, idx = -1
-        if len(self._layers) > 0:
-            self._properties.selected_layer_uuid = self._layers[-1].uuid
-        else:
-            self._properties.selected_layer_uuid = None
 
     def delete_layer(self, layer: Layer) -> None:
         self._undo_stack.push(DeleteLayerCommand(self, layer, None))
@@ -149,6 +135,10 @@ class State(QObject):
         return None
 
     def set_layer_properties(self, layer: Layer, properties: LayerProperties):
+        if layer not in self._layers:
+            logger.error(f"Layer {layer.name} does not belong to this state")
+            return
+
         if properties == layer.properties:
             return
 
@@ -172,6 +162,19 @@ class State(QObject):
             self._undo_stack.push(UpdateLayerOpacityCommand(self, layer, properties.opacity, None))
         if properties.name != layer.properties.name:
             self._undo_stack.push(UpdateLayerNameCommand(self, layer, properties.name, None))
+
+    def update_partition_path(
+        self, layer: Layer, partition: Partition, path: list[tuple[int, int]]
+    ):
+        if layer not in self._layers:
+            logger.error(f"Layer {layer.name} does not belong to this state")
+            return
+
+        if partition not in layer.partitions.values():
+            logger.error(f"Partition {partition.name} does not belong to layer {layer.name}")
+            return
+
+        self._undo_stack.push(UpdatePartitionPathCommand(self, layer, partition, path, None))
 
     @property
     def undo_stack(self) -> QUndoStack:
@@ -249,3 +252,52 @@ class State(QObject):
     def hoop_size(self, hoop_size: tuple[float, float]) -> None:
         if self._properties.hoop_size != hoop_size:
             self._undo_stack.push(UpdateStateHoopSizeCommand(self, hoop_size, None))
+
+    #
+    # Private methods, mostly to be called by Undo Commands
+    #
+    def _set_layer_properties(self, layer: Layer, properties: LayerProperties):
+        if layer not in self._layers:
+            logger.error(f"Layer {layer.name} does not belong to this state")
+            return
+        layer.properties = properties
+        self.layer_property_changed.emit(layer)
+
+    def _update_partition_path(
+        self, layer: Layer, partition: Partition, path: list[tuple[int, int]]
+    ):
+        if layer not in self._layers:
+            logger.error(f"Layer {layer.name} does not belong to this state")
+            return
+        if partition not in layer.partitions.values():
+            logger.error(f"Partition {partition.name} does not belong to layer {layer.name}")
+            return
+        partition.path = path
+        self.partition_path_updated.emit(layer, partition)
+
+    def _add_layer(self, layer: Layer) -> None:
+        self._layers.append(layer)
+        self._properties.selected_layer_uuid = layer.uuid
+        self.layer_added.emit(layer)
+
+    def _delete_layer(self, layer: Layer) -> None:
+        try:
+            self._layers.remove(layer)
+
+            # if there are no elements left, idx = -1
+            if len(self._layers) > 0:
+                self._properties.selected_layer_uuid = self._layers[-1].uuid
+            else:
+                self._properties.selected_layer_uuid = None
+
+            self.layer_removed.emit(layer)
+        except ValueError:
+            logger.warning(f"Failed to remove layer, not  found {layer.name}")
+
+    def _set_hoop_size(self, hoop_size: tuple[float, float]) -> None:
+        self._properties.hoop_size = hoop_size
+        self.state_property_changed.emit(StatePropertyFlags.HOOP_SIZE, self.properties)
+
+    def _set_zoom_factor(self, zoom_factor: float) -> None:
+        self._properties.zoom_factor = zoom_factor
+        self.state_property_changed.emit(StatePropertyFlags.ZOOM_FACTOR, self.properties)
