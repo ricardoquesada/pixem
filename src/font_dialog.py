@@ -2,6 +2,7 @@
 # Copyright 2025 - Ricardo Quesada
 
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QPaintEvent
 from PySide6.QtWidgets import (
     QApplication,
     QComboBox,
@@ -11,7 +12,17 @@ from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
     QVBoxLayout,
+    QWidget,
 )
+
+
+class FontCanvas(QWidget):
+    def __init__(self, parent: QWidget = None):
+        super().__init__(parent)
+
+    def paintEvent(self, event: QPaintEvent) -> None:
+        if not self._state:
+            return
 
 
 class FontDialog(QDialog):
