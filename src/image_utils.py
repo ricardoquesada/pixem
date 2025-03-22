@@ -119,11 +119,13 @@ def _ascii_to_petscii_screencode(ascii_chr: chr) -> Optional[int]:
     return petscii
 
 
-def text_to_qimage(text: str, font_path: str) -> Optional[QImage]:
+def text_to_qimage(text: str, font_path: str, color_name: str) -> Optional[QImage]:
     if text is None or len(text) == 0:
         return None
     if font_path is None or len(font_path) == 0:
         return None
+
+    color = QColor(color_name)
 
     width = len(text) * 8
     height = 8
@@ -132,7 +134,7 @@ def text_to_qimage(text: str, font_path: str) -> Optional[QImage]:
 
     file = QFile(font_path)
     if not file.open(QIODevice.OpenModeFlag.ReadOnly):
-        logger.warning(f"Invalid file {font_path}")
+        logger.warning(f"text_to_qimage: Invalid file {font_path}")
         return None
 
     data = file.readAll()
@@ -146,7 +148,7 @@ def text_to_qimage(text: str, font_path: str) -> Optional[QImage]:
             row_byte = data[data_offset + offset_y][0]
             for x in range(8):
                 if row_byte & (1 << (7 - x)):
-                    image.setPixel(offset_x + x + char_idx * 8, offset_y, QColor(Qt.black).rgb())
+                    image.setPixel(offset_x + x + char_idx * 8, offset_y, color.rgb())
     return image
 
 

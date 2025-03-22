@@ -306,18 +306,20 @@ class ImageLayer(Layer):
 
 class TextLayer(Layer):
     @overload
-    def __init__(self, text: str, font_name): ...
+    def __init__(self, text: str, font_name, color_name): ...
 
     @overload
     def __init__(self, image: QImage): ...
 
-    def __init__(self, text_or_image, font_name=None):
+    def __init__(self, text_or_image, font_name: str | None = None, color_name: str | None = None):
         self._text = None
-        self._font_name = None
+        self._font_name = font_name
+        self._color_name = color_name
+
         if isinstance(text_or_image, QImage):
             image = text_or_image
         elif isinstance(text_or_image, str):
-            image = image_utils.text_to_qimage(text_or_image, font_name)
+            image = image_utils.text_to_qimage(text_or_image, font_name, color_name)
             if image is None:
                 raise ValueError(f"Invalid font: {font_name}")
             self._text = text_or_image
@@ -333,9 +335,12 @@ class TextLayer(Layer):
             self._text = d["text"]
         if "font_name" in d:
             self._font_name = d["font_name"]
+        if "color_name" in d:
+            self._color_name = d["color_name"]
 
     def to_dict(self) -> dict:
         d = super().to_dict()
         d["text"] = self._text
         d["font_name"] = self._font_name
+        d["color_name"] = self._color_name
         return d

@@ -992,8 +992,8 @@ class MainWindow(QMainWindow):
     def _on_layer_add_text(self) -> None:
         dialog = FontDialog()
         if dialog.exec() == QDialog.Accepted:
-            text, font_name = dialog.get_data()
-            layer = TextLayer(text, font_name)
+            text, font_name, color_name = dialog.get_data()
+            layer = TextLayer(text, font_name, color_name)
             layer.name = f"TextLayer {len(self._state.layers) + 1}"
             self._add_layer(layer)
 
