@@ -29,12 +29,11 @@ class FontCanvas(QWidget):
         self._image: QImage | None = None
 
     def paintEvent(self, event: QPaintEvent) -> None:
-        if self._image is None:
-            return
-
         painter = QPainter(self)
+        painter.fillRect(self.rect(), QColor("white"))  # fill the widget with white.
         painter.scale(DEFAULT_SCALE_FACTOR, DEFAULT_SCALE_FACTOR)
-        painter.drawImage(0, 0, self._image)
+        if self._image is not None:
+            painter.drawImage(0, 0, self._image)
         painter.end()
 
     def sizeHint(self) -> QSize:
@@ -65,7 +64,8 @@ class FontDialog(QDialog):
         self._text_edit.textChanged.connect(self._on_text_changed)
         self._font_label = QLabel(self.tr("Font:"))
         self._font_combo = QComboBox()
-        self._color_button = QPushButton(self.tr("Choose Color"))
+        self._font_combo.currentIndexChanged.connect(self._current_index_changed_combobox)
+        self._color_button = QPushButton()
         self._color_button.clicked.connect(self._choose_color)
         self._color = QColor(Qt.black)
         self._color_label = QLabel()
@@ -103,7 +103,7 @@ class FontDialog(QDialog):
         self.setLayout(main_layout)
 
     def _update_color_label(self):
-        self._color_label.setText(self.tr(f"Selected Color: {self._color.name()}"))
+        self._color_button.setText(self.tr(f"Choose Color: {self._color.name()}"))
         self._color_label.setStyleSheet(f"background-color: {self._color.name()};")
 
     def _choose_color(self):
@@ -111,11 +111,21 @@ class FontDialog(QDialog):
         if color.isValid():
             self._color = color
             self._update_color_label()
+            self._regenerate_image()
+
+    def _regenerate_image(self):
+        image = image_utils.text_to_qimage(
+            self._text_edit.text(), self._font_combo.currentData(), self._color.name()
+        )
+        self._canvas.set_image(image)
 
     @Slot()
-    def _on_text_changed(self, text: str):
-        image = image_utils.text_to_qimage(text, self._font_combo.currentData(), self._color)
-        self._canvas.set_image(image)
+    def _on_text_changed(self, txt: str):
+        self._regenerate_image()
+
+    @Slot()
+    def _current_index_changed_combobox(self):
+        self._regenerate_image()
 
     def get_data(self):
         """
