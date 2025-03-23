@@ -338,6 +338,7 @@ class TextLayer(Layer):
         self._font_name = font_name
         self._color_name = color_name
         self._image = image_utils.text_to_qimage(text, font_name, color_name)
+        self._partitions = ImageParser(self._image).partitions
 
     def populate_from_dict(self, d: dict) -> None:
         super().populate_from_dict(d)
