@@ -26,19 +26,22 @@ from undo_commands import (
     UpdatePartitionPathCommand,
     UpdateStateHoopSizeCommand,
     UpdateStateZoomFactorCommand,
+    UpdateTextLayerCommand,
 )
 
 logger = logging.getLogger(__name__)
 
 
 class State(QObject):
-    # Triggered when a layer is added. Emitted by Undo Commands
+    # Triggered when a layer is added.
     layer_added = Signal(Layer)
-    # Triggered when a layer is removed. Emitted by Undo Commands
+    # Triggered when a layer is removed.
     layer_removed = Signal(Layer)
-    # Triggered when LayerProperties (e.g: pixel_size) changes. Emitted by Undo Commands.
+    # Triggered when LayerProperties (e.g: pixel_size) changes.
     layer_property_changed = Signal(Layer)
-    # Triggered when StateProperties (e.g: hoop_size) changes. Emitted by Undo Commands.
+    # Triggered when a Layer changes its pixels.
+    layer_pixels_changed = Signal(Layer)
+    # Triggered when StateProperties (e.g: hoop_size) changes.
     # FIXME: Should pass State as parameter? but failed using forward refs, including "State"
     state_property_changed = Signal(StatePropertyFlags, StateProperties)
     # Triggered when a partition'path gets updated.
@@ -136,7 +139,9 @@ class State(QObject):
 
     def set_layer_properties(self, layer: Layer, properties: LayerProperties):
         if layer not in self._layers:
-            logger.error(f"Layer {layer.name} does not belong to this state")
+            logger.error(
+                f"Cannot set layer properties. Layer {layer.name} does not belong to this state"
+            )
             return
 
         if properties == layer.properties:
@@ -167,7 +172,9 @@ class State(QObject):
         self, layer: Layer, partition: Partition, path: list[tuple[int, int]]
     ):
         if layer not in self._layers:
-            logger.error(f"Layer {layer.name} does not belong to this state")
+            logger.error(
+                f"Cannot update partition path. Layer {layer.name} does not belong to this state"
+            )
             return
 
         if partition not in layer.partitions.values():
@@ -175,6 +182,22 @@ class State(QObject):
             return
 
         self._undo_stack.push(UpdatePartitionPathCommand(self, layer, partition, path, None))
+
+    def update_text_layer(self, layer: Layer, text: str, font_name: str, color_name: str):
+        found = False
+        # "layer" could be a new copy. So we should check for the UUID
+        for ly in self._layers:
+            if ly.uuid == layer.uuid:
+                found = True
+                break
+        if not found:
+            logger.error(
+                f"Cannot update text layer. Layer {layer.name} does not belong to this state"
+            )
+            return
+        self._undo_stack.push(
+            UpdateTextLayerCommand(self, layer, text, font_name, color_name, None)
+        )
 
     @property
     def undo_stack(self) -> QUndoStack:
@@ -258,7 +281,9 @@ class State(QObject):
     #
     def _set_layer_properties(self, layer: Layer, properties: LayerProperties):
         if layer not in self._layers:
-            logger.error(f"Layer {layer.name} does not belong to this state")
+            logger.error(
+                f"Cannot set layer properties. Layer {layer.name} does not belong to this state"
+            )
             return
         layer.properties = properties
         self.layer_property_changed.emit(layer)
@@ -267,7 +292,9 @@ class State(QObject):
         self, layer: Layer, partition: Partition, path: list[tuple[int, int]]
     ):
         if layer not in self._layers:
-            logger.error(f"Layer {layer.name} does not belong to this state")
+            logger.error(
+                f"Cannot update partition path. Layer {layer.name} does not belong to this state"
+            )
             return
         if partition not in layer.partitions.values():
             logger.error(f"Partition {partition.name} does not belong to layer {layer.name}")
@@ -301,3 +328,16 @@ class State(QObject):
     def _set_zoom_factor(self, zoom_factor: float) -> None:
         self._properties.zoom_factor = zoom_factor
         self.state_property_changed.emit(StatePropertyFlags.ZOOM_FACTOR, self.properties)
+
+    def _update_text_layer(self, new_layer: Layer):
+        found = False
+        for idx, layer in enumerate(self._layers):
+            if layer.uuid == new_layer.uuid:
+                self._layers[idx] = new_layer
+                self.layer_pixels_changed.emit(new_layer)
+                found = True
+                break
+        if not found:
+            logger.error(
+                f"Cannot update text layer. Layer {new_layer.name} does not belong to this state"
+            )

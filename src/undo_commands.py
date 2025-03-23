@@ -7,7 +7,7 @@ from enum import IntEnum, auto
 
 from PySide6.QtGui import QUndoCommand
 
-from layer import Layer, LayerProperties
+from layer import Layer, LayerProperties, TextLayer
 from partition import Partition
 
 logger = logging.getLogger(__name__)  # __name__ gets the current module's name
@@ -17,6 +17,33 @@ class CommandID(IntEnum):
     # Add commands that can be compressed/merged.
     ROTATION_COMMAND_ID = auto()
     OPACITY_COMMAND_ID = auto()
+
+
+class UpdateTextLayerCommand(QUndoCommand):
+    def __init__(
+        self,
+        state,
+        layer: Layer,
+        text: str,
+        font_name: str,
+        color_name: str,
+        parent: QUndoCommand | None,
+    ):
+        super().__init__(parent)
+        self._state = state
+        self._old_layer = layer
+
+        # copy.deepcopy fails when trying to copy the QImage
+        self._new_layer = TextLayer(text, font_name, color_name)
+        self._new_layer._uuid = self._old_layer.uuid
+        self._new_layer.properties = self._old_layer.properties
+        self.setText(f"Update TextLayer {self._new_layer.name}: {self._new_layer.text}")
+
+    def undo(self):
+        self._state._update_text_layer(self._old_layer)
+
+    def redo(self):
+        self._state._update_text_layer(self._new_layer)
 
 
 class UpdateLayerPropertiesCommand(QUndoCommand):

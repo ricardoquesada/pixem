@@ -380,7 +380,7 @@ class MainWindow(QMainWindow):
         self._layer_list = QListWidget()
         self._layer_list.setDragDropMode(QListWidget.InternalMove)  # Enable reordering
         self._layer_list.model().rowsMoved.connect(self._on_layer_rows_moved)
-        self._layer_list.currentItemChanged.connect(self._on_change_layer)
+        self._layer_list.currentItemChanged.connect(self._on_layer_item_changed)
         self._layer_list.itemDoubleClicked.connect(self._on_layer_item_double_clicked)
         self._layers_dock = QDockWidget(self.tr("Layers"), self)
         self._layers_dock.setObjectName("layers_dock")
@@ -693,6 +693,7 @@ class MainWindow(QMainWindow):
         self._state.state_property_changed.connect(self._on_state_property_changed_from_state)
         self._state.layer_added.connect(self._on_layer_added_from_state)
         self._state.layer_removed.connect(self._on_layer_removed_from_state)
+        self._state.layer_pixels_changed.connect(self._on_layer_pixels_changed_from_state)
 
         self._undo_action.triggered.connect(self._state.undo_stack.undo)
         self._redo_action.triggered.connect(self._state.undo_stack.redo)
@@ -726,7 +727,7 @@ class MainWindow(QMainWindow):
         self._state.add_layer(layer)
 
     def _populate_partitions(self, layer: Layer):
-        # Called from on_change_layer
+        # Called from on_layer_item_changed
         with block_signals(self._partition_list):
             self._partition_list.clear()
 
@@ -824,7 +825,7 @@ class MainWindow(QMainWindow):
 
         state = State()
         self._setup_state(state)
-        # Triggers on_change_layer / on_change_partition, but not an issue
+        # Triggers on_layer_item_changed / on_change_partition, but not an issue
         self._layer_list.clear()
         self._partition_list.clear()
 
@@ -1019,7 +1020,7 @@ class MainWindow(QMainWindow):
         self._state.zoom_factor = self._zoom_factors[index]
 
     @Slot()
-    def _on_change_layer(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
+    def _on_layer_item_changed(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
         # Gets triggered when a new layers gets selected. Might happen when an entry gets removed.
         enabled = current is not None and len(self._state.layers) > 0
         self._property_editor.setEnabled(enabled)
@@ -1071,14 +1072,12 @@ class MainWindow(QMainWindow):
                 dialog = FontDialog(layer.text, layer.font_name, layer.color_name)
                 if dialog.exec() == QDialog.Accepted:
                     text, font_name, color_name = dialog.get_data()
-
-                    # FIXME: should be in an Undo command
-                    layer.update_text(text, font_name, color_name)
-
-                    # FIXME: re-populate partition list
-                    self._update_statusbar()
-                    self._canvas.recalculate_fixed_size()
-                    self.update()
+                    if (
+                        text != layer.text
+                        or font_name != layer.font_name
+                        or color_name != layer.color_name
+                    ):
+                        self._state.update_text_layer(layer, text, font_name, color_name)
 
     @Slot()
     def _on_change_partition(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
@@ -1239,7 +1238,7 @@ class MainWindow(QMainWindow):
             self._partition_list.addItem(item)
 
         # Order matters: first layer, then partition
-        # Triggers on_change_layer
+        # Triggers on_layer_item_changed
         self._layer_list.setCurrentRow(len(self._state.layers) - 1)
         # Triggers on_change_partition
         if len(layer.partitions) > 0:
@@ -1262,13 +1261,23 @@ class MainWindow(QMainWindow):
             if item.data(Qt.UserRole) == layer.uuid:
                 break
         if index != -1:
-            # Triggers "_on_change_layer"
+            # Triggers "_on_layer_item_changed"
             self._layer_list.takeItem(index)
         else:
             logger.warning(f"Failed to delete layer from list {layer.name}")
 
         # _partition_list should get auto-populated
-        # because a "_on_change_layer" should be triggered by "_layer_list.takeItem()"
+        # because a "_on_layer_item_changed" should be triggered by "_layer_list.takeItem()"
+
+        self._update_statusbar()
+        self._canvas.recalculate_fixed_size()
+        self.update()
+
+    @Slot()
+    def _on_layer_pixels_changed_from_state(self, layer: Layer):
+        item = self._layer_list.currentItem()
+        if item.data(Qt.UserRole) == layer.uuid:
+            self._populate_partitions(layer)
 
         self._update_statusbar()
         self._canvas.recalculate_fixed_size()
