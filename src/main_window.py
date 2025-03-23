@@ -381,6 +381,7 @@ class MainWindow(QMainWindow):
         self._layer_list.setDragDropMode(QListWidget.InternalMove)  # Enable reordering
         self._layer_list.model().rowsMoved.connect(self._on_layer_rows_moved)
         self._layer_list.currentItemChanged.connect(self._on_change_layer)
+        self._layer_list.itemDoubleClicked.connect(self._on_layer_item_double_clicked)
         self._layers_dock = QDockWidget(self.tr("Layers"), self)
         self._layers_dock.setObjectName("layers_dock")
         self._layers_dock.setWidget(self._layer_list)
@@ -1054,6 +1055,30 @@ class MainWindow(QMainWindow):
                     new_layers.append(layer)
                     break
         self._state.layers = new_layers
+
+    @Slot()
+    def _on_layer_item_double_clicked(self, item: QListWidgetItem):
+        if self._state is None:
+            logger.warning("Cannot edit layer, no active state")
+            return
+
+        if self._state is not None:
+            layer_uuid = item.data(Qt.UserRole)
+            layer = self._state.get_layer_for_uuid(layer_uuid)
+            if layer is None:
+                logger.warning(f"Cannot find layer with UUID {layer_uuid}")
+            if isinstance(layer, TextLayer):
+                dialog = FontDialog(layer.text, layer.font_name, layer.color_name)
+                if dialog.exec() == QDialog.Accepted:
+                    text, font_name, color_name = dialog.get_data()
+
+                    # FIXME: should be in an Undo command
+                    layer.update_text(text, font_name, color_name)
+
+                    # FIXME: re-populate partition list
+                    self._update_statusbar()
+                    self._canvas.recalculate_fixed_size()
+                    self.update()
 
     @Slot()
     def _on_change_partition(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:

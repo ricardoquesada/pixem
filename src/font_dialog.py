@@ -53,7 +53,13 @@ class FontCanvas(QWidget):
 
 
 class FontDialog(QDialog):
-    def __init__(self, parent=None):
+    def __init__(
+        self,
+        text: str | None = None,
+        font_name: str | None = None,
+        color_name: str | None = None,
+        parent=None,
+    ):
         super().__init__(parent)
         self.setWindowTitle(self.tr("Font Selection"))
 
@@ -61,21 +67,30 @@ class FontDialog(QDialog):
         self._canvas = FontCanvas()
         self._text_label = QLabel(self.tr("Text:"))
         self._text_edit = QLineEdit()
+        if text is not None:
+            self._text_edit.setText(text)
         self._text_edit.textChanged.connect(self._on_text_changed)
+
         self._font_label = QLabel(self.tr("Font:"))
         self._font_combo = QComboBox()
-        self._font_combo.currentIndexChanged.connect(self._current_index_changed_combobox)
-        self._color_button = QPushButton()
-        self._color_button.clicked.connect(self._choose_color)
-        self._color = QColor(Qt.black)
-        self._color_label = QLabel()
-        self._update_color_label()
         items = (
             (self.tr("PETSCII (Commodore 8-bit)"), ":/fonts/petscii-charset.bin"),
             (self.tr("ATASCII (Atari 8-bit)"), ":/fonts/atascii-charset.bin"),
         )
         for item in items:
             self._font_combo.addItem(item[0], item[1])
+            if font_name == item[1]:
+                self._font_combo.setCurrentIndex(self._font_combo.count() - 1)
+        self._font_combo.currentIndexChanged.connect(self._current_index_changed_combobox)
+
+        self._color_button = QPushButton()
+        self._color_button.clicked.connect(self._choose_color)
+        if color_name is not None:
+            self._color = QColor(color_name)
+        else:
+            self._color = QColor(Qt.black)
+        self._color_label = QLabel()
+        self._update_color_label()
 
         # Create QDialogButtonBox
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
@@ -101,6 +116,9 @@ class FontDialog(QDialog):
         main_layout.addLayout(font_layout)
         main_layout.addLayout(color_layout)
         main_layout.addWidget(button_box)
+
+        if text is not None:
+            self._regenerate_image()
 
         self.setLayout(main_layout)
 

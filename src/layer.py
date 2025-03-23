@@ -334,6 +334,7 @@ class TextLayer(Layer):
         super().__init__(image)
 
     def update_text(self, text: str, font_name: str, color_name: str):
+        # FIXME: Should be an Undo Command
         self._text = text
         self._font_name = font_name
         self._color_name = color_name
@@ -348,6 +349,18 @@ class TextLayer(Layer):
             self._font_name = d["font_name"]
         if "color_name" in d:
             self._color_name = d["color_name"]
+
+    @property
+    def text(self) -> str | None:
+        return self._text
+
+    @property
+    def font_name(self) -> str | None:
+        return self._font_name
+
+    @property
+    def color_name(self) -> str | None:
+        return self._color_name
 
     def to_dict(self) -> dict:
         d = super().to_dict()
