@@ -40,7 +40,6 @@ from about_dialog import AboutDialog
 from canvas import Canvas
 from export_dialog import ExportDialog
 from font_dialog import FontDialog
-from image_parser import ImageParser
 from image_utils import create_icon_from_svg
 from layer import EmbroideryParameters, ImageLayer, Layer, LayerAlign, LayerProperties, TextLayer
 from partition_dialog import PartitionDialog
@@ -413,22 +412,22 @@ class MainWindow(QMainWindow):
         self._position_x_spinbox = QDoubleSpinBox()
         self._position_x_spinbox.setRange(-1000.0, 1000.0)
         self._position_x_spinbox.valueChanged.connect(self._on_update_layer_property)
-        self._property_layout.addRow(self.tr("Position X:"), self._position_x_spinbox)
+        self._property_layout.addRow(self.tr("Position X (mm):"), self._position_x_spinbox)
 
         self._position_y_spinbox = QDoubleSpinBox()
         self._position_y_spinbox.setRange(-1000.0, 1000.0)
         self._position_y_spinbox.valueChanged.connect(self._on_update_layer_property)
-        self._property_layout.addRow(self.tr("Position Y:"), self._position_y_spinbox)
+        self._property_layout.addRow(self.tr("Position Y (mm):"), self._position_y_spinbox)
 
         self._pixel_width_spinbox = QDoubleSpinBox()
         self._pixel_width_spinbox.setMinimum(1.0)
         self._pixel_width_spinbox.valueChanged.connect(self._on_update_layer_property)
-        self._property_layout.addRow(self.tr("Pixel Width:"), self._pixel_width_spinbox)
+        self._property_layout.addRow(self.tr("Pixel Width (mm):"), self._pixel_width_spinbox)
 
         self._pixel_height_spinbox = QDoubleSpinBox()
         self._pixel_height_spinbox.setMinimum(1.0)
         self._pixel_height_spinbox.valueChanged.connect(self._on_update_layer_property)
-        self._property_layout.addRow(self.tr("Pixel Height:"), self._pixel_height_spinbox)
+        self._property_layout.addRow(self.tr("Pixel Height (mm):"), self._pixel_height_spinbox)
 
         self._rotation_slider = QSlider(Qt.Horizontal)
         self._rotation_slider.setRange(0, 360)
@@ -723,10 +722,6 @@ class MainWindow(QMainWindow):
         self._undo_dock.setEnabled(False)
 
     def _add_layer(self, layer: Layer):
-        # Order matters. First create partitions, then add it
-        parser = ImageParser(layer.image)
-        layer.partitions = parser.partitions
-
         self._state.add_layer(layer)
 
     def _populate_partitions(self, layer: Layer):

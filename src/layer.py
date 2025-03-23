@@ -12,6 +12,7 @@ from PySide6.QtCore import QPointF, QRectF, QSizeF
 from PySide6.QtGui import QImage, QTransform
 
 import image_utils
+from image_parser import ImageParser
 from partition import Partition
 
 logger = logging.getLogger(__name__)
@@ -58,6 +59,9 @@ class Layer:
         self._partitions: dict[str, Partition] = {}
         self._selected_partition_uuid = None
         self._embroidery_params = EmbroideryParameters()
+
+        parser = ImageParser(self._image)
+        self._partitions = parser.partitions
 
     #
     # Public methods
@@ -328,6 +332,12 @@ class TextLayer(Layer):
             raise ValueError(f"Invalid type for text_or_image: {text_or_image}")
 
         super().__init__(image)
+
+    def update_text(self, text: str, font_name: str, color_name: str):
+        self._text = text
+        self._font_name = font_name
+        self._color_name = color_name
+        self._image = image_utils.text_to_qimage(text, font_name, color_name)
 
     def populate_from_dict(self, d: dict) -> None:
         super().populate_from_dict(d)
