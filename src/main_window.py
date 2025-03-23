@@ -712,6 +712,7 @@ class MainWindow(QMainWindow):
             )
             self._state.layer_added.disconnect(self._on_layer_added_from_state)
             self._state.layer_removed.disconnect(self._on_layer_removed_from_state)
+            self._state.layer_pixels_changed.disconnect(self._on_layer_pixels_changed_from_state)
             self._undo_action.triggered.disconnect(self._state.undo_stack.undo)
             self._redo_action.triggered.disconnect(self._state.undo_stack.redo)
             self._state.undo_stack.indexChanged.disconnect(self._on_undo_stack_index_changed)
@@ -1026,14 +1027,12 @@ class MainWindow(QMainWindow):
         self._property_editor.setEnabled(enabled)
         self._embroidery_params_editor.setEnabled(enabled)
         if enabled:
-            idx = self._layer_list.row(current)
-            # Might be out of range when removing a layer from the list.
-            if idx >= len(self._state.layers):
-                idx = len(self._state.layers) - 1
-            layer = self._state.layers[idx]
+            layer_uuid = current.data(Qt.UserRole)
+            layer = self._state.get_layer_for_uuid(layer_uuid)
+            if not layer:
+                layer = self._state.layers[-1]
 
             self._state.selected_layer_uuid = layer.uuid
-
             self._populate_partitions(layer)
             self._populate_property_editor(layer.properties)
             self._populate_embroidery_editor(layer.embroidery_params)

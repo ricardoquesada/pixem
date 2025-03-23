@@ -56,7 +56,7 @@ class State(QObject):
             selected_layer_uuid=None,
             export_filename=None,
         )
-        self._layers: list[Layer] = []
+        self._layers: dict[str, Layer] = {}
 
         self._undo_stack = QUndoStack()
 
@@ -66,7 +66,7 @@ class State(QObject):
         dict_layers = d["layers"]
         for dict_layer in dict_layers:
             layer = Layer.from_dict(dict_layer)
-            state._layers.append(layer)
+            state._layers[layer.uuid] = layer
         if "properties" in d:
             state._properties = StateProperties(**d["properties"])
         return state
@@ -77,7 +77,7 @@ class State(QObject):
             "layers": [],
         }
 
-        for layer in self._layers:
+        for layer in self._layers.values():
             layer_dict = layer.to_dict()
             project["layers"].append(layer_dict)
 
@@ -120,7 +120,7 @@ class State(QObject):
 
         export = ExportToSVG(filename, self._properties.hoop_size)
 
-        for i, layer in enumerate(self._layers):
+        for i, layer in enumerate(self._layers.values()):
             export.add_layer(layer)
         export.write_to_svg()
         self._properties.export_filename = filename
@@ -132,13 +132,12 @@ class State(QObject):
         self._undo_stack.push(DeleteLayerCommand(self, layer, None))
 
     def get_layer_for_uuid(self, layer_uuid: str) -> Layer | None:
-        for layer in self._layers:
-            if layer.uuid == layer_uuid:
-                return layer
+        if layer_uuid in self._layers:
+            return self._layers[layer_uuid]
         return None
 
     def set_layer_properties(self, layer: Layer, properties: LayerProperties):
-        if layer not in self._layers:
+        if layer.uuid not in self._layers:
             logger.error(
                 f"Cannot set layer properties. Layer {layer.name} does not belong to this state"
             )
@@ -171,7 +170,7 @@ class State(QObject):
     def update_partition_path(
         self, layer: Layer, partition: Partition, path: list[tuple[int, int]]
     ):
-        if layer not in self._layers:
+        if layer.uuid not in self._layers:
             logger.error(
                 f"Cannot update partition path. Layer {layer.name} does not belong to this state"
             )
@@ -184,13 +183,7 @@ class State(QObject):
         self._undo_stack.push(UpdatePartitionPathCommand(self, layer, partition, path, None))
 
     def update_text_layer(self, layer: Layer, text: str, font_name: str, color_name: str):
-        found = False
-        # "layer" could be a new copy. So we should check for the UUID
-        for ly in self._layers:
-            if ly.uuid == layer.uuid:
-                found = True
-                break
-        if not found:
+        if layer.uuid not in self._layers:
             logger.error(
                 f"Cannot update text layer. Layer {layer.name} does not belong to this state"
             )
@@ -207,9 +200,8 @@ class State(QObject):
     def selected_layer(self) -> Layer | None:
         if self._properties.selected_layer_uuid is None:
             return None
-        for layer in self._layers:
-            if layer.uuid == self._properties.selected_layer_uuid:
-                return layer
+        if self._properties.selected_layer_uuid in self._layers:
+            return self._layers[self._properties.selected_layer_uuid]
         logger.warning(f"selected_layer. Layer '{self._properties.selected_layer_uuid}' not found")
         # Should it return a valid one? No, Let it fail, and fix the root cause
         # return self._layers[0]
@@ -224,12 +216,7 @@ class State(QObject):
         if uuid is None:
             self._properties.selected_layer_uuid = uuid
             return
-        found = False
-        for layer in self._layers:
-            if layer.uuid == uuid:
-                found = True
-                break
-        if not found:
+        if uuid not in self._layers:
             logger.error(
                 f"Failed to change selected_layer_uuid. Layer UUID '{uuid}' not found in state layers: {self._layers}"
             )
@@ -238,13 +225,15 @@ class State(QObject):
 
     @property
     def layers(self) -> list[Layer]:
-        return self._layers
+        return list(self._layers.values())
 
     @layers.setter
     def layers(self, layers: list[Layer]) -> None:
         # Must be a re-order of the existing list
         # FIXME: add checks, or rename function, or add a proper "reorder layers" method
-        self._layers = layers
+        self._layers = {}
+        for layer in layers:
+            self._layers[layer.uuid] = layer
 
     @property
     def properties(self) -> StateProperties:
@@ -280,7 +269,7 @@ class State(QObject):
     # Private methods, mostly to be called by Undo Commands
     #
     def _set_layer_properties(self, layer: Layer, properties: LayerProperties):
-        if layer not in self._layers:
+        if layer.uuid not in self._layers:
             logger.error(
                 f"Cannot set layer properties. Layer {layer.name} does not belong to this state"
             )
@@ -291,7 +280,7 @@ class State(QObject):
     def _update_partition_path(
         self, layer: Layer, partition: Partition, path: list[tuple[int, int]]
     ):
-        if layer not in self._layers:
+        if layer.uuid not in self._layers:
             logger.error(
                 f"Cannot update partition path. Layer {layer.name} does not belong to this state"
             )
@@ -303,17 +292,17 @@ class State(QObject):
         self.partition_path_updated.emit(layer, partition)
 
     def _add_layer(self, layer: Layer) -> None:
-        self._layers.append(layer)
+        self._layers[layer.uuid] = layer
         self._properties.selected_layer_uuid = layer.uuid
         self.layer_added.emit(layer)
 
     def _delete_layer(self, layer: Layer) -> None:
         try:
-            self._layers.remove(layer)
+            del self._layers[layer.uuid]
 
             # if there are no elements left, idx = -1
             if len(self._layers) > 0:
-                self._properties.selected_layer_uuid = self._layers[-1].uuid
+                self._properties.selected_layer_uuid = list(self._layers.keys())[-1]
             else:
                 self._properties.selected_layer_uuid = None
 
@@ -330,14 +319,10 @@ class State(QObject):
         self.state_property_changed.emit(StatePropertyFlags.ZOOM_FACTOR, self.properties)
 
     def _update_text_layer(self, new_layer: Layer):
-        found = False
-        for idx, layer in enumerate(self._layers):
-            if layer.uuid == new_layer.uuid:
-                self._layers[idx] = new_layer
-                self.layer_pixels_changed.emit(new_layer)
-                found = True
-                break
-        if not found:
+        if new_layer.uuid not in self._layers:
             logger.error(
                 f"Cannot update text layer. Layer {new_layer.name} does not belong to this state"
             )
+            return
+        self._layers[new_layer.uuid] = new_layer
+        self.layer_pixels_changed.emit(new_layer)
