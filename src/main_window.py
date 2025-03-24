@@ -1167,8 +1167,7 @@ class MainWindow(QMainWindow):
         elif position.x() != x and position.y() == y:
             self._position_x_spinbox.setValue(position.x())
         else:
-            # Both X and Y are different. Just block signals on one to avoid
-            # triggering two "updates"
+            # Both X and Y are different. Block signals on one to avoid triggering two "updates"
             with block_signals(self._position_y_spinbox):
                 self._position_y_spinbox.setValue(position.y())
                 self._position_x_spinbox.setValue(position.x())
