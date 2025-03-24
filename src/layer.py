@@ -338,16 +338,7 @@ class TextLayer(Layer):
             self._font_name = font_name
         else:
             raise ValueError(f"Invalid type for text_or_image: {text_or_image}")
-
         super().__init__(image)
-
-    def update_text(self, text: str, font_name: str, color_name: str):
-        # FIXME: Should be an Undo Command
-        self._text = text
-        self._font_name = font_name
-        self._color_name = color_name
-        self._image = image_utils.text_to_qimage(text, font_name, color_name)
-        self._partitions = ImageParser(self._image).partitions
 
     def populate_from_dict(self, d: dict) -> None:
         super().populate_from_dict(d)

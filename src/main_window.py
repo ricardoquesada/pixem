@@ -1157,8 +1157,21 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_position_changed_from_canvas(self, position: QPointF):
-        self._position_x_spinbox.setValue(position.x())
-        self._position_y_spinbox.setValue(position.y())
+        # Avoid sending two Undo commands if only one can do it
+        x = self._position_x_spinbox.value()
+        y = self._position_y_spinbox.value()
+        if position.x() == x and position.y() == y:
+            return
+        if position.x() == x and position.y() != y:
+            self._position_y_spinbox.setValue(position.y())
+        elif position.x() != x and position.y() == y:
+            self._position_x_spinbox.setValue(position.x())
+        else:
+            # Both X and Y are different. Just block signals on one to avoid
+            # triggering two "updates"
+            with block_signals(self._position_y_spinbox):
+                self._position_y_spinbox.setValue(position.y())
+                self._position_x_spinbox.setValue(position.x())
 
     @Slot()
     def _on_layer_selection_changed_from_canvas(self, layer_uuid: str):
