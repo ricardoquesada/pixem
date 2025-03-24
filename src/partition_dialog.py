@@ -20,7 +20,7 @@ from PySide6.QtWidgets import (
 from image_utils import create_icon_from_svg
 from partition import Partition
 
-PAINT_SCALE_FACTOR = 12
+PAINT_SCALE_FACTOR = 16
 ICON_SIZE = 22
 
 logger = logging.getLogger(__name__)
