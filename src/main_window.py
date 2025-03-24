@@ -1103,7 +1103,6 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_partition_rows_moved(self, parent, start, end, destination):
-        logger.info("***** _on_partition_rows_moved()")
         if self._state is None or self._state.selected_layer is None:
             logger.warning("Cannot reorder partitions, no layer selected")
             return

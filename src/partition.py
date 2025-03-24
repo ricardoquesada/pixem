@@ -50,10 +50,6 @@ class Partition:
 
         if "color" in d:
             part._color = d["color"]
-        else:
-            # FIXME: remove me
-            # Backward compatible for files that don't have color
-            part._color = part._name.split("_")[0]
 
         return part
 
