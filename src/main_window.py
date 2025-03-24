@@ -635,7 +635,6 @@ class MainWindow(QMainWindow):
         self._setup_state(state)
 
         selected_layer_idx = -1
-        selected_partition_idx = -1
         selected_layer = self._state.selected_layer
 
         with block_signals(self._layer_list):
@@ -647,24 +646,11 @@ class MainWindow(QMainWindow):
                 if selected_layer is not None and layer.uuid == selected_layer.uuid:
                     selected_layer_idx = i
 
-        with block_signals(self._partition_list):
-            self._partition_list.clear()
-
-            if selected_layer is not None:
-                selected_partition_uuid = selected_layer.selected_partition_uuid
-                for i, partition_key in enumerate(selected_layer.partitions):
-                    partition = selected_layer.partitions[partition_key]
-                    item = QListWidgetItem(partition.name)
-                    item.setData(Qt.UserRole, partition_key)
-                    self._partition_list.addItem(item)
-                    if partition_key == selected_partition_uuid:
-                        selected_partition_idx = i
-
-        # This will trigger "on_" callback
+        # This will trigger "on_" callback, and will populate _partitions_list
         if selected_layer_idx >= 0:
             self._layer_list.setCurrentRow(selected_layer_idx)
-        if selected_partition_idx >= 0:
-            self._partition_list.setCurrentRow(selected_partition_idx)
+        else:
+            logger.error("Selected layer not found")
 
         index = 3  # Default: 100%
         for i, zoom_factor in enumerate(self._zoom_factors):
@@ -1117,6 +1103,7 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_partition_rows_moved(self, parent, start, end, destination):
+        logger.info("***** _on_partition_rows_moved()")
         if self._state is None or self._state.selected_layer is None:
             logger.warning("Cannot reorder partitions, no layer selected")
             return

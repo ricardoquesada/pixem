@@ -60,6 +60,7 @@ class Layer:
         self._selected_partition_uuid = None
         self._embroidery_params = EmbroideryParameters()
 
+        # FIXME: Important to clean dictionary when parsing from dict
         parser = ImageParser(self._image)
         self._partitions = parser.partitions
 
@@ -97,8 +98,15 @@ class Layer:
             self._properties.pixel_size[1],
         )
         if "partitions" in d:
+            # FIXME: Should be cleaner code.
+            # Clean possible old partitions created from constructor.
+            self._partitions = {}
             for k, v in d["partitions"].items():
                 part = Partition.from_dict(v)
+                for kk, vv in self._partitions.items():
+                    if part.name == vv.name:
+                        del self._partitions[kk]
+                        break
                 self._partitions[k] = part
         if "selected_partition_uuid" in d:
             self._selected_partition_uuid = d["selected_partition_uuid"]

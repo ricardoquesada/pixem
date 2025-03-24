@@ -37,29 +37,6 @@ class Partition:
             offsets = offsets[1:] + offsets[:1]
         return offsets
 
-    def _find_neighbors(self, mode: WalkMode, node: Node) -> list[Node]:
-        offsets = [
-            Partition.Node((0, 1), "S"),  # down
-            Partition.Node((-1, 0), "W"),  # left
-            Partition.Node((0, -1), "N"),  # up
-            Partition.Node((1, 0), "E"),  # right
-        ]
-        if mode == Partition.WalkMode.SPIRAL_CW or mode == Partition.WalkMode.SPIRAL_CCW:
-            offsets = Partition._rotate_offsets(offsets, node.dir)
-        elif mode == Partition.WalkMode.RANDOM:
-            random.shuffle(offsets)
-
-        neighbors = []
-        for offset in offsets:
-            neighbor = (node.coord[0] + offset.coord[0], node.coord[1] + offset.coord[1])
-            if neighbor in self._path:
-                new_node = Partition.Node(neighbor, offset.dir)
-                if mode == Partition.WalkMode.SPIRAL_CW:
-                    neighbors.insert(0, new_node)
-                else:
-                    neighbors.append(new_node)
-        return neighbors
-
     @classmethod
     def from_dict(cls, d: dict) -> Self:
         path = [(x, y) for x, y in d["path"]]
@@ -114,6 +91,29 @@ class Partition:
             if coord not in new_path:
                 new_path.append(coord)
         self._path = new_path
+
+    def _find_neighbors(self, mode: WalkMode, node: Node) -> list[Node]:
+        offsets = [
+            Partition.Node((0, 1), "S"),  # down
+            Partition.Node((-1, 0), "W"),  # left
+            Partition.Node((0, -1), "N"),  # up
+            Partition.Node((1, 0), "E"),  # right
+        ]
+        if mode == Partition.WalkMode.SPIRAL_CW or mode == Partition.WalkMode.SPIRAL_CCW:
+            offsets = Partition._rotate_offsets(offsets, node.dir)
+        elif mode == Partition.WalkMode.RANDOM:
+            random.shuffle(offsets)
+
+        neighbors = []
+        for offset in offsets:
+            neighbor = (node.coord[0] + offset.coord[0], node.coord[1] + offset.coord[1])
+            if neighbor in self._path:
+                new_node = Partition.Node(neighbor, offset.dir)
+                if mode == Partition.WalkMode.SPIRAL_CW:
+                    neighbors.insert(0, new_node)
+                else:
+                    neighbors.append(new_node)
+        return neighbors
 
     @property
     def path(self) -> list[tuple[int, int]]:
