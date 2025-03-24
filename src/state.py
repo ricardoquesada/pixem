@@ -64,9 +64,11 @@ class State(QObject):
     def from_dict(cls, d: dict) -> Self:
         state = State()
         dict_layers = d["layers"]
-        for dict_layer in dict_layers:
-            layer = Layer.from_dict(dict_layer)
+        for key, value in dict_layers.items():
+            layer = Layer.from_dict(value)
             state._layers[layer.uuid] = layer
+            if key != layer.uuid:
+                logger.error(f"Dictionary key {key} does not match layer UUID {layer.uuid}")
         if "properties" in d:
             state._properties = StateProperties(**d["properties"])
         return state
@@ -74,12 +76,12 @@ class State(QObject):
     def to_dict(self) -> dict:
         project = {
             "properties": asdict(self._properties),
-            "layers": [],
+            "layers": {},
         }
 
-        for layer in self._layers.values():
+        for uuid, layer in self._layers.items():
             layer_dict = layer.to_dict()
-            project["layers"].append(layer_dict)
+            project["layers"][uuid] = layer_dict
 
         return project
 
