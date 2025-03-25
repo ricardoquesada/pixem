@@ -71,6 +71,8 @@ class State(QObject):
                 logger.error(f"Dictionary key {key} does not match layer UUID {layer.uuid}")
         if "properties" in d:
             state._properties = StateProperties(**d["properties"])
+            # Covert to tuple, not list since it is being compared
+            state._properties.hoop_size = tuple(state._properties.hoop_size)
         return state
 
     def to_dict(self) -> dict:
