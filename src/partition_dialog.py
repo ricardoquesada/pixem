@@ -53,6 +53,13 @@ class ImageWidget(QWidget):
         self._walk_mode = Partition.WalkMode.SPIRAL_CW
         self._coord_mode: ImageWidget.CoordMode = self.CoordMode.ADD
 
+        self._background_color = QColor(
+            get_global_preferences().get_partition_background_color_name()
+        )
+        self._foreground_color = QColor(
+            get_global_preferences().get_partition_foreground_color_name()
+        )
+
     def _update_coordinate(self, coord: tuple[int, int]):
         if coord not in self._original_coords:
             logger.warning(f"Invalid coordinate: {coord}")
@@ -95,13 +102,13 @@ class ImageWidget(QWidget):
         # Set the brush (fill)
         brush = painter.brush()
         brush.setStyle(Qt.BrushStyle.SolidPattern)
-        brush.setColor(QColor(get_global_preferences().get_partition_background_color()))
+        brush.setColor(self._background_color)
         painter.setBrush(brush)
 
         painter.drawRects(self._cached_rects)
 
         brush = painter.brush()
-        brush.setColor(QColor(get_global_preferences().get_partition_foreground_color()))
+        brush.setColor(self._foreground_color)
         painter.setBrush(brush)
         painter.drawRects(self._cached_selected_rects)
 

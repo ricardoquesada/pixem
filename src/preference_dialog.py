@@ -39,10 +39,10 @@ class PreferenceDialog(QDialog):
 
         self._colors = {ColorType.FOREGROUND: {}, ColorType.BACKGROUND: {}}
         self._colors[ColorType.FOREGROUND]["color"] = QColor(
-            get_global_preferences().get_partition_foreground_color()
+            get_global_preferences().get_partition_foreground_color_name()
         )
         self._colors[ColorType.BACKGROUND]["color"] = QColor(
-            get_global_preferences().get_partition_background_color()
+            get_global_preferences().get_partition_background_color_name()
         )
 
         self.setWindowTitle(self.tr("Preference Dialog"))
@@ -85,7 +85,7 @@ class PreferenceDialog(QDialog):
         partition_color_vlayout = QVBoxLayout()
         partition_color_hlayout1 = QHBoxLayout()
         partition_color_hlayout2 = QHBoxLayout()
-        label = QLabel(self.tr("Border color"))
+        label = QLabel(self.tr("Foreground color"))
         button = QPushButton()
         button.clicked.connect(functools.partial(self._on_choose_color, ColorType.FOREGROUND))
         partition_color_hlayout1.addWidget(label)
@@ -178,10 +178,10 @@ class PreferenceDialog(QDialog):
         prefs.set_hoop_size(hoop_size)
         prefs.set_hoop_visible(hoop_visible)
         prefs.set_open_file_on_startup(self._open_file_startup_checkbox.isChecked())
-        prefs.set_partition_foreground_color(
+        prefs.set_partition_foreground_color_name(
             self._colors[ColorType.FOREGROUND]["color"].name(QColor.HexArgb)
         )
-        prefs.set_partition_background_color(
+        prefs.set_partition_background_color_name(
             self._colors[ColorType.BACKGROUND]["color"].name(QColor.HexArgb)
         )
 

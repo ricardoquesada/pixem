@@ -39,6 +39,10 @@ class Canvas(QWidget):
             self._cached_hoop_size = get_global_preferences().get_hoop_size()
         else:
             self._cached_hoop_size = self._state.hoop_size
+        self._cached_background_color = QColor(
+            get_global_preferences().get_partition_background_color_name()
+        )
+
         # FIXME: must be set according to layer size
         self.setFixedSize(QSize(152 * 2, 254 * 2))
 
@@ -125,7 +129,7 @@ class Canvas(QWidget):
 
             # Set the brush (fill)
             brush = painter.brush()
-            brush.setColor(QColor(255, 0, 0, 128))  # Red, semi-transparent fill
+            brush.setColor(self._cached_background_color)
             brush.setStyle(Qt.BrushStyle.SolidPattern)  # Solid fill
             painter.setBrush(brush)
 
@@ -276,6 +280,9 @@ class Canvas(QWidget):
             self._cached_hoop_size = self._state.hoop_size
         else:
             self._cached_hoop_size = get_global_preferences().get_hoop_size()
+        self._cached_background_color = QColor(
+            get_global_preferences().get_partition_background_color_name()
+        )
 
     def recalculate_fixed_size(self):
         self.updateGeometry()

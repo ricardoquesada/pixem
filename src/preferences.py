@@ -87,18 +87,18 @@ class Preferences:
     def save_recent_files(self) -> None:
         self._settings.setValue("files/recent_files", self._recent_files)
 
-    def get_partition_foreground_color(self) -> str:
+    def get_partition_foreground_color_name(self) -> str:
         ret = str(self._settings.value("partition/foreground_color", defaultValue="#800000ff"))
         return ret
 
-    def set_partition_foreground_color(self, color: str) -> str:
+    def set_partition_foreground_color_name(self, color: str) -> str:
         self._settings.setValue("partition/foreground_color", color)
 
-    def get_partition_background_color(self) -> str:
+    def get_partition_background_color_name(self) -> str:
         ret = str(self._settings.value("partition/background_color", defaultValue="#80ff0000"))
         return ret
 
-    def set_partition_background_color(self, color: str) -> str:
+    def set_partition_background_color_name(self, color: str) -> str:
         self._settings.setValue("partition/background_color", color)
 
     def _load_recent_files(self) -> None:
