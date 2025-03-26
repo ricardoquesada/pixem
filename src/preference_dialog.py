@@ -178,12 +178,16 @@ class PreferenceDialog(QDialog):
         prefs.set_hoop_size(hoop_size)
         prefs.set_hoop_visible(hoop_visible)
         prefs.set_open_file_on_startup(self._open_file_startup_checkbox.isChecked())
-        prefs.set_partition_foreground_color(self._colors[ColorType.FOREGROUND]["color"].name())
-        prefs.set_partition_background_color(self._colors[ColorType.BACKGROUND]["color"].name())
+        prefs.set_partition_foreground_color(
+            self._colors[ColorType.FOREGROUND]["color"].name(QColor.HexArgb)
+        )
+        prefs.set_partition_background_color(
+            self._colors[ColorType.BACKGROUND]["color"].name(QColor.HexArgb)
+        )
 
     @Slot()
     def _on_choose_color(self, color_type: ColorType):
-        color = QColorDialog.getColor()
+        color = QColorDialog.getColor(options=QColorDialog.ShowAlphaChannel)
         if color.isValid():
             self._colors[color_type]["color"] = color
             self._update_color_label(color_type)
@@ -192,7 +196,9 @@ class PreferenceDialog(QDialog):
         self._colors[color_type]["button"].setStyleSheet(
             f"background-color: {self._colors[color_type]['color'].name()};"
         )
-        self._colors[color_type]["button"].setText(self._colors[color_type]["color"].name())
+        self._colors[color_type]["button"].setText(
+            self._colors[color_type]["color"].name(QColor.HexArgb)
+        )
 
 
 if __name__ == "__main__":

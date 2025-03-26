@@ -19,6 +19,7 @@ from PySide6.QtWidgets import (
 
 from image_utils import create_icon_from_svg
 from partition import Partition
+from preferences import get_global_preferences
 
 PAINT_SCALE_FACTOR = 16
 ICON_SIZE = 22
@@ -94,13 +95,13 @@ class ImageWidget(QWidget):
         # Set the brush (fill)
         brush = painter.brush()
         brush.setStyle(Qt.BrushStyle.SolidPattern)
-        brush.setColor(QColor(255, 0, 0, 128))
+        brush.setColor(QColor(get_global_preferences().get_partition_background_color()))
         painter.setBrush(brush)
 
         painter.drawRects(self._cached_rects)
 
         brush = painter.brush()
-        brush.setColor(QColor(0, 0, 255, 128))
+        brush.setColor(QColor(get_global_preferences().get_partition_foreground_color()))
         painter.setBrush(brush)
         painter.drawRects(self._cached_selected_rects)
 
