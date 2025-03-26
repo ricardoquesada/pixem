@@ -4,7 +4,8 @@ import logging
 import os.path
 import typing
 
-from PySide6.QtCore import QSettings
+from PySide6.QtCore import QSettings, Qt
+from PySide6.QtGui import QColor
 
 logger = logging.getLogger(__name__)
 
@@ -86,6 +87,28 @@ class Preferences:
 
     def save_recent_files(self) -> None:
         self._settings.setValue("files/recent_files", self._recent_files)
+
+    def get_partition_foreground_color(self) -> str:
+        ret = str(
+            self._settings.value("partition/foreground_color", defaultValue=QColor(Qt.gray).name())
+        )
+        logger.info(f"get foreground color {ret}")
+        return ret
+
+    def set_partition_foreground_color(self, color: str) -> str:
+        logger.info(f"set foreground color {color}")
+        self._settings.setValue("partition/foreground_color", color)
+
+    def get_partition_background_color(self) -> str:
+        ret = str(
+            self._settings.value("partition/background_color", defaultValue=QColor(Qt.red).name())
+        )
+        logger.info(f"get background color {ret}")
+        return ret
+
+    def set_partition_background_color(self, color: str) -> str:
+        logger.info(f"background color {color}")
+        self._settings.setValue("partition/background_color", color)
 
     def _load_recent_files(self) -> None:
         recent_files = self._settings.value("files/recent_files", [])

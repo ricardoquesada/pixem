@@ -6,7 +6,7 @@ import logging
 import sys
 from enum import IntEnum, auto
 
-from PySide6.QtCore import Qt, Slot
+from PySide6.QtCore import Slot
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import (
     QApplication,
@@ -38,8 +38,12 @@ class PreferenceDialog(QDialog):
         super().__init__()
 
         self._colors = {ColorType.FOREGROUND: {}, ColorType.BACKGROUND: {}}
-        self._colors[ColorType.FOREGROUND]["color"] = QColor(Qt.red)
-        self._colors[ColorType.BACKGROUND]["color"] = QColor(Qt.white)
+        self._colors[ColorType.FOREGROUND]["color"] = QColor(
+            get_global_preferences().get_partition_foreground_color()
+        )
+        self._colors[ColorType.BACKGROUND]["color"] = QColor(
+            get_global_preferences().get_partition_background_color()
+        )
 
         self.setWindowTitle(self.tr("Preference Dialog"))
 
@@ -81,13 +85,14 @@ class PreferenceDialog(QDialog):
         partition_color_vlayout = QVBoxLayout()
         partition_color_hlayout1 = QHBoxLayout()
         partition_color_hlayout2 = QHBoxLayout()
-        label = QLabel(self.tr("Foreground color"))
+        label = QLabel(self.tr("Border color"))
         button = QPushButton()
         button.clicked.connect(functools.partial(self._on_choose_color, ColorType.FOREGROUND))
         partition_color_hlayout1.addWidget(label)
         partition_color_hlayout1.addWidget(button)
         self._colors[ColorType.FOREGROUND]["label"] = label
         self._colors[ColorType.FOREGROUND]["button"] = button
+        self._update_color_label(ColorType.FOREGROUND)
 
         label = QLabel(self.tr("Background color"))
         button = QPushButton()
@@ -96,6 +101,7 @@ class PreferenceDialog(QDialog):
         partition_color_hlayout2.addWidget(button)
         self._colors[ColorType.BACKGROUND]["label"] = label
         self._colors[ColorType.BACKGROUND]["button"] = button
+        self._update_color_label(ColorType.BACKGROUND)
 
         partition_color_vlayout.addLayout(partition_color_hlayout1)
         partition_color_vlayout.addLayout(partition_color_hlayout2)
@@ -172,6 +178,8 @@ class PreferenceDialog(QDialog):
         prefs.set_hoop_size(hoop_size)
         prefs.set_hoop_visible(hoop_visible)
         prefs.set_open_file_on_startup(self._open_file_startup_checkbox.isChecked())
+        prefs.set_partition_foreground_color(self._colors[ColorType.FOREGROUND]["color"].name())
+        prefs.set_partition_background_color(self._colors[ColorType.BACKGROUND]["color"].name())
 
     @Slot()
     def _on_choose_color(self, color_type: ColorType):
