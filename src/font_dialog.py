@@ -84,12 +84,12 @@ class FontDialog(QDialog):
         self._font_combo.currentIndexChanged.connect(self._current_index_changed_combobox)
 
         self._color_button = QPushButton()
-        self._color_button.clicked.connect(self._choose_color)
+        self._color_button.clicked.connect(self._on_choose_color)
         if color_name is not None:
             self._color = QColor(color_name)
         else:
             self._color = QColor(Qt.black)
-        self._color_label = QLabel()
+        self._color_label = QLabel(self.tr("Color:"))
         self._update_color_label()
 
         # Create QDialogButtonBox
@@ -108,8 +108,8 @@ class FontDialog(QDialog):
         font_layout.addWidget(self._font_combo)
 
         color_layout = QHBoxLayout()
-        color_layout.addWidget(self._color_button)
         color_layout.addWidget(self._color_label)
+        color_layout.addWidget(self._color_button)
 
         main_layout.addWidget(self._canvas)
         main_layout.addLayout(text_layout)
@@ -123,21 +123,22 @@ class FontDialog(QDialog):
         self.setLayout(main_layout)
 
     def _update_color_label(self):
-        self._color_button.setText(self.tr(f"Choose Color: {self._color.name()}"))
-        self._color_label.setStyleSheet(f"background-color: {self._color.name()};")
-
-    def _choose_color(self):
-        color = QColorDialog.getColor()
-        if color.isValid():
-            self._color = color
-            self._update_color_label()
-            self._regenerate_image()
+        self._color_button.setText(self.tr(f"{self._color.name()}"))
+        self._color_button.setStyleSheet(f"background-color: {self._color.name()};")
 
     def _regenerate_image(self):
         image = image_utils.text_to_qimage(
             self._text_edit.text(), self._font_combo.currentData(), self._color.name()
         )
         self._canvas.set_image(image)
+
+    @Slot()
+    def _on_choose_color(self):
+        color = QColorDialog.getColor()
+        if color.isValid():
+            self._color = color
+            self._update_color_label()
+            self._regenerate_image()
 
     @Slot()
     def _on_text_changed(self, txt: str):

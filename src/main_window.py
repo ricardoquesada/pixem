@@ -977,9 +977,10 @@ class MainWindow(QMainWindow):
         dialog = FontDialog()
         if dialog.exec() == QDialog.Accepted:
             text, font_name, color_name = dialog.get_data()
-            layer = TextLayer(text, font_name, color_name)
-            layer.name = f"TextLayer {len(self._state.layers) + 1}"
-            self._add_layer(layer)
+            if len(text) > 0:
+                layer = TextLayer(text, font_name, color_name)
+                layer.name = f"TextLayer {len(self._state.layers) + 1}"
+                self._add_layer(layer)
 
     @Slot()
     def _on_layer_delete(self) -> None:

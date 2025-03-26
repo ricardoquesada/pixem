@@ -1,26 +1,45 @@
 # Pixem
 # Copyright 2025 - Ricardo Quesada
 
+import functools
+import logging
 import sys
+from enum import IntEnum, auto
 
+from PySide6.QtCore import Qt, Slot
+from PySide6.QtGui import QColor
 from PySide6.QtWidgets import (
     QApplication,
     QCheckBox,
+    QColorDialog,
     QDialog,
     QDialogButtonBox,
     QDoubleSpinBox,
     QGroupBox,
     QHBoxLayout,
+    QLabel,
+    QPushButton,
     QRadioButton,
     QVBoxLayout,
 )
 
 from preferences import get_global_preferences
 
+logger = logging.getLogger(__name__)  # __name__ gets the current module's name
+
+
+class ColorType(IntEnum):
+    FOREGROUND = auto()
+    BACKGROUND = auto()
+
 
 class PreferenceDialog(QDialog):
     def __init__(self, hoop_size: tuple[float, float]):
         super().__init__()
+
+        self._colors = {ColorType.FOREGROUND: {}, ColorType.BACKGROUND: {}}
+        self._colors[ColorType.FOREGROUND]["color"] = QColor(Qt.red)
+        self._colors[ColorType.BACKGROUND]["color"] = QColor(Qt.white)
 
         self.setWindowTitle(self.tr("Preference Dialog"))
 
@@ -58,6 +77,30 @@ class PreferenceDialog(QDialog):
 
         hoop_group_box.setLayout(self._hoop_group)  # Set the layout to the group box
 
+        partition_color_group = QGroupBox(self.tr("Partition Color"))
+        partition_color_vlayout = QVBoxLayout()
+        partition_color_hlayout1 = QHBoxLayout()
+        partition_color_hlayout2 = QHBoxLayout()
+        label = QLabel(self.tr("Foreground color"))
+        button = QPushButton()
+        button.clicked.connect(functools.partial(self._on_choose_color, ColorType.FOREGROUND))
+        partition_color_hlayout1.addWidget(label)
+        partition_color_hlayout1.addWidget(button)
+        self._colors[ColorType.FOREGROUND]["label"] = label
+        self._colors[ColorType.FOREGROUND]["button"] = button
+
+        label = QLabel(self.tr("Background color"))
+        button = QPushButton()
+        button.clicked.connect(functools.partial(self._on_choose_color, ColorType.BACKGROUND))
+        partition_color_hlayout2.addWidget(label)
+        partition_color_hlayout2.addWidget(button)
+        self._colors[ColorType.BACKGROUND]["label"] = label
+        self._colors[ColorType.BACKGROUND]["button"] = button
+
+        partition_color_vlayout.addLayout(partition_color_hlayout1)
+        partition_color_vlayout.addLayout(partition_color_hlayout2)
+        partition_color_group.setLayout(partition_color_vlayout)
+
         self._open_file_startup_checkbox = QCheckBox(self.tr("Open latest file on startup"))
 
         # Buttons
@@ -68,6 +111,7 @@ class PreferenceDialog(QDialog):
         # Main layout
         main_layout = QVBoxLayout()
         main_layout.addWidget(hoop_group_box)  # Add the group box to the main layout
+        main_layout.addWidget(partition_color_group)
         main_layout.addWidget(self._open_file_startup_checkbox)
         main_layout.addWidget(button_box)
 
@@ -128,6 +172,19 @@ class PreferenceDialog(QDialog):
         prefs.set_hoop_size(hoop_size)
         prefs.set_hoop_visible(hoop_visible)
         prefs.set_open_file_on_startup(self._open_file_startup_checkbox.isChecked())
+
+    @Slot()
+    def _on_choose_color(self, color_type: ColorType):
+        color = QColorDialog.getColor()
+        if color.isValid():
+            self._colors[color_type]["color"] = color
+            self._update_color_label(color_type)
+
+    def _update_color_label(self, color_type: ColorType):
+        self._colors[color_type]["button"].setStyleSheet(
+            f"background-color: {self._colors[color_type]['color'].name()};"
+        )
+        self._colors[color_type]["button"].setText(self._colors[color_type]["color"].name())
 
 
 if __name__ == "__main__":
