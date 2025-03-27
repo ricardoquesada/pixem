@@ -3,6 +3,7 @@
 
 import logging
 from enum import IntEnum, auto
+from typing import override
 
 from PySide6.QtCore import QPointF, QRectF, QSize, Qt, Signal, Slot
 from PySide6.QtGui import QColor, QMouseEvent, QPainter, QPainterPath, QPaintEvent, QPen
@@ -56,8 +57,17 @@ class Canvas(QWidget):
         )
 
     #
+    # Slots
+    #
+    @Slot(str)
+    def _on_partition_background_color_changed(self, color: str):
+        self._cached_background_color = QColor(color)
+        self.update()
+
+    #
     # Pyside6 events
     #
+    @override
     def paintEvent(self, event: QPaintEvent) -> None:
         if not self._state:
             return
@@ -176,6 +186,7 @@ class Canvas(QWidget):
 
         painter.end()
 
+    @override
     def mousePressEvent(self, event: QMouseEvent):
         if not self._state or not self._state.layers:
             event.ignore()
@@ -202,6 +213,7 @@ class Canvas(QWidget):
                 self.update()
                 break
 
+    @override
     def mouseMoveEvent(self, event: QMouseEvent):
         if not self._state or not self._state.layers:
             event.ignore()
@@ -218,6 +230,7 @@ class Canvas(QWidget):
         self._mouse_delta = QPointF(delta.x() / scale_factor, delta.y() / scale_factor)
         self.update()
 
+    @override
     def mouseReleaseEvent(self, event: QMouseEvent):
         if not self._state or not self._state.layers:
             event.ignore()
@@ -244,6 +257,7 @@ class Canvas(QWidget):
         self._mouse_start_coords = QPointF(0.0, 0.0)
         self._mouse_delta = QPointF(0.0, 0.0)
 
+    @override
     def sizeHint(self) -> QSize:
         max_w = self._cached_hoop_size[0] * INCHES_TO_MM
         max_h = self._cached_hoop_size[1] * INCHES_TO_MM
@@ -284,11 +298,6 @@ class Canvas(QWidget):
             self._cached_hoop_size = self._state.hoop_size
         else:
             self._cached_hoop_size = get_global_preferences().get_hoop_size()
-
-    @Slot(str)
-    def _on_partition_background_color_changed(self, color: str):
-        self._cached_background_color = QColor(color)
-        self.update()
 
     def recalculate_fixed_size(self):
         self.updateGeometry()
