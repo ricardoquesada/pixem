@@ -4,7 +4,7 @@
 import logging
 from enum import IntEnum, auto
 
-from PySide6.QtCore import QPointF, QRectF, QSize, Qt, Signal
+from PySide6.QtCore import QPointF, QRectF, QSize, Qt, Signal, Slot
 from PySide6.QtGui import QColor, QMouseEvent, QPainter, QPainterPath, QPaintEvent, QPen
 from PySide6.QtWidgets import QWidget
 
@@ -50,6 +50,10 @@ class Canvas(QWidget):
         self._mouse_delta = QPointF(0.0, 0.0)
         self._mode = Canvas.Mode.MOVE
         self._mode_status = Canvas.ModeStatus.IDLE
+
+        get_global_preferences().partition_background_color_changed.connect(
+            self._on_partition_background_color_changed
+        )
 
     #
     # Pyside6 events
@@ -280,9 +284,11 @@ class Canvas(QWidget):
             self._cached_hoop_size = self._state.hoop_size
         else:
             self._cached_hoop_size = get_global_preferences().get_hoop_size()
-        self._cached_background_color = QColor(
-            get_global_preferences().get_partition_background_color_name()
-        )
+
+    @Slot(str)
+    def _on_partition_background_color_changed(self, color: str):
+        self._cached_background_color = QColor(color)
+        self.update()
 
     def recalculate_fixed_size(self):
         self.updateGeometry()

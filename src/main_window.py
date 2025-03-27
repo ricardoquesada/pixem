@@ -961,9 +961,6 @@ class MainWindow(QMainWindow):
         if dialog.exec() == QDialog.Accepted:
             if self._state:
                 self._state.hoop_size = get_global_preferences().get_hoop_size()
-            # FIXME: Needed only when partition background color changes
-            # Need to do it with slots
-            self._canvas.on_preferences_updated()
 
     @Slot()
     def _on_layer_add_image(self) -> None:

@@ -4,16 +4,19 @@ import logging
 import os.path
 import typing
 
-from PySide6.QtCore import QSettings
+from PySide6.QtCore import QObject, QSettings, Signal
 
 logger = logging.getLogger(__name__)
 
 
-class Preferences:
+class Preferences(QObject):
     STATE_VERSION = 1
     MAX_RECENT_FILES = 20
 
+    partition_background_color_changed = Signal(str)
+
     def __init__(self):
+        super().__init__()
         self._settings = QSettings()
         self._recent_files = []
 
@@ -100,6 +103,7 @@ class Preferences:
 
     def set_partition_background_color_name(self, color: str) -> str:
         self._settings.setValue("partition/background_color", color)
+        self.partition_background_color_changed.emit(color)
 
     def _load_recent_files(self) -> None:
         recent_files = self._settings.value("files/recent_files", [])
