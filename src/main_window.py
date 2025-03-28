@@ -368,6 +368,7 @@ class MainWindow(QMainWindow):
         self._canvas = Canvas(self._state)
         self._canvas.position_changed.connect(self._on_position_changed_from_canvas)
         self._canvas.layer_selection_changed.connect(self._on_layer_selection_changed_from_canvas)
+        self._canvas.layer_double_clicked.connect(self._on_layer_double_clicked_from_canvas)
 
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
@@ -790,6 +791,21 @@ class MainWindow(QMainWindow):
                 return True
         return False
 
+    def _process_double_click_on_layer(self, layer_uuid: str):
+        layer = self._state.get_layer_for_uuid(layer_uuid)
+        if layer is None:
+            logger.warning(f"Cannot find layer with UUID {layer_uuid}")
+        if isinstance(layer, TextLayer):
+            dialog = FontDialog(layer.text, layer.font_name, layer.color_name)
+            if dialog.exec() == QDialog.Accepted:
+                text, font_name, color_name = dialog.get_data()
+                if (
+                    text != layer.text
+                    or font_name != layer.font_name
+                    or color_name != layer.color_name
+                ):
+                    self._state.update_text_layer(layer, text, font_name, color_name)
+
     #
     # pyside6 events
     #
@@ -1051,19 +1067,7 @@ class MainWindow(QMainWindow):
 
         if self._state is not None:
             layer_uuid = item.data(Qt.UserRole)
-            layer = self._state.get_layer_for_uuid(layer_uuid)
-            if layer is None:
-                logger.warning(f"Cannot find layer with UUID {layer_uuid}")
-            if isinstance(layer, TextLayer):
-                dialog = FontDialog(layer.text, layer.font_name, layer.color_name)
-                if dialog.exec() == QDialog.Accepted:
-                    text, font_name, color_name = dialog.get_data()
-                    if (
-                        text != layer.text
-                        or font_name != layer.font_name
-                        or color_name != layer.color_name
-                    ):
-                        self._state.update_text_layer(layer, text, font_name, color_name)
+            self._process_double_click_on_layer(layer_uuid)
 
     @Slot()
     def _on_change_partition(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
@@ -1173,13 +1177,19 @@ class MainWindow(QMainWindow):
                 self._position_y_spinbox.setValue(position.y())
                 self._position_x_spinbox.setValue(position.x())
 
-    @Slot()
+    @Slot(str)
     def _on_layer_selection_changed_from_canvas(self, layer_uuid: str):
         for i in range(self._layer_list.count()):
             item = self._layer_list.item(i)
             if item.data(Qt.UserRole) == layer_uuid:
                 self._layer_list.setCurrentRow(i)
                 break
+
+    @Slot(str)
+    def _on_layer_double_clicked_from_canvas(self, layer_uuid: str):
+        if self._state is None:
+            return
+        self._process_double_click_on_layer(layer_uuid)
 
     @Slot()
     def _on_layer_property_changed_from_state(self, layer: Layer):

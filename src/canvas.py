@@ -22,6 +22,7 @@ INCHES_TO_MM = 25.4
 class Canvas(QWidget):
     position_changed = Signal(QPointF)
     layer_selection_changed = Signal(str)
+    layer_double_clicked = Signal(str)
 
     class Mode(IntEnum):
         MOVE = auto()
@@ -256,6 +257,22 @@ class Canvas(QWidget):
         self.position_changed.emit(new_pos)
         self._mouse_start_coords = QPointF(0.0, 0.0)
         self._mouse_delta = QPointF(0.0, 0.0)
+
+    @override
+    def mouseDoubleClickEvent(self, event: QMouseEvent):
+        # Layer on top (visually) first
+        # FIXME: almost same code as mousePressEvent()
+        for layer in reversed(self._state.layers):
+            if not layer.visible or layer.opacity == 0:
+                continue
+            point = event.position()
+            scale = self._state.zoom_factor * DEFAULT_SCALE_FACTOR
+            point = QPointF(point.x() / scale, point.y() / scale)
+            if layer.is_point_inside(point):
+                self.layer_double_clicked.emit(layer.uuid)
+                event.accept()
+                break
+        event.ignore()
 
     @override
     def sizeHint(self) -> QSize:
