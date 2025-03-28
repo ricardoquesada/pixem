@@ -125,9 +125,10 @@ class ExportToSVG:
                     for coord in path:
                         # coord is a tuple (x,y)
                         x, y = coord
-                        angle = layer.embroidery_params.initial_angle_degrees
                         if (x + y) % 2 == 0:
-                            angle += 90
+                            angle = layer.embroidery_params.even_pixel_angle_degrees
+                        else:
+                            angle = layer.embroidery_params.odd_pixel_angle_degrees
                         self._write_rect_svg(
                             f,
                             layer_idx,

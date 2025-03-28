@@ -494,12 +494,20 @@ class MainWindow(QMainWindow):
             self.tr("Min Jump Stitch Length (mm):"), self._min_jump_stitch_length_spinbox
         )
 
-        self._initial_angle_spinbox = QSpinBox()
-        self._initial_angle_spinbox.setMinimum(0)
-        self._initial_angle_spinbox.setMaximum(360)
-        self._initial_angle_spinbox.valueChanged.connect(self._on_update_embroidery_property)
+        self._odd_angle_spinbox = QSpinBox()
+        self._odd_angle_spinbox.setMinimum(0)
+        self._odd_angle_spinbox.setMaximum(360)
+        self._odd_angle_spinbox.valueChanged.connect(self._on_update_embroidery_property)
         self._embroidery_params_layout.addRow(
-            self.tr("Initial Angle (degrees):"), self._initial_angle_spinbox
+            self.tr("Odd-Pixel Angle (degrees):"), self._odd_angle_spinbox
+        )
+
+        self._even_angle_spinbox = QSpinBox()
+        self._even_angle_spinbox.setMinimum(0)
+        self._even_angle_spinbox.setMaximum(360)
+        self._even_angle_spinbox.valueChanged.connect(self._on_update_embroidery_property)
+        self._embroidery_params_layout.addRow(
+            self.tr("Even-Pixel Angle (degrees):"), self._even_angle_spinbox
         )
 
         self._fill_method_combo = QComboBox()
@@ -769,8 +777,10 @@ class MainWindow(QMainWindow):
             self._min_jump_stitch_length_spinbox.setValue(
                 embroidery_params.min_jump_stitch_length_mm
             )
-        with block_signals(self._initial_angle_spinbox):
-            self._initial_angle_spinbox.setValue(embroidery_params.initial_angle_degrees)
+        with block_signals(self._odd_angle_spinbox):
+            self._odd_angle_spinbox.setValue(embroidery_params.odd_pixel_angle_degrees)
+        with block_signals(self._even_angle_spinbox):
+            self._even_angle_spinbox.setValue(embroidery_params.even_pixel_angle_degrees)
         with block_signals(self._fill_method_combo):
             index = self._fill_method_combo.findData(embroidery_params.fill_method)
             if index != -1:
@@ -1150,7 +1160,8 @@ class MainWindow(QMainWindow):
                 pull_compensation_mm=self._pull_compensation_spinbox.value(),
                 max_stitch_length_mm=self._max_stitch_length_spinbox.value(),
                 min_jump_stitch_length_mm=self._min_jump_stitch_length_spinbox.value(),
-                initial_angle_degrees=self._initial_angle_spinbox.value(),
+                odd_pixel_angle_degrees=self._odd_angle_spinbox.value(),
+                even_pixel_angle_degrees=self._even_angle_spinbox.value(),
                 fill_method=self._fill_method_combo.currentData(),
             )
             selected_layer.embroidery_params = embroidery_params

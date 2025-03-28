@@ -29,7 +29,6 @@ name = "ImageLayer 1"
 pull_compensation_mm = 0.0
 max_stitch_length_mm = 1000.0
 fill_method = "auto_fill"
-initial_angle_degrees = 0
 min_jump_stitch_length_mm = 0.0
 
 [layers.d8611717-4bed-4250-a4ec-d370e6ef46b9.properties]
@@ -44,7 +43,6 @@ name = "TextLayer 2"
 pull_compensation_mm = 0.0
 max_stitch_length_mm = 1000.0
 fill_method = "auto_fill"
-initial_angle_degrees = 0
 min_jump_stitch_length_mm = 0.0
 
 [layers.e15f2052-5f5b-4036-a0a0-9c3301fcb996.partitions.49683b65-1820-4032-8a67-f2540ea0fb05]

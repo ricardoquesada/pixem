@@ -22,7 +22,6 @@ name = "ImageLayer 1"
 pull_compensation_mm = 0.0
 max_stitch_length_mm = 1000.0
 fill_method = "auto_fill"
-initial_angle_degrees = 0
 min_jump_stitch_length_mm = 0.0
 
 [layers.7bb4daa4-9d62-4515-8307-0f926b0d2200.partitions.28935622-cd1c-4cb3-a58a-5ff74e73fd25]
