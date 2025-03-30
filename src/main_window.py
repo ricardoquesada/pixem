@@ -513,6 +513,8 @@ class MainWindow(QMainWindow):
         self._fill_method_combo = QComboBox()
         fill_items = {
             "auto_fill": self.tr("Auto Fill"),
+            "circular_fill": self.tr("Circular Fill"),
+            "contour_fill": self.tr("Contour Fill"),
             "legacy_fill": self.tr("Legacy Fill"),
         }
         for k, v in fill_items.items():
