@@ -17,10 +17,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
-from export import EmbroideryParameters
 
-
-class ExportDialog(QDialog):
+class ExportSvgDialog(QDialog):
     def __init__(self, filename: str, parent=None):
         super().__init__(parent)
 
@@ -33,7 +31,7 @@ class ExportDialog(QDialog):
         file_label = QLabel(self.tr("File Name:"))
         self._file_edit = QLineEdit()
         self._file_edit.setText(filename)
-        browse_button = QPushButton(self.tr("Browse"))
+        browse_button = QPushButton(self.tr("Browse..."))
         browse_button.clicked.connect(self._on_browse_file)
 
         file_layout.addWidget(file_label)
@@ -67,18 +65,11 @@ class ExportDialog(QDialog):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    params = EmbroideryParameters(
-        filename="test filename",
-        pull_compensation_mm=10.0,
-        max_stitch_length_mm=100,
-        fill_method="auto_fill",
-        initial_angle_degrees=0,
-    )
-    dialog = ExportDialog("test.svg")
+    dialog = ExportSvgDialog("test.svg")
 
     if dialog.exec() == QDialog.Accepted:
-        params = dialog.get_filename()
-        print(params)
+        filename = dialog.get_filename()
+        print(filename)
     else:
         print("Dialog canceled.")
     sys.exit(app.exec())

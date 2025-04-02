@@ -6,7 +6,7 @@ from enum import IntEnum, auto
 from typing import override
 
 from PySide6.QtCore import QPointF, QRectF, QSize, Qt, Signal, Slot
-from PySide6.QtGui import QColor, QMouseEvent, QPainter, QPainterPath, QPaintEvent, QPen
+from PySide6.QtGui import QColor, QImage, QMouseEvent, QPainter, QPainterPath, QPaintEvent, QPen
 from PySide6.QtWidgets import QWidget
 
 import image_utils
@@ -321,6 +321,10 @@ class Canvas(QWidget):
         new_size = self.sizeHint()
         self.setFixedSize(new_size)
         self.update()
+
+    def render_to_qimage(self) -> QImage | None:
+        if self._state is None:
+            return None
 
     @property
     def mode(self) -> Mode:

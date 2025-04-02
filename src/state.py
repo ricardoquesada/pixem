@@ -7,9 +7,9 @@ from typing import Self
 
 import toml
 from PySide6.QtCore import QObject, Signal
-from PySide6.QtGui import QUndoStack
+from PySide6.QtGui import QImage, QUndoStack
 
-from export import ExportToSVG
+from export_svg import ExportToSvg
 from layer import Layer, LayerProperties
 from partition import Partition
 from preferences import get_global_preferences
@@ -117,17 +117,24 @@ class State(QObject):
         except Exception:
             logging.exception("An unexpected error occurred:")
 
-    def export_to_filename(self, filename: str) -> None:
+    def export_to_svg(self, filename: str) -> None:
         if len(self._layers) == 0:
             logger.warning("No layers found. Cannot export file")
             return
 
-        export = ExportToSVG(filename, self._properties.hoop_size)
+        export = ExportToSvg(filename, self._properties.hoop_size)
 
         for i, layer in enumerate(self._layers.values()):
             export.add_layer(layer)
         export.write_to_svg()
         self._properties.export_filename = filename
+
+    def export_to_png(self, filename: str, image: QImage) -> None:
+        # FIXME: Ideally the state should be able to create the QImage itself.
+        # But easier if it gets passed since, Canvas creates one easily.
+        success = image.save(filename)
+        if not success:
+            logger.warning(f"Failed to save image to {filename}")
 
     def add_layer(self, layer: Layer) -> None:
         self._undo_stack.push(AddLayerCommand(self, layer, None))

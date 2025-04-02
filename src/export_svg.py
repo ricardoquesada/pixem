@@ -13,9 +13,7 @@ INCHES_TO_MM = 25.4
 logger = logging.getLogger(__name__)
 
 
-class ExportToSVG:
-    VERSION = "0.1"
-
+class ExportToSvg:
     def __init__(self, filename: str, hoop_size: tuple[float, float]):
         self._export_filename = filename
         self._hoop_size = hoop_size

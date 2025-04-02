@@ -38,7 +38,8 @@ from PySide6.QtWidgets import (
 
 from about_dialog import AboutDialog
 from canvas import Canvas
-from export_dialog import ExportDialog
+from export_png_dialog import ExportPngDialog
+from export_svg_dialog import ExportSvgDialog
 from font_dialog import FontDialog
 from image_utils import create_icon_from_svg
 from layer import EmbroideryParameters, ImageLayer, Layer, LayerAlign, LayerProperties, TextLayer
@@ -178,6 +179,10 @@ class MainWindow(QMainWindow):
         self._export_as_action.setShortcut(QKeySequence("Ctrl+Shift+E"))
         self._export_as_action.triggered.connect(self._on_export_project_as)
         file_menu.addAction(self._export_as_action)
+
+        self._export_to_png_as_action = QAction(self.tr("Export to PNG As..."), self)
+        self._export_to_png_as_action.triggered.connect(self._on_export_to_png_as)
+        file_menu.addAction(self._export_to_png_as_action)
 
         file_menu.addSeparator()
 
@@ -587,6 +592,7 @@ class MainWindow(QMainWindow):
         self._close_action.setEnabled(enabled)
         self._export_action.setEnabled(enabled)
         self._export_as_action.setEnabled(enabled)
+        self._export_to_png_as_action.setEnabled(enabled)
 
         self._add_text_action.setEnabled(enabled)
         self._add_image_action.setEnabled(enabled)
@@ -920,14 +926,23 @@ class MainWindow(QMainWindow):
             self._on_export_project_as()
             return
 
-        self._state.export_to_filename(filename)
+        self._state.export_to_svg(filename)
 
     @Slot()
     def _on_export_project_as(self) -> None:
-        dialog = ExportDialog(self._state.properties.export_filename)
+        dialog = ExportSvgDialog(self._state.properties.export_filename)
         if dialog.exec() == QDialog.Accepted:
             filename = dialog.get_filename()
-            self._state.export_to_filename(filename)
+            qimage = self._canvas.render_to_qimage()
+            if qimage is not None:
+                self._state.export_to_svg(filename, qimage)
+
+    @Slot()
+    def _on_export_to_png_as(self) -> None:
+        dialog = ExportPngDialog(self._state.properties.export_filename)
+        if dialog.exec() == QDialog.Accepted:
+            filename = dialog.get_filename()
+            self._state.export_to_png(filename)
 
     @Slot()
     def _on_close_project(self) -> None:
