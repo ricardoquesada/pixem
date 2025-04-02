@@ -933,16 +933,16 @@ class MainWindow(QMainWindow):
         dialog = ExportSvgDialog(self._state.properties.export_filename)
         if dialog.exec() == QDialog.Accepted:
             filename = dialog.get_filename()
-            qimage = self._canvas.render_to_qimage()
-            if qimage is not None:
-                self._state.export_to_svg(filename, qimage)
+            self._state.export_to_svg(filename)
 
     @Slot()
     def _on_export_to_png_as(self) -> None:
         dialog = ExportPngDialog(self._state.properties.export_filename)
         if dialog.exec() == QDialog.Accepted:
             filename = dialog.get_filename()
-            self._state.export_to_png(filename)
+            qimage = self._canvas.render_to_qimage()
+            if qimage is not None:
+                self._state.export_to_png(filename, qimage)
 
     @Slot()
     def _on_close_project(self) -> None:

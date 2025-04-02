@@ -6,7 +6,16 @@ from enum import IntEnum, auto
 from typing import override
 
 from PySide6.QtCore import QPointF, QRectF, QSize, Qt, Signal, Slot
-from PySide6.QtGui import QColor, QImage, QMouseEvent, QPainter, QPainterPath, QPaintEvent, QPen
+from PySide6.QtGui import (
+    QColor,
+    QImage,
+    QMouseEvent,
+    QPaintDevice,
+    QPainter,
+    QPainterPath,
+    QPaintEvent,
+    QPen,
+)
 from PySide6.QtWidgets import QWidget
 
 import image_utils
@@ -57,23 +66,11 @@ class Canvas(QWidget):
             self._on_partition_background_color_changed
         )
 
-    #
-    # Slots
-    #
-    @Slot(str)
-    def _on_partition_background_color_changed(self, color: str):
-        self._cached_background_color = QColor(color)
-        self.update()
+    def _paint_to_qimage(
+        self, image: QPaintDevice, show_selected_partition: bool, show_hoop: bool
+    ) -> None:
 
-    #
-    # Pyside6 events
-    #
-    @override
-    def paintEvent(self, event: QPaintEvent) -> None:
-        if not self._state:
-            return
-
-        painter = QPainter(self)
+        painter = QPainter(image)
         painter.scale(
             self._state.zoom_factor * DEFAULT_SCALE_FACTOR,
             self._state.zoom_factor * DEFAULT_SCALE_FACTOR,
@@ -126,6 +123,7 @@ class Canvas(QWidget):
             and layer.selected_partition_uuid is not None
             and layer.visible
             and self._mode_status != Canvas.ModeStatus.MOVING
+            and show_selected_partition
         ):
             offset = layer.position + self._mouse_delta
             painter.save()
@@ -169,7 +167,7 @@ class Canvas(QWidget):
             painter.restore()
 
         # 3. Draw hoop
-        if self._cached_hoop_visible:
+        if show_hoop:
             painter.save()
             painter.setPen(QPen(Qt.GlobalColor.gray, 1, Qt.PenStyle.DashDotDotLine))
             path = QPainterPath()
@@ -186,6 +184,23 @@ class Canvas(QWidget):
             painter.restore()
 
         painter.end()
+
+    #
+    # Slots
+    #
+    @Slot(str)
+    def _on_partition_background_color_changed(self, color: str):
+        self._cached_background_color = QColor(color)
+        self.update()
+
+    #
+    # Pyside6 events
+    #
+    @override
+    def paintEvent(self, event: QPaintEvent) -> None:
+        if not self._state:
+            return
+        self._paint_to_qimage(self, True, self._cached_hoop_visible)
 
     @override
     def mousePressEvent(self, event: QMouseEvent):
@@ -325,6 +340,9 @@ class Canvas(QWidget):
     def render_to_qimage(self) -> QImage | None:
         if self._state is None:
             return None
+        qimage = QImage(self.sizeHint(), QImage.Format.Format_ARGB32)
+        self._paint_to_qimage(qimage, False, False)
+        return qimage
 
     @property
     def mode(self) -> Mode:
