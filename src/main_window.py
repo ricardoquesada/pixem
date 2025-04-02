@@ -170,6 +170,8 @@ class MainWindow(QMainWindow):
         self._save_as_action.triggered.connect(self._on_save_project_as)
         file_menu.addAction(self._save_as_action)
 
+        file_menu.addSeparator()
+
         self._export_action = QAction(self.tr("Export Project"), self)
         self._export_action.setShortcut(QKeySequence("Ctrl+E"))
         self._export_action.triggered.connect(self._on_export_project)
