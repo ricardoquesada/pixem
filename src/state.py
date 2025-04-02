@@ -6,8 +6,8 @@ from dataclasses import asdict
 from typing import Self
 
 import toml
-from PySide6.QtCore import QObject, Signal
-from PySide6.QtGui import QImage, QUndoStack
+from PySide6.QtCore import QByteArray, QObject, Signal
+from PySide6.QtGui import QImage, QImageWriter, QUndoStack
 
 from export_svg import ExportToSvg
 from layer import Layer, LayerProperties
@@ -132,9 +132,15 @@ class State(QObject):
     def export_to_png(self, filename: str, image: QImage) -> None:
         # FIXME: Ideally the state should be able to create the QImage itself.
         # But easier if it gets passed since, Canvas creates one easily.
-        success = image.save(filename)
-        if not success:
-            logger.warning(f"Failed to save image to {filename}")
+        writer = QImageWriter(filename)
+        writer.setFormat(QByteArray("PNG"))
+        success = writer.write(image)
+
+        if success:
+            logger.info(f"QImage saved successfully to {filename}")
+        else:
+            error_string = writer.errorString()
+            logger.error(f"Failed to save QImage to {filename}. Error: {error_string}")
 
     def add_layer(self, layer: Layer) -> None:
         self._undo_stack.push(AddLayerCommand(self, layer, None))
