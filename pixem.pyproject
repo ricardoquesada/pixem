@@ -2,9 +2,7 @@
     "files": [
         "src/about_dialog.py",
         "src/canvas.py",
-        "src/export_png_dialog.py",
         "src/export_svg.py",
-        "src/export_svg_dialog.py",
         "src/font_dialog.py",
         "src/image_parser.py",
         "src/image_utils.py",

@@ -38,8 +38,6 @@ from PySide6.QtWidgets import (
 
 from about_dialog import AboutDialog
 from canvas import Canvas
-from export_png_dialog import ExportPngDialog
-from export_svg_dialog import ExportSvgDialog
 from font_dialog import FontDialog
 from image_utils import create_icon_from_svg
 from layer import EmbroideryParameters, ImageLayer, Layer, LayerAlign, LayerProperties, TextLayer
@@ -932,19 +930,42 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_export_project_as(self) -> None:
-        dialog = ExportSvgDialog(self._state.properties.export_filename)
-        if dialog.exec() == QDialog.Accepted:
-            filename = dialog.get_filename()
+        fullpath_svg = self._state.properties.export_filename
+        if fullpath_svg is None:
+            fullpath_svg = "export.svg"
+        filename, _ = QFileDialog.getSaveFileName(
+            self,
+            self.tr("Export Project"),
+            fullpath_svg,
+            self.tr("SVG (*.svg);;All files (*)"),
+            "SVG (*.svg)",
+        )
+        if filename:
+            _, ext = os.path.splitext(filename)
+            if ext != ".svg":
+                filename = filename + ".svg"
             self._state.export_to_svg(filename)
 
     @Slot()
     def _on_export_to_png_as(self) -> None:
-        dialog = ExportPngDialog(self._state.properties.export_filename)
-        if dialog.exec() == QDialog.Accepted:
-            filename = dialog.get_filename()
-            qimage = self._canvas.render_to_qimage()
-            if qimage is not None:
-                self._state.export_to_png(filename, qimage)
+        fullpath_svg = self._state.properties.export_filename
+        if fullpath_svg is None:
+            fullpath_svg = "export.svg"
+        base, _ = os.path.splitext(fullpath_svg)
+        fullpath_png = f"{base}.png"
+        filename, _ = QFileDialog.getSaveFileName(
+            self,
+            self.tr("Export Project"),
+            fullpath_png,
+            self.tr("PNG (*.png);;All files (*)"),
+            "PNG (*.png)",
+        )
+        image = self._canvas.render_to_qimage()
+        if filename and image is not None:
+            _, ext = os.path.splitext(filename)
+            if ext != ".png":
+                filename = filename + ".png"
+            self._state.export_to_png(filename, image)
 
     @Slot()
     def _on_close_project(self) -> None:
