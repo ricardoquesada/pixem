@@ -29,19 +29,32 @@ logger = logging.getLogger(__name__)  # __name__ gets the current module's name
 
 
 class ColorType(IntEnum):
-    FOREGROUND = auto()
-    BACKGROUND = auto()
+    PARTITION_FOREGROUND = auto()
+    PARTITION_BACKGROUND = auto()
+    CANVAS_BACKGROUND = auto()
+    HOOP_FOREGROUND = auto()
 
 
 class PreferenceDialog(QDialog):
     def __init__(self, hoop_size: tuple[float, float]):
         super().__init__()
 
-        self._colors = {ColorType.FOREGROUND: {}, ColorType.BACKGROUND: {}}
-        self._colors[ColorType.FOREGROUND]["color"] = QColor(
+        self._colors = {
+            ColorType.PARTITION_FOREGROUND: {},
+            ColorType.PARTITION_BACKGROUND: {},
+            ColorType.CANVAS_BACKGROUND: {},
+            ColorType.HOOP_FOREGROUND: {},
+        }
+        self._colors[ColorType.PARTITION_FOREGROUND]["color"] = QColor(
             get_global_preferences().get_partition_foreground_color_name()
         )
-        self._colors[ColorType.BACKGROUND]["color"] = QColor(
+        self._colors[ColorType.PARTITION_BACKGROUND]["color"] = QColor(
+            get_global_preferences().get_partition_background_color_name()
+        )
+        self._colors[ColorType.CANVAS_BACKGROUND]["color"] = QColor(
+            get_global_preferences().get_partition_background_color_name()
+        )
+        self._colors[ColorType.HOOP_FOREGROUND]["color"] = QColor(
             get_global_preferences().get_partition_background_color_name()
         )
 
@@ -81,27 +94,59 @@ class PreferenceDialog(QDialog):
 
         hoop_group_box.setLayout(self._hoop_group)  # Set the layout to the group box
 
+        canvas_color_group = QGroupBox(self.tr("Canvas Color"))
+        canvas_color_vlayout = QVBoxLayout()
+        canvas_color_hlayout1 = QHBoxLayout()
+        canvas_color_hlayout2 = QHBoxLayout()
+        label = QLabel(self.tr("Background color"))
+        button = QPushButton()
+        button.clicked.connect(
+            functools.partial(self._on_choose_color, ColorType.CANVAS_BACKGROUND)
+        )
+        canvas_color_hlayout1.addWidget(label)
+        canvas_color_hlayout1.addWidget(button)
+        self._colors[ColorType.CANVAS_BACKGROUND]["label"] = label
+        self._colors[ColorType.CANVAS_BACKGROUND]["button"] = button
+        self._update_color_label(ColorType.CANVAS_BACKGROUND)
+
+        label = QLabel(self.tr("Hoop color"))
+        button = QPushButton()
+        button.clicked.connect(functools.partial(self._on_choose_color, ColorType.HOOP_FOREGROUND))
+        canvas_color_hlayout2.addWidget(label)
+        canvas_color_hlayout2.addWidget(button)
+        self._colors[ColorType.HOOP_FOREGROUND]["label"] = label
+        self._colors[ColorType.HOOP_FOREGROUND]["button"] = button
+        self._update_color_label(ColorType.HOOP_FOREGROUND)
+
+        canvas_color_vlayout.addLayout(canvas_color_hlayout1)
+        canvas_color_vlayout.addLayout(canvas_color_hlayout2)
+        canvas_color_group.setLayout(canvas_color_vlayout)
+
         partition_color_group = QGroupBox(self.tr("Partition Color"))
         partition_color_vlayout = QVBoxLayout()
         partition_color_hlayout1 = QHBoxLayout()
         partition_color_hlayout2 = QHBoxLayout()
         label = QLabel(self.tr("Foreground color"))
         button = QPushButton()
-        button.clicked.connect(functools.partial(self._on_choose_color, ColorType.FOREGROUND))
+        button.clicked.connect(
+            functools.partial(self._on_choose_color, ColorType.PARTITION_FOREGROUND)
+        )
         partition_color_hlayout1.addWidget(label)
         partition_color_hlayout1.addWidget(button)
-        self._colors[ColorType.FOREGROUND]["label"] = label
-        self._colors[ColorType.FOREGROUND]["button"] = button
-        self._update_color_label(ColorType.FOREGROUND)
+        self._colors[ColorType.PARTITION_FOREGROUND]["label"] = label
+        self._colors[ColorType.PARTITION_FOREGROUND]["button"] = button
+        self._update_color_label(ColorType.PARTITION_FOREGROUND)
 
         label = QLabel(self.tr("Background color"))
         button = QPushButton()
-        button.clicked.connect(functools.partial(self._on_choose_color, ColorType.BACKGROUND))
+        button.clicked.connect(
+            functools.partial(self._on_choose_color, ColorType.PARTITION_BACKGROUND)
+        )
         partition_color_hlayout2.addWidget(label)
         partition_color_hlayout2.addWidget(button)
-        self._colors[ColorType.BACKGROUND]["label"] = label
-        self._colors[ColorType.BACKGROUND]["button"] = button
-        self._update_color_label(ColorType.BACKGROUND)
+        self._colors[ColorType.PARTITION_BACKGROUND]["label"] = label
+        self._colors[ColorType.PARTITION_BACKGROUND]["button"] = button
+        self._update_color_label(ColorType.PARTITION_BACKGROUND)
 
         partition_color_vlayout.addLayout(partition_color_hlayout1)
         partition_color_vlayout.addLayout(partition_color_hlayout2)
@@ -117,6 +162,7 @@ class PreferenceDialog(QDialog):
         # Main layout
         main_layout = QVBoxLayout()
         main_layout.addWidget(hoop_group_box)  # Add the group box to the main layout
+        main_layout.addWidget(canvas_color_group)
         main_layout.addWidget(partition_color_group)
         main_layout.addWidget(self._open_file_startup_checkbox)
         main_layout.addWidget(button_box)
@@ -179,10 +225,10 @@ class PreferenceDialog(QDialog):
         prefs.set_hoop_visible(hoop_visible)
         prefs.set_open_file_on_startup(self._open_file_startup_checkbox.isChecked())
         prefs.set_partition_foreground_color_name(
-            self._colors[ColorType.FOREGROUND]["color"].name(QColor.HexArgb)
+            self._colors[ColorType.PARTITION_FOREGROUND]["color"].name(QColor.HexArgb)
         )
         prefs.set_partition_background_color_name(
-            self._colors[ColorType.BACKGROUND]["color"].name(QColor.HexArgb)
+            self._colors[ColorType.PARTITION_BACKGROUND]["color"].name(QColor.HexArgb)
         )
 
     @Slot()
@@ -203,7 +249,7 @@ class PreferenceDialog(QDialog):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    dialog = PreferenceDialog()
+    dialog = PreferenceDialog((4, 4))
     if dialog.exec() == QDialog.Accepted:
         print("Dialog was accepted")
     elif dialog.exec() == QDialog.Rejected:
