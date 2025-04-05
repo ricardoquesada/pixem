@@ -88,7 +88,7 @@ class Canvas(QWidget):
         if show_background_color:
             size = self.sizeHint()
             painter.fillRect(
-                QRectF(0, 0, size.width(), size.height()), self._cached_partition_background_color
+                QRectF(0, 0, size.width(), size.height()), self._cached_canvas_background_color
             )
 
         painter.scale(
