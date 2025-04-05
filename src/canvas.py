@@ -383,7 +383,7 @@ class Canvas(QWidget):
         if self._state is None:
             return None
         qimage = QImage(self.sizeHint(), QImage.Format.Format_ARGB32)
-        self._paint_to_qimage(qimage, False, False, False)
+        self._paint_to_qimage(qimage, True, False, False)
         return qimage
 
     @property
