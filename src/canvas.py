@@ -45,13 +45,18 @@ class Canvas(QWidget):
         super().__init__()
         self._state = state
 
-        self._cached_hoop_visible = get_global_preferences().get_hoop_visible()
+        preferences = get_global_preferences()
         if self._state is None:
-            self._cached_hoop_size = get_global_preferences().get_hoop_size()
+            self._cached_hoop_size = preferences.get_hoop_size()
         else:
             self._cached_hoop_size = self._state.hoop_size
-        self._cached_background_color = QColor(
-            get_global_preferences().get_partition_background_color_name()
+        self._cached_hoop_color = QColor(preferences.get_hoop_color_name())
+        self._cached_hoop_visible = preferences.get_hoop_visible()
+        self._cached_partition_background_color = QColor(
+            preferences.get_partition_background_color_name()
+        )
+        self._cached_canvas_background_color = QColor(
+            preferences.get_canvas_background_color_name()
         )
 
         # FIXME: must be set according to layer size
@@ -62,15 +67,30 @@ class Canvas(QWidget):
         self._mode = Canvas.Mode.MOVE
         self._mode_status = Canvas.ModeStatus.IDLE
 
-        get_global_preferences().partition_background_color_changed.connect(
+        preferences.partition_background_color_changed.connect(
             self._on_partition_background_color_changed
         )
+        preferences.canvas_background_color_changed.connect(
+            self._on_canvas_color_background_changed
+        )
+        preferences.canvas_hoop_color_changed.connect(self._on_hoop_color_changed)
+        preferences.hoop_visible_changed.connect(self._on_hoop_visible_changed)
+        preferences.hoop_size_changed.connect(self._on_hoop_size_changed)
 
     def _paint_to_qimage(
-        self, image: QPaintDevice, show_selected_partition: bool, show_hoop: bool
+        self,
+        image: QPaintDevice,
+        show_background_color: bool,
+        show_selected_partition: bool,
+        show_hoop: bool,
     ) -> None:
-
         painter = QPainter(image)
+        if show_background_color:
+            size = self.sizeHint()
+            painter.fillRect(
+                QRectF(0, 0, size.width(), size.height()), self._cached_partition_background_color
+            )
+
         painter.scale(
             self._state.zoom_factor * DEFAULT_SCALE_FACTOR,
             self._state.zoom_factor * DEFAULT_SCALE_FACTOR,
@@ -107,6 +127,7 @@ class Canvas(QWidget):
                     and self._state.selected_layer == layer
                 ):
                     brush = painter.brush()
+                    # FIXME: Move color to preferences
                     brush.setColor(QColor(0, 0, 255, 16))  # Red, semi-transparent fill
                     brush.setStyle(Qt.BrushStyle.SolidPattern)  # Solid fill
                     painter.setBrush(brush)
@@ -142,7 +163,7 @@ class Canvas(QWidget):
 
             # Set the brush (fill)
             brush = painter.brush()
-            brush.setColor(self._cached_background_color)
+            brush.setColor(self._cached_partition_background_color)
             brush.setStyle(Qt.BrushStyle.SolidPattern)  # Solid fill
             painter.setBrush(brush)
 
@@ -169,7 +190,7 @@ class Canvas(QWidget):
         # 3. Draw hoop
         if show_hoop:
             painter.save()
-            painter.setPen(QPen(Qt.GlobalColor.gray, 1, Qt.PenStyle.DashDotDotLine))
+            painter.setPen(QPen(self._cached_hoop_color, 1, Qt.PenStyle.DashDotDotLine))
             path = QPainterPath()
             path.moveTo(0, 0)
             path.lineTo(0.0, 0.0)
@@ -190,7 +211,28 @@ class Canvas(QWidget):
     #
     @Slot(str)
     def _on_partition_background_color_changed(self, color: str):
-        self._cached_background_color = QColor(color)
+        self._cached_partition_background_color = QColor(color)
+        self.update()
+
+    @Slot(str)
+    def _on_canvas_color_background_changed(self, color: str):
+        self._cached_canvas_background_color = QColor(color)
+        self.update()
+
+    @Slot(str)
+    def _on_hoop_color_changed(self, color: str):
+        self._cached_hoop_color = QColor(color)
+        self.update()
+
+    @Slot(bool)
+    def _on_hoop_visible_changed(self, visible: bool):
+        self._cached_hoop_visible = visible
+        self.update()
+
+    @Slot(tuple)
+    def _on_hoop_size_changed(self, size: tuple[float, float]):
+        self._cached_hoop_size = size
+        self.recalculate_fixed_size()
         self.update()
 
     #
@@ -200,7 +242,7 @@ class Canvas(QWidget):
     def paintEvent(self, event: QPaintEvent) -> None:
         if not self._state:
             return
-        self._paint_to_qimage(self, True, self._cached_hoop_visible)
+        self._paint_to_qimage(self, True, True, self._cached_hoop_visible)
 
     @override
     def mousePressEvent(self, event: QMouseEvent):
@@ -341,7 +383,7 @@ class Canvas(QWidget):
         if self._state is None:
             return None
         qimage = QImage(self.sizeHint(), QImage.Format.Format_ARGB32)
-        self._paint_to_qimage(qimage, False, False)
+        self._paint_to_qimage(qimage, False, False, False)
         return qimage
 
     @property

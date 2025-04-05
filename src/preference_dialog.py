@@ -5,6 +5,7 @@ import functools
 import logging
 import sys
 from enum import IntEnum, auto
+from typing import override
 
 from PySide6.QtCore import Slot
 from PySide6.QtGui import QColor
@@ -52,10 +53,10 @@ class PreferenceDialog(QDialog):
             get_global_preferences().get_partition_background_color_name()
         )
         self._colors[ColorType.CANVAS_BACKGROUND]["color"] = QColor(
-            get_global_preferences().get_partition_background_color_name()
+            get_global_preferences().get_canvas_background_color_name()
         )
         self._colors[ColorType.HOOP_FOREGROUND]["color"] = QColor(
-            get_global_preferences().get_partition_background_color_name()
+            get_global_preferences().get_hoop_color_name()
         )
 
         self.setWindowTitle(self.tr("Preference Dialog"))
@@ -155,9 +156,12 @@ class PreferenceDialog(QDialog):
         self._open_file_startup_checkbox = QCheckBox(self.tr("Open latest file on startup"))
 
         # Buttons
-        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-        button_box.accepted.connect(self.accept)
-        button_box.rejected.connect(self.reject)
+        self._button_box = QDialogButtonBox(
+            QDialogButtonBox.Ok | QDialogButtonBox.Cancel | QDialogButtonBox.Apply
+        )
+        self._button_box.accepted.connect(self.accept)
+        self._button_box.rejected.connect(self.reject)
+        self._button_box.clicked.connect(self._on_buttonbox_button_clicked)
 
         # Main layout
         main_layout = QVBoxLayout()
@@ -165,7 +169,7 @@ class PreferenceDialog(QDialog):
         main_layout.addWidget(canvas_color_group)
         main_layout.addWidget(partition_color_group)
         main_layout.addWidget(self._open_file_startup_checkbox)
-        main_layout.addWidget(button_box)
+        main_layout.addWidget(self._button_box)
 
         self.setLayout(main_layout)
 
@@ -200,9 +204,7 @@ class PreferenceDialog(QDialog):
             get_global_preferences().get_open_file_on_startup()
         )
 
-    def accept(self) -> None:
-        super().accept()
-
+    def _apply(self) -> None:
         hoop_size = (0, 0)
         if self._hoop_4_4_radio.isChecked():
             hoop_size = (4, 4)
@@ -230,13 +232,12 @@ class PreferenceDialog(QDialog):
         prefs.set_partition_background_color_name(
             self._colors[ColorType.PARTITION_BACKGROUND]["color"].name(QColor.HexArgb)
         )
-
-    @Slot()
-    def _on_choose_color(self, color_type: ColorType):
-        color = QColorDialog.getColor(options=QColorDialog.ShowAlphaChannel)
-        if color.isValid():
-            self._colors[color_type]["color"] = color
-            self._update_color_label(color_type)
+        prefs.set_canvas_background_color_name(
+            self._colors[ColorType.CANVAS_BACKGROUND]["color"].name(QColor.HexArgb)
+        )
+        prefs.set_hoop_color_name(
+            self._colors[ColorType.HOOP_FOREGROUND]["color"].name(QColor.HexArgb)
+        )
 
     def _update_color_label(self, color_type: ColorType):
         self._colors[color_type]["button"].setStyleSheet(
@@ -245,6 +246,24 @@ class PreferenceDialog(QDialog):
         self._colors[color_type]["button"].setText(
             self._colors[color_type]["color"].name(QColor.HexArgb)
         )
+
+    @override
+    def accept(self) -> None:
+        self._apply()
+        super().accept()
+
+    @Slot()
+    def _on_buttonbox_button_clicked(self, button: QPushButton):
+        # Ignore "Cancel" and "Ok" which have their own slots
+        if button == self._button_box.button(QDialogButtonBox.Apply):
+            self._apply()
+
+    @Slot()
+    def _on_choose_color(self, color_type: ColorType):
+        color = QColorDialog.getColor(options=QColorDialog.ShowAlphaChannel)
+        if color.isValid():
+            self._colors[color_type]["color"] = color
+            self._update_color_label(color_type)
 
 
 if __name__ == "__main__":

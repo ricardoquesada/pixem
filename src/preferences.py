@@ -14,6 +14,10 @@ class Preferences(QObject):
     MAX_RECENT_FILES = 20
 
     partition_background_color_changed = Signal(str)
+    canvas_background_color_changed = Signal(str)
+    canvas_hoop_color_changed = Signal(str)
+    hoop_visible_changed = Signal(bool)
+    hoop_size_changed = Signal(tuple)
 
     def __init__(self):
         super().__init__()
@@ -47,19 +51,34 @@ class Preferences(QObject):
         self._settings.setValue("main_window/default_window_state", state)
 
     def set_hoop_visible(self, visible: bool) -> None:
-        self._settings.setValue("hoop/visible", visible)
+        current = self.get_hoop_visible()
+        if current != visible:
+            self._settings.setValue("hoop/visible", visible)
+            self.hoop_visible_changed.emit(visible)
 
     def get_hoop_visible(self) -> bool:
         return bool(self._settings.value("hoop/visible", defaultValue=True))
 
     def set_hoop_size(self, size: tuple[float, float]) -> None:
-        self._settings.setValue("hoop/size_x", size[0])
-        self._settings.setValue("hoop/size_y", size[1])
+        current = self.get_hoop_size()
+        if current[0] != size[0] or current[1] != size[1]:
+            self._settings.setValue("hoop/size_x", size[0])
+            self._settings.setValue("hoop/size_y", size[1])
+            self.hoop_size_changed.emit(size)
 
     def get_hoop_size(self) -> tuple[float, float]:
         x = float(self._settings.value("hoop/size_x", defaultValue=4))
         y = float(self._settings.value("hoop/size_y", defaultValue=4))
         return x, y
+
+    def get_hoop_color_name(self) -> str:
+        return str(self._settings.value("hoop/foreground_color", defaultValue="#c0c0c0ff"))
+
+    def set_hoop_color_name(self, color: str):
+        current = self.get_hoop_color_name()
+        if current != color:
+            self._settings.setValue("hoop/foreground_color", color)
+            self.canvas_hoop_color_changed.emit(color)
 
     def set_open_file_on_startup(self, value: bool) -> None:
         self._settings.setValue("files/open_file_on_startup", value)
@@ -91,19 +110,28 @@ class Preferences(QObject):
         self._settings.setValue("files/recent_files", self._recent_files)
 
     def get_partition_foreground_color_name(self) -> str:
-        ret = str(self._settings.value("partition/foreground_color", defaultValue="#800000ff"))
-        return ret
+        return str(self._settings.value("partition/foreground_color", defaultValue="#800000ff"))
 
-    def set_partition_foreground_color_name(self, color: str) -> str:
+    def set_partition_foreground_color_name(self, color: str):
         self._settings.setValue("partition/foreground_color", color)
 
     def get_partition_background_color_name(self) -> str:
-        ret = str(self._settings.value("partition/background_color", defaultValue="#80ff0000"))
-        return ret
+        return str(self._settings.value("partition/background_color", defaultValue="#80ff0000"))
 
-    def set_partition_background_color_name(self, color: str) -> str:
-        self._settings.setValue("partition/background_color", color)
-        self.partition_background_color_changed.emit(color)
+    def set_partition_background_color_name(self, color: str):
+        current = self.get_partition_background_color_name()
+        if current != color:
+            self._settings.setValue("partition/background_color", color)
+            self.partition_background_color_changed.emit(color)
+
+    def get_canvas_background_color_name(self) -> str:
+        return str(self._settings.value("canvas/background_color", defaultValue="#a0a0a0ff"))
+
+    def set_canvas_background_color_name(self, color: str):
+        current = self.get_canvas_background_color_name()
+        if current != color:
+            self._settings.setValue("canvas/background_color", color)
+            self.canvas_background_color_changed.emit(color)
 
     def _load_recent_files(self) -> None:
         recent_files = self._settings.value("files/recent_files", [])
