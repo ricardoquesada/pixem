@@ -61,8 +61,13 @@ class PreferenceDialog(QDialog):
 
         self.setWindowTitle(self.tr("Preference Dialog"))
 
-        hoop_group_box = QGroupBox(self.tr("Hoop Size (inches)"))
-        self._hoop_group = QVBoxLayout()
+        # Hoop Properties
+        hoop_group_box = QGroupBox(self.tr("Hoop Properties"))
+        hoop_vlayout = QVBoxLayout()
+
+        # Hoop Size
+        hoop_size_group_box = QGroupBox(self.tr("Hoop Size (inches)"))
+        hoop_size_vlayout = QVBoxLayout()
         self._hoop_4_4_radio = QRadioButton(self.tr("4x4"))
         self._hoop_5_7_radio = QRadioButton(self.tr("5x7"))
         self._hoop_7_5_radio = QRadioButton(self.tr("7x5"))
@@ -83,50 +88,59 @@ class PreferenceDialog(QDialog):
         custom_layout.addWidget(self._custom_size_x_spinbox)
         custom_layout.addWidget(self._custom_size_y_spinbox)
 
-        self._hoop_group.addWidget(self._hoop_4_4_radio)
-        self._hoop_group.addWidget(self._hoop_5_7_radio)
-        self._hoop_group.addWidget(self._hoop_7_5_radio)
-        self._hoop_group.addWidget(self._hoop_6_10_radio)
-        self._hoop_group.addWidget(self._hoop_10_6_radio)
-        self._hoop_group.addLayout(custom_layout)
+        hoop_size_vlayout.addWidget(self._hoop_4_4_radio)
+        hoop_size_vlayout.addWidget(self._hoop_5_7_radio)
+        hoop_size_vlayout.addWidget(self._hoop_7_5_radio)
+        hoop_size_vlayout.addWidget(self._hoop_6_10_radio)
+        hoop_size_vlayout.addWidget(self._hoop_10_6_radio)
+        hoop_size_vlayout.addLayout(custom_layout)
 
+        hoop_size_group_box.setLayout(hoop_size_vlayout)
+        hoop_vlayout.addWidget(hoop_size_group_box)
+
+        # Hoop Color
+        label = QLabel(self.tr("Hoop color"))
+        hoop_color_hlayout = QHBoxLayout()
+        button = QPushButton()
+        button.clicked.connect(functools.partial(self._on_choose_color, ColorType.HOOP_FOREGROUND))
+        hoop_color_hlayout.addWidget(label)
+        hoop_color_hlayout.addWidget(button)
+        self._colors[ColorType.HOOP_FOREGROUND]["label"] = label
+        self._colors[ColorType.HOOP_FOREGROUND]["button"] = button
+        self._update_color_label(ColorType.HOOP_FOREGROUND)
+        hoop_vlayout.addLayout(hoop_color_hlayout)
+
+        # Hoop Visibility
         self._visibility_checkbox = QCheckBox(self.tr("Show Hoop Frame"))
-        self._hoop_group.addWidget(self._visibility_checkbox)
+        hoop_vlayout.addWidget(self._visibility_checkbox)
 
-        hoop_group_box.setLayout(self._hoop_group)  # Set the layout to the group box
+        hoop_group_box.setLayout(hoop_vlayout)
 
+        # Canvas Color
         canvas_color_group = QGroupBox(self.tr("Canvas Color"))
         canvas_color_vlayout = QVBoxLayout()
-        canvas_color_hlayout1 = QHBoxLayout()
-        canvas_color_hlayout2 = QHBoxLayout()
+        canvas_color_hlayout = QHBoxLayout()
         label = QLabel(self.tr("Background color"))
         button = QPushButton()
         button.clicked.connect(
             functools.partial(self._on_choose_color, ColorType.CANVAS_BACKGROUND)
         )
-        canvas_color_hlayout1.addWidget(label)
-        canvas_color_hlayout1.addWidget(button)
+        canvas_color_hlayout.addWidget(label)
+        canvas_color_hlayout.addWidget(button)
         self._colors[ColorType.CANVAS_BACKGROUND]["label"] = label
         self._colors[ColorType.CANVAS_BACKGROUND]["button"] = button
         self._update_color_label(ColorType.CANVAS_BACKGROUND)
 
-        label = QLabel(self.tr("Hoop color"))
-        button = QPushButton()
-        button.clicked.connect(functools.partial(self._on_choose_color, ColorType.HOOP_FOREGROUND))
-        canvas_color_hlayout2.addWidget(label)
-        canvas_color_hlayout2.addWidget(button)
-        self._colors[ColorType.HOOP_FOREGROUND]["label"] = label
-        self._colors[ColorType.HOOP_FOREGROUND]["button"] = button
-        self._update_color_label(ColorType.HOOP_FOREGROUND)
-
-        canvas_color_vlayout.addLayout(canvas_color_hlayout1)
-        canvas_color_vlayout.addLayout(canvas_color_hlayout2)
+        canvas_color_vlayout.addLayout(canvas_color_hlayout)
         canvas_color_group.setLayout(canvas_color_vlayout)
 
+        # Partition Color
         partition_color_group = QGroupBox(self.tr("Partition Color"))
         partition_color_vlayout = QVBoxLayout()
         partition_color_hlayout1 = QHBoxLayout()
         partition_color_hlayout2 = QHBoxLayout()
+
+        # Partition Foreground Color
         label = QLabel(self.tr("Foreground color"))
         button = QPushButton()
         button.clicked.connect(
@@ -138,6 +152,7 @@ class PreferenceDialog(QDialog):
         self._colors[ColorType.PARTITION_FOREGROUND]["button"] = button
         self._update_color_label(ColorType.PARTITION_FOREGROUND)
 
+        # Partition Background Color
         label = QLabel(self.tr("Background color"))
         button = QPushButton()
         button.clicked.connect(
@@ -153,7 +168,8 @@ class PreferenceDialog(QDialog):
         partition_color_vlayout.addLayout(partition_color_hlayout2)
         partition_color_group.setLayout(partition_color_vlayout)
 
-        self._open_file_startup_checkbox = QCheckBox(self.tr("Open latest file on startup"))
+        # Open the latest file on startup
+        self._open_file_startup_checkbox = QCheckBox(self.tr("Open the latest file on startup"))
 
         # Buttons
         self._button_box = QDialogButtonBox(
@@ -165,7 +181,7 @@ class PreferenceDialog(QDialog):
 
         # Main layout
         main_layout = QVBoxLayout()
-        main_layout.addWidget(hoop_group_box)  # Add the group box to the main layout
+        main_layout.addWidget(hoop_group_box)
         main_layout.addWidget(canvas_color_group)
         main_layout.addWidget(partition_color_group)
         main_layout.addWidget(self._open_file_startup_checkbox)
