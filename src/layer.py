@@ -38,6 +38,7 @@ class EmbroideryParameters:
     odd_pixel_angle_degrees: int = 0
     even_pixel_angle_degrees: int = 90
     min_jump_stitch_length_mm: float = 0.0
+    fill_underlay: bool = True
 
 
 @dataclass

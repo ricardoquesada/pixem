@@ -42,6 +42,7 @@ class ExportToSvg:
             f'inkstitch:angle="{angle}" '
             f'inkstitch:max_stitch_length_mm="{embroidery_params.max_stitch_length_mm}" '
             f'inkstitch:pull_compensation_mm="{embroidery_params.pull_compensation_mm}" '
+            f'inkstitch:fill_underlay="{embroidery_params.fill_underlay}" '
         )
         # To be backward compatible. Not sure what is the default one when the parameter is not defined.
         if embroidery_params.min_jump_stitch_length_mm > 0.0:

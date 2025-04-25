@@ -532,6 +532,12 @@ class MainWindow(QMainWindow):
         self._embroidery_params_dock.setWidget(self._embroidery_params_editor)
         self.addDockWidget(Qt.RightDockWidgetArea, self._embroidery_params_dock)
 
+        self._fill_underlay_checkbox = QCheckBox()
+        self._fill_underlay_checkbox.stateChanged.connect(self._on_update_embroidery_property)
+        self._embroidery_params_layout.addRow(
+            self.tr("Fill Underlay:"), self._fill_underlay_checkbox
+        )
+
     def _setup_undo_dock(self):
         self._undo_dock = QDockWidget(self.tr("Undo List"), self)
         self._undo_dock.setObjectName("undo_dock")
@@ -793,6 +799,8 @@ class MainWindow(QMainWindow):
             index = self._fill_method_combo.findData(embroidery_params.fill_method)
             if index != -1:
                 self._fill_method_combo.setCurrentIndex(index)
+        with block_signals(self._fill_underlay_checkbox):
+            self._fill_underlay_checkbox.setChecked(embroidery_params.fill_underlay)
 
     def _maybe_abort_operation_if_dirty(self) -> bool:
         # Returns true if it should abort
@@ -1203,6 +1211,7 @@ class MainWindow(QMainWindow):
                 odd_pixel_angle_degrees=self._odd_angle_spinbox.value(),
                 even_pixel_angle_degrees=self._even_angle_spinbox.value(),
                 fill_method=self._fill_method_combo.currentData(),
+                fill_underlay=self._fill_underlay_checkbox.isChecked(),
             )
             selected_layer.embroidery_params = embroidery_params
 
