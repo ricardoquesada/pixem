@@ -355,6 +355,9 @@ class PartitionDialog(QDialog):
         self._disconnect_list_widget()
 
         self._list_widget.clear()
+        # FIXME: Recreating the QListWidgetItem each time is very slow.
+        # When having drawings with more than 500 pixels in the partition
+        # it is veryyyyy sloooow.
         for i, coord in enumerate(full_coords):
             item = QListWidgetItem(f"{i} - [{coord[0]} x {coord[1]}]")
             self._list_widget.addItem(item)
