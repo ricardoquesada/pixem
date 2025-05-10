@@ -46,7 +46,12 @@ class ImageWidget(QWidget):
 
         self.setMinimumSize(self._image.size())  # Ensure widget is at least image size
 
-        self._cached_rects = [QRect(x, y, 1, 1) for x, y in coords]
+        # To prevent creating the rect, we have them pre-created
+        self._cached_rects_dict = {}
+        for x, y in coords:
+            self._cached_rects_dict[(x, y)] = QRect(x, y, 1, 1)
+
+        self._cached_all_rects = [self._cached_rects_dict[(x, y)] for x, y in coords]
         self._cached_selected_rects = []
 
         self._edit_mode = self.EditMode.PAINT
@@ -62,7 +67,7 @@ class ImageWidget(QWidget):
 
     def _update_coordinate(self, coord: tuple[int, int]):
         if coord not in self._original_coords:
-            logger.warning(f"Invalid coordinate: {coord}")
+            logger.debug(f"Coordinate outside of color: {coord}")
             return
 
         if self._coord_mode == self.CoordMode.ADD:
@@ -77,7 +82,9 @@ class ImageWidget(QWidget):
         self._update_selected_coords_cache()
 
     def _update_selected_coords_cache(self):
-        self._cached_selected_rects = [QRect(x, y, 1, 1) for x, y in self._selected_coords]
+        self._cached_selected_rects = [
+            self._cached_rects_dict[(x, y)] for x, y in self._selected_coords
+        ]
         self.update()
 
     def set_selected_coords(self, coords: list[tuple[int, int]]):
@@ -105,7 +112,7 @@ class ImageWidget(QWidget):
         brush.setColor(self._background_color)
         painter.setBrush(brush)
 
-        painter.drawRects(self._cached_rects)
+        painter.drawRects(self._cached_all_rects)
 
         brush = painter.brush()
         brush.setColor(self._foreground_color)
@@ -282,13 +289,13 @@ class PartitionDialog(QDialog):
 
             match mode:
                 case ImageWidget.EditMode.PAINT:
-                    self._list_widget.setDragDropMode(QListWidget.NoDragDrop)  # Enable reordering
+                    self._list_widget.setDragDropMode(QListWidget.NoDragDrop)
                     self._list_widget.setSelectionMode(QListWidget.ContiguousSelection)
                 case ImageWidget.EditMode.FILL:
-                    self._list_widget.setDragDropMode(QListWidget.NoDragDrop)  # Enable reordering
+                    self._list_widget.setDragDropMode(QListWidget.NoDragDrop)
                     self._list_widget.setSelectionMode(QListWidget.ContiguousSelection)
                 case ImageWidget.EditMode.SELECT:
-                    self._list_widget.setDragDropMode(QListWidget.InternalMove)  # Enable reordering
+                    self._list_widget.setDragDropMode(QListWidget.InternalMove)
                     self._list_widget.setSelectionMode(QListWidget.ExtendedSelection)
 
             enabled = mode == ImageWidget.EditMode.FILL
