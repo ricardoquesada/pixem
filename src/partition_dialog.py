@@ -202,8 +202,7 @@ class PartitionDialog(QDialog):
         # Create List Widget
         self._list_widget = QListWidget()
         self._connect_list_widget()
-
-        self.update_coords([], coords)
+        self._populate_list_widget(coords)
 
         self._mode_actions = {}
         self._fill_mode_actions = {}
@@ -282,6 +281,14 @@ class PartitionDialog(QDialog):
         self._list_widget.model().rowsMoved.disconnect(self._on_rows_moved)
         self._list_widget.itemSelectionChanged.disconnect(self._on_selection_changed)
 
+    def _populate_list_widget(self, coords: list[tuple[int, int]]):
+        self._disconnect_list_widget()
+        for i, coord in enumerate(coords):
+            item = QListWidgetItem(f"{i} - [{coord[0]} x {coord[1]}]")
+            self._list_widget.addItem(item)
+            item.setData(Qt.UserRole, coord)
+        self._connect_list_widget()
+
     def _set_edit_mode(self, mode: ImageWidget.EditMode):
         if mode != self._edit_mode:
             self._edit_mode = mode
@@ -354,16 +361,13 @@ class PartitionDialog(QDialog):
     ):
         self._disconnect_list_widget()
 
-        self._list_widget.clear()
-        # FIXME: Recreating the QListWidgetItem each time is very slow.
-        # When having drawings with more than 500 pixels in the partition
-        # it is veryyyyy sloooow.
         for i, coord in enumerate(full_coords):
-            item = QListWidgetItem(f"{i} - [{coord[0]} x {coord[1]}]")
-            self._list_widget.addItem(item)
+            item = self._list_widget.item(i)
+            item.setText(f"{i} - [{coord[0]} x {coord[1]}]")
             item.setData(Qt.UserRole, coord)
             selected = coord in selected_coords
             item.setSelected(selected)
+
         self._connect_list_widget()
 
     def get_path(self) -> list[tuple[int, int]]:
