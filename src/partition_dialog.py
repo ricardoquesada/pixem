@@ -201,8 +201,8 @@ class PartitionDialog(QDialog):
 
         # Create List Widget
         self._list_widget = QListWidget()
-        self._connect_list_widget()
         self._populate_list_widget(coords)
+        self._connect_list_widget()
 
         self._mode_actions = {}
         self._fill_mode_actions = {}
@@ -282,12 +282,11 @@ class PartitionDialog(QDialog):
         self._list_widget.itemSelectionChanged.disconnect(self._on_selection_changed)
 
     def _populate_list_widget(self, coords: list[tuple[int, int]]):
-        self._disconnect_list_widget()
+        # precondition: list_widget should not have "connected" slots.
         for i, coord in enumerate(coords):
             item = QListWidgetItem(f"{i} - [{coord[0]} x {coord[1]}]")
             self._list_widget.addItem(item)
             item.setData(Qt.UserRole, coord)
-        self._connect_list_widget()
 
     def _set_edit_mode(self, mode: ImageWidget.EditMode):
         if mode != self._edit_mode:
