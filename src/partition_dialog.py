@@ -4,7 +4,7 @@
 import logging
 from enum import IntEnum, auto
 
-from PySide6.QtCore import QRect, QSize, Qt, Slot
+from PySide6.QtCore import QItemSelectionModel, QRect, QSize, Qt, Slot
 from PySide6.QtGui import QAction, QColor, QImage, QMouseEvent, QPainter, QPen, QPixmap
 from PySide6.QtWidgets import (
     QDialog,
@@ -354,18 +354,27 @@ class PartitionDialog(QDialog):
         selected_items = self._list_widget.selectedItems()
         selected_coords = [item.data(Qt.UserRole) for item in selected_items]
         self._image_widget.set_selected_coords(selected_coords)
+        logger.info(f"Current Index: {self._list_widget.currentIndex()}")
 
     def update_coords(
         self, selected_coords: list[tuple[int, int]], full_coords: list[tuple[int, int]]
     ):
         self._disconnect_list_widget()
 
+        lastest_selected_item = None
         for i, coord in enumerate(full_coords):
             item = self._list_widget.item(i)
             item.setText(f"{i} - [{coord[0]} x {coord[1]}]")
             item.setData(Qt.UserRole, coord)
             selected = coord in selected_coords
             item.setSelected(selected)
+            if selected:
+                lastest_selected_item = item
+        if lastest_selected_item is not None:
+            index = self._list_widget.indexFromItem(lastest_selected_item)
+            self._list_widget.selectionModel().setCurrentIndex(
+                index, QItemSelectionModel.SelectCurrent
+            )
 
         self._connect_list_widget()
 
