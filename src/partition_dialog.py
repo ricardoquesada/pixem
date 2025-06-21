@@ -5,7 +5,7 @@ import logging
 from enum import IntEnum, auto
 
 from PySide6.QtCore import QItemSelectionModel, QRect, QSize, Qt, Slot
-from PySide6.QtGui import QAction, QColor, QImage, QMouseEvent, QPainter, QPen, QPixmap
+from PySide6.QtGui import QAction, QColor, QImage, QKeyEvent, QMouseEvent, QPainter, QPen, QPixmap
 from PySide6.QtWidgets import (
     QDialog,
     QDialogButtonBox,
@@ -64,6 +64,36 @@ class ImageWidget(QWidget):
         self._foreground_color = QColor(
             get_global_preferences().get_partition_foreground_color_name()
         )
+
+        # To receive keyboard events, the widget needs a focus policy.
+        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+
+    def keyPressEvent(self, event: QKeyEvent):
+        """Handles keyboard press events."""
+        key = event.key()
+
+        # Use the parent dialog's actions to ensure the UI stays in sync
+        dialog_actions = self._partition_dialog._mode_actions
+
+        if key == Qt.Key.Key_P:
+            dialog_actions[self.EditMode.PAINT].trigger()
+            event.accept()
+        elif key == Qt.Key.Key_F:
+            dialog_actions[self.EditMode.FILL].trigger()
+            event.accept()
+        elif key == Qt.Key.Key_S:
+            dialog_actions[self.EditMode.SELECT].trigger()
+            event.accept()
+        elif key == Qt.Key.Key_Escape:
+            # Clear the selection and update the UI
+            self.set_selected_coords([])
+            # Create a full list of coords to pass to the dialog
+            full_coords = self._original_coords[:]
+            self._partition_dialog.update_coords([], full_coords)
+            event.accept()
+        else:
+            # If we don't handle the key, pass the event to the base class
+            super().keyPressEvent(event)
 
     def _update_coordinate(self, coord: tuple[int, int]):
         if coord not in self._original_coords:
