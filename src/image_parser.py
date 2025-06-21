@@ -44,7 +44,7 @@ class ImageParser:
         "W": (-1, 0),
     }
 
-    def __init__(self, image: QImage):
+    def __init__(self, image: QImage, one_partition_per_color: bool = True):
         width, height = image.width(), image.height()
 
         self._jump_stitches = 0
@@ -58,7 +58,10 @@ class ImageParser:
         g = self._create_color_graph(width, height)
 
         for color in g:
-            self._create_partitions(g[color], color)
+            if one_partition_per_color:
+                self._create_single_partition_for_color(g[color], color)
+            else:
+                self._create_multiple_partitions_for_color(g[color], color)
 
     def _set_conf_value(self, arg_value, key, default):
         # Priority:
@@ -84,7 +87,14 @@ class ImageParser:
                     continue
                 self._image[x][y] = argb & 0xFFFFFF
 
-    def _create_partitions(self, image_graph, color: int) -> None:
+    def _create_multiple_partitions_for_color(self, image_graph: dict, color: int) -> None:
+        """
+        Create multiple partitions for the given color. The partitions are created based on whether the nodes are connected.
+        This used to be the old behavior. Keeping it in case it is needed again.
+        :param image_graph: The dict that contains the nodes and the edges.
+        :param color: The color of the partition.
+        :return: None
+        """
         # image_graph is a dict of:
         #   key: node
         #   value: edges
@@ -118,6 +128,20 @@ class ImageParser:
                 if len(nodes) > 1:
                     start_node = self._get_starting_node(s)
                     partition.walk_path(Partition.WalkMode.SPIRAL_CW, start_node)
+
+    def _create_single_partition_for_color(self, image_graph: dict, color: int) -> None:
+        """
+        Create a single partition for the given color
+        :param image_graph: a dict that contains the nodes and their edges, but the edges are not used in this function
+        :param color: The color of the partition
+        :return: None
+        """
+        name = f"#{color:06x}_0"
+        color_str = f"#{color:06x}"
+        nodes = list(image_graph.keys())
+        partition = Partition(nodes, name, color_str)
+        partition_uuid = str(uuid.uuid4())
+        self._partitions[partition_uuid] = partition
 
     def _get_starting_node(self, G):
         node = _get_node_with_one_neighbor(G)
