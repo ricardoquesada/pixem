@@ -44,7 +44,8 @@ class ImageWidget(QWidget):
         self._original_coords = coords
         self._selected_coords = []
 
-        self.setMinimumSize(self._image.size())  # Ensure widget is at least image size
+        # Ensure widget is at least image size
+        self.setMinimumSize(self._image.size())
 
         # To prevent creating the rect, we have them pre-created
         self._cached_rects_dict = {}
@@ -72,6 +73,11 @@ class ImageWidget(QWidget):
         """Handles keyboard press events."""
         key = event.key()
 
+        modifiers = event.modifiers()  # Get the current modifiers
+
+        # Check if Shift is pressed
+        is_shift_pressed = modifiers & Qt.KeyboardModifier.ShiftModifier
+
         # Use the parent dialog's actions to ensure the UI stays in sync
         dialog_actions = self._partition_dialog._mode_actions
 
@@ -87,9 +93,24 @@ class ImageWidget(QWidget):
         elif key == Qt.Key.Key_Escape:
             # Clear the selection and update the UI
             self.set_selected_coords([])
-            # Create a full list of coords to pass to the dialog
-            full_coords = self._original_coords[:]
-            self._partition_dialog.update_coords([], full_coords)
+            self._partition_dialog.update_coords([], self._original_coords)
+            event.accept()
+        elif key in [Qt.Key.Key_Up, Qt.Key.Key_Down] and is_shift_pressed:
+            if key == Qt.Key.Key_Up:
+                self._selected_coords = self._selected_coords[:-1]
+            elif key == Qt.Key.Key_Down:
+                for coord in self._original_coords:
+                    if coord not in self._selected_coords:
+                        self._selected_coords.append(coord)
+                        break
+            self.set_selected_coords(self._selected_coords)
+            full_coords = self._selected_coords[:]
+            for coord in self._original_coords:
+                if coord not in full_coords:
+                    full_coords.append(coord)
+            # Update original coords with new order
+            self._original_coords = full_coords
+            self._partition_dialog.update_coords(self._selected_coords, full_coords)
             event.accept()
         else:
             # If we don't handle the key, pass the event to the base class
@@ -210,6 +231,8 @@ class ImageWidget(QWidget):
         for coord in self._original_coords:
             if coord not in full_coords:
                 full_coords.append(coord)
+        # Update original coords with new order
+        self._original_coords = full_coords
         self._partition_dialog.update_coords(self._selected_coords, full_coords)
 
     def sizeHint(self):
