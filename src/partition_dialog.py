@@ -5,13 +5,24 @@ import logging
 from enum import IntEnum, auto
 
 from PySide6.QtCore import QItemSelectionModel, QRect, QSize, Qt, Slot
-from PySide6.QtGui import QAction, QColor, QImage, QKeyEvent, QMouseEvent, QPainter, QPen, QPixmap
+from PySide6.QtGui import (
+    QAction,
+    QColor,
+    QImage,
+    QKeyEvent,
+    QMouseEvent,
+    QPainter,
+    QPalette,
+    QPen,
+    QPixmap,
+)
 from PySide6.QtWidgets import (
     QDialog,
     QDialogButtonBox,
     QHBoxLayout,
     QListWidget,
     QListWidgetItem,
+    QScrollArea,
     QToolBar,
     QVBoxLayout,
     QWidget,
@@ -66,8 +77,42 @@ class ImageWidget(QWidget):
             get_global_preferences().get_partition_foreground_color_name()
         )
 
+        self._zoom_factor = PAINT_SCALE_FACTOR
+        self._min_zoom = 4
+        self._max_zoom = 64
+
         # To receive keyboard events, the widget needs a focus policy.
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+
+        # Set initial size
+        self._update_widget_size()
+
+    def _update_widget_size(self):
+        """
+        Resizes the widget to match the current zoom level.
+        This ensures the QScrollArea updates its scrollbars correctly.
+        """
+        # resize() directly sets the widget's size. The QScrollArea (with
+        # setWidgetResizable(False)) uses this size to calculate the scrollable area.
+        self.resize(self.sizeHint())
+        # We still call update() to schedule a repaint with the new zoom level.
+        self.update()
+
+    def zoom_in(self):
+        """Increases the zoom factor."""
+        if self._zoom_factor < self._max_zoom:
+            self._zoom_factor += 4
+            self._update_widget_size()
+
+    def zoom_out(self):
+        """Decreases the zoom factor."""
+        if self._zoom_factor > self._min_zoom:
+            self._zoom_factor -= 4
+            self._update_widget_size()
+
+    def zoom_reset(self):
+        self._zoom_factor = PAINT_SCALE_FACTOR
+        self._update_widget_size()
 
     def keyPressEvent(self, event: QKeyEvent):
         """Handles keyboard press events."""
@@ -90,15 +135,31 @@ class ImageWidget(QWidget):
         elif key == Qt.Key.Key_S:
             dialog_actions[self.EditMode.SELECT].trigger()
             event.accept()
+        elif key in [Qt.Key.Key_Plus, Qt.Key.Key_Equal]:
+            self.zoom_in()
+            event.accept()
+        elif key == Qt.Key.Key_Minus:
+            self.zoom_out()
+            event.accept()
+        elif key == Qt.Key.Key_1:
+            self.zoom_reset()
+            event.accept()
         elif key == Qt.Key.Key_Escape:
             # Clear the selection and update the UI
             self.set_selected_coords([])
             self._partition_dialog.update_coords([], self._original_coords)
             event.accept()
-        elif key in [Qt.Key.Key_Up, Qt.Key.Key_Down] and is_shift_pressed:
-            if key == Qt.Key.Key_Up:
+        elif (
+            key in [Qt.Key.Key_Up, Qt.Key.Key_Down, Qt.Key.Key_Left, Qt.Key.Key_Right]
+            and is_shift_pressed
+        ):
+            # Emulate QListWidget behavior to select items.
+            # This is needed since QListWidget; when it loses focus, it doesn't
+            #  keep the state of the current cursor position on the selected items.
+            # At least this is true for Qt 6.9
+            if key in [Qt.Key.Key_Up, Qt.Key.Key_Left]:
                 self._selected_coords = self._selected_coords[:-1]
-            elif key == Qt.Key.Key_Down:
+            elif key in [Qt.Key.Key_Down, Qt.Key.Key_Right]:
                 for coord in self._original_coords:
                     if coord not in self._selected_coords:
                         self._selected_coords.append(coord)
@@ -151,7 +212,7 @@ class ImageWidget(QWidget):
     def paintEvent(self, event):
         painter = QPainter(self)
         pixmap = QPixmap.fromImage(self._image)
-        painter.scale(PAINT_SCALE_FACTOR, PAINT_SCALE_FACTOR)
+        painter.scale(self._zoom_factor, self._zoom_factor)
         painter.drawPixmap(0, 0, pixmap)
 
         # painter.setPen(Qt.NoPen)
@@ -178,8 +239,8 @@ class ImageWidget(QWidget):
             return
         event.accept()
         pos = event.pos()
-        x = pos.x() / PAINT_SCALE_FACTOR
-        y = pos.y() / PAINT_SCALE_FACTOR
+        x = pos.x() / self._zoom_factor
+        y = pos.y() / self._zoom_factor
         coord = (int(x), int(y))
 
         if coord not in self._original_coords:
@@ -213,8 +274,8 @@ class ImageWidget(QWidget):
 
         event.accept()
         pos = event.pos()
-        x = pos.x() / PAINT_SCALE_FACTOR
-        y = pos.y() / PAINT_SCALE_FACTOR
+        x = pos.x() / self._zoom_factor
+        y = pos.y() / self._zoom_factor
         coord = (int(x), int(y))
 
         self._update_coordinate(coord)
@@ -237,8 +298,8 @@ class ImageWidget(QWidget):
 
     def sizeHint(self):
         return QSize(
-            self._image.size().width() * PAINT_SCALE_FACTOR,
-            self._image.size().height() * PAINT_SCALE_FACTOR,
+            self._image.size().width() * self._zoom_factor,
+            self._image.size().height() * self._zoom_factor,
         )
 
 
@@ -251,6 +312,14 @@ class PartitionDialog(QDialog):
 
         # Create Image Widget
         self._image_widget = ImageWidget(self, image, coords)
+
+        #  Wrap ImageWidget in a QScrollArea to handle zooming
+        self._scroll_area = QScrollArea()
+        self._scroll_area.setWidget(self._image_widget)
+        # Let the widget's sizeHint dictate the size, don't stretch it.
+        self._scroll_area.setWidgetResizable(False)
+        # A dark background for the scroll area looks better.
+        self._scroll_area.setBackgroundRole(QPalette.ColorRole.Dark)
 
         # Create List Widget
         self._list_widget = QListWidget()
@@ -265,8 +334,8 @@ class PartitionDialog(QDialog):
 
         # Layouts
         image_list_layout = QHBoxLayout()
-        image_list_layout.addWidget(self._image_widget)
-        image_list_layout.addWidget(self._list_widget)
+        image_list_layout.addWidget(self._scroll_area, 1)
+        image_list_layout.addWidget(self._list_widget, 0)
 
         toolbar = QToolBar()
 
@@ -312,6 +381,18 @@ class PartitionDialog(QDialog):
             action.setEnabled(False)
             self._fill_mode_actions[mode[0]] = action
         self._fill_mode_actions[Partition.WalkMode.SPIRAL_CW].setChecked(True)
+
+        toolbar.addSeparator()
+        zoom_actions = [
+            (self.tr("Zoom In"), "zoom-in-symbolic.svg", self._on_zoom_in),
+            (self.tr("Zoom Out"), "zoom-out-symbolic.svg", self._on_zoom_out),
+        ]
+        for text, icon_name, slot in zoom_actions:
+            path = f":/icons/svg/actions/{icon_name}"
+            icon = create_icon_from_svg(path, ICON_SIZE)
+            action = QAction(icon, text, self)
+            toolbar.addAction(action)
+            action.triggered.connect(slot)
 
         # Create Buttons
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
@@ -366,6 +447,14 @@ class PartitionDialog(QDialog):
 
     def _set_walk_mode(self, mode: Partition.WalkMode):
         self._image_widget.set_walk_mode(mode)
+
+    @Slot()
+    def _on_zoom_in(self):
+        self._image_widget.zoom_in()
+
+    @Slot()
+    def _on_zoom_out(self):
+        self._image_widget.zoom_out()
 
     @Slot()
     def _on_action_edit_mode(self, value):
