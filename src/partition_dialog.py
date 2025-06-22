@@ -15,6 +15,7 @@ from PySide6.QtGui import (
     QPalette,
     QPen,
     QPixmap,
+    QWheelEvent,
 )
 from PySide6.QtWidgets import (
     QDialog,
@@ -78,8 +79,8 @@ class ImageWidget(QWidget):
         )
 
         self._zoom_factor = PAINT_SCALE_FACTOR
-        self._min_zoom = 4
-        self._max_zoom = 64
+        self._min_zoom = PAINT_SCALE_FACTOR / 4
+        self._max_zoom = PAINT_SCALE_FACTOR * 2
 
         # To receive keyboard events, the widget needs a focus policy.
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
@@ -113,6 +114,23 @@ class ImageWidget(QWidget):
     def zoom_reset(self):
         self._zoom_factor = PAINT_SCALE_FACTOR
         self._update_widget_size()
+
+    def wheelEvent(self, event: QWheelEvent):
+        """Handles mouse wheel events for zooming (requires Ctrl key)."""
+        # A common UI pattern is to require a modifier key for zooming to
+        # differentiate from scrolling. We'll use the Control key.
+        if event.modifiers() & Qt.KeyboardModifier.ControlModifier:
+            angle = event.angleDelta().y()
+            if angle > 0:
+                self.zoom_in()
+            elif angle < 0:
+                self.zoom_out()
+            # Accept the event to prevent it from being passed to the parent (QScrollArea)
+            event.accept()
+        else:
+            # If Ctrl is not pressed, pass the event to the base class. This allows
+            # the parent QScrollArea to handle it for normal scrolling.
+            super().wheelEvent(event)
 
     def keyPressEvent(self, event: QKeyEvent):
         """Handles keyboard press events."""
