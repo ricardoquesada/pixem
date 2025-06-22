@@ -82,6 +82,8 @@ class ImageWidget(QWidget):
         self._min_zoom = PAINT_SCALE_FACTOR / 4
         self._max_zoom = PAINT_SCALE_FACTOR * 2
 
+        self._pan_last_pos = None
+
         # To receive keyboard events, the widget needs a focus policy.
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
 
@@ -252,6 +254,12 @@ class ImageWidget(QWidget):
         painter.end()
 
     def mousePressEvent(self, event: QMouseEvent):
+        if event.button() == Qt.MouseButton.MiddleButton:
+            self._pan_last_pos = event.pos()
+            self.setCursor(Qt.CursorShape.ClosedHandCursor)
+            event.accept()
+            return
+
         if self._edit_mode not in [ImageWidget.EditMode.PAINT, ImageWidget.EditMode.FILL]:
             event.ignore()
             return
@@ -284,6 +292,19 @@ class ImageWidget(QWidget):
                 self._update_selected_coords_cache()
 
     def mouseMoveEvent(self, event: QMouseEvent):
+        if event.buttons() & Qt.MouseButton.MiddleButton and self._pan_last_pos:
+            scroll_area = self._partition_dialog._scroll_area
+            h_bar = scroll_area.horizontalScrollBar()
+            v_bar = scroll_area.verticalScrollBar()
+
+            delta = event.pos() - self._pan_last_pos
+            h_bar.setValue(h_bar.value() - delta.x())
+            v_bar.setValue(v_bar.value() - delta.y())
+
+            self._pan_last_pos = event.pos()
+            event.accept()
+            return
+
         if self._edit_mode not in [
             ImageWidget.EditMode.PAINT,
         ]:
@@ -299,6 +320,12 @@ class ImageWidget(QWidget):
         self._update_coordinate(coord)
 
     def mouseReleaseEvent(self, event: QMouseEvent):
+        if event.button() == Qt.MouseButton.MiddleButton:
+            self._pan_last_pos = None
+            self.unsetCursor()
+            event.accept()
+            return
+
         if self._edit_mode not in [ImageWidget.EditMode.PAINT, ImageWidget.EditMode.FILL]:
             event.ignore()
             return
