@@ -241,6 +241,13 @@ class MainWindow(QMainWindow):
         self._zoom_out_action.triggered.connect(self._on_zoom_out)
         self._view_menu.addAction(self._zoom_out_action)
 
+        self._zoom_reset_action = QAction(
+            QIcon.fromTheme("zoom-original"), self.tr("Reset Zoom (1:1)"), self
+        )
+        self._zoom_reset_action.setShortcut(QKeySequence("Ctrl+0"))
+        self._zoom_reset_action.triggered.connect(self._on_zoom_reset)
+        self._view_menu.addAction(self._zoom_reset_action)
+
         self._view_menu.addSeparator()
         # The rest of the "View" actions are added once the docks are finished
 
@@ -613,6 +620,7 @@ class MainWindow(QMainWindow):
 
         self._zoom_in_action.setEnabled(enabled)
         self._zoom_out_action.setEnabled(enabled)
+        self._zoom_reset_action.setEnabled(enabled)
 
         for action in self._align_actions.values():
             action.setEnabled(enabled)
@@ -1083,6 +1091,12 @@ class MainWindow(QMainWindow):
         """Zooms out the canvas."""
         if self._canvas and self._state:
             self._canvas.zoom_out()
+
+    @Slot()
+    def _on_zoom_reset(self):
+        """Resets zoom to 1:1."""
+        if self._canvas and self._state:
+            self._canvas.zoom_reset()
 
     @Slot()
     def _on_layer_item_changed(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:

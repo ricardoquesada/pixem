@@ -159,7 +159,7 @@ class ImageWidget(QWidget):
         elif key == Qt.Key.Key_Minus:
             self.zoom_out()
             event.accept()
-        elif key == Qt.Key.Key_1:
+        elif key in (Qt.Key.Key_0, Qt.Key.Key_1):
             self.zoom_reset()
             event.accept()
         elif key == Qt.Key.Key_Escape:

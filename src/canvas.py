@@ -96,6 +96,12 @@ class Canvas(QWidget):
             self._state.zoom_factor = max(0.25, self._state.zoom_factor / 1.25)
             self.recalculate_fixed_size()
 
+    def zoom_reset(self):
+        """Resets the zoom factor to 1."""
+        if self._state:
+            self._state.zoom_factor = 1
+            self.recalculate_fixed_size()
+
     def _paint_to_qimage(
         self,
         image: QPaintDevice,
