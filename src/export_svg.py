@@ -77,6 +77,11 @@ class ExportToSvg:
                 ">\n"
             )
             f.write(
+                '<metadata id="metadata1">\n'
+                "  <inkstitch:inkstitch_svg_version>3</inkstitch:inkstitch_svg_version>\n"
+                "</metadata>\n"
+            )
+            f.write(
                 "<inkscape:grid\n"
                 '  id="grid1"\n'
                 '  units="mm"\n'
