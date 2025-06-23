@@ -8,8 +8,10 @@ from PySide6.QtCore import QItemSelectionModel, QRect, QSize, Qt, Slot
 from PySide6.QtGui import (
     QAction,
     QColor,
+    QIcon,
     QImage,
     QKeyEvent,
+    QKeySequence,
     QMouseEvent,
     QPainter,
     QPalette,
@@ -79,8 +81,6 @@ class ImageWidget(QWidget):
         )
 
         self._zoom_factor = PAINT_SCALE_FACTOR
-        self._min_zoom = PAINT_SCALE_FACTOR / 4
-        self._max_zoom = PAINT_SCALE_FACTOR * 2
 
         self._pan_last_pos = None
 
@@ -103,15 +103,13 @@ class ImageWidget(QWidget):
 
     def zoom_in(self):
         """Increases the zoom factor."""
-        if self._zoom_factor < self._max_zoom:
-            self._zoom_factor += 4
-            self._update_widget_size()
+        self._zoom_factor = min(2.5 * PAINT_SCALE_FACTOR, self._zoom_factor * 1.25)
+        self._update_widget_size()
 
     def zoom_out(self):
         """Decreases the zoom factor."""
-        if self._zoom_factor > self._min_zoom:
-            self._zoom_factor -= 4
-            self._update_widget_size()
+        self._zoom_factor = max(0.25 * PAINT_SCALE_FACTOR, self._zoom_factor / 1.25)
+        self._update_widget_size()
 
     def zoom_reset(self):
         self._zoom_factor = PAINT_SCALE_FACTOR
@@ -429,13 +427,12 @@ class PartitionDialog(QDialog):
 
         toolbar.addSeparator()
         zoom_actions = [
-            (self.tr("Zoom In"), "zoom-in-symbolic.svg", self._on_zoom_in),
-            (self.tr("Zoom Out"), "zoom-out-symbolic.svg", self._on_zoom_out),
+            (self.tr("Zoom In"), "zoom-in", QKeySequence.StandardKey.ZoomIn, self._on_zoom_in),
+            (self.tr("Zoom Out"), "zoom-out", QKeySequence.StandardKey.ZoomOut, self._on_zoom_out),
         ]
-        for text, icon_name, slot in zoom_actions:
-            path = f":/icons/svg/actions/{icon_name}"
-            icon = create_icon_from_svg(path, ICON_SIZE)
-            action = QAction(icon, text, self)
+        for text, icon_name, key_sequence, slot in zoom_actions:
+            action = QAction(QIcon.fromTheme(icon_name), text, self)
+            action.setShortcut(key_sequence)
             toolbar.addAction(action)
             action.triggered.connect(slot)
 

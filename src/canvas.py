@@ -9,14 +9,16 @@ from PySide6.QtCore import QPointF, QRectF, QSize, Qt, Signal, Slot
 from PySide6.QtGui import (
     QColor,
     QImage,
+    QKeyEvent,
     QMouseEvent,
     QPaintDevice,
     QPainter,
     QPainterPath,
     QPaintEvent,
     QPen,
+    QWheelEvent,
 )
-from PySide6.QtWidgets import QWidget
+from PySide6.QtWidgets import QScrollArea, QWidget
 
 import image_utils
 from preferences import get_global_preferences
@@ -67,6 +69,9 @@ class Canvas(QWidget):
         self._mode = Canvas.Mode.MOVE
         self._mode_status = Canvas.ModeStatus.IDLE
 
+        self._pan_last_pos = None
+        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+
         preferences.partition_background_color_changed.connect(
             self._on_partition_background_color_changed
         )
@@ -76,6 +81,20 @@ class Canvas(QWidget):
         preferences.canvas_hoop_color_changed.connect(self._on_hoop_color_changed)
         preferences.hoop_visible_changed.connect(self._on_hoop_visible_changed)
         preferences.hoop_size_changed.connect(self._on_hoop_size_changed)
+
+    def zoom_in(self):
+        """Increases the zoom factor."""
+        if self._state:
+            # You might want to define max zoom in your state or preferences
+            self._state.zoom_factor = min(2.5, self._state.zoom_factor * 1.25)
+            self.recalculate_fixed_size()
+
+    def zoom_out(self):
+        """Decreases the zoom factor."""
+        if self._state:
+            # You might want to define min zoom in your state or preferences
+            self._state.zoom_factor = max(0.25, self._state.zoom_factor / 1.25)
+            self.recalculate_fixed_size()
 
     def _paint_to_qimage(
         self,
@@ -245,7 +264,47 @@ class Canvas(QWidget):
         self._paint_to_qimage(self, True, True, self._cached_hoop_visible)
 
     @override
+    def keyPressEvent(self, event: QKeyEvent):
+        if not self._state:
+            event.ignore()
+            return
+
+        key = event.key()
+        if key in (Qt.Key.Key_Plus, Qt.Key.Key_Equal):
+            self.zoom_in()
+            event.accept()
+        elif key == Qt.Key.Key_Minus:
+            self.zoom_out()
+            event.accept()
+        else:
+            super().keyPressEvent(event)
+
+    @override
+    def wheelEvent(self, event: QWheelEvent):
+        if not self._state:
+            event.ignore()
+            return
+
+        # Use Ctrl+Wheel to zoom, otherwise allow normal scrolling
+        if event.modifiers() & Qt.KeyboardModifier.ControlModifier:
+            angle = event.angleDelta().y()
+            if angle > 0:
+                self.zoom_in()
+            elif angle < 0:
+                self.zoom_out()
+            event.accept()
+        else:
+            # Pass to parent (QScrollArea) for scrolling
+            super().wheelEvent(event)
+
+    @override
     def mousePressEvent(self, event: QMouseEvent):
+        if event.button() == Qt.MouseButton.MiddleButton:
+            self._pan_last_pos = event.position()
+            self.setCursor(Qt.CursorShape.ClosedHandCursor)
+            event.accept()
+            return
+
         if not self._state or not self._state.layers:
             event.ignore()
             return
@@ -273,6 +332,22 @@ class Canvas(QWidget):
 
     @override
     def mouseMoveEvent(self, event: QMouseEvent):
+        if event.buttons() & Qt.MouseButton.MiddleButton and self._pan_last_pos is not None:
+            # Find the parent QScrollArea to control its scrollbars
+            scroll_area = self
+            while scroll_area and not isinstance(scroll_area, QScrollArea):
+                scroll_area = scroll_area.parent()
+
+            if scroll_area:
+                delta = event.position() - self._pan_last_pos
+                h_bar = scroll_area.horizontalScrollBar()
+                v_bar = scroll_area.verticalScrollBar()
+                h_bar.setValue(h_bar.value() - delta.x())
+                v_bar.setValue(v_bar.value() - delta.y())
+                self._pan_last_pos = event.position()
+                event.accept()
+                return
+
         if not self._state or not self._state.layers:
             event.ignore()
             return
@@ -290,6 +365,12 @@ class Canvas(QWidget):
 
     @override
     def mouseReleaseEvent(self, event: QMouseEvent):
+        if event.button() == Qt.MouseButton.MiddleButton:
+            self._pan_last_pos = None
+            self.unsetCursor()
+            event.accept()
+            return
+
         if not self._state or not self._state.layers:
             event.ignore()
             return

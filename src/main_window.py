@@ -231,6 +231,17 @@ class MainWindow(QMainWindow):
 
         self._view_menu = QMenu("&View", self)
         menu_bar.addMenu(self._view_menu)
+        self._zoom_in_action = QAction(QIcon.fromTheme("zoom-in"), self.tr("Zoom In"), self)
+        self._zoom_in_action.setShortcut(QKeySequence.StandardKey.ZoomIn)  # Ctrl++
+        self._zoom_in_action.triggered.connect(self._on_zoom_in)
+        self._view_menu.addAction(self._zoom_in_action)
+
+        self._zoom_out_action = QAction(QIcon.fromTheme("zoom-out"), self.tr("Zoom Out"), self)
+        self._zoom_out_action.setShortcut(QKeySequence.StandardKey.ZoomOut)  # Ctrl+-
+        self._zoom_out_action.triggered.connect(self._on_zoom_out)
+        self._view_menu.addAction(self._zoom_out_action)
+
+        self._view_menu.addSeparator()
         # The rest of the "View" actions are added once the docks are finished
 
         self._show_hoop_separator_action = self._view_menu.addSeparator()
@@ -360,14 +371,8 @@ class MainWindow(QMainWindow):
         self._toolbar.addAction(self._redo_action)
         self._toolbar.addSeparator()
 
-        # Zoom Widget
-        self._zoom_values = ["25%", "50%", "75%", "100%", "150%", "200%"]
-        self._zoom_factors = [0.25, 0.5, 0.75, 1.0, 1.5, 2.0]
-        self._zoom_combobox = QComboBox()
-        self._zoom_combobox.addItems(self._zoom_values)
-        self._zoom_combobox.setCurrentIndex(DEFAULT_ZOOM_FACTOR_IDX)
-        self._zoom_combobox.currentIndexChanged.connect(self._on_zoom_changed)
-        self._toolbar.addWidget(self._zoom_combobox)
+        self._toolbar.addAction(self._zoom_in_action)
+        self._toolbar.addAction(self._zoom_out_action)
 
     def _setup_central_widget(self):
         self._canvas = Canvas(self._state)
@@ -606,7 +611,8 @@ class MainWindow(QMainWindow):
 
         self._edit_partition_action.setEnabled(enabled)
 
-        self._zoom_combobox.setEnabled(enabled)
+        self._zoom_in_action.setEnabled(enabled)
+        self._zoom_out_action.setEnabled(enabled)
 
         for action in self._align_actions.values():
             action.setEnabled(enabled)
@@ -674,14 +680,6 @@ class MainWindow(QMainWindow):
             self._layer_list.setCurrentRow(selected_layer_idx)
         else:
             logger.error("Selected layer not found")
-
-        index = 3  # Default: 100%
-        for i, zoom_factor in enumerate(self._zoom_factors):
-            if abs(self._state.zoom_factor - zoom_factor) <= 0.01:
-                index = i
-                break
-        with block_signals(self._zoom_combobox):
-            self._zoom_combobox.setCurrentIndex(index)
 
         # FIXME: update state should be done in one method
         self._update_qactions()
@@ -857,9 +855,6 @@ class MainWindow(QMainWindow):
         # Triggers on_layer_item_changed / on_change_partition, but not an issue
         self._layer_list.clear()
         self._partition_list.clear()
-
-        with block_signals(self._zoom_combobox):
-            self._zoom_combobox.setCurrentIndex(DEFAULT_ZOOM_FACTOR_IDX)
 
         # FIXME: update state should be done in one method
         self._update_qactions()
@@ -1078,8 +1073,16 @@ class MainWindow(QMainWindow):
         self._position_y_spinbox.setValue(y)
 
     @Slot()
-    def _on_zoom_changed(self, index: int) -> None:
-        self._state.zoom_factor = self._zoom_factors[index]
+    def _on_zoom_in(self):
+        """Zooms in the canvas."""
+        if self._canvas and self._state:
+            self._canvas.zoom_in()
+
+    @Slot()
+    def _on_zoom_out(self):
+        """Zooms out the canvas."""
+        if self._canvas and self._state:
+            self._canvas.zoom_out()
 
     @Slot()
     def _on_layer_item_changed(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
