@@ -68,6 +68,9 @@ class PreferenceDialog(QDialog):
         # Hoop Size
         hoop_size_group_box = QGroupBox(self.tr("Hoop Size (inches)"))
         hoop_size_vlayout = QVBoxLayout()
+        self._hoop_1_25_radio = QRadioButton(self.tr("1x2.5"))
+        self._hoop_25_1_radio = QRadioButton(self.tr("2.5x1"))
+        self._hoop_7_5_radio = QRadioButton(self.tr("7x5"))
         self._hoop_4_4_radio = QRadioButton(self.tr("4x4"))
         self._hoop_5_7_radio = QRadioButton(self.tr("5x7"))
         self._hoop_7_5_radio = QRadioButton(self.tr("7x5"))
@@ -88,6 +91,8 @@ class PreferenceDialog(QDialog):
         custom_layout.addWidget(self._custom_size_x_spinbox)
         custom_layout.addWidget(self._custom_size_y_spinbox)
 
+        hoop_size_vlayout.addWidget(self._hoop_1_25_radio)
+        hoop_size_vlayout.addWidget(self._hoop_25_1_radio)
         hoop_size_vlayout.addWidget(self._hoop_4_4_radio)
         hoop_size_vlayout.addWidget(self._hoop_5_7_radio)
         hoop_size_vlayout.addWidget(self._hoop_7_5_radio)
@@ -197,6 +202,8 @@ class PreferenceDialog(QDialog):
         self._visibility_checkbox.setChecked(hoop_visible)
 
         d = {
+            (1, 2.5): self._hoop_1_25_radio,
+            (2.5, 1): self._hoop_25_1_radio,
             (4, 4): self._hoop_4_4_radio,
             (5, 7): self._hoop_5_7_radio,
             (7, 5): self._hoop_7_5_radio,
@@ -222,7 +229,11 @@ class PreferenceDialog(QDialog):
 
     def _apply(self) -> None:
         hoop_size = (0, 0)
-        if self._hoop_4_4_radio.isChecked():
+        if self._hoop_1_25_radio.isChecked():
+            hoop_size = (1, 2.5)
+        elif self._hoop_25_1_radio.isChecked():
+            hoop_size = (2.5, 1)
+        elif self._hoop_4_4_radio.isChecked():
             hoop_size = (4, 4)
         elif self._hoop_5_7_radio.isChecked():
             hoop_size = (5, 7)
