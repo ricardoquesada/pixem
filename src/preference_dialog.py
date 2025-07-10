@@ -26,7 +26,7 @@ from PySide6.QtWidgets import (
 
 from preferences import get_global_preferences
 
-logger = logging.getLogger(__name__)  # __name__ gets the current module's name
+logger = logging.getLogger(__name__)
 
 
 class ColorType(IntEnum):

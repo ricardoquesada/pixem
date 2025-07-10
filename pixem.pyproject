@@ -2,6 +2,7 @@
     "files": [
         "src/about_dialog.py",
         "src/canvas.py",
+        "src/deselectable_list_widget.py",
         "src/export_svg.py",
         "src/font_dialog.py",
         "src/image_parser.py",

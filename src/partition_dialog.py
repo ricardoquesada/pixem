@@ -451,11 +451,11 @@ class PartitionDialog(QDialog):
 
     def _connect_list_widget(self):
         self._list_widget.model().rowsMoved.connect(self._on_rows_moved)
-        self._list_widget.itemSelectionChanged.connect(self._on_selection_changed)
+        self._list_widget.itemSelectionChanged.connect(self._on_item_selection_changed)
 
     def _disconnect_list_widget(self):
         self._list_widget.model().rowsMoved.disconnect(self._on_rows_moved)
-        self._list_widget.itemSelectionChanged.disconnect(self._on_selection_changed)
+        self._list_widget.itemSelectionChanged.disconnect(self._on_item_selection_changed)
 
     def _populate_list_widget(self, coords: list[tuple[int, int]]):
         # precondition: list_widget should not have "connected" slots.
@@ -534,7 +534,7 @@ class PartitionDialog(QDialog):
         pass
 
     @Slot()
-    def _on_selection_changed(self):
+    def _on_item_selection_changed(self):
         selected_items = self._list_widget.selectedItems()
         selected_coords = [item.data(Qt.UserRole) for item in selected_items]
         self._image_widget.set_selected_coords(selected_coords)

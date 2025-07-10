@@ -48,7 +48,7 @@ from preferences import get_global_preferences
 from state import State
 from state_properties import StateProperties, StatePropertyFlags
 
-logger = logging.getLogger(__name__)  # __name__ gets the current module's name
+logger = logging.getLogger(__name__)
 
 ICON_SIZE = 22
 

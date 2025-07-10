@@ -18,9 +18,9 @@ class AboutDialog(QDialog):
 
         # Create an icon label
         icon_label = QLabel()
-        pixmap = QPixmap(":/logo512.png")  # Replace with your icon path
+        pixmap = QPixmap(":/logo512.png")
         icon_label.setPixmap(pixmap)
-        icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # Center the icon
+        icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # Create a label for the description
         description_label = QLabel(
@@ -34,7 +34,7 @@ class AboutDialog(QDialog):
             """
             )
         )
-        description_label.setWordWrap(True)  # Enable word wrap
+        description_label.setWordWrap(True)
         description_label.setTextFormat(Qt.RichText)
         description_label.setOpenExternalLinks(True)
 

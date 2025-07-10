@@ -10,7 +10,7 @@ from PySide6.QtGui import QUndoCommand
 from layer import Layer, LayerProperties, TextLayer
 from partition import Partition
 
-logger = logging.getLogger(__name__)  # __name__ gets the current module's name
+logger = logging.getLogger(__name__)
 
 
 class CommandID(IntEnum):
