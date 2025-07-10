@@ -38,6 +38,7 @@ from PySide6.QtWidgets import (
 
 from about_dialog import AboutDialog
 from canvas import Canvas
+from deselectable_list_widget import DeselectableListWidget
 from font_dialog import FontDialog
 from image_utils import create_icon_from_svg
 from layer import EmbroideryParameters, ImageLayer, Layer, LayerAlign, LayerProperties, TextLayer
@@ -407,7 +408,7 @@ class MainWindow(QMainWindow):
 
     def _setup_partitions_dock(self):
         # Partitions Dock
-        self._partition_list = QListWidget()
+        self._partition_list = DeselectableListWidget()
         self._partition_list.setDragDropMode(QListWidget.InternalMove)  # Enable reordering
         self._partition_list.model().rowsMoved.connect(self._on_partition_rows_moved)
         self._partition_list.currentItemChanged.connect(self._on_partition_current_item_changed)

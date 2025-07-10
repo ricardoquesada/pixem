@@ -211,7 +211,7 @@ class Layer:
 
     @selected_partition_uuid.setter
     def selected_partition_uuid(self, value: str):
-        if value not in self.partitions:
+        if value is not None and value not in self.partitions:
             logger.error(f"Invalid partition uuid: {value} for layer {self.uuid}")
             traceback.print_stack()
             return
