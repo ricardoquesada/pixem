@@ -383,9 +383,9 @@ class MainWindow(QMainWindow):
 
     def _setup_central_widget(self):
         self._canvas = Canvas(self._state)
-        self._canvas.position_changed.connect(self._on_position_changed_from_canvas)
-        self._canvas.layer_selection_changed.connect(self._on_layer_selection_changed_from_canvas)
-        self._canvas.layer_double_clicked.connect(self._on_layer_double_clicked_from_canvas)
+        self._canvas.position_changed.connect(self._on_canvas_position_changed)
+        self._canvas.layer_selection_changed.connect(self._on_canvas_layer_selection_changed)
+        self._canvas.layer_double_clicked.connect(self._on_canvas_layer_double_clicked)
 
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
@@ -398,7 +398,7 @@ class MainWindow(QMainWindow):
         self._layer_list = QListWidget()
         self._layer_list.setDragDropMode(QListWidget.InternalMove)  # Enable reordering
         self._layer_list.model().rowsMoved.connect(self._on_layer_rows_moved)
-        self._layer_list.currentItemChanged.connect(self._on_layer_item_changed)
+        self._layer_list.currentItemChanged.connect(self._on_layer_current_item_changed)
         self._layer_list.itemDoubleClicked.connect(self._on_layer_item_double_clicked)
         self._layers_dock = QDockWidget(self.tr("Layers"), self)
         self._layers_dock.setObjectName("layers_dock")
@@ -410,8 +410,9 @@ class MainWindow(QMainWindow):
         self._partition_list = QListWidget()
         self._partition_list.setDragDropMode(QListWidget.InternalMove)  # Enable reordering
         self._partition_list.model().rowsMoved.connect(self._on_partition_rows_moved)
-        self._partition_list.currentItemChanged.connect(self._on_change_partition)
-        self._partition_list.itemDoubleClicked.connect(self._on_double_click_partition)
+        self._partition_list.currentItemChanged.connect(self._on_partition_current_item_changed)
+        self._partition_list.itemDoubleClicked.connect(self._on_partition_item_double_clicked)
+        self._partition_list.itemClicked.connect(self._on_partition_item_clicked)
         self._partitions_dock = QDockWidget(self.tr("Partitions"), self)
         self._partitions_dock.setObjectName("partitions_dock")
         self._partitions_dock.setWidget(self._partition_list)
@@ -1099,7 +1100,9 @@ class MainWindow(QMainWindow):
             self._canvas.zoom_reset()
 
     @Slot()
-    def _on_layer_item_changed(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
+    def _on_layer_current_item_changed(
+        self, current: QListWidgetItem, previous: QListWidgetItem
+    ) -> None:
         # Gets triggered when a new layers gets selected. Might happen when an entry gets removed.
         enabled = current is not None and len(self._state.layers) > 0
         self._property_editor.setEnabled(enabled)
@@ -1144,8 +1147,10 @@ class MainWindow(QMainWindow):
             layer_uuid = item.data(Qt.UserRole)
             self._process_double_click_on_layer(layer_uuid)
 
-    @Slot()
-    def _on_change_partition(self, current: QListWidgetItem, previous: QListWidgetItem) -> None:
+    @Slot(QListWidgetItem, QListWidgetItem)
+    def _on_partition_current_item_changed(
+        self, current: QListWidgetItem, previous: QListWidgetItem
+    ) -> None:
         enabled = current is not None
         selected_layer = self._state.selected_layer
         new_uuid = None
@@ -1158,12 +1163,27 @@ class MainWindow(QMainWindow):
         self._canvas.update()
         self.update()
 
-    @Slot()
-    def _on_double_click_partition(self, current: QListWidgetItem) -> None:
+    @Slot(QListWidgetItem)
+    def _on_partition_item_double_clicked(self, current: QListWidgetItem) -> None:
         if current is None:
             return
-
         self._on_partition_edit()
+
+    @Slot(QListWidgetItem)
+    def _on_partition_item_clicked(self, item: QListWidgetItem) -> None:
+        """
+        Handles a click on a partition item. If the clicked item is already
+        selected, it will be deselected.
+        """
+        # This logic relies on the fact that the `itemClicked` signal is emitted
+        # while the item's selection state is from *before* the click action has
+        # been fully processed by the selection model.
+        if item.isSelected():
+            # If the item was already selected, we clear the selection.
+            self._partition_list.clearSelection()
+            # `clearSelection` will trigger `currentItemChanged` with a null item,
+            # which in turn calls `_on_partition_current_item_changed` to correctly update the
+            # application's state to have no selected partition.
 
     @Slot()
     def _on_partition_edit(self):
@@ -1237,8 +1257,8 @@ class MainWindow(QMainWindow):
         dialog = AboutDialog()
         dialog.exec()
 
-    @Slot()
-    def _on_position_changed_from_canvas(self, position: QPointF):
+    @Slot(QPointF)
+    def _on_canvas_position_changed(self, position: QPointF):
         # Avoid sending two Undo commands if only one can do it
         x = self._position_x_spinbox.value()
         y = self._position_y_spinbox.value()
@@ -1255,7 +1275,7 @@ class MainWindow(QMainWindow):
                 self._position_x_spinbox.setValue(position.x())
 
     @Slot(str)
-    def _on_layer_selection_changed_from_canvas(self, layer_uuid: str):
+    def _on_canvas_layer_selection_changed(self, layer_uuid: str):
         for i in range(self._layer_list.count()):
             item = self._layer_list.item(i)
             if item.data(Qt.UserRole) == layer_uuid:
@@ -1263,7 +1283,7 @@ class MainWindow(QMainWindow):
                 break
 
     @Slot(str)
-    def _on_layer_double_clicked_from_canvas(self, layer_uuid: str):
+    def _on_canvas_layer_double_clicked(self, layer_uuid: str):
         if self._state is None:
             return
         self._process_double_click_on_layer(layer_uuid)
@@ -1346,13 +1366,13 @@ class MainWindow(QMainWindow):
             if item.data(Qt.UserRole) == layer.uuid:
                 break
         if index != -1:
-            # Triggers "_on_layer_item_changed"
+            # Triggers "_on_layer_current_item_changed"
             self._layer_list.takeItem(index)
         else:
             logger.warning(f"Failed to delete layer from list {layer.name}")
 
         # _partition_list should get auto-populated
-        # because a "_on_layer_item_changed" should be triggered by "_layer_list.takeItem()"
+        # because a "_on_layer_current_item_changed" should be triggered by "_layer_list.takeItem()"
 
         self._update_statusbar()
         self._canvas.recalculate_fixed_size()
