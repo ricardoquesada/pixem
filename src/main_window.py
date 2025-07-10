@@ -84,6 +84,7 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self._state = None
+        self._clicked_on_selected_partition = False
         self._setup_ui()
 
         self._save_default_settings()
@@ -412,6 +413,7 @@ class MainWindow(QMainWindow):
         self._partition_list.model().rowsMoved.connect(self._on_partition_rows_moved)
         self._partition_list.currentItemChanged.connect(self._on_partition_current_item_changed)
         self._partition_list.itemDoubleClicked.connect(self._on_partition_item_double_clicked)
+        self._partition_list.itemPressed.connect(self._on_partition_item_pressed)
         self._partition_list.itemClicked.connect(self._on_partition_item_clicked)
         self._partitions_dock = QDockWidget(self.tr("Partitions"), self)
         self._partitions_dock.setObjectName("partitions_dock")
@@ -1170,20 +1172,27 @@ class MainWindow(QMainWindow):
         self._on_partition_edit()
 
     @Slot(QListWidgetItem)
+    def _on_partition_item_pressed(self, item: QListWidgetItem) -> None:
+        """
+        Catches when an item is pressed to check if it's already selected.
+        This is used to handle deselecting on click. The `itemPressed` signal
+        is reliably emitted before the selection model changes.
+        """
+        self._clicked_on_selected_partition = item.isSelected()
+
+    @Slot(QListWidgetItem)
     def _on_partition_item_clicked(self, item: QListWidgetItem) -> None:
         """
-        Handles a click on a partition item. If the clicked item is already
-        selected, it will be deselected.
+        Handles a click on a partition item. If the clicked item was already
+        selected (detected in `_on_partition_item_pressed`), it will be deselected.
         """
-        # This logic relies on the fact that the `itemClicked` signal is emitted
-        # while the item's selection state is from *before* the click action has
-        # been fully processed by the selection model.
-        if item.isSelected():
-            # If the item was already selected, we clear the selection.
-            self._partition_list.clearSelection()
+        if self._clicked_on_selected_partition:
+            # The press was on an already-selected item, so we deselect it.
+            # self._partition_list.clearSelection()
             # `clearSelection` will trigger `currentItemChanged` with a null item,
             # which in turn calls `_on_partition_current_item_changed` to correctly update the
             # application's state to have no selected partition.
+            pass
 
     @Slot()
     def _on_partition_edit(self):
