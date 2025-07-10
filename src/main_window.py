@@ -84,7 +84,6 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self._state = None
-        self._clicked_on_selected_partition = False
         self._setup_ui()
 
         self._save_default_settings()
@@ -413,8 +412,6 @@ class MainWindow(QMainWindow):
         self._partition_list.model().rowsMoved.connect(self._on_partition_rows_moved)
         self._partition_list.currentItemChanged.connect(self._on_partition_current_item_changed)
         self._partition_list.itemDoubleClicked.connect(self._on_partition_item_double_clicked)
-        self._partition_list.itemPressed.connect(self._on_partition_item_pressed)
-        self._partition_list.itemClicked.connect(self._on_partition_item_clicked)
         self._partitions_dock = QDockWidget(self.tr("Partitions"), self)
         self._partitions_dock.setObjectName("partitions_dock")
         self._partitions_dock.setWidget(self._partition_list)
@@ -707,11 +704,11 @@ class MainWindow(QMainWindow):
     def _setup_state(self, state: State):
         self._state = state
         self._canvas.state = state
-        self._state.layer_property_changed.connect(self._on_layer_property_changed_from_state)
-        self._state.state_property_changed.connect(self._on_state_property_changed_from_state)
-        self._state.layer_added.connect(self._on_layer_added_from_state)
-        self._state.layer_removed.connect(self._on_layer_removed_from_state)
-        self._state.layer_pixels_changed.connect(self._on_layer_pixels_changed_from_state)
+        self._state.layer_property_changed.connect(self._on_state_layer_property_changed)
+        self._state.state_property_changed.connect(self._on_state_state_property_changed)
+        self._state.layer_added.connect(self._on_state_layer_added)
+        self._state.layer_removed.connect(self._on_state_layer_removed)
+        self._state.layer_pixels_changed.connect(self._on_state_layer_pixels_changed)
 
         self._undo_action.triggered.connect(self._state.undo_stack.undo)
         self._redo_action.triggered.connect(self._state.undo_stack.redo)
@@ -722,15 +719,11 @@ class MainWindow(QMainWindow):
 
     def _cleanup_state(self):
         if self._state is not None:
-            self._state.layer_property_changed.disconnect(
-                self._on_layer_property_changed_from_state
-            )
-            self._state.state_property_changed.disconnect(
-                self._on_state_property_changed_from_state
-            )
-            self._state.layer_added.disconnect(self._on_layer_added_from_state)
-            self._state.layer_removed.disconnect(self._on_layer_removed_from_state)
-            self._state.layer_pixels_changed.disconnect(self._on_layer_pixels_changed_from_state)
+            self._state.layer_property_changed.disconnect(self._on_state_layer_property_changed)
+            self._state.state_property_changed.disconnect(self._on_state_state_property_changed)
+            self._state.layer_added.disconnect(self._on_state_layer_added)
+            self._state.layer_removed.disconnect(self._on_state_layer_removed)
+            self._state.layer_pixels_changed.disconnect(self._on_state_layer_pixels_changed)
             self._undo_action.triggered.disconnect(self._state.undo_stack.undo)
             self._redo_action.triggered.disconnect(self._state.undo_stack.redo)
             self._state.undo_stack.indexChanged.disconnect(self._on_undo_stack_index_changed)
@@ -1171,29 +1164,6 @@ class MainWindow(QMainWindow):
             return
         self._on_partition_edit()
 
-    @Slot(QListWidgetItem)
-    def _on_partition_item_pressed(self, item: QListWidgetItem) -> None:
-        """
-        Catches when an item is pressed to check if it's already selected.
-        This is used to handle deselecting on click. The `itemPressed` signal
-        is reliably emitted before the selection model changes.
-        """
-        self._clicked_on_selected_partition = item.isSelected()
-
-    @Slot(QListWidgetItem)
-    def _on_partition_item_clicked(self, item: QListWidgetItem) -> None:
-        """
-        Handles a click on a partition item. If the clicked item was already
-        selected (detected in `_on_partition_item_pressed`), it will be deselected.
-        """
-        if self._clicked_on_selected_partition:
-            # The press was on an already-selected item, so we deselect it.
-            # self._partition_list.clearSelection()
-            # `clearSelection` will trigger `currentItemChanged` with a null item,
-            # which in turn calls `_on_partition_current_item_changed` to correctly update the
-            # application's state to have no selected partition.
-            pass
-
     @Slot()
     def _on_partition_edit(self):
         layer = self._state.selected_layer
@@ -1298,7 +1268,7 @@ class MainWindow(QMainWindow):
         self._process_double_click_on_layer(layer_uuid)
 
     @Slot()
-    def _on_layer_property_changed_from_state(self, layer: Layer):
+    def _on_state_layer_property_changed(self, layer: Layer):
         if self._state is None:
             logger.warning("Unexpected state. Should not be none")
             return
@@ -1320,7 +1290,7 @@ class MainWindow(QMainWindow):
         self.update()
 
     @Slot()
-    def _on_state_property_changed_from_state(
+    def _on_state_state_property_changed(
         self, flag: StatePropertyFlags, properties: StateProperties
     ):
         if flag not in [
@@ -1338,7 +1308,7 @@ class MainWindow(QMainWindow):
             self.update()
 
     @Slot()
-    def _on_layer_added_from_state(self, layer: Layer):
+    def _on_state_layer_added(self, layer: Layer):
         item = QListWidgetItem(layer.name)
         item.setData(Qt.UserRole, layer.uuid)
 
@@ -1363,7 +1333,7 @@ class MainWindow(QMainWindow):
         self.update()
 
     @Slot()
-    def _on_layer_removed_from_state(self, layer: Layer):
+    def _on_state_layer_removed(self, layer: Layer):
         # Clear the "partitions"
         with block_signals(self._partition_list):
             self._partition_list.clear()
@@ -1388,7 +1358,7 @@ class MainWindow(QMainWindow):
         self.update()
 
     @Slot()
-    def _on_layer_pixels_changed_from_state(self, layer: Layer):
+    def _on_state_layer_pixels_changed(self, layer: Layer):
         item = self._layer_list.currentItem()
         if item.data(Qt.UserRole) == layer.uuid:
             self._populate_partitions(layer)
