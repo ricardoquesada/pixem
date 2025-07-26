@@ -47,7 +47,8 @@ class DeselectableListWidget(QListWidget):
 
                 # We still pass the event to the base class. For a selected item,
                 # this press won't change the selection, but it's necessary for
-                # the widget to correctly detect a subsequent double-click.
+                # the widget to correctly detect a subsequent double-click or a
+                # drag-and-drop gesture.
                 super().mousePressEvent(event)
                 return
 
@@ -63,6 +64,16 @@ class DeselectableListWidget(QListWidget):
         self._deselection_timer.stop()
 
         super().mouseDoubleClickEvent(event)
+
+    def startDrag(self, supportedActions):
+        """
+        Overrides the base method to cancel the deselection timer when a
+        drag-and-drop operation begins.
+        """
+        # A drag is starting, so it's not a click-to-deselect.
+        # We must cancel the pending deselection timer.
+        self._deselection_timer.stop()
+        super().startDrag(supportedActions)
 
     def _perform_deselection(self):
         """
