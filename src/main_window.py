@@ -271,19 +271,19 @@ class MainWindow(QMainWindow):
         layer_menu = QMenu(self.tr("&Layer"), self)
         menu_bar.addMenu(layer_menu)
 
-        self._add_image_action = QAction(
+        self._add_image_layer_action = QAction(
             QIcon.fromTheme("insert-image"), self.tr("Add Image Layer"), self
         )
-        self._add_image_action.setShortcut(QKeySequence("Ctrl+I"))
-        self._add_image_action.triggered.connect(self._on_layer_add_image)
-        layer_menu.addAction(self._add_image_action)
+        self._add_image_layer_action.setShortcut(QKeySequence("Ctrl+I"))
+        self._add_image_layer_action.triggered.connect(self._on_layer_add_image)
+        layer_menu.addAction(self._add_image_layer_action)
 
-        self._add_text_action = QAction(
+        self._add_text_layer_action = QAction(
             QIcon.fromTheme("insert-text"), self.tr("Add Text Layer"), self
         )
-        self._add_text_action.setShortcut(QKeySequence("Ctrl+T"))
-        self._add_text_action.triggered.connect(self._on_layer_add_text)
-        layer_menu.addAction(self._add_text_action)
+        self._add_text_layer_action.setShortcut(QKeySequence("Ctrl+T"))
+        self._add_text_layer_action.triggered.connect(self._on_layer_add_text)
+        layer_menu.addAction(self._add_text_layer_action)
 
         self._delete_layer_action = QAction(
             QIcon.fromTheme("edit-delete"), self.tr("Delete Layer"), self
@@ -359,8 +359,8 @@ class MainWindow(QMainWindow):
         self._toolbar.addAction(self._save_action)
         self._toolbar.addSeparator()
 
-        self._toolbar.addAction(self._add_image_action)
-        self._toolbar.addAction(self._add_text_action)
+        self._toolbar.addAction(self._add_image_layer_action)
+        self._toolbar.addAction(self._add_text_layer_action)
         self._toolbar.addSeparator()
 
         self._toolbar.addAction(self._canvas_mode_move_action)
@@ -613,8 +613,8 @@ class MainWindow(QMainWindow):
         self._export_as_action.setEnabled(enabled)
         self._export_to_png_as_action.setEnabled(enabled)
 
-        self._add_text_action.setEnabled(enabled)
-        self._add_image_action.setEnabled(enabled)
+        self._add_text_layer_action.setEnabled(enabled)
+        self._add_image_layer_action.setEnabled(enabled)
         self._delete_layer_action.setEnabled(enabled)
 
         self._edit_partition_action.setEnabled(enabled)
