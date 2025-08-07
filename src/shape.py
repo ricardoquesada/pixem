@@ -1,3 +1,6 @@
+# Pixem
+# Copyright 2025 - Ricardo Quesada
+
 from enum import IntEnum, auto
 
 
