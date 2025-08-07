@@ -13,6 +13,14 @@ class Shape:
         self.x = x
         self.y = y
 
+    def __eq__(self, other):
+        """Overrides the default '==' behavior."""
+        if not isinstance(other, Rect):
+            return NotImplemented
+
+        # If it is, compare the attributes you care about.
+        return self.x == other.x and self.y == other.y
+
 
 class Rect(Shape):
     pass

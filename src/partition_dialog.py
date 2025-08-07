@@ -183,34 +183,34 @@ class ImageWidget(QWidget):
             if key in [Qt.Key.Key_Up, Qt.Key.Key_Left]:
                 self._selected_shapes = self._selected_shapes[:-1]
             elif key in [Qt.Key.Key_Down, Qt.Key.Key_Right]:
-                for coord in self._original_shapes:
-                    if coord not in self._selected_shapes:
-                        self._selected_shapes.append(coord)
+                for shape in self._original_shapes:
+                    if shape not in self._selected_shapes:
+                        self._selected_shapes.append(shape)
                         break
             self.set_selected_shapes(self._selected_shapes)
-            full_coords = self._selected_shapes[:]
-            for coord in self._original_shapes:
-                if coord not in full_coords:
-                    full_coords.append(coord)
-            # Update original coords with new order
-            self._original_shapes = full_coords
-            self._partition_dialog.update_shapes(self._selected_shapes, full_coords)
+            full_shapes = self._selected_shapes[:]
+            for shape in self._original_shapes:
+                if shape not in full_shapes:
+                    full_shapes.append(shape)
+            # Update original shapes with new order
+            self._original_shapes = full_shapes
+            self._partition_dialog.update_shapes(self._selected_shapes, full_shapes)
             event.accept()
         else:
             # If we don't handle the key, pass the event to the base class
             super().keyPressEvent(event)
 
-    def _update_coordinate(self, coord: tuple[int, int]):
-        if coord not in self._original_shapes:
-            logger.debug(f"Coordinate outside of color: {coord}")
+    def _update_shape(self, shape: Shape):
+        if shape not in self._original_shapes:
+            logger.debug(f"Coordinate outside of color: {shape}")
             return
 
         if self._coord_mode == self.CoordMode.ADD:
-            if coord not in self._selected_shapes:
-                self._selected_shapes.append(coord)
+            if shape not in self._selected_shapes:
+                self._selected_shapes.append(shape)
         elif self._coord_mode == self.CoordMode.REMOVE:
-            if coord in self._selected_shapes:
-                self._selected_shapes.remove(coord)
+            if shape in self._selected_shapes:
+                self._selected_shapes.remove(shape)
         else:
             logger.warning(f"Invalid coord mode: {self._coord_mode}")
 
@@ -218,7 +218,7 @@ class ImageWidget(QWidget):
 
     def _update_selected_shapes_cache(self):
         self._cached_selected_rects = [
-            self._cached_rects_dict[(x, y)] for x, y in self._selected_shapes
+            self._cached_rects_dict[(shape.x, shape.y)] for shape in self._selected_shapes
         ]
         self.update()
 
@@ -270,9 +270,9 @@ class ImageWidget(QWidget):
         pos = event.pos()
         x = pos.x() / self._zoom_factor
         y = pos.y() / self._zoom_factor
-        coord = (int(x), int(y))
+        shape = Rect(int(x), int(y))
 
-        if coord not in self._original_shapes:
+        if shape not in self._original_shapes:
             event.ignore()
             return
 
@@ -281,15 +281,15 @@ class ImageWidget(QWidget):
                 self._coord_mode = (
                     self.CoordMode.ADD if event.button() == Qt.LeftButton else self.CoordMode.REMOVE
                 )
-                self._update_coordinate(coord)
+                self._update_shape(shape)
             case ImageWidget.EditMode.FILL:
-                if coord in self._selected_shapes:
+                if shape in self._selected_shapes:
                     # Could be a user error, when it clicks a pixel that it is already painted
                     return
                 partial_partition = list(set(self._original_shapes) - set(self._selected_shapes))
                 # Create temporal partition
                 part = Partition(partial_partition)
-                part.walk_path(self._walk_mode, coord)
+                part.walk_path(self._walk_mode, (shape.x, shape.y))
                 ordered_partition = part.path
                 self._selected_shapes = self._selected_shapes + ordered_partition
                 self._update_selected_shapes_cache()
@@ -318,9 +318,9 @@ class ImageWidget(QWidget):
         pos = event.pos()
         x = pos.x() / self._zoom_factor
         y = pos.y() / self._zoom_factor
-        coord = (int(x), int(y))
+        shape = Rect(int(x), int(y))
 
-        self._update_coordinate(coord)
+        self._update_shape(shape)
 
     def mouseReleaseEvent(self, event: QMouseEvent):
         if event.button() == Qt.MouseButton.MiddleButton:
@@ -337,9 +337,9 @@ class ImageWidget(QWidget):
         if len(self._selected_shapes) == 0:
             return
         full_shapes = self._selected_shapes[:]
-        for coord in self._original_shapes:
-            if coord not in full_shapes:
-                full_shapes.append(coord)
+        for shape in self._original_shapes:
+            if shape not in full_shapes:
+                full_shapes.append(shape)
         # Update original shapes with new order
         self._original_shapes = full_shapes
         self._partition_dialog.update_shapes(self._selected_shapes, full_shapes)

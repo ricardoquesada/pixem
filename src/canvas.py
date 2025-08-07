@@ -197,7 +197,8 @@ class Canvas(QWidget):
             if layer.selected_partition_uuid in layer.partitions:
                 partition = layer.partitions[layer.selected_partition_uuid]
 
-                for x, y in partition.path:
+                for shape in partition.path:
+                    x, y = shape.x, shape.y
                     polygon = [
                         QPointF(offset.x() + x * W, offset.y() + y * H),
                         QPointF(offset.x() + (x + 1) * W, offset.y() + y * H),
