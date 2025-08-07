@@ -8,6 +8,7 @@ import networkx as nx
 from PySide6.QtGui import QColor, QImage
 
 from partition import Partition
+from shape import Rect
 
 logger = logging.getLogger(__name__)
 
@@ -119,7 +120,8 @@ class ImageParser:
             name = f"#{color:06x}_{idx}"
             color_str = f"#{color:06x}"
 
-            partition = Partition(nodes, name, color_str)
+            shapes = [Rect(node[0], node[1]) for node in nodes]
+            partition = Partition(shapes, name, color_str)
 
             partition_uuid = str(uuid.uuid4())
             if partition_uuid not in self._partitions:
@@ -139,7 +141,8 @@ class ImageParser:
         name = f"#{color:06x}_0"
         color_str = f"#{color:06x}"
         nodes = list(image_graph.keys())
-        partition = Partition(nodes, name, color_str)
+        shapes = [Rect(node[0], node[1]) for node in nodes]
+        partition = Partition(shapes, name, color_str)
         partition_uuid = str(uuid.uuid4())
         self._partitions[partition_uuid] = partition
 

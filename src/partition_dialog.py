@@ -544,7 +544,7 @@ class PartitionDialog(QDialog):
         selected_items = self._list_widget.selectedItems()
         selected_shapes = [item.data(Qt.UserRole) for item in selected_items]
         self._image_widget.set_selected_shapes(selected_shapes)
-        logger.info(f"Current Index: {self._list_widget.currentIndex()}")
+        # logger.info(f"Current Index: {self._list_widget.currentIndex()}")
 
     def update_shapes(self, selected_shapes: list[Shape], full_shapes: list[Shape]):
         """

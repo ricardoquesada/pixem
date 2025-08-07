@@ -24,6 +24,9 @@ class Partition:
         dir: str
 
     def __init__(self, path: list[Shape], name: str | None = None, color: str | None = None):
+        # FIXME Remove me: Sanity check
+        for shape in path:
+            assert isinstance(shape, Shape)
         self._path = path
         self._name = name
         # color format "#FFFFFF"
@@ -106,6 +109,9 @@ class Partition:
             if coord not in new_path:
                 new_path.append(coord)
         path = [Rect(shape.x, shape.y) for shape in new_path]
+        # FIXME Remove me: Sanity check
+        for shape in path:
+            assert isinstance(shape, Shape)
         self._path = path
 
     def _find_neighbors(self, mode: WalkMode, node: Node) -> list[Node]:
@@ -137,6 +143,9 @@ class Partition:
 
     @path.setter
     def path(self, value: list[Shape]) -> None:
+        # FIXME Remove me: Sanity check
+        for shape in value:
+            assert isinstance(shape, Shape)
         self._path = value
 
     @property

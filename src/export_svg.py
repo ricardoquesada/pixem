@@ -7,6 +7,7 @@ from dataclasses import asdict
 from typing import TextIO
 
 from layer import EmbroideryParameters, Layer
+from shape import Rect
 
 INCHES_TO_MM = 25.4
 
@@ -126,23 +127,25 @@ class ExportToSvg:
                     part_id = f"partition_{layer_idx}_{partition.name}"
                     part_id = part_id.replace("#", "")
                     f.write(f'<g id="{part_id}">\n')
-                    for coord in path:
-                        # coord is a tuple (x,y)
-                        x, y = coord
-                        if (x + y) % 2 == 0:
-                            angle = layer.embroidery_params.even_pixel_angle_degrees
+                    for shape in path:
+                        if isinstance(shape, Rect):
+                            x, y = shape.x, shape.y
+                            if (x + y) % 2 == 0:
+                                angle = layer.embroidery_params.even_pixel_angle_degrees
+                            else:
+                                angle = layer.embroidery_params.odd_pixel_angle_degrees
+                            self._write_rect_svg(
+                                f,
+                                layer_idx,
+                                x,
+                                y,
+                                pixel_size,
+                                color,
+                                angle,
+                                layer.embroidery_params,
+                            )
                         else:
-                            angle = layer.embroidery_params.odd_pixel_angle_degrees
-                        self._write_rect_svg(
-                            f,
-                            layer_idx,
-                            x,
-                            y,
-                            pixel_size,
-                            color,
-                            angle,
-                            layer.embroidery_params,
-                        )
+                            raise Exception(f"Unknown shape type: {shape}")
 
                     # partition
                     f.write("</g>\n")
