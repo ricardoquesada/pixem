@@ -39,7 +39,22 @@ class Partition:
 
     @classmethod
     def from_dict(cls, d: dict) -> Self:
-        path = [Rect(x, y) for x, y in d["path"]]
+        shapes = d["path"]
+        path = []
+        for shape in shapes:
+            if isinstance(shape, dict):
+                typ = shape["type"]
+                if typ == "rect":
+                    path.append(Rect(shape["x"], shape["y"]))
+                else:
+                    raise Exception(f"Unknown shape type: {shape["type"]}")
+            elif isinstance(shape, list):
+                # Backward compatible
+                # Sanity check
+                assert isinstance(shape[0], int) and isinstance(shape[1], int)
+                path.append(Rect(shape[0], shape[1]))
+            else:
+                raise Exception(f"Unknown shape type: {shape}")
         part = Partition(path)
 
         if "name" in d:
@@ -55,7 +70,10 @@ class Partition:
 
     def to_dict(self) -> dict:
         """Returns a dictionary that represents the Partition"""
-        path = [(shape.x, shape.y) for shape in self._path]
+        path = []
+        for shape in self._path:
+            e = {"type": "rect", "x": shape.x, "y": shape.y}
+            path.append(e)
         d = {
             "path": path,
             "size": len(self._path),
