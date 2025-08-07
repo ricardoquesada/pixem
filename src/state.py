@@ -13,6 +13,7 @@ from export_svg import ExportToSvg
 from layer import Layer, LayerProperties
 from partition import Partition
 from preferences import get_global_preferences
+from shape import Shape
 from state_properties import StateProperties, StatePropertyFlags
 from undo_commands import (
     AddLayerCommand,
@@ -184,9 +185,7 @@ class State(QObject):
         if properties.name != layer.properties.name:
             self._undo_stack.push(UpdateLayerNameCommand(self, layer, properties.name, None))
 
-    def update_partition_path(
-        self, layer: Layer, partition: Partition, path: list[tuple[int, int]]
-    ):
+    def update_partition_path(self, layer: Layer, partition: Partition, path: list[Shape]):
         if layer.uuid not in self._layers:
             logger.error(
                 f"Cannot update partition path. Layer {layer.name} does not belong to this state"
@@ -294,9 +293,7 @@ class State(QObject):
         layer.properties = properties
         self.layer_property_changed.emit(layer)
 
-    def _update_partition_path(
-        self, layer: Layer, partition: Partition, path: list[tuple[int, int]]
-    ):
+    def _update_partition_path(self, layer: Layer, partition: Partition, path: list[Shape]):
         if layer.uuid not in self._layers:
             logger.error(
                 f"Cannot update partition path. Layer {layer.name} does not belong to this state"

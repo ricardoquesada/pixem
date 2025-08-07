@@ -9,6 +9,7 @@ from PySide6.QtGui import QUndoCommand
 
 from layer import Layer, LayerProperties, TextLayer
 from partition import Partition
+from shape import Shape
 
 logger = logging.getLogger(__name__)
 
@@ -193,7 +194,7 @@ class UpdatePartitionPathCommand(QUndoCommand):
         state,
         layer: Layer,
         partition: Partition,
-        path: list[tuple[int, int]],
+        path: list[Shape],
         parent: QUndoCommand | None,
     ):
         super().__init__(f"Update Partition Path: {partition.name}", parent)

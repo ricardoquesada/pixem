@@ -34,6 +34,7 @@ from PySide6.QtWidgets import (
 from image_utils import create_icon_from_svg
 from partition import Partition
 from preferences import get_global_preferences
+from shape import Rect, Shape
 
 PAINT_SCALE_FACTOR = 16
 ICON_SIZE = 22
@@ -42,6 +43,10 @@ logger = logging.getLogger(__name__)
 
 
 class ImageWidget(QWidget):
+    class PrimitiveMode(IntEnum):
+        RECT = auto()
+        LINE = auto()
+
     class CoordMode(IntEnum):
         ADD = auto()
         REMOVE = auto()
@@ -51,22 +56,22 @@ class ImageWidget(QWidget):
         FILL = auto()
         SELECT = auto()
 
-    def __init__(self, partition_dialog, image: QImage, coords: list[tuple[int, int]]):
+    def __init__(self, partition_dialog, image: QImage, shapes: list[Shape]):
         super().__init__()
         self._partition_dialog = partition_dialog
         self._image = image
-        self._original_coords = coords
-        self._selected_coords = []
+        self._original_shapes = shapes
+        self._selected_shapes = []
 
         # Ensure widget is at least image size
         self.setMinimumSize(self._image.size())
 
         # To prevent creating the rect, we have them pre-created
         self._cached_rects_dict = {}
-        for x, y in coords:
-            self._cached_rects_dict[(x, y)] = QRect(x, y, 1, 1)
+        for shape in shapes:
+            self._cached_rects_dict[(shape.x, shape.y)] = QRect(shape.x, shape.y, 1, 1)
 
-        self._cached_all_rects = [self._cached_rects_dict[(x, y)] for x, y in coords]
+        self._cached_all_rects = [self._cached_rects_dict[(shape.x, shape.y)] for shape in shapes]
         self._cached_selected_rects = []
 
         self._edit_mode = self.EditMode.PAINT
@@ -164,8 +169,8 @@ class ImageWidget(QWidget):
             event.accept()
         elif key == Qt.Key.Key_Escape:
             # Clear the selection and update the UI
-            self.set_selected_coords([])
-            self._partition_dialog.update_coords([], self._original_coords)
+            self.set_selected_shapes([])
+            self._partition_dialog.update_shapes([], self._original_shapes)
             event.accept()
         elif (
             key in [Qt.Key.Key_Up, Qt.Key.Key_Down, Qt.Key.Key_Left, Qt.Key.Key_Right]
@@ -176,50 +181,50 @@ class ImageWidget(QWidget):
             #  keep the state of the current cursor position on the selected items.
             # At least this is true for Qt 6.9
             if key in [Qt.Key.Key_Up, Qt.Key.Key_Left]:
-                self._selected_coords = self._selected_coords[:-1]
+                self._selected_shapes = self._selected_shapes[:-1]
             elif key in [Qt.Key.Key_Down, Qt.Key.Key_Right]:
-                for coord in self._original_coords:
-                    if coord not in self._selected_coords:
-                        self._selected_coords.append(coord)
+                for coord in self._original_shapes:
+                    if coord not in self._selected_shapes:
+                        self._selected_shapes.append(coord)
                         break
-            self.set_selected_coords(self._selected_coords)
-            full_coords = self._selected_coords[:]
-            for coord in self._original_coords:
+            self.set_selected_shapes(self._selected_shapes)
+            full_coords = self._selected_shapes[:]
+            for coord in self._original_shapes:
                 if coord not in full_coords:
                     full_coords.append(coord)
             # Update original coords with new order
-            self._original_coords = full_coords
-            self._partition_dialog.update_coords(self._selected_coords, full_coords)
+            self._original_shapes = full_coords
+            self._partition_dialog.update_shapes(self._selected_shapes, full_coords)
             event.accept()
         else:
             # If we don't handle the key, pass the event to the base class
             super().keyPressEvent(event)
 
     def _update_coordinate(self, coord: tuple[int, int]):
-        if coord not in self._original_coords:
+        if coord not in self._original_shapes:
             logger.debug(f"Coordinate outside of color: {coord}")
             return
 
         if self._coord_mode == self.CoordMode.ADD:
-            if coord not in self._selected_coords:
-                self._selected_coords.append(coord)
+            if coord not in self._selected_shapes:
+                self._selected_shapes.append(coord)
         elif self._coord_mode == self.CoordMode.REMOVE:
-            if coord in self._selected_coords:
-                self._selected_coords.remove(coord)
+            if coord in self._selected_shapes:
+                self._selected_shapes.remove(coord)
         else:
             logger.warning(f"Invalid coord mode: {self._coord_mode}")
 
-        self._update_selected_coords_cache()
+        self._update_selected_shapes_cache()
 
-    def _update_selected_coords_cache(self):
+    def _update_selected_shapes_cache(self):
         self._cached_selected_rects = [
-            self._cached_rects_dict[(x, y)] for x, y in self._selected_coords
+            self._cached_rects_dict[(x, y)] for x, y in self._selected_shapes
         ]
         self.update()
 
-    def set_selected_coords(self, coords: list[tuple[int, int]]):
-        self._selected_coords = coords
-        self._update_selected_coords_cache()
+    def set_selected_shapes(self, shapes: list[Shape]):
+        self._selected_shapes = shapes
+        self._update_selected_shapes_cache()
 
     def set_edit_mode(self, mode: EditMode):
         self._edit_mode = mode
@@ -267,7 +272,7 @@ class ImageWidget(QWidget):
         y = pos.y() / self._zoom_factor
         coord = (int(x), int(y))
 
-        if coord not in self._original_coords:
+        if coord not in self._original_shapes:
             event.ignore()
             return
 
@@ -278,16 +283,16 @@ class ImageWidget(QWidget):
                 )
                 self._update_coordinate(coord)
             case ImageWidget.EditMode.FILL:
-                if coord in self._selected_coords:
+                if coord in self._selected_shapes:
                     # Could be a user error, when it clicks a pixel that it is already painted
                     return
-                partial_partition = list(set(self._original_coords) - set(self._selected_coords))
+                partial_partition = list(set(self._original_shapes) - set(self._selected_shapes))
                 # Create temporal partition
                 part = Partition(partial_partition)
                 part.walk_path(self._walk_mode, coord)
                 ordered_partition = part.path
-                self._selected_coords = self._selected_coords + ordered_partition
-                self._update_selected_coords_cache()
+                self._selected_shapes = self._selected_shapes + ordered_partition
+                self._update_selected_shapes_cache()
 
     def mouseMoveEvent(self, event: QMouseEvent):
         if event.buttons() & Qt.MouseButton.MiddleButton and self._pan_last_pos:
@@ -329,15 +334,15 @@ class ImageWidget(QWidget):
             return
 
         event.accept()
-        if len(self._selected_coords) == 0:
+        if len(self._selected_shapes) == 0:
             return
-        full_coords = self._selected_coords[:]
-        for coord in self._original_coords:
-            if coord not in full_coords:
-                full_coords.append(coord)
-        # Update original coords with new order
-        self._original_coords = full_coords
-        self._partition_dialog.update_coords(self._selected_coords, full_coords)
+        full_shapes = self._selected_shapes[:]
+        for coord in self._original_shapes:
+            if coord not in full_shapes:
+                full_shapes.append(coord)
+        # Update original shapes with new order
+        self._original_shapes = full_shapes
+        self._partition_dialog.update_shapes(self._selected_shapes, full_shapes)
 
     def sizeHint(self):
         return QSize(
@@ -351,10 +356,10 @@ class PartitionDialog(QDialog):
         super().__init__()
 
         self.setWindowTitle(self.tr("Partition Editor"))
-        coords = partition.path
+        shapes = partition.path
 
         # Create Image Widget
-        self._image_widget = ImageWidget(self, image, coords)
+        self._image_widget = ImageWidget(self, image, shapes)
 
         #  Wrap ImageWidget in a QScrollArea to handle zooming
         self._scroll_area = QScrollArea()
@@ -366,7 +371,7 @@ class PartitionDialog(QDialog):
 
         # Create List Widget
         self._list_widget = QListWidget()
-        self._populate_list_widget(coords)
+        self._populate_list_widget(shapes)
         self._connect_list_widget()
 
         self._mode_actions = {}
@@ -457,12 +462,13 @@ class PartitionDialog(QDialog):
         self._list_widget.model().rowsMoved.disconnect(self._on_rows_moved)
         self._list_widget.itemSelectionChanged.disconnect(self._on_item_selection_changed)
 
-    def _populate_list_widget(self, coords: list[tuple[int, int]]):
+    def _populate_list_widget(self, shapes: list[Shape]):
         # precondition: list_widget should not have "connected" slots.
-        for i, coord in enumerate(coords):
-            item = QListWidgetItem(f"{i} - [{coord[0]} x {coord[1]}]")
-            self._list_widget.addItem(item)
-            item.setData(Qt.UserRole, coord)
+        for i, shape in enumerate(shapes):
+            if isinstance(shape, Rect):
+                item = QListWidgetItem(f"{i} - Rect({shape.x}, {shape.y})")
+                self._list_widget.addItem(item)
+                item.setData(Qt.UserRole, shape)
 
     def _set_edit_mode(self, mode: ImageWidget.EditMode):
         if mode != self._edit_mode:
@@ -536,21 +542,24 @@ class PartitionDialog(QDialog):
     @Slot()
     def _on_item_selection_changed(self):
         selected_items = self._list_widget.selectedItems()
-        selected_coords = [item.data(Qt.UserRole) for item in selected_items]
-        self._image_widget.set_selected_coords(selected_coords)
+        selected_shapes = [item.data(Qt.UserRole) for item in selected_items]
+        self._image_widget.set_selected_shapes(selected_shapes)
         logger.info(f"Current Index: {self._list_widget.currentIndex()}")
 
-    def update_coords(
-        self, selected_coords: list[tuple[int, int]], full_coords: list[tuple[int, int]]
-    ):
+    def update_shapes(self, selected_shapes: list[Shape], full_shapes: list[Shape]):
+        """
+        Update the selected shapes in the list widget.
+        Called from ImageWidget.
+        """
         self._disconnect_list_widget()
 
         lastest_selected_item = None
-        for i, coord in enumerate(full_coords):
+        for i, shape in enumerate(full_shapes):
             item = self._list_widget.item(i)
-            item.setText(f"{i} - [{coord[0]} x {coord[1]}]")
-            item.setData(Qt.UserRole, coord)
-            selected = coord in selected_coords
+            if isinstance(shape, Rect):
+                item.setText(f"{i} - Rect({shape.x}, {shape.y})")
+            item.setData(Qt.UserRole, shape)
+            selected = shape in selected_shapes
             item.setSelected(selected)
             if selected:
                 lastest_selected_item = item
@@ -562,7 +571,11 @@ class PartitionDialog(QDialog):
 
         self._connect_list_widget()
 
-    def get_path(self) -> list[tuple[int, int]]:
+    def get_path(self) -> list[Shape]:
+        """
+        Return the path.
+        Called from MainWindow.
+        """
         path = [
             self._list_widget.item(i).data(Qt.UserRole) for i in range(self._list_widget.count())
         ]

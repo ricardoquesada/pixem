@@ -7,6 +7,8 @@ from dataclasses import dataclass
 from enum import IntEnum, auto
 from typing import Self
 
+from shape import Rect, Shape
+
 logger = logging.getLogger(__name__)
 
 
@@ -21,9 +23,7 @@ class Partition:
         coord: tuple[int, int]
         dir: str
 
-    def __init__(
-        self, path: list[tuple[int, int]], name: str | None = None, color: str | None = None
-    ):
+    def __init__(self, path: list[Shape], name: str | None = None, color: str | None = None):
         self._path = path
         self._name = name
         # color format "#FFFFFF"
@@ -39,7 +39,7 @@ class Partition:
 
     @classmethod
     def from_dict(cls, d: dict) -> Self:
-        path = [(x, y) for x, y in d["path"]]
+        path = [Rect(x, y) for x, y in d["path"]]
         part = Partition(path)
 
         if "name" in d:
@@ -55,8 +55,9 @@ class Partition:
 
     def to_dict(self) -> dict:
         """Returns a dictionary that represents the Partition"""
+        path = [(shape.x, shape.y) for shape in self._path]
         d = {
-            "path": self._path,
+            "path": path,
             "size": len(self._path),
             "name": self._name,
             "color": self._color,
@@ -86,7 +87,8 @@ class Partition:
         for coord in self._path:
             if coord not in new_path:
                 new_path.append(coord)
-        self._path = new_path
+        path = [Rect(shape.x, shape.y) for shape in new_path]
+        self._path = path
 
     def _find_neighbors(self, mode: WalkMode, node: Node) -> list[Node]:
         offsets = [
@@ -112,11 +114,11 @@ class Partition:
         return neighbors
 
     @property
-    def path(self) -> list[tuple[int, int]]:
+    def path(self) -> list[Shape]:
         return self._path
 
     @path.setter
-    def path(self, value: list[tuple[int, int]]) -> None:
+    def path(self, value: list[Shape]) -> None:
         self._path = value
 
     @property
