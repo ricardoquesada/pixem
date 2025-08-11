@@ -7,7 +7,7 @@ from dataclasses import asdict
 from typing import TextIO
 
 from layer import EmbroideryParameters, Layer
-from shape import Path, Rect
+from shape import Path, Point, Rect
 
 INCHES_TO_MM = 25.4
 
@@ -22,7 +22,7 @@ class ExportToSvg:
 
         self._layers: list[Layer] = []
 
-    def _write_rect_svg(
+    def _write_rect_to_svg(
         self,
         file: TextIO,
         layer_idx: int,
@@ -52,8 +52,45 @@ class ExportToSvg:
             )
         file.write("/>\n")
 
-    def _write_line_svg(self, embroidery_params: EmbroideryParameters):
-        raise Exception("Not implemented")
+    def _write_path_to_svg(
+        self,
+        file: TextIO,
+        layer_idx: int,
+        partition_name: str,
+        shape_idx: int,
+        path: list[Point],
+        pixel_size: tuple[float, float],
+        embroidery_params: EmbroideryParameters,
+    ) -> None:
+        if not path:
+            return
+
+        # Create the 'd' attribute for the SVG path.
+        # M = moveto (absolute)
+        # L = lineto (absolute)
+        # Z = closepath
+        # The coordinates are scaled by the pixel size.
+        points_str = " ".join([f"L {p.x * pixel_size[0]} {p.y * pixel_size[1]}" for p in path[1:]])
+        d_str = f"M {path[0].x * pixel_size[0]} {path[0].y * pixel_size[1]} {points_str} Z"
+
+        part_name_sanitized = partition_name.replace("#", "")
+        file.write(
+            f'<path d="{d_str}" '
+            f'id="path_{layer_idx}_{part_name_sanitized}_{shape_idx}" '
+            f'style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" '
+            f'inkstitch:satin_column="False" '
+            f'inkstitch:stroke_method="running_stitch" '
+            f'inkstitch:running_stitch_length_mm="2.5" '
+            f'inkstitch:running_stitch_tolerance_mm="0.2" '
+            f'inkstitch:lock_end="half_stitch" '
+            f'inkstitch:lock_start="half_stitch" '
+        )
+        # To be backward compatible. Not sure what is the default one when the parameter is not defined.
+        if embroidery_params.min_jump_stitch_length_mm > 0.0:
+            file.write(
+                f'inkstitch:min_jump_stitch_length_mm="{embroidery_params.min_jump_stitch_length_mm}" '
+            )
+        file.write("/>\n")
 
     def write_to_svg(self):
         logger.info(f"writing SVG {self._export_filename}")
@@ -130,14 +167,14 @@ class ExportToSvg:
                     part_id = f"partition_{layer_idx}_{partition.name}"
                     part_id = part_id.replace("#", "")
                     f.write(f'<g id="{part_id}">\n')
-                    for shape in path:
+                    for shape_idx, shape in enumerate(path):
                         if isinstance(shape, Rect):
                             x, y = shape.x, shape.y
                             if (x + y) % 2 == 0:
                                 angle = layer.embroidery_params.even_pixel_angle_degrees
                             else:
                                 angle = layer.embroidery_params.odd_pixel_angle_degrees
-                            self._write_rect_svg(
+                            self._write_rect_to_svg(
                                 f,
                                 layer_idx,
                                 x,
@@ -148,7 +185,15 @@ class ExportToSvg:
                                 layer.embroidery_params,
                             )
                         elif isinstance(shape, Path):
-                            self._write_line_svg(layer.embroidery_params)
+                            self._write_path_to_svg(
+                                f,
+                                layer_idx,
+                                partition.name,
+                                shape_idx,
+                                shape.path,
+                                pixel_size,
+                                layer.embroidery_params,
+                            )
                         else:
                             raise Exception(f"Unknown shape type: {shape}")
 
