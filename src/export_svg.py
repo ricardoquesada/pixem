@@ -7,7 +7,7 @@ from dataclasses import asdict
 from typing import TextIO
 
 from layer import EmbroideryParameters, Layer
-from shape import Rect
+from shape import Path, Rect
 
 INCHES_TO_MM = 25.4
 
@@ -51,6 +51,9 @@ class ExportToSvg:
                 f'inkstitch:min_jump_stitch_length_mm="{embroidery_params.min_jump_stitch_length_mm}" '
             )
         file.write("/>\n")
+
+    def _write_line_svg(self, embroidery_params: EmbroideryParameters):
+        raise Exception("Not implemented")
 
     def write_to_svg(self):
         logger.info(f"writing SVG {self._export_filename}")
@@ -144,6 +147,8 @@ class ExportToSvg:
                                 angle,
                                 layer.embroidery_params,
                             )
+                        elif isinstance(shape, Path):
+                            self._write_line_svg(layer.embroidery_params)
                         else:
                             raise Exception(f"Unknown shape type: {shape}")
 
