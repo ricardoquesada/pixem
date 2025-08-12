@@ -3,12 +3,13 @@
 
 import logging
 import uuid
+from collections import deque
 
 import networkx as nx
 from PySide6.QtGui import QColor, QImage
 
 from partition import Partition
-from shape import Rect
+from shape import Path, Point, Rect, Shape
 
 logger = logging.getLogger(__name__)
 
@@ -131,21 +132,14 @@ class ImageParser:
                     start_node = self._get_starting_node(s)
                     partition.walk_path(Partition.WalkMode.SPIRAL_CW, start_node)
 
-    def _create_single_partition_for_color(self, image_graph: dict, color: int) -> None:
+    def _get_ordered_nodes_for_color(self, image_graph: dict) -> list[tuple[int, int]]:
         """
-        Create a single partition for the given color.
-        Nodes are ordered by performing a Depth-First Search (DFS) across all
-        connected components within the color group.
-        :param image_graph: a dict that contains the nodes and their edges.
-        :param color: The color of the partition.
-        :return: None
+        Performs a Depth-First Search on the color graph to get a single
+        ordered list of all nodes, traversing disconnected components.
         """
-        name = f"#{color:06x}_0"
-        color_str = f"#{color:06x}"
-
         all_nodes = list(image_graph.keys())
         if not all_nodes:
-            return
+            return []
 
         ordered_nodes = []
         visited = set()
@@ -169,8 +163,129 @@ class ImageParser:
                         for neighbor in neighbors:
                             if neighbor not in visited:
                                 stack.append(neighbor)
+        return ordered_nodes
 
-        shapes = [Rect(node[0], node[1]) for node in ordered_nodes]
+    def _find_shortest_pixel_path(
+        self, start_node: tuple[int, int], end_node: tuple[int, int]
+    ) -> list[tuple[int, int]] | None:
+        """
+        Finds the shortest path between two nodes on the image grid using BFS.
+        The path can traverse any non-transparent pixel.
+        """
+        width, height = len(self._image), len(self._image[0])
+        queue = deque([(start_node, [start_node])])
+        visited = {start_node}
+
+        while queue:
+            current, path = queue.popleft()
+
+            if current == end_node:
+                return path
+
+            x, y = current
+            # Using 4-directional movement for rectilinear paths
+            for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+                nx, ny = x + dx, y + dy
+
+                if 0 <= nx < width and 0 <= ny < height and (nx, ny) not in visited:
+                    if self._image[nx][ny] != -1:
+                        visited.add((nx, ny))
+                        new_path = list(path)
+                        new_path.append((nx, ny))
+                        queue.append(((nx, ny), new_path))
+        return None  # No path found
+
+    def _simplify_path_to_points(self, node_path: list[tuple[int, int]]) -> list[Point]:
+        """
+        Converts a list of nodes (e.g., from BFS) into a simplified list of
+        Points, keeping only the start, end, and corner points.
+        """
+        if len(node_path) < 2:
+            return [Point(n[0], n[1]) for n in node_path]
+
+        simplified = [Point(node_path[0][0], node_path[0][1])]
+        for i in range(1, len(node_path) - 1):
+            p_prev = node_path[i - 1]
+            p_curr = node_path[i]
+            p_next = node_path[i + 1]
+
+            # Check for change in direction
+            dx1 = p_curr[0] - p_prev[0]
+            dy1 = p_curr[1] - p_prev[1]
+            dx2 = p_next[0] - p_curr[0]
+            dy2 = p_next[1] - p_curr[1]
+
+            if dx1 != dx2 or dy1 != dy2:
+                simplified.append(Point(p_curr[0], p_curr[1]))
+
+        simplified.append(Point(node_path[-1][0], node_path[-1][1]))
+        return simplified
+
+    def _create_shapes_from_ordered_nodes(
+        self, ordered_nodes: list[tuple[int, int]], image_graph: dict
+    ) -> list[Shape]:
+        """
+        Builds a list of Rect and Path shapes from an ordered list of nodes.
+        Inserts rectilinear Path objects to connect non-neighboring nodes.
+        """
+        if not ordered_nodes:
+            return []
+
+        shapes = []
+        for i in range(len(ordered_nodes) - 1):
+            current_node = ordered_nodes[i]
+            next_node = ordered_nodes[i + 1]
+
+            # Add the rect for the current node
+            shapes.append(Rect(current_node[0], current_node[1]))
+
+            # Check if the next node is a neighbor. If not, add a path.
+            if next_node not in image_graph.get(current_node, []):
+                path_nodes = self._find_shortest_pixel_path(current_node, next_node)
+
+                if path_nodes:
+                    # The path from BFS includes the start and end nodes.
+                    # We want the Path object to represent the full connection.
+                    simplified_points = self._simplify_path_to_points(path_nodes)
+                    shapes.append(Path(simplified_points))
+                else:
+                    # Fallback for safety, e.g. if islands are separated by transparency
+                    x1, y1 = current_node
+                    x2, y2 = next_node
+                    p1 = Point(x1, y1)
+                    p2 = Point(x2, y2)
+
+                    # Create a rectilinear path (only horizontal/vertical segments).
+                    if x1 == x2 or y1 == y2:
+                        shapes.append(Path([p1, p2]))
+                    else:
+                        p_intermediate = Point(x2, y1)
+                        shapes.append(Path([p1, p_intermediate, p2]))
+
+        # Add the last rect
+        shapes.append(Rect(ordered_nodes[-1][0], ordered_nodes[-1][1]))
+        return shapes
+
+    def _create_single_partition_for_color(self, image_graph: dict, color: int) -> None:
+        """
+        Create a single partition for the given color.
+        Nodes are ordered by performing a Depth-First Search (DFS) across all
+        connected components within the color group. If components are
+        disconnected, a Path object, consisting of only horizontal and
+        vertical lines, is created to connect them.
+        :param image_graph: a dict that contains the nodes and their edges.
+        :param color: The color of the partition.
+        :return: None
+        """
+        name = f"#{color:06x}_0"
+        color_str = f"#{color:06x}"
+
+        ordered_nodes = self._get_ordered_nodes_for_color(image_graph)
+        if not ordered_nodes:
+            return
+
+        shapes = self._create_shapes_from_ordered_nodes(ordered_nodes, image_graph)
+
         partition = Partition(shapes, name, color_str)
         partition_uuid = str(uuid.uuid4())
         self._partitions[partition_uuid] = partition

@@ -22,6 +22,7 @@ from PySide6.QtWidgets import QScrollArea, QWidget
 
 import image_utils
 from preferences import get_global_preferences
+from shape import Path, Rect
 from state import State
 
 logger = logging.getLogger(__name__)
@@ -198,15 +199,39 @@ class Canvas(QWidget):
                 partition = layer.partitions[layer.selected_partition_uuid]
 
                 for shape in partition.path:
-                    x, y = shape.x, shape.y
-                    polygon = [
-                        QPointF(offset.x() + x * W, offset.y() + y * H),
-                        QPointF(offset.x() + (x + 1) * W, offset.y() + y * H),
-                        QPointF(offset.x() + (x + 1) * W, offset.y() + (y + 1) * H),
-                        QPointF(offset.x() + x * W, offset.y() + (y + 1) * H),
-                    ]
-                    # Use drawPolygon instead of drawRects because drawPolygon supports floats
-                    painter.drawPolygon(polygon)
+                    if isinstance(shape, Rect):
+                        x, y = shape.x, shape.y
+                        polygon = [
+                            QPointF(offset.x() + x * W, offset.y() + y * H),
+                            QPointF(offset.x() + (x + 1) * W, offset.y() + y * H),
+                            QPointF(offset.x() + (x + 1) * W, offset.y() + (y + 1) * H),
+                            QPointF(offset.x() + x * W, offset.y() + (y + 1) * H),
+                        ]
+                        # Use drawPolygon instead of drawRects because drawPolygon supports floats
+                        painter.drawPolygon(polygon)
+                    elif isinstance(shape, Path):
+                        if not shape.path:
+                            continue
+
+                        # Convert our Path of Points to a list of QPointF,
+                        # scaling them to the canvas coordinates.
+                        # The path should connect the center of the pixels.
+                        q_points = [
+                            QPointF(offset.x() + p.x * W, offset.y() + p.y * H) for p in shape.path
+                        ]
+
+                        # Save the current painter state to not affect
+                        # subsequent drawing of Rects.
+                        painter.save()
+
+                        # Use a different pen to represent the jump-stitch path
+                        pen = QPen(Qt.GlobalColor.black, 0.3, Qt.PenStyle.DashLine)
+                        painter.setPen(pen)
+                        painter.setBrush(Qt.BrushStyle.NoBrush)
+
+                        painter.drawPolyline(q_points)
+
+                        painter.restore()
             else:
                 logger.warning(
                     f"paintEvent: key {layer.selected_partition_uuid} not found in layer {layer.uuid}"

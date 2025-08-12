@@ -60,6 +60,7 @@ class ExportToSvg:
         shape_idx: int,
         path: list[Point],
         pixel_size: tuple[float, float],
+        color: str,
         embroidery_params: EmbroideryParameters,
     ) -> None:
         if not path:
@@ -68,16 +69,15 @@ class ExportToSvg:
         # Create the 'd' attribute for the SVG path.
         # M = moveto (absolute)
         # L = lineto (absolute)
-        # Z = closepath
         # The coordinates are scaled by the pixel size.
         points_str = " ".join([f"L {p.x * pixel_size[0]} {p.y * pixel_size[1]}" for p in path[1:]])
-        d_str = f"M {path[0].x * pixel_size[0]} {path[0].y * pixel_size[1]} {points_str} Z"
+        d_str = f"M {path[0].x * pixel_size[0]} {path[0].y * pixel_size[1]} {points_str}"
 
         part_name_sanitized = partition_name.replace("#", "")
         file.write(
             f'<path d="{d_str}" '
             f'id="path_{layer_idx}_{part_name_sanitized}_{shape_idx}" '
-            f'style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" '
+            f'style="fill:none;stroke:{color};stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" '
             f'inkstitch:satin_column="False" '
             f'inkstitch:stroke_method="running_stitch" '
             f'inkstitch:running_stitch_length_mm="2.5" '
@@ -192,6 +192,7 @@ class ExportToSvg:
                                 shape_idx,
                                 shape.path,
                                 pixel_size,
+                                color,
                                 layer.embroidery_params,
                             )
                         else:

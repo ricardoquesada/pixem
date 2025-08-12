@@ -69,9 +69,9 @@ class ImageWidget(QWidget):
         # To prevent creating the rect, we have them pre-created
         self._cached_rects_dict = {}
         for shape in shapes:
-            self._cached_rects_dict[(shape.x, shape.y)] = QRect(shape.x, shape.y, 1, 1)
-
-        self._cached_all_rects = [self._cached_rects_dict[(shape.x, shape.y)] for shape in shapes]
+            if isinstance(shape, Rect):
+                self._cached_rects_dict[(shape.x, shape.y)] = QRect(shape.x, shape.y, 1, 1)
+        self._cached_all_rects = list(self._cached_rects_dict.values())
         self._cached_selected_rects = []
 
         self._edit_mode = self.EditMode.PAINT
