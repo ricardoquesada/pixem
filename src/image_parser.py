@@ -133,15 +133,44 @@ class ImageParser:
 
     def _create_single_partition_for_color(self, image_graph: dict, color: int) -> None:
         """
-        Create a single partition for the given color
-        :param image_graph: a dict that contains the nodes and their edges, but the edges are not used in this function
-        :param color: The color of the partition
+        Create a single partition for the given color.
+        Nodes are ordered by performing a Depth-First Search (DFS) across all
+        connected components within the color group.
+        :param image_graph: a dict that contains the nodes and their edges.
+        :param color: The color of the partition.
         :return: None
         """
         name = f"#{color:06x}_0"
         color_str = f"#{color:06x}"
-        nodes = list(image_graph.keys())
-        shapes = [Rect(node[0], node[1]) for node in nodes]
+
+        all_nodes = list(image_graph.keys())
+        if not all_nodes:
+            return
+
+        ordered_nodes = []
+        visited = set()
+
+        # We iterate through all nodes to handle disconnected components
+        for node in all_nodes:
+            if node not in visited:
+                # This node is part of a new, unvisited component.
+                # Start a new DFS from here.
+                stack = [node]
+
+                while stack:
+                    current_node = stack.pop()
+                    if current_node not in visited:
+                        visited.add(current_node)
+                        ordered_nodes.append(current_node)
+
+                        # Add unvisited neighbors to the stack.
+                        # Sorting neighbors makes the traversal deterministic.
+                        neighbors = sorted(image_graph.get(current_node, []), reverse=True)
+                        for neighbor in neighbors:
+                            if neighbor not in visited:
+                                stack.append(neighbor)
+
+        shapes = [Rect(node[0], node[1]) for node in ordered_nodes]
         partition = Partition(shapes, name, color_str)
         partition_uuid = str(uuid.uuid4())
         self._partitions[partition_uuid] = partition
