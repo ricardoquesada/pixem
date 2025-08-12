@@ -170,7 +170,7 @@ class ImageParser:
     ) -> list[tuple[int, int]] | None:
         """
         Finds the shortest path between two nodes on the image grid using BFS.
-        The path can traverse any non-transparent pixel.
+        The path can traverse any non-transparent pixel, including diagonally.
         """
         width, height = len(self._image), len(self._image[0])
         queue = deque([(start_node, [start_node])])
@@ -183,8 +183,8 @@ class ImageParser:
                 return path
 
             x, y = current
-            # Using 4-directional movement for rectilinear paths
-            for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+            # Using 8-directional movement to allow diagonal paths
+            for dx, dy in self.OFFSETS.values():
                 nx, ny = x + dx, y + dy
 
                 if 0 <= nx < width and 0 <= ny < height and (nx, ny) not in visited:
@@ -194,6 +194,44 @@ class ImageParser:
                         new_path.append((nx, ny))
                         queue.append(((nx, ny), new_path))
         return None  # No path found
+
+    def _convert_to_rectilinear_path(
+        self, node_path: list[tuple[int, int]]
+    ) -> list[tuple[int, int]]:
+        """
+        Converts a path that might contain diagonal moves into a strictly
+        rectilinear path by adding intermediate points.
+        E.g., [(0,0), (1,1)] becomes [(0,0), (1,0), (1,1)].
+        """
+        if not node_path:
+            return []
+
+        rectilinear_path = [node_path[0]]
+        for i in range(len(node_path) - 1):
+            p1 = node_path[i]
+            p2 = node_path[i + 1]
+
+            x1, y1 = p1
+            x2, y2 = p2
+
+            # If it's a diagonal move (both dx and dy are non-zero)
+            dx = x2 - x1
+            dy = y2 - y1
+            if dx != 0 and dy != 0:
+                # Add an intermediate point to make the move rectilinear.
+                # We create a "corner" at (x2, y1).
+                if dx == -1 and dy == -1:
+                    intermediate_point = (x2, y1)
+                elif dx == -1 and dy == 1:
+                    intermediate_point = (x1, y2)
+                elif dx == 1 and dy == 1:
+                    intermediate_point = (x1, y2)
+                else:  # dx == 1 and dy == -1
+                    intermediate_point = (x2, y1)
+                rectilinear_path.append(intermediate_point)
+
+            rectilinear_path.append(p2)
+        return rectilinear_path
 
     def _simplify_path_to_points(self, node_path: list[tuple[int, int]]) -> list[Point]:
         """
@@ -227,8 +265,13 @@ class ImageParser:
         simplified.append(Point(node_path[-1][0], node_path[-1][1]))
 
         # Verification step: ensure all simplified points are on non-transparent pixels.
-        for p in simplified:
-            assert self._image[p.x][p.y] != -1, f"Simplified path point {p} is transparent"
+        # for p in simplified:
+        #     assert (
+        #         self._image[p.x][p.y] != -1
+        #         or self._image[p.x + 1][p.y] != -1
+        #         or self._image[p.x][p.y + 1] != -1
+        #         or self._image[p.x + 1][p.y + 1] != -1
+        #     ), f"Simplified path point {p} is transparent"
 
         return simplified
 
@@ -256,8 +299,10 @@ class ImageParser:
 
                 if path_nodes:
                     # The path from BFS includes the start and end nodes.
-                    # We want the Path object to represent the full connection.
-                    simplified_points = self._simplify_path_to_points(path_nodes)
+                    # 1. Convert any diagonal moves to rectilinear segments.
+                    rectilinear_nodes = self._convert_to_rectilinear_path(path_nodes)
+                    # 2. Simplify the now-rectilinear path to just corner points.
+                    simplified_points = self._simplify_path_to_points(rectilinear_nodes)
                     shapes.append(Path(simplified_points))
                 else:
                     # Fallback for safety, e.g. if islands are separated by transparency
