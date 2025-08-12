@@ -1,6 +1,15 @@
 # Pixem
 # Copyright 2024 Ricardo Quesada
 
+"""
+The main window of the Pixem application.
+
+This module contains the `MainWindow` class, which is the main entry point for the Pixem
+application's user interface. It sets up the menu bar, toolbars, docks, and the central
+canvas widget. It also handles all the user interactions and connects them to the
+application's state.
+"""
+
 import logging
 import os.path
 import sys
@@ -62,8 +71,11 @@ def block_signals(objs: QObject | tuple[QObject]):
     """
     Context manager to temporarily block signals for QObjects.
 
+    This is useful to avoid triggering slots when updating widget values programmatically,
+    preventing circular updates or unnecessary processing.
+
     Args:
-        objs: The QObjects for which signals should be blocked.
+        objs: A single QObject or an iterable of QObjects for which signals should be blocked.
     """
     try:
         if isinstance(objs, Iterable):
@@ -81,7 +93,16 @@ def block_signals(objs: QObject | tuple[QObject]):
 
 
 class MainWindow(QMainWindow):
+    """
+    The main window of the application.
+
+    It orchestrates the UI components, including the canvas, docks for layers,
+    partitions, properties, and handles user actions through menus and toolbars.
+    It also manages the application's state, including loading and saving projects.
+    """
+
     def __init__(self):
+        """Initializes the MainWindow, sets up the UI, and loads settings."""
         super().__init__()
 
         self._state = None
@@ -101,6 +122,7 @@ class MainWindow(QMainWindow):
         self._update_window_title()
 
     def _setup_ui(self):
+        """Sets up all the UI components of the main window."""
         self._setup_menu()
         self._setup_toolbar()
 
@@ -128,6 +150,7 @@ class MainWindow(QMainWindow):
         self._update_qactions()
 
     def _setup_menu(self):
+        """Creates and configures the main menu bar and its actions."""
         menu_bar = self.menuBar()
         file_menu = QMenu(self.tr("&File"), self)
         menu_bar.addMenu(file_menu)
@@ -350,6 +373,7 @@ class MainWindow(QMainWindow):
         help_menu.addAction(self.about_action)
 
     def _setup_toolbar(self):
+        """Creates and configures the main toolbar."""
         self._toolbar = QToolBar(self.tr("Tools"))
         self._toolbar.setObjectName("main_window_toolbar")
         self._toolbar.setIconSize(QSize(16, 16))
@@ -383,6 +407,7 @@ class MainWindow(QMainWindow):
         self._toolbar.addAction(self._zoom_out_action)
 
     def _setup_central_widget(self):
+        """Creates the central canvas widget and sets it in a scroll area."""
         self._canvas = Canvas(self._state)
         self._canvas.position_changed.connect(self._on_canvas_position_changed)
         self._canvas.layer_selection_changed.connect(self._on_canvas_layer_selection_changed)
@@ -395,6 +420,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(scroll_area)
 
     def _setup_layers_dock(self):
+        """Creates the dock widget for displaying and managing layers."""
         # Layers Dock
         self._layer_list = QListWidget()
         self._layer_list.setDragDropMode(QListWidget.InternalMove)  # Enable reordering
@@ -407,6 +433,7 @@ class MainWindow(QMainWindow):
         self.addDockWidget(Qt.RightDockWidgetArea, self._layers_dock)
 
     def _setup_partitions_dock(self):
+        """Creates the dock widget for displaying and managing color partitions."""
         # Partitions Dock
         self._partition_list = DeselectableListWidget()
         self._partition_list.setDragDropMode(QListWidget.InternalMove)  # Enable reordering
@@ -419,6 +446,7 @@ class MainWindow(QMainWindow):
         self.addDockWidget(Qt.RightDockWidgetArea, self._partitions_dock)
 
     def _setup_property_dock(self):
+        """Creates the dock widget for editing layer properties."""
         # Property Dock
         self._property_editor = QWidget()
         self._property_editor.setObjectName("property_widget")
@@ -480,6 +508,7 @@ class MainWindow(QMainWindow):
         self.addDockWidget(Qt.RightDockWidgetArea, self._property_dock)
 
     def _setup_embroidery_params_dock(self):
+        """Creates the dock widget for editing layer embroidery parameters."""
         # Layer Embroidery Properties
         self._embroidery_params_editor = QWidget()
         self._embroidery_params_editor.setObjectName("embroidery_params_editor")
@@ -552,6 +581,7 @@ class MainWindow(QMainWindow):
         )
 
     def _setup_undo_dock(self):
+        """Creates the dock widget for displaying the undo history."""
         self._undo_dock = QDockWidget(self.tr("Undo List"), self)
         self._undo_dock.setObjectName("undo_dock")
         self._undo_dock.setHidden(True)
@@ -562,6 +592,7 @@ class MainWindow(QMainWindow):
         self.addDockWidget(Qt.RightDockWidgetArea, self._undo_dock)
 
     def _setup_statusbar(self):
+        """Creates and configures the status bar."""
         # Status Bar
         self._statusbar = QStatusBar()
         self.setStatusBar(self._statusbar)
@@ -573,6 +604,7 @@ class MainWindow(QMainWindow):
         self._statusbar.addPermanentWidget(self._total_pixels_label)
 
     def _update_statusbar(self):
+        """Updates the status bar with current project statistics."""
         colors = set()
         total_partitions = 0
         total_pixels = 0
@@ -588,6 +620,7 @@ class MainWindow(QMainWindow):
         self._total_pixels_label.setText(self.tr(f"Total Pixels: {total_pixels}"))
 
     def _populate_recent_menu(self):
+        """Populates the 'Recent Files' menu with a list of recently opened files."""
         self._recent_menu.clear()
         recent_files = get_global_preferences().get_recent_files()
         for file_name in recent_files:
@@ -604,6 +637,7 @@ class MainWindow(QMainWindow):
         self._recent_menu.setEnabled(len(recent_files) > 0)
 
     def _update_qactions(self):
+        """Enables or disables QActions based on whether a project is open."""
         enabled = self._state is not None
 
         self._save_action.setEnabled(enabled)
@@ -633,6 +667,7 @@ class MainWindow(QMainWindow):
         self._embroidery_params_editor.setEnabled(enabled)
 
     def _load_settings(self):
+        """Loads window geometry and state from global preferences."""
         prefs = get_global_preferences()
         geometry = prefs.get_window_geometry()
         if geometry is not None:
@@ -642,18 +677,25 @@ class MainWindow(QMainWindow):
             self.restoreState(state)
 
     def _save_default_settings(self):
+        """Saves the initial window layout as the default."""
         # Save defaults before restoring saved settings. needed for "reset layout"
         prefs = get_global_preferences()
         prefs.set_default_window_geometry(self.saveGeometry())
         prefs.set_default_window_state(self.saveState(prefs.STATE_VERSION))
 
     def _save_settings(self):
+        """Saves the current window geometry, state, and recent files."""
         prefs = get_global_preferences()
         prefs.set_window_geometry(self.saveGeometry())
         prefs.set_window_state(self.saveState(prefs.STATE_VERSION))
         prefs.save_recent_files()
 
     def _update_window_title(self):
+        """
+        Updates the main window title.
+
+        The title includes the project name and an asterisk (*) if there are unsaved changes.
+        """
         title = "Pixem"
         if self._state is not None:
             is_dirty = not self._state.undo_stack.isClean()
@@ -665,6 +707,12 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(title)
 
     def _open_filename(self, filename: str) -> None:
+        """
+        Loads a project from a given filename and sets up the application state.
+
+        Args:
+            filename: The path to the project file to open.
+        """
         state = State.load_from_filename(filename)
         if state is None:
             logger.warning(f"Failed to load state from filename {filename}")
@@ -703,6 +751,15 @@ class MainWindow(QMainWindow):
         self._update_statusbar()
 
     def _setup_state(self, state: State):
+        """
+        Sets up the application with a new state object.
+
+        This involves connecting all the necessary signals from the state to the
+        main window's slots.
+
+        Args:
+            state: The new application state.
+        """
         self._state = state
         self._canvas.state = state
         self._state.layer_property_changed.connect(self._on_state_layer_property_changed)
@@ -719,6 +776,11 @@ class MainWindow(QMainWindow):
         self._undo_dock.setEnabled(True)
 
     def _cleanup_state(self):
+        """
+        Cleans up the current state.
+
+        Disconnects all signals and resets the UI to a state with no open project.
+        """
         if self._state is not None:
             self._state.layer_property_changed.disconnect(self._on_state_layer_property_changed)
             self._state.state_property_changed.disconnect(self._on_state_state_property_changed)
@@ -737,9 +799,21 @@ class MainWindow(QMainWindow):
         self._undo_dock.setEnabled(False)
 
     def _add_layer(self, layer: Layer):
+        """
+        Adds a layer to the current state.
+
+        Args:
+            layer: The layer to add.
+        """
         self._state.add_layer(layer)
 
     def _populate_partitions(self, layer: Layer):
+        """
+        Populates the partition list widget with partitions from the given layer.
+
+        Args:
+            layer: The layer whose partitions are to be displayed.
+        """
         # Called from on_layer_item_changed
         with block_signals(self._partition_list):
             self._partition_list.clear()
@@ -766,6 +840,12 @@ class MainWindow(QMainWindow):
             self._partition_list.setCurrentRow(selected_partition_idx)
 
     def _populate_property_editor(self, properties: LayerProperties) -> None:
+        """
+        Populates the property editor with the properties of the selected layer.
+
+        Args:
+            properties: The layer properties to display.
+        """
         with block_signals(self._name_edit):
             self._name_edit.setText(properties.name)
         with block_signals(self._position_x_spinbox):
@@ -786,6 +866,12 @@ class MainWindow(QMainWindow):
             self._opacity_slider.setValue(round(properties.opacity * 100))
 
     def _populate_embroidery_editor(self, embroidery_params: EmbroideryParameters):
+        """
+        Populates the embroidery editor with parameters from the selected layer.
+
+        Args:
+            embroidery_params: The embroidery parameters to display.
+        """
         with block_signals(self._pull_compensation_spinbox):
             self._pull_compensation_spinbox.setValue(embroidery_params.pull_compensation_mm)
         with block_signals(self._max_stitch_length_spinbox):
@@ -806,6 +892,12 @@ class MainWindow(QMainWindow):
             self._fill_underlay_checkbox.setChecked(embroidery_params.fill_underlay)
 
     def _maybe_abort_operation_if_dirty(self) -> bool:
+        """
+        Checks if there are unsaved changes and asks the user for confirmation to proceed.
+
+        Returns:
+            True if the operation should be aborted, False otherwise.
+        """
         # Returns true if it should abort
         if self._state and not self._state.undo_stack.isClean():
             reply = QMessageBox.question(
@@ -821,6 +913,14 @@ class MainWindow(QMainWindow):
         return False
 
     def _process_double_click_on_layer(self, layer_uuid: str):
+        """
+        Handles the logic for a double-click on a layer.
+
+        For a TextLayer, it opens the FontDialog to edit the text properties.
+
+        Args:
+            layer_uuid: The UUID of the double-clicked layer.
+        """
         layer = self._state.get_layer_for_uuid(layer_uuid)
         if layer is None:
             logger.warning(f"Cannot find layer with UUID {layer_uuid}")
@@ -839,6 +939,14 @@ class MainWindow(QMainWindow):
     # pyside6 events
     #
     def closeEvent(self, event: QCloseEvent):
+        """
+        Handles the window close event.
+
+        Checks for unsaved changes before closing and saves settings.
+
+        Args:
+            event: The close event.
+        """
         if self._maybe_abort_operation_if_dirty():
             event.ignore()
             return
@@ -852,6 +960,7 @@ class MainWindow(QMainWindow):
     #
     @Slot()
     def _on_new_project(self) -> None:
+        """Slot for creating a new, empty project."""
         if self._maybe_abort_operation_if_dirty():
             return
 
@@ -870,6 +979,7 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_open_image_or_project(self) -> None:
+        """Slot for opening an image or a project file."""
         if self._maybe_abort_operation_if_dirty():
             return
 
@@ -897,16 +1007,19 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_recent_file(self) -> None:
+        """Slot for opening a file from the 'Recent Files' menu."""
         filename = self.sender().data()
         self._open_filename(filename)
 
     @Slot()
     def _on_clear_recent_files(self) -> None:
+        """Slot for clearing the 'Recent Files' menu."""
         get_global_preferences().clear_recent_files()
         self._populate_recent_menu()
 
     @Slot()
     def _on_save_project(self) -> None:
+        """Slot for saving the current project."""
         filename = self._state.project_filename
         if filename is None:
             self._on_save_project_as()
@@ -915,6 +1028,7 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_save_project_as(self) -> None:
+        """Slot for saving the current project to a new file."""
         filename, _ = QFileDialog.getSaveFileName(
             self, self.tr("Save Project"), "", self.tr("Pixem files (*.pixemproj);;All files (*)")
         )
@@ -929,6 +1043,7 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_export_project(self) -> None:
+        """Slot for exporting the project to its last used export path."""
         filename = self._state.properties.export_filename
         if filename is None or len(filename) == 0 or not os.path.exists(filename):
             self._on_export_project_as()
@@ -938,6 +1053,7 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_export_project_as(self) -> None:
+        """Slot for exporting the project to a new file (SVG)."""
         fullpath_svg = self._state.properties.export_filename
         if fullpath_svg is None:
             fullpath_svg = "export.svg"
@@ -956,6 +1072,7 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_export_to_png_as(self) -> None:
+        """Slot for exporting the current canvas view to a PNG file."""
         fullpath_svg = self._state.properties.export_filename
         if fullpath_svg is None:
             fullpath_svg = "export.svg"
@@ -977,6 +1094,7 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_close_project(self) -> None:
+        """Slot for closing the current project."""
         if self._maybe_abort_operation_if_dirty():
             return
 
@@ -999,10 +1117,17 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_exit_application(self) -> None:
+        """Slot for exiting the application."""
         QApplication.quit()
 
     @Slot()
     def _on_show_hoop_size(self, action: QAction) -> None:
+        """
+        Slot to toggle the visibility of the embroidery hoop guide.
+
+        Args:
+            action: The action that triggered the slot.
+        """
         is_checked = action.isChecked()
         get_global_preferences().set_hoop_visible(is_checked)
         self._canvas.on_preferences_updated()
@@ -1011,6 +1136,7 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_reset_layout(self) -> None:
+        """Slot to reset the window layout to its default state."""
         prefs = get_global_preferences()
         default_geometry = prefs.get_default_window_geometry()
         default_state = prefs.get_default_window_state()
@@ -1028,6 +1154,7 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_preferences(self) -> None:
+        """Slot to open the preferences dialog."""
         hoop_size = get_global_preferences().get_hoop_size()
         if self._state is not None:
             hoop_size = self._state.hoop_size
@@ -1038,6 +1165,7 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_layer_add_image(self) -> None:
+        """Slot to add a new image layer from a file."""
         file_name, _ = QFileDialog.getOpenFileName(
             self, self.tr("Open Image"), "", self.tr("Images (*.png *.jpg *.bmp);;All files (*)")
         )
@@ -1048,6 +1176,7 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_layer_add_text(self) -> None:
+        """Slot to add a new text layer via the FontDialog."""
         dialog = FontDialog()
         if dialog.exec() == QDialog.Accepted:
             text, font_name, color_name = dialog.get_data()
@@ -1058,6 +1187,7 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_layer_delete(self) -> None:
+        """Slot to delete the currently selected layer."""
         selected_items = self._layer_list.selectedItems()
         layer = self._state.selected_layer
 
@@ -1070,6 +1200,7 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_layer_align(self):
+        """Slot to align the selected layer based on the triggered action."""
         s = self.sender()
         if self._state is None or self._state.selected_layer is None:
             return
@@ -1099,6 +1230,15 @@ class MainWindow(QMainWindow):
     def _on_layer_current_item_changed(
         self, current: QListWidgetItem, previous: QListWidgetItem
     ) -> None:
+        """
+        Slot for when the selected item in the layer list changes.
+
+        Updates the property editors and partition list for the newly selected layer.
+
+        Args:
+            current: The newly selected layer item.
+            previous: The previously selected layer item.
+        """
         # Gets triggered when a new layers gets selected. Might happen when an entry gets removed.
         enabled = current is not None and len(self._state.layers) > 0
         self._property_editor.setEnabled(enabled)
@@ -1119,6 +1259,7 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_layer_rows_moved(self, parent, start, end, destination):
+        """Slot for when layers are reordered in the layer list."""
         if self._state is None:
             logger.warning("Cannot reorder layers, no active state")
             return
@@ -1135,6 +1276,12 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_layer_item_double_clicked(self, item: QListWidgetItem):
+        """
+        Slot for when a layer item is double-clicked.
+
+        Args:
+            item: The double-clicked list widget item.
+        """
         if self._state is None:
             logger.warning("Cannot edit layer, no active state")
             return
@@ -1147,6 +1294,13 @@ class MainWindow(QMainWindow):
     def _on_partition_current_item_changed(
         self, current: QListWidgetItem, previous: QListWidgetItem
     ) -> None:
+        """
+        Slot for when the selected item in the partition list changes.
+
+        Args:
+            current: The newly selected partition item.
+            previous: The previously selected partition item.
+        """
         enabled = current is not None
         selected_layer = self._state.selected_layer
         new_uuid = None
@@ -1161,12 +1315,19 @@ class MainWindow(QMainWindow):
 
     @Slot(QListWidgetItem)
     def _on_partition_item_double_clicked(self, current: QListWidgetItem) -> None:
+        """
+        Slot for when a partition item is double-clicked.
+
+        Args:
+            current: The double-clicked list widget item.
+        """
         if current is None:
             return
         self._on_partition_edit()
 
     @Slot()
     def _on_partition_edit(self):
+        """Slot to open the partition editor for the selected partition."""
         layer = self._state.selected_layer
         if layer is None:
             return
@@ -1183,6 +1344,7 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_partition_rows_moved(self, parent, start, end, destination):
+        """Slot for when partitions are reordered in the partition list."""
         if self._state is None or self._state.selected_layer is None:
             logger.warning("Cannot reorder partitions, no layer selected")
             return
@@ -1199,6 +1361,7 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_update_layer_property(self) -> None:
+        """Slot to update the selected layer's properties from the property editor."""
         enabled = self._state is not None and self._state.selected_layer is not None
         self._property_editor.setEnabled(enabled)
         if enabled:
@@ -1217,6 +1380,7 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_update_embroidery_property(self) -> None:
+        """Slot to update the selected layer's embroidery parameters from the editor."""
         selected_layer = self._state.selected_layer
         enabled = selected_layer is not None
         self._embroidery_params_editor.setEnabled(enabled)
@@ -1234,11 +1398,18 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_show_about_dialog(self) -> None:
+        """Slot to show the 'About' dialog."""
         dialog = AboutDialog()
         dialog.exec()
 
     @Slot(QPointF)
     def _on_canvas_position_changed(self, position: QPointF):
+        """
+        Slot for when the canvas reports a change in a layer's position.
+
+        Args:
+            position: The new position of the layer.
+        """
         # Avoid sending two Undo commands if only one can do it
         x = self._position_x_spinbox.value()
         y = self._position_y_spinbox.value()
@@ -1256,6 +1427,12 @@ class MainWindow(QMainWindow):
 
     @Slot(str)
     def _on_canvas_layer_selection_changed(self, layer_uuid: str):
+        """
+        Slot for when the canvas reports a change in the selected layer.
+
+        Args:
+            layer_uuid: The UUID of the newly selected layer.
+        """
         for i in range(self._layer_list.count()):
             item = self._layer_list.item(i)
             if item.data(Qt.UserRole) == layer_uuid:
@@ -1264,12 +1441,24 @@ class MainWindow(QMainWindow):
 
     @Slot(str)
     def _on_canvas_layer_double_clicked(self, layer_uuid: str):
+        """
+        Slot for when a layer is double-clicked on the canvas.
+
+        Args:
+            layer_uuid: The UUID of the double-clicked layer.
+        """
         if self._state is None:
             return
         self._process_double_click_on_layer(layer_uuid)
 
     @Slot()
     def _on_state_layer_property_changed(self, layer: Layer):
+        """
+        Slot for when a layer's properties change in the application state.
+
+        Args:
+            layer: The layer whose properties have changed.
+        """
         if self._state is None:
             logger.warning("Unexpected state. Should not be none")
             return
@@ -1294,6 +1483,13 @@ class MainWindow(QMainWindow):
     def _on_state_state_property_changed(
         self, flag: StatePropertyFlags, properties: StateProperties
     ):
+        """
+        Slot for when a global state property changes.
+
+        Args:
+            flag: The flag indicating which property changed.
+            properties: The updated state properties object.
+        """
         if flag not in [
             StatePropertyFlags.HOOP_SIZE,
             StatePropertyFlags.ZOOM_FACTOR,
@@ -1310,6 +1506,12 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_state_layer_added(self, layer: Layer):
+        """
+        Slot for when a layer is added to the application state.
+
+        Args:
+            layer: The newly added layer.
+        """
         item = QListWidgetItem(layer.name)
         item.setData(Qt.UserRole, layer.uuid)
 
@@ -1335,6 +1537,12 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_state_layer_removed(self, layer: Layer):
+        """
+        Slot for when a layer is removed from the application state.
+
+        Args:
+            layer: The removed layer.
+        """
         # Clear the "partitions"
         with block_signals(self._partition_list):
             self._partition_list.clear()
@@ -1360,6 +1568,12 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_state_layer_pixels_changed(self, layer: Layer):
+        """
+        Slot for when a layer's pixel data has changed.
+
+        Args:
+            layer: The layer whose pixels have changed.
+        """
         item = self._layer_list.currentItem()
         if item.data(Qt.UserRole) == layer.uuid:
             self._populate_partitions(layer)
@@ -1370,18 +1584,28 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_canvas_mode_move(self):
+        """Switches the canvas to 'Move' mode."""
         self._canvas_mode_move_action.setChecked(True)
         self._canvas_mode_drawing_action.setChecked(False)
         self._canvas.mode = Canvas.Mode.MOVE
 
     @Slot()
     def _on_canvas_mode_drawing(self):
+        """Switches the canvas to 'Drawing' mode."""
         self._canvas_mode_move_action.setChecked(False)
         self._canvas_mode_drawing_action.setChecked(True)
         self._canvas.mode = Canvas.Mode.DRAWING
 
     @Slot()
     def _on_undo_stack_index_changed(self, index: int):
+        """
+        Slot for when the undo stack's index changes.
+
+        Updates the enabled state of the undo/redo actions.
+
+        Args:
+            index: The new index in the undo stack.
+        """
         if self._state:
             self._undo_action.setEnabled(self._state.undo_stack.canUndo())
             self._redo_action.setEnabled(self._state.undo_stack.canRedo())
