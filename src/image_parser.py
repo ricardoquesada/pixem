@@ -170,29 +170,38 @@ class ImageParser:
     ) -> list[tuple[int, int]] | None:
         """
         Finds the shortest path between two nodes on the image grid using BFS.
-        The path can traverse any non-transparent pixel, including diagonally.
+        The path can traverse any non-transparent pixel, including diagonally. This
+        implementation is optimized to avoid path copying at each step.
         """
         width, height = len(self._image), len(self._image[0])
-        queue = deque([(start_node, [start_node])])
+        queue = deque([start_node])
         visited = {start_node}
+        # `parents` will store the predecessor of each node in the path
+        parents = {start_node: None}
 
         while queue:
-            current, path = queue.popleft()
+            current = queue.popleft()
 
             if current == end_node:
+                # Reconstruct path from end_node back to start_node
+                path = []
+                node = end_node
+                while node is not None:
+                    path.append(node)
+                    node = parents[node]
+                return path[::-1]  # Reverse to get path from start to end
+
                 return path
 
             x, y = current
             # Using 8-directional movement to allow diagonal paths
-            for dx, dy in self.OFFSETS.values():
+            for dx, dy in [(0, -1), (0, 1), (-1, 0), (1, 0), (-1, -1), (-1, 1), (1, -1), (1, 1)]:
                 nx, ny = x + dx, y + dy
-
                 if 0 <= nx < width and 0 <= ny < height and (nx, ny) not in visited:
                     if self._image[nx][ny] != -1:
                         visited.add((nx, ny))
-                        new_path = list(path)
-                        new_path.append((nx, ny))
-                        queue.append(((nx, ny), new_path))
+                        parents[(nx, ny)] = current
+                        queue.append((nx, ny))
         return None  # No path found
 
     def _convert_to_rectilinear_path(
