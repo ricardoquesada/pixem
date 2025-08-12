@@ -198,10 +198,16 @@ class ImageParser:
     def _simplify_path_to_points(self, node_path: list[tuple[int, int]]) -> list[Point]:
         """
         Converts a list of nodes (e.g., from BFS) into a simplified list of
-        Points, keeping only the start, end, and corner points.
+        Points, keeping only the start, end, and corner points. It also
+        verifies that each point in the path corresponds to a non-transparent
+        pixel (an "existing rect" in the image).
         """
         if len(node_path) < 2:
-            return [Point(n[0], n[1]) for n in node_path]
+            points = [Point(n[0], n[1]) for n in node_path]
+            # Verification is still useful for the single-point case
+            for p in points:
+                assert self._image[p.x][p.y] != -1, f"Path point {p} is transparent"
+            return points
 
         simplified = [Point(node_path[0][0], node_path[0][1])]
         for i in range(1, len(node_path) - 1):
@@ -219,6 +225,11 @@ class ImageParser:
                 simplified.append(Point(p_curr[0], p_curr[1]))
 
         simplified.append(Point(node_path[-1][0], node_path[-1][1]))
+
+        # Verification step: ensure all simplified points are on non-transparent pixels.
+        for p in simplified:
+            assert self._image[p.x][p.y] != -1, f"Simplified path point {p} is transparent"
+
         return simplified
 
     def _create_shapes_from_ordered_nodes(
