@@ -34,7 +34,7 @@ from PySide6.QtWidgets import (
 from image_utils import create_icon_from_svg
 from partition import Partition
 from preferences import get_global_preferences
-from shape import Rect, Shape
+from shape import Path, Rect, Shape
 
 PAINT_SCALE_FACTOR = 16
 ICON_SIZE = 22
@@ -558,6 +558,8 @@ class PartitionDialog(QDialog):
             item = self._list_widget.item(i)
             if isinstance(shape, Rect):
                 item.setText(f"{i} - Rect({shape.x}, {shape.y})")
+            elif isinstance(shape, Path):
+                item.setText(f"{i} - Path({shape.points})")
             item.setData(Qt.UserRole, shape)
             selected = shape in selected_shapes
             item.setSelected(selected)

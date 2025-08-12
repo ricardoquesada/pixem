@@ -1,6 +1,8 @@
 # Pixem
 # Copyright 2024 Ricardo Quesada
 
+"""The main canvas widget for the application."""
+
 import logging
 from enum import IntEnum, auto
 from typing import override
@@ -32,19 +34,36 @@ INCHES_TO_MM = 25.4
 
 
 class Canvas(QWidget):
+    """
+    The main drawing area of the Pixem application.
+
+    It's responsible for rendering the image layers, handling user input for
+    navigation (panning, zooming), and layer manipulation (moving, selecting).
+    """
+
     position_changed = Signal(QPointF)
     layer_selection_changed = Signal(str)
     layer_double_clicked = Signal(str)
 
     class Mode(IntEnum):
+        """The operating mode of the canvas."""
+
         MOVE = auto()
         DRAWING = auto()
 
     class ModeStatus(IntEnum):
+        """The status of the current mode."""
+
         IDLE = auto()
         MOVING = auto()
 
     def __init__(self, state: State | None):
+        """
+        Initializes the Canvas.
+
+        Args:
+            state: The application state.
+        """
         super().__init__()
         self._state = state
 
@@ -110,6 +129,15 @@ class Canvas(QWidget):
         show_selected_partition: bool,
         show_hoop: bool,
     ) -> None:
+        """
+        Renders the canvas to a QPaintDevice.
+
+        Args:
+            image: The QPaintDevice to render to.
+            show_background_color: Whether to show the background color.
+            show_selected_partition: Whether to highlight the selected partition.
+            show_hoop: Whether to show the hoop.
+        """
         painter = QPainter(image)
         if show_background_color:
             size = self.sizeHint()
@@ -291,12 +319,24 @@ class Canvas(QWidget):
     #
     @override
     def paintEvent(self, event: QPaintEvent) -> None:
+        """
+        Handles the paint event.
+
+        Args:
+            event: The paint event.
+        """
         if not self._state:
             return
         self._paint_to_qimage(self, True, True, self._cached_hoop_visible)
 
     @override
     def keyPressEvent(self, event: QKeyEvent):
+        """
+        Handles key press events.
+
+        Args:
+            event: The key event.
+        """
         if not self._state:
             event.ignore()
             return
@@ -313,6 +353,12 @@ class Canvas(QWidget):
 
     @override
     def wheelEvent(self, event: QWheelEvent):
+        """
+        Handles wheel events for zooming.
+
+        Args:
+            event: The wheel event.
+        """
         if not self._state:
             event.ignore()
             return
@@ -331,6 +377,12 @@ class Canvas(QWidget):
 
     @override
     def mousePressEvent(self, event: QMouseEvent):
+        """
+        Handles mouse press events for panning and layer selection.
+
+        Args:
+            event: The mouse event.
+        """
         if event.button() == Qt.MouseButton.MiddleButton:
             self._pan_last_pos = event.position()
             self.setCursor(Qt.CursorShape.ClosedHandCursor)
@@ -364,6 +416,12 @@ class Canvas(QWidget):
 
     @override
     def mouseMoveEvent(self, event: QMouseEvent):
+        """
+        Handles mouse move events for panning and moving layers.
+
+        Args:
+            event: The mouse event.
+        """
         if event.buttons() & Qt.MouseButton.MiddleButton and self._pan_last_pos is not None:
             # Find the parent QScrollArea to control its scrollbars
             scroll_area = self
@@ -397,6 +455,12 @@ class Canvas(QWidget):
 
     @override
     def mouseReleaseEvent(self, event: QMouseEvent):
+        """
+        Handles mouse release events to finalize panning or moving layers.
+
+        Args:
+            event: The mouse event.
+        """
         if event.button() == Qt.MouseButton.MiddleButton:
             self._pan_last_pos = None
             self.unsetCursor()
@@ -430,6 +494,12 @@ class Canvas(QWidget):
 
     @override
     def mouseDoubleClickEvent(self, event: QMouseEvent):
+        """
+        Handles mouse double-click events to select and interact with layers.
+
+        Args:
+            event: The mouse event.
+        """
         # Layer on top (visually) first
         # FIXME: almost same code as mousePressEvent()
         for layer in reversed(self._state.layers):
@@ -446,6 +516,12 @@ class Canvas(QWidget):
 
     @override
     def sizeHint(self) -> QSize:
+        """
+        Provides a recommended size for the widget.
+
+        Returns:
+            The recommended size.
+        """
         max_w = self._cached_hoop_size[0] * INCHES_TO_MM
         max_h = self._cached_hoop_size[1] * INCHES_TO_MM
         if self._state is None:
@@ -479,7 +555,7 @@ class Canvas(QWidget):
     # Public
     #
     def on_preferences_updated(self):
-        """Updates the preference cache"""
+        """Updates the preference cache."""
         self._cached_hoop_visible = get_global_preferences().get_hoop_visible()
         if self._state:
             self._cached_hoop_size = self._state.hoop_size
@@ -487,12 +563,19 @@ class Canvas(QWidget):
             self._cached_hoop_size = get_global_preferences().get_hoop_size()
 
     def recalculate_fixed_size(self):
+        """Recalculates the fixed size of the canvas."""
         self.updateGeometry()
         new_size = self.sizeHint()
         self.setFixedSize(new_size)
         self.update()
 
     def render_to_qimage(self) -> QImage | None:
+        """
+        Renders the canvas to a QImage.
+
+        Returns:
+            The rendered QImage, or None if the state is not available.
+        """
         if self._state is None:
             return None
         qimage = QImage(self.sizeHint(), QImage.Format.Format_ARGB32)
@@ -501,6 +584,7 @@ class Canvas(QWidget):
 
     @property
     def mode(self) -> Mode:
+        """The current operating mode of the canvas."""
         return self._mode
 
     @mode.setter
@@ -509,6 +593,7 @@ class Canvas(QWidget):
 
     @property
     def state(self) -> State:
+        """The application state."""
         return self._state
 
     @state.setter
