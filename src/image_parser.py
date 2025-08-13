@@ -2,6 +2,7 @@
 # Copyright 2024 - Ricardo Quesada
 
 import logging
+import sys
 import uuid
 
 import networkx as nx
@@ -51,7 +52,8 @@ class ImageParser:
         self._jump_stitches = 0
         self._image = [[-1 for _ in range(height)] for _ in range(width)]
 
-        self._vertex_graph = None
+        # One graph per color, since weights changes from color to color
+        self._vertex_graph = {}
         self._partitions = {}
 
         # Put all pixels in matrix
@@ -120,7 +122,7 @@ class ImageParser:
                                 stack.append(neighbor)
         return ordered_nodes
 
-    def _get_vertex_graph(self) -> nx.Graph:
+    def _get_vertex_graph_for_color(self, color: int) -> nx.Graph:
         """
         Builds and caches a networkx.Graph of all valid path vertices.
 
@@ -128,8 +130,8 @@ class ImageParser:
         is created between two vertices if the path segment between them is
         "valid" — meaning it runs alongside at least one non-transparent pixel.
         """
-        if self._vertex_graph is not None:
-            return self._vertex_graph
+        if color in self._vertex_graph:
+            return self._vertex_graph[color]
 
         G = nx.Graph()
         w_pixel, h_pixel = len(self._image), len(self._image[0])
@@ -140,31 +142,47 @@ class ImageParser:
                 return self._image[px][py] != -1
             return False
 
+        def get_weight(px: int, py: int) -> int:
+            if 0 <= px < w_pixel and 0 <= py < h_pixel:
+                px_color = self._image[px][py]
+                r1 = (px_color & 0xFF0000) >> 16
+                r2 = (color & 0xFF0000) >> 16
+                g1 = (px_color & 0xFF00) >> 8
+                g2 = (color & 0xFF00) >> 8
+                b1 = px_color & 0xFF
+                b2 = color & 0xFF
+                w = abs(r2 - r1) + abs(g2 - g1) + abs(b2 - b1)
+                w = w // 4
+                return 1 + w
+            return sys.maxsize
+
         for y in range(h_vertex):
             for x in range(w_vertex):
                 # Check for horizontal connection to the right
                 if x + 1 < w_vertex:
                     # Path from (x,y) to (x+1,y) is between pixels (x, y-1) and (x, y)
                     if is_solid(x, y - 1) or is_solid(x, y):
-                        G.add_edge((x, y), (x + 1, y))
+                        weight = min(get_weight(x, y), get_weight(x + 1, y))
+                        G.add_edge((x, y), (x + 1, y), weight=weight)
 
                 # Check for vertical connection downwards
                 if y + 1 < h_vertex:
                     # Path from (x,y) to (x,y+1) is between pixels (x-1, y) and (x, y)
                     if is_solid(x - 1, y) or is_solid(x, y):
-                        G.add_edge((x, y), (x, y + 1))
+                        weight = min(get_weight(x, y), get_weight(x + 1, y))
+                        G.add_edge((x, y), (x, y + 1), weight=weight)
 
-        self._vertex_graph = G
-        return self._vertex_graph
+        self._vertex_graph[color] = G
+        return self._vertex_graph[color]
 
     def _find_shortest_pixel_path(
-        self, start_node: tuple[int, int], end_node: tuple[int, int]
+        self, color: int, start_node: tuple[int, int], end_node: tuple[int, int]
     ) -> list[tuple[int, int]] | None:
         """
         Finds the shortest rectilinear path between two vertices on the pixel grid
         by leveraging a pre-built graph of all valid path segments.
         """
-        G = self._get_vertex_graph()
+        G = self._get_vertex_graph_for_color(color)
         try:
             # Check if nodes exist in graph to prevent NetworkXError
             if start_node not in G or end_node not in G:
@@ -174,6 +192,7 @@ class ImageParser:
                 return None
             return nx.shortest_path(G, source=start_node, target=end_node)
         except nx.NetworkXNoPath:
+            # Probably an island
             logger.info(f"No path found between {start_node} and {end_node}")
             return None
 
@@ -208,7 +227,7 @@ class ImageParser:
         return simplified
 
     def _create_shapes_from_ordered_nodes(
-        self, ordered_nodes: list[tuple[int, int]], image_graph: dict
+        self, color: int, ordered_nodes: list[tuple[int, int]], image_graph: dict
     ) -> list[Shape]:
         """
         Builds a list of Rect and Path shapes from an ordered list of nodes.
@@ -227,7 +246,7 @@ class ImageParser:
 
             # Check if the next node is a neighbor. If not, add a path.
             if next_node not in image_graph.get(current_node, []):
-                path_nodes = self._find_shortest_pixel_path(current_node, next_node)
+                path_nodes = self._find_shortest_pixel_path(color, current_node, next_node)
 
                 if path_nodes:
                     # The path from BFS includes the start and end nodes.
@@ -271,7 +290,7 @@ class ImageParser:
         if not ordered_nodes:
             return
 
-        shapes = self._create_shapes_from_ordered_nodes(ordered_nodes, image_graph)
+        shapes = self._create_shapes_from_ordered_nodes(color, ordered_nodes, image_graph)
 
         partition = Partition(shapes, name, color_str)
         partition_uuid = str(uuid.uuid4())
