@@ -15,7 +15,23 @@ logger = logging.getLogger(__name__)
 
 
 class ExportToSvg:
+    """
+    Handles the exporting of project layers to an SVG file format compatible
+    with the Ink/Stitch extension for Inkscape.
+
+    This class takes layer data, including pixel shapes (Rects) and connecting
+    paths (Paths), and translates them into SVG elements with the necessary
+    Ink/Stitch attributes for embroidery.
+    """
+
     def __init__(self, filename: str, hoop_size: tuple[float, float]):
+        """
+        Initializes the SVG exporter.
+
+        Args:
+            filename: The path to the output SVG file.
+            hoop_size: A tuple (width, height) of the hoop in inches.
+        """
         self._export_filename = filename
         self._hoop_size = hoop_size
         logger.info(f"Exporting to SVG {self._export_filename}")
@@ -33,6 +49,22 @@ class ExportToSvg:
         angle: int,
         embroidery_params: EmbroideryParameters,
     ) -> None:
+        """
+        Writes a single pixel as an SVG <rect> element to the file.
+
+        This method includes Ink/Stitch-specific attributes to control how the
+        rectangle is rendered as a fill stitch area in an embroidery design.
+
+        Args:
+            file: The file object to write the SVG content to.
+            layer_idx: The index of the current layer, used for unique IDs.
+            x: The x-coordinate of the pixel.
+            y: The y-coordinate of the pixel.
+            pixel_size: A tuple (width, height) of a single pixel in mm.
+            color: The hex color string for the fill.
+            angle: The angle of the fill stitches.
+            embroidery_params: Embroidery parameters for the layer.
+        """
         file.write(
             f'<rect x="{x * pixel_size[0]}" y="{y * pixel_size[1]}" '
             f'width="{pixel_size[0]}" height="{pixel_size[1]}" '
@@ -63,6 +95,23 @@ class ExportToSvg:
         color: str,
         embroidery_params: EmbroideryParameters,
     ) -> None:
+        """
+        Writes a connecting path as an SVG <path> element to the file.
+
+        This is used to create running stitches between disconnected pixel areas,
+        following a path determined by the ImageParser. It includes the necessary
+        Ink/Stitch attributes to render it as a running stitch.
+
+        Args:
+            file: The file object to write the SVG content to.
+            layer_idx: The index of the current layer, used for unique IDs.
+            partition_name: The name of the partition this path belongs to.
+            shape_idx: The index of this shape within the partition.
+            path: A list of Point objects defining the vertices of the path.
+            pixel_size: A tuple (width, height) of a single pixel in mm.
+            color: The hex color string for the stroke.
+            embroidery_params: Embroidery parameters for the layer.
+        """
         if not path:
             return
 
@@ -93,6 +142,12 @@ class ExportToSvg:
         file.write("/>\n")
 
     def write_to_svg(self):
+        """
+        Generates and writes the complete SVG file.
+
+        This method constructs the SVG file from scratch, including the header,
+        metadata, and all the layers, partitions, and shapes that have been added.
+        """
         logger.info(f"writing SVG {self._export_filename}")
         with open(self._export_filename, "w") as f:
             f.write('<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n')
@@ -205,4 +260,10 @@ class ExportToSvg:
             f.write("</svg>\n")
 
     def add_layer(self, layer: Layer):
+        """
+        Adds a Layer object to be included in the SVG export.
+
+        Args:
+            layer: The Layer to add to the export list.
+        """
         self._layers.append(layer)

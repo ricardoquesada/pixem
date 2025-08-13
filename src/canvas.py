@@ -290,26 +290,56 @@ class Canvas(QWidget):
     #
     @Slot(str)
     def _on_partition_background_color_changed(self, color: str):
+        """
+        Slot for when the partition background color preference changes.
+
+        Args:
+            color: The new color as a hex string.
+        """
         self._cached_partition_background_color = QColor(color)
         self.update()
 
     @Slot(str)
     def _on_canvas_color_background_changed(self, color: str):
+        """
+        Slot for when the canvas background color preference changes.
+
+        Args:
+            color: The new color as a hex string.
+        """
         self._cached_canvas_background_color = QColor(color)
         self.update()
 
     @Slot(str)
     def _on_hoop_color_changed(self, color: str):
+        """
+        Slot for when the hoop color preference changes.
+
+        Args:
+            color: The new color as a hex string.
+        """
         self._cached_hoop_color = QColor(color)
         self.update()
 
     @Slot(bool)
     def _on_hoop_visible_changed(self, visible: bool):
+        """
+        Slot for when the hoop visibility preference changes.
+
+        Args:
+            visible: True if the hoop should be visible, False otherwise.
+        """
         self._cached_hoop_visible = visible
         self.update()
 
     @Slot(tuple)
     def _on_hoop_size_changed(self, size: tuple[float, float]):
+        """
+        Slot for when the hoop size preference changes.
+
+        Args:
+            size: A tuple containing the new width and height of the hoop.
+        """
         self._cached_hoop_size = size
         self.recalculate_fixed_size()
         self.update()

@@ -15,7 +15,18 @@ logger = logging.getLogger(__name__)
 
 
 def _get_node_with_one_neighbor(G):
-    # Returns the first node that has a degree of 1
+    """
+    Finds a node in the graph with exactly one neighbor (a leaf node).
+
+    This is useful for finding a natural starting or ending point for a path
+    traversal in a graph that is not a cycle.
+
+    Args:
+        G: A networkx.Graph object.
+
+    Returns:
+        The first node found with a degree of 1, or None if no such node exists.
+    """
     nodes_with_one_neighbor = [node for node, degree in G.degree() if degree == 1]
     if len(nodes_with_one_neighbor) > 0:
         return nodes_with_one_neighbor[0]
@@ -23,6 +34,18 @@ def _get_node_with_one_neighbor(G):
 
 
 def _get_top_left_node(G):
+    """
+    Finds the node in the graph that is closest to the (0,0) origin.
+
+    This serves as a deterministic starting point for graph traversal when
+    no other obvious starting node (like a leaf node) is available.
+
+    Args:
+        G: A networkx.Graph object.
+
+    Returns:
+        The node (tuple of x, y) closest to the origin.
+    """
     curr_node = None
     curr_dist = 1000000
     for node in G.nodes():
@@ -35,6 +58,22 @@ def _get_top_left_node(G):
 
 
 class ImageParser:
+    """
+    Parses a QImage into a set of embroidery-ready partitions.
+
+    This class analyzes the pixels of an image, groups them by color, and
+    determines the optimal stitching order within each color group. It creates
+    "partitions," where each partition contains a single color and is represented
+    as a sequence of shapes (Rects for pixels and Paths for connecting jumps).
+
+    The process involves:
+    1.  Reading the QImage into an internal grid, ignoring transparent pixels.
+    2.  Building a graph of connected, same-colored pixels.
+    3.  For each color, ordering all its pixels into a single sequence,
+        connecting any disconnected areas with calculated jump-stitch paths.
+    4.  Storing the final result in a dictionary of Partition objects.
+    """
+
     OFFSETS = {
         "NW": (-1, -1),
         "N": (0, -1),
@@ -47,6 +86,12 @@ class ImageParser:
     }
 
     def __init__(self, image: QImage):
+        """
+        Initializes the ImageParser and processes the given image.
+
+        Args:
+            image: The QImage to be parsed.
+        """
         width, height = image.width(), image.height()
 
         self._jump_stitches = 0
@@ -64,19 +109,17 @@ class ImageParser:
         for color in g:
             self._create_single_partition_for_color(g[color], color)
 
-    def _set_conf_value(self, arg_value, key, default):
-        # Priority:
-        #   1. argument
-        #   2. conf
-        #   3. default
-        if arg_value is not None:
-            self._conf[key] = arg_value
-
-        if key not in self._conf or self._conf[key] is None:
-            self._conf[key] = default
-
     def _put_pixels_in_matrix(self, img: QImage, width: int, height: int):
-        # Put all pixels in matrix
+        """
+        Populates an internal 2D list with pixel color data from the QImage.
+
+        Transparent pixels are marked as -1.
+
+        Args:
+            img: The source QImage.
+            width: The width of the image.
+            height: The height of the image.
+        """
         for y in range(height):
             for x in range(width):
                 color: QColor = img.pixelColor(x, y)
@@ -91,8 +134,18 @@ class ImageParser:
 
     def _get_ordered_nodes_for_color(self, image_graph: dict) -> list[tuple[int, int]]:
         """
-        Performs a Depth-First Search on the color graph to get a single
+        Performs a Depth-First Search (DFS) on the color graph to get a single
         ordered list of all nodes, traversing disconnected components.
+
+        This ensures that all pixels of a given color are visited in a
+        continuous, predictable sequence, which is essential for creating a
+        single stitch path for the entire color group.
+
+        Args:
+            image_graph: An adjacency list representation of the graph for a single color.
+
+        Returns:
+            A list of all nodes (pixels) for the color, in a single traversal order.
         """
         all_nodes = list(image_graph.keys())
         if not all_nodes:
@@ -181,8 +234,25 @@ class ImageParser:
         self, color: int, start_node: tuple[int, int], end_node: tuple[int, int]
     ) -> list[tuple[int, int]] | None:
         """
-        Finds the shortest rectilinear path between two vertices on the pixel grid
-        by leveraging a pre-built graph of all valid path segments.
+        Finds the shortest rectilinear path between two vertices on the pixel grid.
+
+        This method leverages a pre-built graph of all valid path segments for a
+        given color, where edge weights are determined by the color difference
+        of adjacent pixels. It uses Dijkstra's algorithm (via networkx) to find
+        the path with the minimum total weight.
+
+        This is used to create jump stitches between disconnected areas of the
+        same color.
+
+        Args:
+            color: The target color for the path. The path will try to follow
+                   pixels of this color.
+            start_node: The starting vertex (x, y).
+            end_node: The ending vertex (x, y).
+
+        Returns:
+            A list of vertices representing the shortest path, or None if no
+            path exists.
         """
         G = self._get_vertex_graph_for_color(color)
         try:
@@ -200,10 +270,16 @@ class ImageParser:
 
     def _simplify_path_to_points(self, node_path: list[tuple[int, int]]) -> list[Point]:
         """
-        Converts a list of nodes (e.g., from BFS) into a simplified list of
-        Points, keeping only the start, end, and corner points. It also
-        verifies that each point in the path corresponds to a non-transparent
-        pixel (an "existing rect" in the image).
+        Converts a list of path vertices into a simplified list of Points.
+
+        It simplifies the path by keeping only the start, end, and corner
+        points, effectively removing redundant collinear points.
+
+        Args:
+            node_path: A list of (x, y) tuples representing the vertices of a path.
+
+        Returns:
+            A simplified list of Point objects.
         """
         if len(node_path) < 2:
             points = [Point(n[0], n[1]) for n in node_path]
