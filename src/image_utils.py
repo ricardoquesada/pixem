@@ -15,14 +15,15 @@ logger = logging.getLogger(__name__)
 
 def qimage_to_base64_string(image: QImage, fmt: str = "PNG") -> str | None:
     """
-    Encodes a QImage to a Base64 string representing the image in the specified format.
+    Encodes a QImage to a Base64 string.
 
     Args:
         image: The QImage to encode.
-        fmt: The image format to use (e.g., "PNG", "JPEG", "BMP"). Defaults to "PNG".
+        fmt: The image format to use (e.g., "PNG", "JPEG"). Defaults to "PNG".
 
     Returns:
-        A Base64 string representing the encoded image, or an empty string if an error occurs.
+        A Base64-encoded string of the image, None if the input image is None,
+        or an empty string if an encoding error occurs.
     """
     if image is None:
         logger.info("Image is None, returning empty Image")
@@ -77,13 +78,18 @@ _ascii2petscii_table = [
 
 def _ascii_to_petscii_screencode(ascii_chr: chr) -> Optional[int]:
     """
-    Converts ASCII to Commodore 8-bit screen code.
+    Converts an ASCII character to its Commodore 64 screen code equivalent.
+
+    This uses a lookup table to convert the ASCII value to PETSCII, and then
+    applies the logic to convert PETSCII to the screen code used for POKEing
+    to screen memory.
 
     Args:
-        ascii_val: The ASCII character (chr).
+        ascii_chr: The ASCII character to convert.
 
     Returns:
-        The Commodore 8-bit screen code (int).
+        The corresponding C64 screen code as an integer, or None if the
+        input is invalid.
     """
     if len(ascii_chr) != 1:
         logger.warning(f"Invalid ASCII value: {ascii_chr}")
@@ -120,6 +126,22 @@ def _ascii_to_petscii_screencode(ascii_chr: chr) -> Optional[int]:
 
 
 def text_to_qimage(text: str, font_path: str, color_name: str) -> Optional[QImage]:
+    """
+    Renders a string of text into a QImage using a custom 8x8 bitmapped font.
+
+    The font file is expected to be a raw binary file containing 8 bytes for
+    each character. The text is converted from ASCII to a specific character
+    set (e.g., PETSCII) to find the correct character in the font file.
+
+    Args:
+        text: The string to render.
+        font_path: The resource path to the 8x8 bitmapped font file.
+        color_name: The color of the text as a hex string (e.g., "#RRGGBB").
+
+    Returns:
+        A QImage containing the rendered text with a transparent background,
+        or None if the input is invalid.
+    """
     if text is None or len(text) == 0:
         return None
     if font_path is None or len(font_path) == 0:
@@ -153,7 +175,19 @@ def text_to_qimage(text: str, font_path: str, color_name: str) -> Optional[QImag
 
 
 def create_icon_from_svg(svg_path: str, size: int = 32) -> QIcon | None:
-    """Creates a QIcon from an SVG resource."""
+    """
+    Creates a QIcon from an SVG resource file.
+
+    Renders an SVG file to a QPixmap and then creates a QIcon from it. This
+    is useful for creating resolution-independent icons.
+
+    Args:
+        svg_path: The path to the SVG file (can be a Qt resource path).
+        size: The desired width and height of the icon in pixels.
+
+    Returns:
+        A QIcon object, or None if the SVG file is invalid or cannot be loaded.
+    """
     renderer = QSvgRenderer(svg_path)
     if not renderer.isValid():
         logger.error(f"Error: Invalid SVG resource: {svg_path}")
