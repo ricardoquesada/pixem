@@ -3,7 +3,6 @@
 
 import logging
 import uuid
-from collections import deque
 
 import networkx as nx
 from PySide6.QtGui import QColor, QImage
@@ -46,12 +45,13 @@ class ImageParser:
         "W": (-1, 0),
     }
 
-    def __init__(self, image: QImage, one_partition_per_color: bool = True):
+    def __init__(self, image: QImage):
         width, height = image.width(), image.height()
 
         self._jump_stitches = 0
         self._image = [[-1 for _ in range(height)] for _ in range(width)]
 
+        self._vertex_graph = None
         self._partitions = {}
 
         # Put all pixels in matrix
@@ -60,10 +60,7 @@ class ImageParser:
         g = self._create_color_graph(width, height)
 
         for color in g:
-            if one_partition_per_color:
-                self._create_single_partition_for_color(g[color], color)
-            else:
-                self._create_multiple_partitions_for_color(g[color], color)
+            self._create_single_partition_for_color(g[color], color)
 
     def _set_conf_value(self, arg_value, key, default):
         # Priority:
@@ -89,49 +86,6 @@ class ImageParser:
                     continue
                 color = argb & 0xFFFFFF
                 self._image[x][y] = color
-
-    def _create_multiple_partitions_for_color(self, image_graph: dict, color: int) -> None:
-        """
-        Create multiple partitions for the given color. The partitions are created based on whether the nodes are connected.
-        This used to be the old behavior. Keeping it in case it is needed again.
-        :param image_graph: The dict that contains the nodes and the edges.
-        :param color: The color of the partition.
-        :return: None
-        """
-        # image_graph is a dict of:
-        #   key: node
-        #   value: edges
-        nodes = image_graph.keys()
-        edges = []
-        for node in image_graph:
-            for edge in image_graph[node]:
-                edges.append((node, edge))
-
-        G = nx.Graph()
-        G.add_nodes_from(nodes)
-        G.add_edges_from(edges)
-
-        # The graph might include disconnected nodes, identify them
-        # and process each subgraph independently
-        S = [G.subgraph(c).copy() for c in nx.connected_components(G)]
-        for idx, s in enumerate(S):
-            # nx.draw(s, with_labels=True)
-            # plt.show()
-            nodes = list(s.nodes())
-
-            name = f"#{color:06x}_{idx}"
-            color_str = f"#{color:06x}"
-
-            shapes = [Rect(node[0], node[1]) for node in nodes]
-            partition = Partition(shapes, name, color_str)
-
-            partition_uuid = str(uuid.uuid4())
-            if partition_uuid not in self._partitions:
-                self._partitions[partition_uuid] = partition
-
-                if len(nodes) > 1:
-                    start_node = self._get_starting_node(s)
-                    partition.walk_path(Partition.WalkMode.SPIRAL_CW, start_node)
 
     def _get_ordered_nodes_for_color(self, image_graph: dict) -> list[tuple[int, int]]:
         """
@@ -166,73 +120,62 @@ class ImageParser:
                                 stack.append(neighbor)
         return ordered_nodes
 
+    def _get_vertex_graph(self) -> nx.Graph:
+        """
+        Builds and caches a networkx.Graph of all valid path vertices.
+
+        The nodes of the graph are the vertices of the pixel grid. An edge
+        is created between two vertices if the path segment between them is
+        "valid" — meaning it runs alongside at least one non-transparent pixel.
+        """
+        if self._vertex_graph is not None:
+            return self._vertex_graph
+
+        G = nx.Graph()
+        w_pixel, h_pixel = len(self._image), len(self._image[0])
+        w_vertex, h_vertex = w_pixel + 1, h_pixel + 1
+
+        def is_solid(px: int, py: int) -> bool:
+            if 0 <= px < w_pixel and 0 <= py < h_pixel:
+                return self._image[px][py] != -1
+            return False
+
+        for y in range(h_vertex):
+            for x in range(w_vertex):
+                # Check for horizontal connection to the right
+                if x + 1 < w_vertex:
+                    # Path from (x,y) to (x+1,y) is between pixels (x, y-1) and (x, y)
+                    if is_solid(x, y - 1) or is_solid(x, y):
+                        G.add_edge((x, y), (x + 1, y))
+
+                # Check for vertical connection downwards
+                if y + 1 < h_vertex:
+                    # Path from (x,y) to (x,y+1) is between pixels (x-1, y) and (x, y)
+                    if is_solid(x - 1, y) or is_solid(x, y):
+                        G.add_edge((x, y), (x, y + 1))
+
+        self._vertex_graph = G
+        return self._vertex_graph
+
     def _find_shortest_pixel_path(
         self, start_node: tuple[int, int], end_node: tuple[int, int]
     ) -> list[tuple[int, int]] | None:
         """
-        Finds the shortest path between two nodes on the image grid using BFS.
-        The path can traverse any non-transparent pixel, including diagonally. This
-        implementation is optimized to avoid path copying at each step.
+        Finds the shortest rectilinear path between two vertices on the pixel grid
+        by leveraging a pre-built graph of all valid path segments.
         """
-        # The +1 is because we measure vertices, and each pixel has 4 vertices:
-        # top-left, top-right, bottom-left, bottom-right.
-        width, height = len(self._image) + 1, len(self._image[0]) + 1
-        queue = deque([start_node])
-        visited = {start_node}
-        # `parents` will store the predecessor of each node in the path
-        parents = {start_node: None}
-
-        while queue:
-            current = queue.popleft()
-
-            if current == end_node:
-                # Reconstruct path from end_node back to start_node
-                path = []
-                node = end_node
-                while node is not None:
-                    path.append(node)
-                    node = parents[node]
-                return path[::-1]  # Reverse to get path from start to end
-
-                return path
-
-            x, y = current
-            # Using 8-directional movement to allow diagonal paths
-            for dx, dy in [(0, -1), (0, 1), (-1, 0), (1, 0)]:
-                nx, ny = x + dx, y + dy
-                if 0 <= nx < width and 0 <= ny < height and (nx, ny) not in visited:
-                    # We need to check that path is touching a non-transparent pixel
-                    # A path from one vertex to another touches at most two pixels.
-                    # If at least one is present, the path is valid.
-                    if self._is_valid_path((x, y), (dx, dy)):
-                        visited.add((nx, ny))
-                        parents[(nx, ny)] = current
-                        queue.append((nx, ny))
-        return None  # No path found
-
-    def _is_valid_path(self, vertex: tuple[int, int], direction: tuple[int, int]) -> bool:
-        """
-        Validates that a path segment from a vertex in a given direction is valid.
-        A path is valid if it is adjacent to at least one non-transparent pixel.
-        """
-        x, y = vertex
-        dx, dy = direction
-        w, h = len(self._image), len(self._image[0])
-
-        def is_solid(px: int, py: int) -> bool:
-            if 0 <= px < w and 0 <= py < h:
-                return self._image[px][py] != -1
-            return False
-
-        if dx != 0:  # Horizontal move
-            # A horizontal segment is between pixels (px, y-1) and (px, y)
-            px = min(x, x + dx)
-            return is_solid(px, y - 1) or is_solid(px, y)
-
-        # Vertical move (dy != 0)
-        # A vertical segment is between pixels (x-1, py) and (x, py)
-        py = min(y, y + dy)
-        return is_solid(x - 1, py) or is_solid(x, py)
+        G = self._get_vertex_graph()
+        try:
+            # Check if nodes exist in graph to prevent NetworkXError
+            if start_node not in G or end_node not in G:
+                logger.warning(
+                    f"Start or end node not in vertex graph. Start: {start_node}, End: {end_node}"
+                )
+                return None
+            return nx.shortest_path(G, source=start_node, target=end_node)
+        except nx.NetworkXNoPath:
+            logger.info(f"No path found between {start_node} and {end_node}")
+            return None
 
     def _simplify_path_to_points(self, node_path: list[tuple[int, int]]) -> list[Point]:
         """
@@ -243,9 +186,6 @@ class ImageParser:
         """
         if len(node_path) < 2:
             points = [Point(n[0], n[1]) for n in node_path]
-            # Verification is still useful for the single-point case
-            for p in points:
-                assert self._image[p.x][p.y] != -1, f"Path point {p} is transparent"
             return points
 
         simplified = [Point(node_path[0][0], node_path[0][1])]
@@ -264,15 +204,6 @@ class ImageParser:
                 simplified.append(Point(p_curr[0], p_curr[1]))
 
         simplified.append(Point(node_path[-1][0], node_path[-1][1]))
-
-        # Verification step: ensure all simplified points are on non-transparent pixels.
-        # for p in simplified:
-        #     assert (
-        #         self._image[p.x][p.y] != -1
-        #         or self._image[p.x + 1][p.y] != -1
-        #         or self._image[p.x][p.y + 1] != -1
-        #         or self._image[p.x + 1][p.y + 1] != -1
-        #     ), f"Simplified path point {p} is transparent"
 
         return simplified
 
@@ -303,18 +234,20 @@ class ImageParser:
                     simplified_points = self._simplify_path_to_points(path_nodes)
                     shapes.append(Path(simplified_points))
                 else:
-                    # Fallback for safety, e.g. if islands are separated by transparency
-                    x1, y1 = current_node
-                    x2, y2 = next_node
-                    p1 = Point(x1, y1)
-                    p2 = Point(x2, y2)
+                    # TODO: Think if we want to connect island. Probably not
+                    if False:
+                        # Fallback for safety, e.g. if islands are separated by transparency
+                        x1, y1 = current_node
+                        x2, y2 = next_node
+                        p1 = Point(x1, y1)
+                        p2 = Point(x2, y2)
 
-                    # Create a rectilinear path (only horizontal/vertical segments).
-                    if x1 == x2 or y1 == y2:
-                        shapes.append(Path([p1, p2]))
-                    else:
-                        p_intermediate = Point(x2, y1)
-                        shapes.append(Path([p1, p_intermediate, p2]))
+                        # Create a rectilinear path (only horizontal/vertical segments).
+                        if x1 == x2 or y1 == y2:
+                            shapes.append(Path([p1, p2]))
+                        else:
+                            p_intermediate = Point(x2, y1)
+                            shapes.append(Path([p1, p_intermediate, p2]))
 
         # Add the last rect
         shapes.append(Rect(ordered_nodes[-1][0], ordered_nodes[-1][1]))
