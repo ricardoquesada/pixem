@@ -152,7 +152,6 @@ class ImageParser:
                 b1 = px_color & 0xFF
                 b2 = color & 0xFF
                 w = abs(r2 - r1) + abs(g2 - g1) + abs(b2 - b1)
-                w = w // 4
                 return 1 + w
             return sys.maxsize
 
