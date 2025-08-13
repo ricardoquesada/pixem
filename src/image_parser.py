@@ -210,30 +210,29 @@ class ImageParser:
                         queue.append((nx, ny))
         return None  # No path found
 
-    def _is_valid_path(self, vertex: tuple[int, int], direction: tuple[int, int]):
-        """Validates that a path, composed by a vertex and a direction, has a valid path.
-        This means that it will not traverse transparent pixels.
+    def _is_valid_path(self, vertex: tuple[int, int], direction: tuple[int, int]) -> bool:
         """
-        x = vertex[0]
-        y = vertex[1]
-        dx = direction[0]
-        dy = direction[1]
-        pixel_a = -1
-        pixel_b = -1
-        w = len(self._image)
-        h = len(self._image[0])
-        offsets = {
-            (-1, 0): (-1, 0, -1, -1),
-            (1, 0): (0, 0, 0, -1),
-            (0, -1): (0, -1, -1, -1),
-            (0, 1): (0, 0, -1, 0),
-        }
-        x1, y1, x2, y2 = offsets[(dx, dy)]
-        if 0 <= x + x1 < w and 0 <= y + y1 < h:
-            pixel_a = self._image[x + x1][y + y1]
-        if 0 <= x + x2 < w and 0 <= y + y2 < h:
-            pixel_b = self._image[x + x2][y + y2]
-        return pixel_a != -1 or pixel_b != -1
+        Validates that a path segment from a vertex in a given direction is valid.
+        A path is valid if it is adjacent to at least one non-transparent pixel.
+        """
+        x, y = vertex
+        dx, dy = direction
+        w, h = len(self._image), len(self._image[0])
+
+        def is_solid(px: int, py: int) -> bool:
+            if 0 <= px < w and 0 <= py < h:
+                return self._image[px][py] != -1
+            return False
+
+        if dx != 0:  # Horizontal move
+            # A horizontal segment is between pixels (px, y-1) and (px, y)
+            px = min(x, x + dx)
+            return is_solid(px, y - 1) or is_solid(px, y)
+
+        # Vertical move (dy != 0)
+        # A vertical segment is between pixels (x-1, py) and (x, py)
+        py = min(y, y + dy)
+        return is_solid(x - 1, py) or is_solid(x, py)
 
     def _simplify_path_to_points(self, node_path: list[tuple[int, int]]) -> list[Point]:
         """
