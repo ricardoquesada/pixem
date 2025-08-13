@@ -143,17 +143,20 @@ class ImageParser:
             return False
 
         def get_weight(px: int, py: int) -> int:
-            if 0 <= px < w_pixel and 0 <= py < h_pixel:
-                px_color = self._image[px][py]
-                r1 = (px_color & 0xFF0000) >> 16
-                r2 = (color & 0xFF0000) >> 16
-                g1 = (px_color & 0xFF00) >> 8
-                g2 = (color & 0xFF00) >> 8
-                b1 = px_color & 0xFF
-                b2 = color & 0xFF
-                w = abs(r2 - r1) + abs(g2 - g1) + abs(b2 - b1)
-                return 1 + w
-            return sys.maxsize
+            if not (0 <= px < w_pixel and 0 <= py < h_pixel):
+                return sys.maxsize
+
+            px_color = self._image[px][py]
+            r_diff = abs(((px_color >> 16) & 0xFF) - ((color >> 16) & 0xFF))
+            g_diff = abs(((px_color >> 8) & 0xFF) - ((color >> 8) & 0xFF))
+            b_diff = abs((px_color & 0xFF) - (color & 0xFF))
+            total_diff = r_diff + g_diff + b_diff
+            # Using a quadratic function for an exponential-like growth. This
+            # penalizes paths over dissimilar colors more heavily than a
+            # linear function. The factor (0.04) is a tunable parameter
+            # that controls the steepness of the curve.
+            w = 1 + 0.04 * (total_diff**2)
+            return int(w)
 
         for y in range(h_vertex):
             for x in range(w_vertex):
@@ -161,14 +164,14 @@ class ImageParser:
                 if x + 1 < w_vertex:
                     # Path from (x,y) to (x+1,y) is between pixels (x, y-1) and (x, y)
                     if is_solid(x, y - 1) or is_solid(x, y):
-                        weight = min(get_weight(x, y), get_weight(x + 1, y))
+                        weight = min(get_weight(x, y - 1), get_weight(x, y))
                         G.add_edge((x, y), (x + 1, y), weight=weight)
 
                 # Check for vertical connection downwards
                 if y + 1 < h_vertex:
                     # Path from (x,y) to (x,y+1) is between pixels (x-1, y) and (x, y)
                     if is_solid(x - 1, y) or is_solid(x, y):
-                        weight = min(get_weight(x, y), get_weight(x + 1, y))
+                        weight = min(get_weight(x - 1, y), get_weight(x, y))
                         G.add_edge((x, y), (x, y + 1), weight=weight)
 
         self._vertex_graph[color] = G
@@ -189,7 +192,7 @@ class ImageParser:
                     f"Start or end node not in vertex graph. Start: {start_node}, End: {end_node}"
                 )
                 return None
-            return nx.shortest_path(G, source=start_node, target=end_node)
+            return nx.shortest_path(G, source=start_node, target=end_node, weight="weight")
         except nx.NetworkXNoPath:
             # Probably an island
             logger.info(f"No path found between {start_node} and {end_node}")
