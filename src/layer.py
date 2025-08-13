@@ -62,10 +62,6 @@ class Layer:
         self._selected_partition_uuid = None
         self._embroidery_params = EmbroideryParameters()
 
-        # FIXME: Important to clean dictionary when parsing from dict
-        parser = ImageParser(self._image)
-        self._partitions = parser.partitions
-
     #
     # Public methods
     #
@@ -130,6 +126,10 @@ class Layer:
             part = v.to_dict()
             d["partitions"][k] = part
         return d
+
+    def create_partitions(self):
+        parser = ImageParser(self._image)
+        self._partitions = parser.partitions
 
     @property
     def image(self) -> QImage:
