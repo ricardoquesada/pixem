@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from enum import IntEnum, auto
 from typing import Self
 
-from shape import Rect, Shape
+from shape import Path, Point, Rect, Shape
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +49,10 @@ class Partition:
                 typ = shape["type"]
                 if typ == "rect":
                     path.append(Rect(shape["x"], shape["y"]))
+                elif typ == "path":
+                    # shape["path"] is a list of lists/tuples from TOML/JSON
+                    points = [Point(x=p[0], y=p[1]) for p in shape["path"]]
+                    path.append(Path(points))
                 else:
                     raise Exception(f"Unknown shape type: {shape["type"]}")
             elif isinstance(shape, list):
@@ -75,7 +79,14 @@ class Partition:
         """Returns a dictionary that represents the Partition"""
         path = []
         for shape in self._path:
-            e = {"type": "rect", "x": shape.x, "y": shape.y}
+            if isinstance(shape, Rect):
+                e = {"type": "rect", "x": shape.x, "y": shape.y}
+            elif isinstance(shape, Path):
+                # Convert list[Point] to list[tuple[int, int]] for serialization
+                path_as_tuples = [(p.x, p.y) for p in shape.path]
+                e = {"type": "path", "path": path_as_tuples}
+            else:
+                raise Exception(f"Unknown shape type: {shape}")
             path.append(e)
         d = {
             "path": path,

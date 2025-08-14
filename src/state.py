@@ -94,6 +94,9 @@ class State(QObject):
         try:
             with open(filename, "r", encoding="utf-8") as f:
                 d = toml.load(f)
+                if not d:
+                    logger.error(f"Failed to load project from {filename}")
+                    return None
                 state = cls.from_dict(d)
                 state._project_filename = filename
                 return state

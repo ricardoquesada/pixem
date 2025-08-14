@@ -60,18 +60,22 @@ class Path(Shape):
         modifications to the list from affecting the Path's state.
         """
         super().__init__()
-        self.path = list(path)  # Defensive copy
+        self._path = list(path)  # Defensive copy
 
     def __eq__(self, other):
         """Overrides the default '==' behavior."""
         if not isinstance(other, Path):
             return NotImplemented
-        return self.path == other.path
+        return self._path == other.path
 
     def append_point(self, point: Point):
         """Appends a point to the end of the path."""
-        self.path.append(point)
+        self._path.append(point)
 
     def delete_point(self, point: Point):
         """Deletes the first occurrence of a point from the path."""
-        self.path.remove(point)
+        self._path.remove(point)
+
+    @property
+    def path(self) -> list[Point]:
+        return self._path
