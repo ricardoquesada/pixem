@@ -14,6 +14,7 @@ from PySide6.QtGui import (
     QKeySequence,
     QMouseEvent,
     QPainter,
+    QPainterPath,
     QPalette,
     QPen,
     QPixmap,
@@ -72,7 +73,10 @@ class ImageWidget(QWidget):
             if isinstance(shape, Rect):
                 self._cached_rects_dict[(shape.x, shape.y)] = QRect(shape.x, shape.y, 1, 1)
         self._cached_all_rects = list(self._cached_rects_dict.values())
+
+        # The two primitives that are supported: shape.Rect, and shape.Path
         self._cached_selected_rects = []
+        self._cached_selected_paths = []
 
         self._edit_mode = self.EditMode.PAINT
         self._walk_mode = Partition.WalkMode.SPIRAL_CW
@@ -218,9 +222,23 @@ class ImageWidget(QWidget):
 
     def _update_selected_shapes_cache(self):
         self._cached_selected_rects = []
+        self._cached_selected_paths = []
         for shape in self._selected_shapes:
             if isinstance(shape, Rect):
                 self._cached_selected_rects.append(self._cached_rects_dict[(shape.x, shape.y)])
+            elif isinstance(shape, Path):
+                # shape.path is a list[Point]
+                point_list = shape.path
+                if len(point_list) < 2:
+                    continue
+
+                path = QPainterPath()
+                path.moveTo(point_list[0].x, point_list[0].y)
+                for point in point_list[1:]:
+                    path.lineTo(point.x, point.y)
+                self._cached_selected_paths.append(path)
+            else:
+                raise Exception(f"Unknown shape: {shape}")
         self.update()
 
     def set_selected_shapes(self, shapes: list[Shape]):
@@ -255,6 +273,12 @@ class ImageWidget(QWidget):
         painter.setBrush(brush)
         painter.drawRects(self._cached_selected_rects)
 
+        # For paths (jump stitches), we want to draw a visible line.
+        pen = QPen(self._foreground_color, 4.0 / self._zoom_factor, Qt.PenStyle.DotLine)
+        painter.setPen(pen)
+        painter.setBrush(Qt.BrushStyle.NoBrush)
+        for path in self._cached_selected_paths:
+            painter.drawPath(path)
         painter.end()
 
     def mousePressEvent(self, event: QMouseEvent):
