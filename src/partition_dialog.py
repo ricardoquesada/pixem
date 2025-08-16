@@ -217,9 +217,10 @@ class ImageWidget(QWidget):
         self._update_selected_shapes_cache()
 
     def _update_selected_shapes_cache(self):
-        self._cached_selected_rects = [
-            self._cached_rects_dict[(shape.x, shape.y)] for shape in self._selected_shapes
-        ]
+        self._cached_selected_rects = []
+        for shape in self._selected_shapes:
+            if isinstance(shape, Rect):
+                self._cached_selected_rects.append(self._cached_rects_dict[(shape.x, shape.y)])
         self.update()
 
     def set_selected_shapes(self, shapes: list[Shape]):
@@ -469,6 +470,12 @@ class PartitionDialog(QDialog):
                 item = QListWidgetItem(f"{i} - Rect({shape.x}, {shape.y})")
                 self._list_widget.addItem(item)
                 item.setData(Qt.UserRole, shape)
+            elif isinstance(shape, Path):
+                item = QListWidgetItem(f"{i} - Path({shape.path})")
+                self._list_widget.addItem(item)
+                item.setData(Qt.UserRole, shape)
+            else:
+                raise Exception(f"Unknown shape: {shape}")
 
     def _set_edit_mode(self, mode: ImageWidget.EditMode):
         if mode != self._edit_mode:
@@ -560,6 +567,8 @@ class PartitionDialog(QDialog):
                 item.setText(f"{i} - Rect({shape.x}, {shape.y})")
             elif isinstance(shape, Path):
                 item.setText(f"{i} - Path({shape.points})")
+            else:
+                raise Exception(f"Unknown shape: {shape}")
             item.setData(Qt.UserRole, shape)
             selected = shape in selected_shapes
             item.setSelected(selected)
