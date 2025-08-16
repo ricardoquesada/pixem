@@ -69,10 +69,22 @@ class ImageWidget(QWidget):
 
         # To prevent creating the rect, we have them pre-created
         self._cached_rects_dict = {}
+        self._cached_paths_dict = {}
         for shape in shapes:
             if isinstance(shape, Rect):
                 self._cached_rects_dict[(shape.x, shape.y)] = QRect(shape.x, shape.y, 1, 1)
+            elif isinstance(shape, Path):
+                point_list = shape.path
+                if len(point_list) < 2:
+                    continue
+                path = QPainterPath()
+                path.moveTo(point_list[0].x, point_list[0].y)
+                for point in point_list[1:]:
+                    path.lineTo(point.x, point.y)
+                self._cached_paths_dict[point_list[0].x, point_list[1].y] = path
+
         self._cached_all_rects = list(self._cached_rects_dict.values())
+        self._cached_all_paths = list(self._cached_paths_dict.values())
 
         # The two primitives that are supported: shape.Rect, and shape.Path
         self._cached_selected_rects = []
@@ -231,7 +243,6 @@ class ImageWidget(QWidget):
                 point_list = shape.path
                 if len(point_list) < 2:
                     continue
-
                 path = QPainterPath()
                 path.moveTo(point_list[0].x, point_list[0].y)
                 for point in point_list[1:]:
@@ -268,17 +279,30 @@ class ImageWidget(QWidget):
 
         painter.drawRects(self._cached_all_rects)
 
+        painter.save()
+        # For paths (to avoid jump stitches), we want to draw a visible line.
+        pen = QPen(self._background_color, 2.0 / self._zoom_factor, Qt.PenStyle.DotLine)
+        painter.setPen(pen)
+        painter.setBrush(Qt.BrushStyle.NoBrush)
+        for path in self._cached_all_paths:
+            painter.drawPath(path)
+        painter.restore()
+
+        painter.save()
         brush = painter.brush()
         brush.setColor(self._foreground_color)
         painter.setBrush(brush)
         painter.drawRects(self._cached_selected_rects)
+        painter.restore()
 
-        # For paths (jump stitches), we want to draw a visible line.
+        # For paths (to avoid jump stitches), we want to draw a visible line.
+        painter.save()
         pen = QPen(self._foreground_color, 4.0 / self._zoom_factor, Qt.PenStyle.DotLine)
         painter.setPen(pen)
         painter.setBrush(Qt.BrushStyle.NoBrush)
         for path in self._cached_selected_paths:
             painter.drawPath(path)
+        painter.restore()
         painter.end()
 
     def mousePressEvent(self, event: QMouseEvent):
