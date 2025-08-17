@@ -268,6 +268,29 @@ class ImageParser:
             logger.info(f"No path found between {start_node} and {end_node}")
             return None
 
+    def _remove_redundant_points_from_start_and_end_nodes(
+        self, node_path: list[tuple[int, int]]
+    ) -> list[tuple[int, int]]:
+        # The first point is the "top,left" point of the rect.
+        # So, if the second point is (x+1, y), or (x,y+1), we remove it.
+        if len(node_path) <= 2:
+            return node_path
+        x0 = node_path[0][0]
+        y0 = node_path[0][1]
+        x1 = node_path[1][0]
+        y1 = node_path[1][1]
+        if (x1 == x0 + 1 and y1 == y0) or (x1 == x0 and y1 == y0 + 1):
+            node_path = node_path[1:]
+
+        if len(node_path) <= 2:
+            return node_path
+        x1 = node_path[1][0]
+        y1 = node_path[1][1]
+        if x1 == x0 + 1 and y1 == y0 + 1:
+            node_path = node_path[1:]
+
+        return node_path
+
     def _simplify_path_to_points(self, node_path: list[tuple[int, int]]) -> list[Point]:
         """
         Converts a list of path vertices into a simplified list of Points.
@@ -327,7 +350,7 @@ class ImageParser:
                 path_nodes = self._find_shortest_pixel_path(color, current_node, next_node)
 
                 if path_nodes:
-                    # The path from BFS includes the start and end nodes.
+                    path_nodes = self._remove_redundant_points_from_start_and_end_nodes(path_nodes)
                     simplified_points = self._simplify_path_to_points(path_nodes)
                     shapes.append(Path(simplified_points))
                 else:
