@@ -81,7 +81,7 @@ class ImageWidget(QWidget):
                 path.moveTo(point_list[0].x, point_list[0].y)
                 for point in point_list[1:]:
                     path.lineTo(point.x, point.y)
-                self._cached_paths_dict[point_list[0].x, point_list[1].y] = path
+                self._cached_paths_dict[point_list[0].x, point_list[0].y] = path
 
         self._cached_all_rects = list(self._cached_rects_dict.values())
         self._cached_all_paths = list(self._cached_paths_dict.values())

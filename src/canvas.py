@@ -253,7 +253,9 @@ class Canvas(QWidget):
                         painter.save()
 
                         # Use a different pen to represent the jump-stitch path
-                        pen = QPen(Qt.GlobalColor.black, 0.3, Qt.PenStyle.DashLine)
+                        pen = QPen(
+                            self._cached_partition_background_color, 0.3, Qt.PenStyle.DashLine
+                        )
                         painter.setPen(pen)
                         painter.setBrush(Qt.BrushStyle.NoBrush)
 
