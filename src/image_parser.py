@@ -271,25 +271,45 @@ class ImageParser:
     def _remove_redundant_points_from_start_and_end_nodes(
         self, node_path: list[tuple[int, int]]
     ) -> list[tuple[int, int]]:
-        # The first point is the "top,left" point of the rect.
-        # So, if the second point is (x+1, y), or (x,y+1), we remove it.
-        if len(node_path) <= 2:
+        """
+        Trims the path to ensure it starts and ends with a single vertex
+        belonging to the start and end pixels, respectively.
+        """
+        if len(node_path) < 2:
             return node_path
-        x0 = node_path[0][0]
-        y0 = node_path[0][1]
-        x1 = node_path[1][0]
-        y1 = node_path[1][1]
-        if (x1 == x0 + 1 and y1 == y0) or (x1 == x0 and y1 == y0 + 1):
-            node_path = node_path[1:]
 
-        if len(node_path) <= 2:
+        # Define the vertices for the start and end pixels based on the path
+        sx, sy = node_path[0]
+        start_pixel_vertices = {(sx, sy), (sx + 1, sy), (sx, sy + 1), (sx + 1, sy + 1)}
+
+        ex, ey = node_path[-1]
+        end_pixel_vertices = {(ex, ey), (ex + 1, ey), (ex, ey + 1), (ex + 1, ey + 1)}
+
+        # Find the index of the last point in the path that is a vertex of the start pixel.
+        # This is the "exit point" from the start pixel.
+        start_idx = 0
+        for i, p in enumerate(node_path):
+            if p in start_pixel_vertices:
+                start_idx = i
+            else:
+                break
+
+        # Find the index of the first point in the path (from the end) that is a vertex of the end
+        # pixel. This is the "entry point" to the end pixel.
+        end_idx = len(node_path) - 1
+        for i, p in enumerate(reversed(node_path)):
+            if p in end_pixel_vertices:
+                end_idx = len(node_path) - 1 - i
+            else:
+                break
+
+        # If the calculated start and end indices overlap or create an invalid path,
+        # it implies a very short path (e.g., between adjacent pixels). In this
+        # case, returning the original path is the safest option.
+        if start_idx >= end_idx:
             return node_path
-        x1 = node_path[1][0]
-        y1 = node_path[1][1]
-        if x1 == x0 + 1 and y1 == y0 + 1:
-            node_path = node_path[1:]
 
-        return node_path
+        return node_path[start_idx : end_idx + 1]
 
     def _simplify_path_to_points(self, node_path: list[tuple[int, int]]) -> list[Point]:
         """
