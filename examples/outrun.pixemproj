@@ -2,832 +2,31 @@
 hoop_size = [ 10.0, 6.0,]
 zoom_factor = 1.0
 selected_layer_uuid = "d1b97103-583d-4e59-8d9e-e21a07b3dc9f"
+export_filename = "/Volumes/riq_data/progs/embroidery/pixel/svg/outrun.svg"
 
 [layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f]
 uuid = "d1b97103-583d-4e59-8d9e-e21a07b3dc9f"
 image = "iVBORw0KGgoAAAANSUhEUgAAAE0AAAAqCAMAAADBJiZgAAABi2lDQ1BHSU1QIGJ1aWx0LWluIHNSR0IAACiRfZE9SMNAHMVfU0tFq4J2EHHIUJ3soiKOtQpFqBBqhVYdTC79giYNSYqLo+BacPBjserg4qyrg6sgCH6AODs4KbpIif9LCi1iPTjux7t7j7t3gFAvM83qigGabpupRFzMZFfF4Ct60Y8ABhGUmWXMSVISHcfXPXx8vYvyrM7n/hx9as5igE8kjjHDtIk3iGc2bYPzPnGYFWWV+Jx4wqQLEj9yXfH4jXPBZYFnhs10ap44TCwW2lhpY1Y0NeJp4oiq6ZQvZDxWOW9x1spV1rwnf2Eop68sc53mKBJYxBIkiFBQRQll2IjSqpNiIUX78Q7+EdcvkUshVwmMHAuoQIPs+sH/4He3Vn5q0ksKxYHAi+N8jAHBXaBRc5zvY8dpnAD+Z+BKb/krdWD2k/RaS4scAQPbwMV1S1P2gMsdYPjJkE3Zlfw0hXweeD+jb8oCQ7dAz5rXW3Mfpw9AmrpK3gAHh8B4gbLXO7y7u723f880+/sBJ2pyiOc2wv8AAAAzUExURWJlbAAAAIYAAmsAhKUvLn1LAQBjuGpgYs1YWYRy19hyANiChKmYi9Sgoei0lfPWANbX0oKED2cAAAABdFJOUwBA5thmAAAACXBIWXMAAAsTAAALEwEAmpwYAAADRmlUWHRYTUw6Y29tLmFkb2JlLnhtcAABAFVURi04AFhNTDpjb20uYWRvYmUueG1wAEiJ7VfNbtw2EL77KQTlkhwokhL1R6wSBF6nMdBtjXjR5kqRozXh1U8lrlf2q/XQR+orlJTc9W4bJJcG6GF1Eufnm5lvhgNp8W7shLwH45Ww0U3h//n7H76nVeH/Gq/IqruEO/3xqYfbp5/W8ule5sp/9/ZiMfKx7mowwhvrbTPwsfCFakvg9t2Jse9NJua+8D+vbrzLtgePBSwg6GrUD6H/9sJb9Krin5YfniHsqfDvjOk4xvv9PthHQdtvMM3zHJMQhyGyFmh4bIwYUTO8chAzxhIG2evO6Lbx3FmU7c4Uvm/13t/51d1qdYBvhmDKNpBtjUfRYRoQXNf42GMwVw/m6x7D+rED/AmGdtdLuHqAxrw6hlDy4N/t+u1UjpIYtlBb08Fi0JOQP1yvbk4o2Oi6m7xs+ieWRlfVl3Nzmim5f1T/9Uom44kjvmzlzqV3vSx8F5+rVmrFp9cqUSwuZYpUDBKxikiUp5AiEeYAaUUFE/QI6roZjGgkOCgrCbTFKcuc5LmFgFAkiFGSoiyhGSLAKpFRmUggRxA/99pOpdgeZ+WglIUKZcKSVDHEyjhDLGExKlleIlVGccUiIkmUTVBK8g9tXwvbTl2LDeCu2UwKRzh/f3Nd+GFAXiQ3W2Eq61D4P+pmN74o1rqGWyMcmzSNaJwwkieEphnJXox+gX6wk+gwKQmeU3BtccXYEoSZtAei+GUPwrT9um23he8gPOd5UK/sdVLCiKUwYEFJyDilnEbrMOSE8ihCJOPkyL5Vunr8lrW7PN5iJvmjHmz8x0k036hb+G0+zcetng/edCm4kHMJg3gA5Z+o5J1oNmC3Bz6V6y+MAmRJrEjOUJ5lCrEUbP9iGtsERSJJGacqyk9RhrYye9HD+43l0XJlZ3Liyns9NerNqfX+DpqZAkQpchRYIjJuZ2WmAH//EolgUuRhimgm7bSXBJAgaYjKKqNZ5EYnEf9tiXOXk9MSF/i4qQv8r7bPBkd71K1n/Lyf7brHh33/zNl3fs5BzkHOQc5BzkHOQc5B/ldBLhaHP0Zo7FfQ3v4P/gVp9tZmhs1DMgAAArRJREFUSImVloGW4iAMRQEZi5tS+f+v3eQlUMDWYd7RikBuE0hanLvTD+t28I9KP1Ca9WZp6y+wqLSoCoE/gRtvSP6E7zyi844VdsbqvVzfJmlXXKKc88TKubBilBkpRTfQfIH8QHOY6xKGaAotGS2Lj0s0xokw9BG1LRGPx+jcobDxnu/35Bwmx29bwo6JxmW7pAnuFjPSrvJtpjld5wWYo+PY5sEJ5n7Lk0P06vQ89v0c3nk076pSwvc0LsdBRNvryXrh+nzQYdZMeuBm8oMO3dJ8DcyUD9po25jxAEm0VRx79TBx03vDZdnYT1YhzuqUvAita/Gsgjke/zJJug3eJRKHUVs8Swoz3sFAKEZjC3GBlVpmpswFwKTm2apA1posVqwSepHOMxTSG8qPtNBBfaw0uir2AlTaMEM9F7gytUbFf3xwG6y+uqSBZThHTqxA62+t3n1bumrVe8n1jYiGLQMu9cHZ0yCN0z7EtKXlLmVtW5w8lP+p9CF2BbvFwcTMGbREE946rdedzTVwMl6j+TunZ9pNCB+4pXkOqYmMt32WPMu1FqwqcizRkhr5RHS2LUWR8C73uYTerspsKLZLStdNnRicvaYqrFUoIWlDmRQwv77e+Hu+6oTW+2DenWUgNG8f7ETB+aH5GoFDGwcMe8V+1g4mhKDJUQyntL7gmrn5FiepDyXWSOuLvvS+acrgdHAqtHWrV7b3ferXvLVQ60CpF42Vv4gEZ5i6GPyZ03fehTnDOsckezl9A/NaV1xK04kVIg54SuNXtvQo87K27mk4JSoreKFZtWHPfbCbdYvbzpfN/27AQCHsu1eaH8u3LkMjhQYLPbt7UAjKK21Da9u2+ZHwq6qhEXCalQ7fiDjhLq2a872l+samcHM3b3f/7Qw1ypvhYNlWz9XD9zLttJTLfwIjPqtbWWZmAAAAAElFTkSuQmCC"
-selected_partition_uuid = "693749d7-8d40-4675-b23d-11220ddd3e7f"
+selected_partition_uuid = "0adb086e-f760-437f-83b8-7a06c1ee0d96"
 layer_type = "ImageLayer"
 image_file_name = "/home/riq/progs/embroidery/pixel/sprites/outrun-car_16_colors.png"
 
 [layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.properties]
-position = [ 0.0, 0.0,]
+position = [ 3.8, 9.0,]
 rotation = 0
-pixel_size = [ 2.5, 2.5,]
+pixel_size = [ 3.2, 3.2,]
 visible = true
 opacity = 1.0
 name = "ImageLayer 1"
 
 [layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.embroidery_params]
-pull_compensation_mm = 0.0
+pull_compensation_mm = 0.25
 max_stitch_length_mm = 1000.0
-fill_method = "auto_fill"
+fill_method = "contour_fill"
 odd_pixel_angle_degrees = 0
 even_pixel_angle_degrees = 90
-min_jump_stitch_length_mm = 0.0
-fill_underlay = true
-
-[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f]
-size = 167
-name = "#d4a0a1_0"
-color = "#d4a0a1"
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 0
-y = 18
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 0
-y = 19
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 1
-y = 19
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 2
-y = 19
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "path"
-path = [ [ 3, 19,], [ 3, 18,], [ 4, 18,], [ 4, 16,], [ 9, 16,], [ 9, 14,], [ 11, 14,], [ 11, 15,], [ 13, 15,], [ 13, 16,], [ 18, 16,], [ 18, 17,], [ 38, 17,], [ 38, 26,], [ 21, 26,], [ 21, 27,], [ 1, 27,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 0
-y = 27
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "path"
-path = [ [ 1, 27,], [ 21, 27,], [ 21, 26,], [ 38, 26,], [ 38, 17,], [ 18, 17,], [ 18, 16,], [ 13, 16,], [ 13, 15,], [ 11, 15,], [ 11, 14,], [ 9, 14,], [ 9, 16,], [ 6, 16,], [ 6, 15,], [ 5, 15,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 4
-y = 15
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 4
-y = 16
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 5
-y = 15
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "path"
-path = [ [ 6, 16,], [ 9, 16,], [ 9, 13,], [ 11, 13,], [ 11, 12,], [ 14, 12,], [ 14, 11,], [ 15, 11,], [ 15, 10,], [ 17, 10,], [ 17, 5,], [ 16, 5,], [ 16, 4,], [ 8, 4,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 7
-y = 4
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 8
-y = 4
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "path"
-path = [ [ 9, 4,], [ 16, 4,], [ 16, 5,], [ 17, 5,], [ 17, 10,], [ 15, 10,], [ 15, 11,], [ 14, 11,], [ 14, 12,], [ 11, 12,], [ 11, 13,], [ 9, 13,], [ 9, 16,], [ 8, 16,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 7
-y = 16
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 8
-y = 16
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 9
-y = 16
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "path"
-path = [ [ 9, 16,], [ 9, 14,], [ 11, 14,], [ 11, 15,], [ 13, 15,], [ 13, 16,], [ 18, 16,], [ 18, 17,], [ 38, 17,], [ 38, 26,], [ 21, 26,], [ 21, 27,], [ 9, 27,], [ 9, 26,], [ 8, 26,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 7
-y = 26
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 8
-y = 26
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "path"
-path = [ [ 9, 27,], [ 21, 27,], [ 21, 26,], [ 38, 26,], [ 38, 17,], [ 18, 17,], [ 18, 16,], [ 13, 16,], [ 13, 15,], [ 11, 15,], [ 11, 14,], [ 10, 14,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 9
-y = 13
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 9
-y = 14
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "path"
-path = [ [ 9, 14,], [ 9, 13,], [ 11, 13,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 11
-y = 12
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "path"
-path = [ [ 11, 13,], [ 11, 15,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 11
-y = 15
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 12
-y = 15
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "path"
-path = [ [ 13, 15,], [ 13, 13,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 13
-y = 12
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 13
-y = 13
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 14
-y = 13
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "path"
-path = [ [ 14, 13,], [ 14, 11,], [ 15, 11,], [ 15, 10,], [ 17, 10,], [ 17, 6,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 16
-y = 5
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "path"
-path = [ [ 17, 6,], [ 17, 10,], [ 15, 10,], [ 15, 16,], [ 18, 16,], [ 18, 17,], [ 38, 17,], [ 38, 26,], [ 21, 26,], [ 21, 27,], [ 17, 27,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 16
-y = 27
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 17
-y = 26
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 17
-y = 27
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 17
-y = 28
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 18
-y = 28
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 18
-y = 29
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 19
-y = 28
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 19
-y = 27
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 18
-y = 26
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "path"
-path = [ [ 19, 27,], [ 20, 27,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 20
-y = 27
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 20
-y = 28
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 21
-y = 27
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 21
-y = 26
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "path"
-path = [ [ 22, 26,], [ 38, 26,], [ 38, 17,], [ 19, 17,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 18
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 19
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 20
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 21
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 22
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 23
-y = 16
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 23
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 24
-y = 16
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 24
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 25
-y = 16
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 26
-y = 16
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "path"
-path = [ [ 26, 16,], [ 25, 16,], [ 25, 18,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 25
-y = 18
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 26
-y = 18
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "path"
-path = [ [ 26, 18,], [ 25, 18,], [ 25, 13,], [ 24, 13,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 23
-y = 13
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 24
-y = 13
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "path"
-path = [ [ 25, 14,], [ 25, 16,], [ 27, 16,], [ 27, 17,], [ 38, 17,], [ 38, 26,], [ 24, 26,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 23
-y = 26
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 24
-y = 26
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 25
-y = 26
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 26
-y = 26
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "path"
-path = [ [ 27, 26,], [ 38, 26,], [ 38, 17,], [ 30, 17,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 29
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 30
-y = 16
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 30
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 31
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 32
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 33
-y = 16
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 34
-y = 16
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "path"
-path = [ [ 35, 17,], [ 38, 17,], [ 38, 26,], [ 34, 26,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 33
-y = 26
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 34
-y = 26
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 35
-y = 26
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 36
-y = 26
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 37
-y = 26
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "path"
-path = [ [ 38, 26,], [ 38, 17,], [ 40, 17,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 40
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 41
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "path"
-path = [ [ 41, 17,], [ 39, 17,], [ 39, 23,], [ 40, 23,], [ 40, 27,], [ 41, 27,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 41
-y = 26
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 42
-y = 26
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 43
-y = 26
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 44
-y = 26
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 45
-y = 26
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 46
-y = 26
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 47
-y = 26
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 48
-y = 26
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "path"
-path = [ [ 48, 26,], [ 41, 26,], [ 41, 27,], [ 40, 27,], [ 40, 23,], [ 39, 23,], [ 39, 17,], [ 43, 17,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 43
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 44
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "path"
-path = [ [ 45, 18,], [ 55, 18,], [ 55, 19,], [ 57, 19,], [ 57, 18,], [ 63, 18,], [ 63, 14,], [ 61, 14,], [ 61, 12,], [ 55, 12,], [ 55, 11,], [ 45, 11,], [ 45, 12,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 44
-y = 12
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "path"
-path = [ [ 45, 12,], [ 45, 11,], [ 55, 11,], [ 55, 12,], [ 61, 12,], [ 61, 14,], [ 63, 14,], [ 63, 18,], [ 57, 18,], [ 57, 19,], [ 55, 19,], [ 55, 18,], [ 52, 18,], [ 52, 17,], [ 47, 17,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 46
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 47
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 48
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 49
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 50
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 51
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "path"
-path = [ [ 52, 18,], [ 55, 18,], [ 55, 19,], [ 57, 19,], [ 57, 18,], [ 63, 18,], [ 63, 14,], [ 61, 14,], [ 61, 12,], [ 55, 12,], [ 55, 11,], [ 51, 11,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 50
-y = 10
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "path"
-path = [ [ 51, 11,], [ 53, 11,], [ 53, 13,], [ 52, 13,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 51
-y = 13
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 52
-y = 14
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "path"
-path = [ [ 52, 14,], [ 52, 13,], [ 55, 13,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 55
-y = 12
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "path"
-path = [ [ 56, 12,], [ 61, 12,], [ 61, 14,], [ 63, 14,], [ 63, 18,], [ 57, 18,], [ 57, 19,], [ 55, 19,], [ 55, 18,], [ 52, 18,], [ 52, 17,], [ 39, 17,], [ 39, 23,], [ 40, 23,], [ 40, 27,], [ 55, 27,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 55
-y = 26
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 56
-y = 26
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 57
-y = 26
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 58
-y = 26
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 59
-y = 26
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 60
-y = 26
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "path"
-path = [ [ 60, 26,], [ 55, 26,], [ 55, 27,], [ 40, 27,], [ 40, 23,], [ 39, 23,], [ 39, 17,], [ 52, 17,], [ 52, 18,], [ 55, 18,], [ 55, 19,], [ 57, 19,], [ 57, 18,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 57
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "path"
-path = [ [ 58, 18,], [ 63, 18,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 63
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "path"
-path = [ [ 64, 17,], [ 64, 14,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 64
-y = 13
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 65
-y = 12
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 66
-y = 11
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "path"
-path = [ [ 66, 12,], [ 66, 15,], [ 65, 15,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 64
-y = 15
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 65
-y = 15
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 66
-y = 14
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 66
-y = 15
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 67
-y = 14
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 68
-y = 14
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 69
-y = 14
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 70
-y = 14
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "path"
-path = [ [ 70, 14,], [ 67, 14,], [ 67, 16,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 67
-y = 16
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 66
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 65
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "path"
-path = [ [ 66, 17,], [ 67, 17,], [ 67, 16,], [ 68, 16,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 68
-y = 16
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "path"
-path = [ [ 68, 16,], [ 67, 16,], [ 67, 14,], [ 66, 14,], [ 66, 11,], [ 64, 11,], [ 64, 8,], [ 63, 8,], [ 63, 6,], [ 65, 6,], [ 65, 4,], [ 67, 4,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 67
-y = 3
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 68
-y = 3
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 69
-y = 3
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "path"
-path = [ [ 69, 3,], [ 67, 3,], [ 67, 4,], [ 65, 4,], [ 65, 6,], [ 63, 6,], [ 63, 8,], [ 64, 8,], [ 64, 11,], [ 66, 11,], [ 66, 14,], [ 67, 14,], [ 67, 16,], [ 69, 16,], [ 69, 17,], [ 70, 17,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 70
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 71
-y = 16
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 72
-y = 15
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 73
-y = 15
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 74
-y = 15
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 75
-y = 16
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 74
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 73
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "path"
-path = [ [ 74, 17,], [ 75, 17,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 75
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "path"
-path = [ [ 75, 17,], [ 75, 16,], [ 71, 16,], [ 71, 17,], [ 65, 17,], [ 65, 18,], [ 57, 18,], [ 57, 19,], [ 55, 19,], [ 55, 18,], [ 52, 18,], [ 52, 17,], [ 39, 17,], [ 39, 23,], [ 40, 23,], [ 40, 27,], [ 72, 27,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 72
-y = 26
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 73
-y = 26
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 74
-y = 26
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
-type = "rect"
-x = 75
-y = 26
+min_jump_stitch_length_mm = 10.0
+fill_underlay = false
 
 [layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.0adb086e-f760-437f-83b8-7a06c1ee0d96]
 size = 740
@@ -4499,6 +3698,1553 @@ type = "rect"
 x = 74
 y = 41
 
+[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8]
+size = 35
+name = "#6a6062_0"
+color = "#6a6062"
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+type = "rect"
+x = 3
+y = 38
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+type = "path"
+path = [ [ 4, 39,], [ 5, 39,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+type = "rect"
+x = 5
+y = 39
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+type = "rect"
+x = 6
+y = 39
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+type = "path"
+path = [ [ 7, 39,], [ 9, 39,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+type = "rect"
+x = 9
+y = 38
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+type = "rect"
+x = 10
+y = 38
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+type = "rect"
+x = 11
+y = 38
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+type = "path"
+path = [ [ 12, 39,], [ 13, 39,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+type = "rect"
+x = 13
+y = 39
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+type = "rect"
+x = 14
+y = 39
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+type = "rect"
+x = 15
+y = 39
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+type = "path"
+path = [ [ 15, 39,], [ 13, 39,], [ 13, 36,], [ 12, 36,], [ 12, 32,], [ 11, 32,], [ 11, 16,], [ 13, 16,], [ 13, 14,], [ 15, 14,], [ 15, 13,], [ 16, 13,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+type = "rect"
+x = 16
+y = 12
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+type = "path"
+path = [ [ 17, 12,], [ 18, 12,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+type = "rect"
+x = 18
+y = 12
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+type = "rect"
+x = 19
+y = 11
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+type = "rect"
+x = 19
+y = 12
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+type = "path"
+path = [ [ 19, 12,], [ 19, 11,], [ 20, 11,], [ 20, 10,], [ 28, 10,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+type = "rect"
+x = 28
+y = 9
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+type = "path"
+path = [ [ 29, 10,], [ 29, 12,], [ 33, 12,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+type = "rect"
+x = 33
+y = 12
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+type = "path"
+path = [ [ 34, 13,], [ 46, 13,], [ 46, 18,], [ 57, 18,], [ 57, 19,], [ 67, 19,], [ 67, 38,], [ 66, 38,], [ 66, 39,], [ 64, 39,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+type = "rect"
+x = 63
+y = 39
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+type = "rect"
+x = 64
+y = 39
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+type = "path"
+path = [ [ 65, 39,], [ 66, 39,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+type = "rect"
+x = 66
+y = 38
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+type = "rect"
+x = 67
+y = 38
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+type = "rect"
+x = 68
+y = 38
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+type = "rect"
+x = 69
+y = 38
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+type = "path"
+path = [ [ 70, 39,], [ 71, 39,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+type = "rect"
+x = 71
+y = 39
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+type = "rect"
+x = 72
+y = 39
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+type = "path"
+path = [ [ 73, 39,], [ 75, 39,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+type = "rect"
+x = 75
+y = 38
+
+[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797]
+size = 55
+name = "#a9988b_0"
+color = "#a9988b"
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 4
+y = 40
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "path"
+path = [ [ 5, 40,], [ 9, 40,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 9
+y = 40
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 10
+y = 40
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 11
+y = 40
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "path"
+path = [ [ 12, 40,], [ 17, 40,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 17
+y = 40
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "path"
+path = [ [ 17, 40,], [ 17, 27,], [ 21, 27,], [ 21, 26,], [ 38, 26,], [ 38, 11,], [ 36, 11,], [ 36, 10,], [ 35, 10,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 34
+y = 10
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 35
+y = 10
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 35
+y = 11
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 36
+y = 11
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 36
+y = 12
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 37
+y = 11
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 37
+y = 12
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 38
+y = 11
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 38
+y = 12
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 39
+y = 11
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 39
+y = 12
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 40
+y = 11
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 40
+y = 12
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 41
+y = 11
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 41
+y = 12
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 42
+y = 11
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "path"
+path = [ [ 43, 11,], [ 46, 11,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 46
+y = 10
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "path"
+path = [ [ 47, 10,], [ 51, 10,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 51
+y = 10
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 52
+y = 10
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 53
+y = 10
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 54
+y = 10
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 55
+y = 10
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 55
+y = 11
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 56
+y = 10
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 56
+y = 11
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 57
+y = 10
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 57
+y = 11
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 58
+y = 11
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 58
+y = 12
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 59
+y = 11
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 59
+y = 12
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 60
+y = 12
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "path"
+path = [ [ 61, 13,], [ 61, 14,], [ 67, 14,], [ 67, 26,], [ 70, 26,], [ 70, 40,], [ 67, 40,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 66
+y = 40
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 67
+y = 40
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 68
+y = 40
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 69
+y = 40
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "path"
+path = [ [ 70, 40,], [ 70, 38,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 70
+y = 37
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 71
+y = 37
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "path"
+path = [ [ 72, 37,], [ 73, 37,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 73
+y = 36
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 74
+y = 36
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "path"
+path = [ [ 75, 37,], [ 75, 40,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
+type = "rect"
+x = 75
+y = 40
+
+[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293]
+size = 226
+name = "#d6d7d2_0"
+color = "#d6d7d2"
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 0
+y = 26
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 1
+y = 26
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 2
+y = 26
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 3
+y = 26
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "path"
+path = [ [ 4, 26,], [ 4, 17,], [ 5, 17,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 5
+y = 16
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "path"
+path = [ [ 6, 16,], [ 6, 15,], [ 7, 15,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 7
+y = 14
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 8
+y = 14
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "path"
+path = [ [ 9, 14,], [ 10, 14,], [ 10, 13,], [ 11, 13,], [ 11, 12,], [ 13, 12,], [ 13, 11,], [ 15, 11,], [ 15, 10,], [ 16, 10,], [ 16, 9,], [ 17, 9,], [ 17, 7,], [ 9, 7,], [ 9, 5,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 9
+y = 4
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 9
+y = 5
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 10
+y = 4
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 10
+y = 5
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 11
+y = 4
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 11
+y = 5
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 12
+y = 4
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 12
+y = 5
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "path"
+path = [ [ 12, 5,], [ 9, 5,], [ 9, 7,], [ 17, 7,], [ 17, 9,], [ 16, 9,], [ 16, 10,], [ 15, 10,], [ 15, 11,], [ 13, 11,], [ 13, 12,], [ 11, 12,], [ 11, 13,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 10
+y = 13
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "path"
+path = [ [ 10, 14,], [ 9, 14,], [ 9, 16,], [ 10, 16,], [ 10, 18,], [ 11, 18,], [ 11, 21,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 11
+y = 21
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 11
+y = 22
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 12
+y = 21
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 12
+y = 22
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 13
+y = 21
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 13
+y = 22
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 14
+y = 21
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 14
+y = 22
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 15
+y = 21
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 15
+y = 22
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "path"
+path = [ [ 15, 22,], [ 15, 21,], [ 11, 21,], [ 11, 18,], [ 10, 18,], [ 10, 16,], [ 9, 16,], [ 9, 14,], [ 10, 14,], [ 10, 13,], [ 11, 13,], [ 11, 12,], [ 13, 12,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 13
+y = 11
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "path"
+path = [ [ 14, 12,], [ 14, 13,], [ 15, 13,], [ 15, 16,], [ 18, 16,], [ 18, 17,], [ 37, 17,], [ 37, 20,], [ 38, 20,], [ 38, 23,], [ 37, 23,], [ 37, 26,], [ 21, 26,], [ 21, 31,], [ 18, 31,], [ 18, 32,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 17
+y = 32
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 18
+y = 31
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 19
+y = 31
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 20
+y = 31
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 21
+y = 32
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 22
+y = 31
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 23
+y = 31
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "path"
+path = [ [ 23, 31,], [ 22, 31,], [ 22, 32,], [ 21, 32,], [ 21, 27,], [ 31, 27,], [ 31, 28,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 31
+y = 28
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 31
+y = 29
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 31
+y = 30
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 31
+y = 31
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 31
+y = 32
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 31
+y = 33
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 32
+y = 32
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 32
+y = 31
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 32
+y = 30
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 32
+y = 29
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 32
+y = 28
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 33
+y = 28
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 34
+y = 28
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 34
+y = 29
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 33
+y = 30
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 34
+y = 30
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 34
+y = 31
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 33
+y = 32
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 32
+y = 33
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 33
+y = 33
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 34
+y = 33
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 35
+y = 32
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 35
+y = 31
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 36
+y = 30
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 35
+y = 29
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 35
+y = 28
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 36
+y = 28
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 37
+y = 28
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 37
+y = 29
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 37
+y = 30
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 36
+y = 31
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 37
+y = 31
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 38
+y = 30
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 38
+y = 29
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 38
+y = 28
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 39
+y = 28
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 40
+y = 28
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 40
+y = 29
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 39
+y = 30
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 38
+y = 31
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 39
+y = 31
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 39
+y = 32
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 38
+y = 33
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 37
+y = 33
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 36
+y = 33
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 35
+y = 33
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "path"
+path = [ [ 36, 33,], [ 39, 33,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 39
+y = 33
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 40
+y = 33
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 41
+y = 32
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 41
+y = 31
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 41
+y = 30
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 42
+y = 29
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 41
+y = 28
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 42
+y = 28
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 43
+y = 28
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 43
+y = 29
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 43
+y = 30
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 42
+y = 31
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 43
+y = 31
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 43
+y = 32
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 42
+y = 33
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 41
+y = 33
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "path"
+path = [ [ 42, 33,], [ 43, 33,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 43
+y = 33
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 44
+y = 32
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 44
+y = 31
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 44
+y = 30
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 44
+y = 29
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 44
+y = 28
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 45
+y = 28
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 46
+y = 28
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 46
+y = 29
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 46
+y = 30
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 46
+y = 31
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 45
+y = 32
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 44
+y = 33
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 45
+y = 33
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 46
+y = 32
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 46
+y = 33
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "path"
+path = [ [ 46, 33,], [ 46, 28,], [ 39, 28,], [ 39, 17,], [ 34, 17,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 33
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 34
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 35
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 36
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 37
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 38
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "path"
+path = [ [ 38, 17,], [ 37, 17,], [ 37, 21,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 36
+y = 21
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 37
+y = 20
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 38
+y = 20
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 38
+y = 21
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 38
+y = 22
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 37
+y = 23
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 36
+y = 23
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 36
+y = 24
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 37
+y = 25
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 38
+y = 24
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 38
+y = 23
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 39
+y = 23
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 39
+y = 24
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 39
+y = 25
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 39
+y = 26
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "path"
+path = [ [ 39, 26,], [ 39, 24,], [ 40, 24,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 40
+y = 24
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 41
+y = 23
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "path"
+path = [ [ 41, 24,], [ 40, 24,], [ 40, 23,], [ 39, 23,], [ 39, 22,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 39
+y = 21
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "path"
+path = [ [ 39, 21,], [ 39, 17,], [ 41, 17,], [ 41, 13,], [ 44, 13,], [ 44, 12,], [ 45, 12,], [ 45, 11,], [ 46, 11,], [ 46, 10,], [ 45, 10,], [ 45, 9,], [ 44, 9,], [ 44, 6,], [ 43, 6,], [ 43, 4,], [ 38, 4,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 37
+y = 4
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 37
+y = 5
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 38
+y = 4
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 38
+y = 5
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 39
+y = 4
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 39
+y = 5
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 40
+y = 4
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 40
+y = 5
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 41
+y = 4
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 41
+y = 5
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 42
+y = 4
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 42
+y = 5
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "path"
+path = [ [ 43, 6,], [ 44, 6,], [ 44, 9,], [ 45, 9,], [ 45, 10,], [ 46, 10,], [ 46, 11,], [ 53, 11,], [ 53, 13,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 52
+y = 13
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 53
+y = 14
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "path"
+path = [ [ 53, 14,], [ 52, 14,], [ 52, 17,], [ 39, 17,], [ 39, 28,], [ 47, 28,], [ 47, 27,], [ 53, 27,], [ 53, 29,], [ 54, 29,], [ 54, 32,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 54
+y = 32
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 55
+y = 31
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 56
+y = 31
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 57
+y = 31
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "path"
+path = [ [ 57, 31,], [ 55, 31,], [ 55, 29,], [ 53, 29,], [ 53, 27,], [ 47, 27,], [ 47, 28,], [ 39, 28,], [ 39, 17,], [ 52, 17,], [ 52, 18,], [ 55, 18,], [ 55, 19,], [ 57, 19,], [ 57, 18,], [ 58, 18,], [ 58, 17,], [ 61, 17,], [ 61, 12,], [ 60, 12,], [ 60, 10,], [ 59, 10,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 58
+y = 10
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 59
+y = 10
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "path"
+path = [ [ 60, 11,], [ 60, 12,], [ 61, 12,], [ 61, 17,], [ 59, 17,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 58
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 59
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 60
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 61
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 62
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "path"
+path = [ [ 62, 17,], [ 58, 17,], [ 58, 18,], [ 57, 18,], [ 57, 19,], [ 55, 19,], [ 55, 18,], [ 52, 18,], [ 52, 17,], [ 39, 17,], [ 39, 28,], [ 47, 28,], [ 47, 27,], [ 60, 27,], [ 60, 32,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 59
+y = 32
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 60
+y = 31
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 61
+y = 31
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 62
+y = 31
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "path"
+path = [ [ 62, 31,], [ 61, 31,], [ 61, 26,], [ 62, 26,], [ 62, 22,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 62
+y = 21
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 62
+y = 22
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 63
+y = 21
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 63
+y = 22
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 64
+y = 21
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 64
+y = 22
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 65
+y = 21
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 65
+y = 22
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 66
+y = 21
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 66
+y = 22
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "path"
+path = [ [ 66, 22,], [ 66, 21,], [ 67, 21,], [ 67, 13,], [ 66, 13,], [ 66, 11,], [ 65, 11,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 64
+y = 11
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 65
+y = 11
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "path"
+path = [ [ 66, 11,], [ 66, 10,], [ 65, 10,], [ 65, 9,], [ 64, 9,], [ 64, 8,], [ 63, 8,], [ 63, 7,], [ 70, 7,], [ 70, 4,], [ 66, 4,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 65
+y = 4
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 65
+y = 5
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 66
+y = 4
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 66
+y = 5
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 67
+y = 4
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 67
+y = 5
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 68
+y = 4
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 68
+y = 5
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 69
+y = 4
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 69
+y = 5
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "path"
+path = [ [ 70, 6,], [ 70, 7,], [ 63, 7,], [ 63, 8,], [ 64, 8,], [ 64, 9,], [ 65, 9,], [ 65, 10,], [ 66, 10,], [ 66, 13,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 66
+y = 13
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 67
+y = 13
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 68
+y = 13
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "path"
+path = [ [ 68, 13,], [ 67, 13,], [ 67, 15,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 67
+y = 15
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 68
+y = 15
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 69
+y = 15
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 69
+y = 16
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 70
+y = 15
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 71
+y = 15
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 72
+y = 16
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 71
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 72
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 73
+y = 16
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
+type = "rect"
+x = 74
+y = 16
+
 [layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.4987bfea-14ea-44c0-8191-4be443b6c927]
 size = 273
 name = "#860002_0"
@@ -5843,1115 +6589,6 @@ path = [ [ 76, 22,], [ 76, 24,],]
 type = "rect"
 x = 76
 y = 24
-
-[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293]
-size = 226
-name = "#d6d7d2_0"
-color = "#d6d7d2"
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 0
-y = 26
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 1
-y = 26
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 2
-y = 26
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 3
-y = 26
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "path"
-path = [ [ 4, 26,], [ 4, 17,], [ 5, 17,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 5
-y = 16
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "path"
-path = [ [ 6, 16,], [ 6, 15,], [ 7, 15,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 7
-y = 14
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 8
-y = 14
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "path"
-path = [ [ 9, 14,], [ 10, 14,], [ 10, 13,], [ 11, 13,], [ 11, 12,], [ 13, 12,], [ 13, 11,], [ 15, 11,], [ 15, 10,], [ 16, 10,], [ 16, 9,], [ 17, 9,], [ 17, 7,], [ 9, 7,], [ 9, 5,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 9
-y = 4
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 9
-y = 5
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 10
-y = 4
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 10
-y = 5
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 11
-y = 4
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 11
-y = 5
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 12
-y = 4
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 12
-y = 5
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "path"
-path = [ [ 12, 5,], [ 9, 5,], [ 9, 7,], [ 17, 7,], [ 17, 9,], [ 16, 9,], [ 16, 10,], [ 15, 10,], [ 15, 11,], [ 13, 11,], [ 13, 12,], [ 11, 12,], [ 11, 13,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 10
-y = 13
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "path"
-path = [ [ 10, 14,], [ 9, 14,], [ 9, 16,], [ 10, 16,], [ 10, 18,], [ 11, 18,], [ 11, 21,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 11
-y = 21
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 11
-y = 22
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 12
-y = 21
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 12
-y = 22
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 13
-y = 21
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 13
-y = 22
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 14
-y = 21
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 14
-y = 22
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 15
-y = 21
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 15
-y = 22
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "path"
-path = [ [ 15, 22,], [ 15, 21,], [ 11, 21,], [ 11, 18,], [ 10, 18,], [ 10, 16,], [ 9, 16,], [ 9, 14,], [ 10, 14,], [ 10, 13,], [ 11, 13,], [ 11, 12,], [ 13, 12,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 13
-y = 11
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "path"
-path = [ [ 14, 12,], [ 14, 13,], [ 15, 13,], [ 15, 16,], [ 18, 16,], [ 18, 17,], [ 37, 17,], [ 37, 20,], [ 38, 20,], [ 38, 23,], [ 37, 23,], [ 37, 26,], [ 21, 26,], [ 21, 31,], [ 18, 31,], [ 18, 32,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 17
-y = 32
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 18
-y = 31
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 19
-y = 31
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 20
-y = 31
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 21
-y = 32
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 22
-y = 31
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 23
-y = 31
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "path"
-path = [ [ 23, 31,], [ 22, 31,], [ 22, 32,], [ 21, 32,], [ 21, 27,], [ 31, 27,], [ 31, 28,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 31
-y = 28
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 31
-y = 29
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 31
-y = 30
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 31
-y = 31
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 31
-y = 32
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 31
-y = 33
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 32
-y = 32
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 32
-y = 31
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 32
-y = 30
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 32
-y = 29
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 32
-y = 28
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 33
-y = 28
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 34
-y = 28
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 34
-y = 29
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 33
-y = 30
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 34
-y = 30
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 34
-y = 31
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 33
-y = 32
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 32
-y = 33
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 33
-y = 33
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 34
-y = 33
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 35
-y = 32
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 35
-y = 31
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 36
-y = 30
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 35
-y = 29
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 35
-y = 28
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 36
-y = 28
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 37
-y = 28
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 37
-y = 29
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 37
-y = 30
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 36
-y = 31
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 37
-y = 31
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 38
-y = 30
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 38
-y = 29
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 38
-y = 28
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 39
-y = 28
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 40
-y = 28
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 40
-y = 29
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 39
-y = 30
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 38
-y = 31
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 39
-y = 31
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 39
-y = 32
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 38
-y = 33
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 37
-y = 33
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 36
-y = 33
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 35
-y = 33
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "path"
-path = [ [ 36, 33,], [ 39, 33,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 39
-y = 33
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 40
-y = 33
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 41
-y = 32
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 41
-y = 31
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 41
-y = 30
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 42
-y = 29
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 41
-y = 28
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 42
-y = 28
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 43
-y = 28
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 43
-y = 29
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 43
-y = 30
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 42
-y = 31
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 43
-y = 31
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 43
-y = 32
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 42
-y = 33
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 41
-y = 33
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "path"
-path = [ [ 42, 33,], [ 43, 33,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 43
-y = 33
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 44
-y = 32
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 44
-y = 31
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 44
-y = 30
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 44
-y = 29
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 44
-y = 28
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 45
-y = 28
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 46
-y = 28
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 46
-y = 29
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 46
-y = 30
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 46
-y = 31
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 45
-y = 32
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 44
-y = 33
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 45
-y = 33
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 46
-y = 32
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 46
-y = 33
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "path"
-path = [ [ 46, 33,], [ 46, 28,], [ 39, 28,], [ 39, 17,], [ 34, 17,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 33
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 34
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 35
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 36
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 37
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 38
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "path"
-path = [ [ 38, 17,], [ 37, 17,], [ 37, 21,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 36
-y = 21
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 37
-y = 20
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 38
-y = 20
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 38
-y = 21
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 38
-y = 22
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 37
-y = 23
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 36
-y = 23
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 36
-y = 24
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 37
-y = 25
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 38
-y = 24
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 38
-y = 23
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 39
-y = 23
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 39
-y = 24
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 39
-y = 25
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 39
-y = 26
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "path"
-path = [ [ 39, 26,], [ 39, 24,], [ 40, 24,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 40
-y = 24
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 41
-y = 23
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "path"
-path = [ [ 41, 24,], [ 40, 24,], [ 40, 23,], [ 39, 23,], [ 39, 22,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 39
-y = 21
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "path"
-path = [ [ 39, 21,], [ 39, 17,], [ 41, 17,], [ 41, 13,], [ 44, 13,], [ 44, 12,], [ 45, 12,], [ 45, 11,], [ 46, 11,], [ 46, 10,], [ 45, 10,], [ 45, 9,], [ 44, 9,], [ 44, 6,], [ 43, 6,], [ 43, 4,], [ 38, 4,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 37
-y = 4
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 37
-y = 5
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 38
-y = 4
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 38
-y = 5
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 39
-y = 4
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 39
-y = 5
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 40
-y = 4
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 40
-y = 5
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 41
-y = 4
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 41
-y = 5
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 42
-y = 4
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 42
-y = 5
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "path"
-path = [ [ 43, 6,], [ 44, 6,], [ 44, 9,], [ 45, 9,], [ 45, 10,], [ 46, 10,], [ 46, 11,], [ 53, 11,], [ 53, 13,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 52
-y = 13
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 53
-y = 14
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "path"
-path = [ [ 53, 14,], [ 52, 14,], [ 52, 17,], [ 39, 17,], [ 39, 28,], [ 47, 28,], [ 47, 27,], [ 53, 27,], [ 53, 29,], [ 54, 29,], [ 54, 32,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 54
-y = 32
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 55
-y = 31
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 56
-y = 31
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 57
-y = 31
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "path"
-path = [ [ 57, 31,], [ 55, 31,], [ 55, 29,], [ 53, 29,], [ 53, 27,], [ 47, 27,], [ 47, 28,], [ 39, 28,], [ 39, 17,], [ 52, 17,], [ 52, 18,], [ 55, 18,], [ 55, 19,], [ 57, 19,], [ 57, 18,], [ 58, 18,], [ 58, 17,], [ 61, 17,], [ 61, 12,], [ 60, 12,], [ 60, 10,], [ 59, 10,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 58
-y = 10
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 59
-y = 10
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "path"
-path = [ [ 60, 11,], [ 60, 12,], [ 61, 12,], [ 61, 17,], [ 59, 17,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 58
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 59
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 60
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 61
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 62
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "path"
-path = [ [ 62, 17,], [ 58, 17,], [ 58, 18,], [ 57, 18,], [ 57, 19,], [ 55, 19,], [ 55, 18,], [ 52, 18,], [ 52, 17,], [ 39, 17,], [ 39, 28,], [ 47, 28,], [ 47, 27,], [ 60, 27,], [ 60, 32,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 59
-y = 32
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 60
-y = 31
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 61
-y = 31
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 62
-y = 31
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "path"
-path = [ [ 62, 31,], [ 61, 31,], [ 61, 26,], [ 62, 26,], [ 62, 22,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 62
-y = 21
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 62
-y = 22
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 63
-y = 21
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 63
-y = 22
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 64
-y = 21
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 64
-y = 22
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 65
-y = 21
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 65
-y = 22
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 66
-y = 21
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 66
-y = 22
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "path"
-path = [ [ 66, 22,], [ 66, 21,], [ 67, 21,], [ 67, 13,], [ 66, 13,], [ 66, 11,], [ 65, 11,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 64
-y = 11
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 65
-y = 11
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "path"
-path = [ [ 66, 11,], [ 66, 10,], [ 65, 10,], [ 65, 9,], [ 64, 9,], [ 64, 8,], [ 63, 8,], [ 63, 7,], [ 70, 7,], [ 70, 4,], [ 66, 4,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 65
-y = 4
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 65
-y = 5
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 66
-y = 4
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 66
-y = 5
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 67
-y = 4
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 67
-y = 5
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 68
-y = 4
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 68
-y = 5
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 69
-y = 4
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 69
-y = 5
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "path"
-path = [ [ 70, 6,], [ 70, 7,], [ 63, 7,], [ 63, 8,], [ 64, 8,], [ 64, 9,], [ 65, 9,], [ 65, 10,], [ 66, 10,], [ 66, 13,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 66
-y = 13
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 67
-y = 13
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 68
-y = 13
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "path"
-path = [ [ 68, 13,], [ 67, 13,], [ 67, 15,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 67
-y = 15
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 68
-y = 15
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 69
-y = 15
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 69
-y = 16
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 70
-y = 15
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 71
-y = 15
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 72
-y = 16
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 71
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 72
-y = 17
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 73
-y = 16
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.90756533-0a99-4295-b699-6afb70cad293.path]]
-type = "rect"
-x = 74
-y = 16
 
 [layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.86aa046e-aef1-4883-894d-d67ee5bb3001]
 size = 339
@@ -12275,173 +11912,807 @@ type = "rect"
 x = 76
 y = 17
 
-[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8]
-size = 35
-name = "#6a6062_0"
-color = "#6a6062"
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f]
+size = 167
+name = "#d4a0a1_0"
+color = "#d4a0a1"
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
 type = "rect"
-x = 3
-y = 38
+x = 0
+y = 18
 
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 0
+y = 19
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 1
+y = 19
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 2
+y = 19
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
 type = "path"
-path = [ [ 4, 39,], [ 5, 39,],]
+path = [ [ 3, 19,], [ 3, 18,], [ 4, 18,], [ 4, 16,], [ 9, 16,], [ 9, 14,], [ 11, 14,], [ 11, 15,], [ 13, 15,], [ 13, 16,], [ 18, 16,], [ 18, 17,], [ 38, 17,], [ 38, 26,], [ 21, 26,], [ 21, 27,], [ 1, 27,],]
 
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 0
+y = 27
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "path"
+path = [ [ 1, 27,], [ 21, 27,], [ 21, 26,], [ 38, 26,], [ 38, 17,], [ 18, 17,], [ 18, 16,], [ 13, 16,], [ 13, 15,], [ 11, 15,], [ 11, 14,], [ 9, 14,], [ 9, 16,], [ 6, 16,], [ 6, 15,], [ 5, 15,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 4
+y = 15
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 4
+y = 16
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
 type = "rect"
 x = 5
-y = 39
+y = 15
 
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
-type = "rect"
-x = 6
-y = 39
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
 type = "path"
-path = [ [ 7, 39,], [ 9, 39,],]
+path = [ [ 6, 16,], [ 9, 16,], [ 9, 13,], [ 11, 13,], [ 11, 12,], [ 14, 12,], [ 14, 11,], [ 15, 11,], [ 15, 10,], [ 17, 10,], [ 17, 5,], [ 16, 5,], [ 16, 4,], [ 8, 4,],]
 
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 7
+y = 4
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 8
+y = 4
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "path"
+path = [ [ 9, 4,], [ 16, 4,], [ 16, 5,], [ 17, 5,], [ 17, 10,], [ 15, 10,], [ 15, 11,], [ 14, 11,], [ 14, 12,], [ 11, 12,], [ 11, 13,], [ 9, 13,], [ 9, 16,], [ 8, 16,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 7
+y = 16
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 8
+y = 16
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
 type = "rect"
 x = 9
-y = 38
+y = 16
 
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "path"
+path = [ [ 9, 16,], [ 9, 14,], [ 11, 14,], [ 11, 15,], [ 13, 15,], [ 13, 16,], [ 18, 16,], [ 18, 17,], [ 38, 17,], [ 38, 26,], [ 21, 26,], [ 21, 27,], [ 9, 27,], [ 9, 26,], [ 8, 26,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
 type = "rect"
-x = 10
-y = 38
+x = 7
+y = 26
 
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 8
+y = 26
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "path"
+path = [ [ 9, 27,], [ 21, 27,], [ 21, 26,], [ 38, 26,], [ 38, 17,], [ 18, 17,], [ 18, 16,], [ 13, 16,], [ 13, 15,], [ 11, 15,], [ 11, 14,], [ 10, 14,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 9
+y = 13
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 9
+y = 14
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "path"
+path = [ [ 9, 14,], [ 9, 13,], [ 11, 13,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
 type = "rect"
 x = 11
-y = 38
+y = 12
 
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
 type = "path"
-path = [ [ 12, 39,], [ 13, 39,],]
+path = [ [ 11, 13,], [ 11, 15,],]
 
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 11
+y = 15
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 12
+y = 15
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "path"
+path = [ [ 13, 15,], [ 13, 13,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
 type = "rect"
 x = 13
-y = 39
+y = 12
 
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 13
+y = 13
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
 type = "rect"
 x = 14
-y = 39
+y = 13
 
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
-type = "rect"
-x = 15
-y = 39
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
 type = "path"
-path = [ [ 15, 39,], [ 13, 39,], [ 13, 36,], [ 12, 36,], [ 12, 32,], [ 11, 32,], [ 11, 16,], [ 13, 16,], [ 13, 14,], [ 15, 14,], [ 15, 13,], [ 16, 13,],]
+path = [ [ 14, 13,], [ 14, 11,], [ 15, 11,], [ 15, 10,], [ 17, 10,], [ 17, 6,],]
 
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
 type = "rect"
 x = 16
-y = 12
+y = 5
 
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
 type = "path"
-path = [ [ 17, 12,], [ 18, 12,],]
+path = [ [ 17, 6,], [ 17, 10,], [ 15, 10,], [ 15, 16,], [ 18, 16,], [ 18, 17,], [ 38, 17,], [ 38, 26,], [ 21, 26,], [ 21, 27,], [ 17, 27,],]
 
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 16
+y = 27
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 17
+y = 26
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 17
+y = 27
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 17
+y = 28
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
 type = "rect"
 x = 18
-y = 12
+y = 28
 
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 18
+y = 29
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
 type = "rect"
 x = 19
-y = 11
+y = 28
 
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
 type = "rect"
 x = 19
-y = 12
+y = 27
 
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
-type = "path"
-path = [ [ 19, 12,], [ 19, 11,], [ 20, 11,], [ 20, 10,], [ 28, 10,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
 type = "rect"
-x = 28
-y = 9
+x = 18
+y = 26
 
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
 type = "path"
-path = [ [ 29, 10,], [ 29, 12,], [ 33, 12,],]
+path = [ [ 19, 27,], [ 20, 27,],]
 
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 20
+y = 27
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 20
+y = 28
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 21
+y = 27
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 21
+y = 26
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "path"
+path = [ [ 22, 26,], [ 38, 26,], [ 38, 17,], [ 19, 17,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 18
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 19
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 20
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 21
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 22
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 23
+y = 16
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 23
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 24
+y = 16
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 24
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 25
+y = 16
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 26
+y = 16
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "path"
+path = [ [ 26, 16,], [ 25, 16,], [ 25, 18,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 25
+y = 18
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 26
+y = 18
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "path"
+path = [ [ 26, 18,], [ 25, 18,], [ 25, 13,], [ 24, 13,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 23
+y = 13
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 24
+y = 13
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "path"
+path = [ [ 25, 14,], [ 25, 16,], [ 27, 16,], [ 27, 17,], [ 38, 17,], [ 38, 26,], [ 24, 26,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 23
+y = 26
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 24
+y = 26
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 25
+y = 26
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 26
+y = 26
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "path"
+path = [ [ 27, 26,], [ 38, 26,], [ 38, 17,], [ 30, 17,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 29
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 30
+y = 16
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 30
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 31
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 32
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
 type = "rect"
 x = 33
+y = 16
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 34
+y = 16
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "path"
+path = [ [ 35, 17,], [ 38, 17,], [ 38, 26,], [ 34, 26,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 33
+y = 26
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 34
+y = 26
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 35
+y = 26
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 36
+y = 26
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 37
+y = 26
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "path"
+path = [ [ 38, 26,], [ 38, 17,], [ 40, 17,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 40
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 41
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "path"
+path = [ [ 41, 17,], [ 39, 17,], [ 39, 23,], [ 40, 23,], [ 40, 27,], [ 41, 27,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 41
+y = 26
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 42
+y = 26
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 43
+y = 26
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 44
+y = 26
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 45
+y = 26
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 46
+y = 26
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 47
+y = 26
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 48
+y = 26
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "path"
+path = [ [ 48, 26,], [ 41, 26,], [ 41, 27,], [ 40, 27,], [ 40, 23,], [ 39, 23,], [ 39, 17,], [ 43, 17,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 43
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 44
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "path"
+path = [ [ 45, 18,], [ 55, 18,], [ 55, 19,], [ 57, 19,], [ 57, 18,], [ 63, 18,], [ 63, 14,], [ 61, 14,], [ 61, 12,], [ 55, 12,], [ 55, 11,], [ 45, 11,], [ 45, 12,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 44
 y = 12
 
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
 type = "path"
-path = [ [ 34, 13,], [ 46, 13,], [ 46, 18,], [ 57, 18,], [ 57, 19,], [ 67, 19,], [ 67, 38,], [ 66, 38,], [ 66, 39,], [ 64, 39,],]
+path = [ [ 45, 12,], [ 45, 11,], [ 55, 11,], [ 55, 12,], [ 61, 12,], [ 61, 14,], [ 63, 14,], [ 63, 18,], [ 57, 18,], [ 57, 19,], [ 55, 19,], [ 55, 18,], [ 52, 18,], [ 52, 17,], [ 47, 17,],]
 
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 46
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 47
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 48
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 49
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 50
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 51
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "path"
+path = [ [ 52, 18,], [ 55, 18,], [ 55, 19,], [ 57, 19,], [ 57, 18,], [ 63, 18,], [ 63, 14,], [ 61, 14,], [ 61, 12,], [ 55, 12,], [ 55, 11,], [ 51, 11,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 50
+y = 10
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "path"
+path = [ [ 51, 11,], [ 53, 11,], [ 53, 13,], [ 52, 13,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 51
+y = 13
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 52
+y = 14
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "path"
+path = [ [ 52, 14,], [ 52, 13,], [ 55, 13,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 55
+y = 12
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "path"
+path = [ [ 56, 12,], [ 61, 12,], [ 61, 14,], [ 63, 14,], [ 63, 18,], [ 57, 18,], [ 57, 19,], [ 55, 19,], [ 55, 18,], [ 52, 18,], [ 52, 17,], [ 39, 17,], [ 39, 23,], [ 40, 23,], [ 40, 27,], [ 55, 27,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 55
+y = 26
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 56
+y = 26
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 57
+y = 26
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 58
+y = 26
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 59
+y = 26
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 60
+y = 26
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "path"
+path = [ [ 60, 26,], [ 55, 26,], [ 55, 27,], [ 40, 27,], [ 40, 23,], [ 39, 23,], [ 39, 17,], [ 52, 17,], [ 52, 18,], [ 55, 18,], [ 55, 19,], [ 57, 19,], [ 57, 18,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 57
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "path"
+path = [ [ 58, 18,], [ 63, 18,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
 type = "rect"
 x = 63
-y = 39
+y = 17
 
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "path"
+path = [ [ 64, 17,], [ 64, 14,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
 type = "rect"
 x = 64
-y = 39
+y = 13
 
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
-type = "path"
-path = [ [ 65, 39,], [ 66, 39,],]
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 65
+y = 12
 
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
 type = "rect"
 x = 66
-y = 38
+y = 11
 
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "path"
+path = [ [ 66, 12,], [ 66, 15,], [ 65, 15,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 64
+y = 15
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 65
+y = 15
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 66
+y = 14
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 66
+y = 15
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
 type = "rect"
 x = 67
-y = 38
+y = 14
 
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
 type = "rect"
 x = 68
-y = 38
+y = 14
 
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
 type = "rect"
 x = 69
-y = 38
+y = 14
 
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 70
+y = 14
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
 type = "path"
-path = [ [ 70, 39,], [ 71, 39,],]
+path = [ [ 70, 14,], [ 67, 14,], [ 67, 16,],]
 
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 67
+y = 16
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 66
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 65
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "path"
+path = [ [ 66, 17,], [ 67, 17,], [ 67, 16,], [ 68, 16,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 68
+y = 16
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "path"
+path = [ [ 68, 16,], [ 67, 16,], [ 67, 14,], [ 66, 14,], [ 66, 11,], [ 64, 11,], [ 64, 8,], [ 63, 8,], [ 63, 6,], [ 65, 6,], [ 65, 4,], [ 67, 4,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 67
+y = 3
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 68
+y = 3
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 69
+y = 3
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "path"
+path = [ [ 69, 3,], [ 67, 3,], [ 67, 4,], [ 65, 4,], [ 65, 6,], [ 63, 6,], [ 63, 8,], [ 64, 8,], [ 64, 11,], [ 66, 11,], [ 66, 14,], [ 67, 14,], [ 67, 16,], [ 69, 16,], [ 69, 17,], [ 70, 17,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 70
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
 type = "rect"
 x = 71
-y = 39
+y = 16
 
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
 type = "rect"
 x = 72
-y = 39
+y = 15
 
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
-type = "path"
-path = [ [ 73, 39,], [ 75, 39,],]
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 73
+y = 15
 
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.a5fbf0e7-53c9-4dac-8478-1a7d1d665ca8.path]]
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 74
+y = 15
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
 type = "rect"
 x = 75
-y = 38
+y = 16
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 74
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 73
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "path"
+path = [ [ 74, 17,], [ 75, 17,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 75
+y = 17
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "path"
+path = [ [ 75, 17,], [ 75, 16,], [ 71, 16,], [ 71, 17,], [ 65, 17,], [ 65, 18,], [ 57, 18,], [ 57, 19,], [ 55, 19,], [ 55, 18,], [ 52, 18,], [ 52, 17,], [ 39, 17,], [ 39, 23,], [ 40, 23,], [ 40, 27,], [ 72, 27,],]
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 72
+y = 26
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 73
+y = 26
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 74
+y = 26
+
+[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.693749d7-8d40-4675-b23d-11220ddd3e7f.path]]
+type = "rect"
+x = 75
+y = 26
 
 [layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.45e00499-b3b8-451c-b042-2108bff90dc3]
 size = 29
@@ -12590,276 +12861,6 @@ y = 21
 type = "rect"
 x = 73
 y = 22
-
-[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797]
-size = 55
-name = "#a9988b_0"
-color = "#a9988b"
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 4
-y = 40
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "path"
-path = [ [ 5, 40,], [ 9, 40,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 9
-y = 40
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 10
-y = 40
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 11
-y = 40
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "path"
-path = [ [ 12, 40,], [ 17, 40,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 17
-y = 40
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "path"
-path = [ [ 17, 40,], [ 17, 27,], [ 21, 27,], [ 21, 26,], [ 38, 26,], [ 38, 11,], [ 36, 11,], [ 36, 10,], [ 35, 10,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 34
-y = 10
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 35
-y = 10
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 35
-y = 11
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 36
-y = 11
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 36
-y = 12
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 37
-y = 11
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 37
-y = 12
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 38
-y = 11
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 38
-y = 12
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 39
-y = 11
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 39
-y = 12
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 40
-y = 11
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 40
-y = 12
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 41
-y = 11
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 41
-y = 12
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 42
-y = 11
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "path"
-path = [ [ 43, 11,], [ 46, 11,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 46
-y = 10
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "path"
-path = [ [ 47, 10,], [ 51, 10,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 51
-y = 10
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 52
-y = 10
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 53
-y = 10
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 54
-y = 10
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 55
-y = 10
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 55
-y = 11
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 56
-y = 10
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 56
-y = 11
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 57
-y = 10
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 57
-y = 11
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 58
-y = 11
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 58
-y = 12
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 59
-y = 11
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 59
-y = 12
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 60
-y = 12
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "path"
-path = [ [ 61, 13,], [ 61, 14,], [ 67, 14,], [ 67, 26,], [ 70, 26,], [ 70, 40,], [ 67, 40,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 66
-y = 40
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 67
-y = 40
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 68
-y = 40
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 69
-y = 40
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "path"
-path = [ [ 70, 40,], [ 70, 38,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 70
-y = 37
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 71
-y = 37
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "path"
-path = [ [ 72, 37,], [ 73, 37,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 73
-y = 36
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 74
-y = 36
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "path"
-path = [ [ 75, 37,], [ 75, 40,],]
-
-[[layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.10d787c8-088d-49ec-b766-93a1a32e9797.path]]
-type = "rect"
-x = 75
-y = 40
 
 [layers.d1b97103-583d-4e59-8d9e-e21a07b3dc9f.partitions.19eb61f9-9feb-428a-9909-1512a468eaaf]
 size = 37
