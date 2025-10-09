@@ -181,12 +181,6 @@ class ImageParser:
         is created between two vertices if the path segment between them is
         "valid" — meaning it runs alongside at least one non-transparent pixel.
         """
-        if color in self._vertex_graph:
-            return self._vertex_graph[color]
-
-        G = nx.Graph()
-        w_pixel, h_pixel = len(self._image), len(self._image[0])
-        w_vertex, h_vertex = w_pixel + 1, h_pixel + 1
 
         def is_solid(px: int, py: int) -> bool:
             if 0 <= px < w_pixel and 0 <= py < h_pixel:
@@ -214,6 +208,13 @@ class ImageParser:
             # Using a quadratic function penalizes paths over dissimilar colors more heavily.
             w = 1 + 0.1 * (delta_e**2)
             return int(w)
+
+        if color in self._vertex_graph:
+            return self._vertex_graph[color]
+
+        G = nx.Graph()
+        w_pixel, h_pixel = len(self._image), len(self._image[0])
+        w_vertex, h_vertex = w_pixel + 1, h_pixel + 1
 
         for y in range(h_vertex):
             for x in range(w_vertex):
