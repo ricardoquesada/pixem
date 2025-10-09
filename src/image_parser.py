@@ -55,6 +55,20 @@ def _get_top_left_node(G):
     return curr_node
 
 
+def _find_closest_node(target_node, candidate_nodes):
+    """Finds the node in candidate_nodes geometrically closest to target_node."""
+    closest_node = None
+    min_dist_sq = float("inf")
+    tx, ty = target_node
+    for node in candidate_nodes:
+        nx, ny = node
+        dist_sq = (tx - nx) ** 2 + (ty - ny) ** 2
+        if dist_sq < min_dist_sq:
+            min_dist_sq = dist_sq
+            closest_node = node
+    return closest_node
+
+
 class ImageParser:
     """
     Parses a QImage into a set of embroidery-ready partitions.
@@ -132,12 +146,9 @@ class ImageParser:
 
     def _get_ordered_nodes_for_color(self, image_graph: dict) -> list[tuple[int, int]]:
         """
-        Performs a Depth-First Search (DFS) on the color graph to get a single
-        ordered list of all nodes, traversing disconnected components.
-
-        This ensures that all pixels of a given color are visited in a
-        continuous, predictable sequence, which is essential for creating a
-        single stitch path for the entire color group.
+        Orders all nodes of a color by traversing connected components.
+        After traversing a component, it jumps to the closest unvisited node
+        to continue the traversal, ensuring a geometrically optimized path.
 
         Args:
             image_graph: An adjacency list representation of the graph for a single color.
@@ -145,32 +156,42 @@ class ImageParser:
         Returns:
             A list of all nodes (pixels) for the color, in a single traversal order.
         """
-        all_nodes = list(image_graph.keys())
-        if not all_nodes:
+        unvisited_nodes = set(image_graph.keys())
+        if not unvisited_nodes:
             return []
 
         ordered_nodes = []
-        visited = set()
+        last_node = None
 
-        # We iterate through all nodes to handle disconnected components
-        for node in all_nodes:
-            if node not in visited:
-                # This node is part of a new, unvisited component.
-                # Start a new DFS from here.
-                stack = [node]
+        while unvisited_nodes:
+            # If this is the first component, start with the top-leftmost node.
+            # Otherwise, start with the node closest to the end of the last component.
+            if last_node is None:
+                start_node = min(unvisited_nodes, key=lambda p: p[0] * p[0] + p[1] * p[1])
+            else:
+                start_node = _find_closest_node(last_node, unvisited_nodes)
 
-                while stack:
-                    current_node = stack.pop()
-                    if current_node not in visited:
-                        visited.add(current_node)
-                        ordered_nodes.append(current_node)
+            # Perform DFS for the current component starting from start_node.
+            stack = [start_node]
+            component_nodes_in_dfs_order = []
 
-                        # Add unvisited neighbors to the stack.
-                        # Sorting neighbors makes the traversal deterministic.
-                        neighbors = sorted(image_graph.get(current_node, []), reverse=True)
-                        for neighbor in neighbors:
-                            if neighbor not in visited:
-                                stack.append(neighbor)
+            while stack:
+                node_to_visit = stack.pop()
+                if node_to_visit in unvisited_nodes:
+                    unvisited_nodes.remove(node_to_visit)
+                    component_nodes_in_dfs_order.append(node_to_visit)
+
+                    # Add unvisited neighbors to the stack.
+                    # Sorting neighbors makes the traversal deterministic.
+                    neighbors = sorted(image_graph.get(node_to_visit, []), reverse=True)
+                    for neighbor in neighbors:
+                        if neighbor in unvisited_nodes:
+                            stack.append(neighbor)
+
+            ordered_nodes.extend(component_nodes_in_dfs_order)
+            if component_nodes_in_dfs_order:
+                last_node = component_nodes_in_dfs_order[-1]
+
         return ordered_nodes
 
     def _get_vertex_graph_for_color(self, color: int) -> nx.Graph:
