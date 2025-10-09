@@ -137,7 +137,6 @@ class ImageParser:
 
         This ensures that all pixels of a given color are visited in a
         continuous, predictable sequence, which is essential for creating a
-
         single stitch path for the entire color group.
 
         Args:
