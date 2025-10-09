@@ -56,15 +56,15 @@ def _get_top_left_node(G):
 
 
 def _find_closest_node(target_node, candidate_nodes):
-    """Finds the node in candidate_nodes geometrically closest to target_node."""
+    """Finds the node in candidate_nodes with the shortest rectilinear distance to target_node."""
     closest_node = None
-    min_dist_sq = float("inf")
+    min_dist = float("inf")
     tx, ty = target_node
     for node in candidate_nodes:
         nx, ny = node
-        dist_sq = (tx - nx) ** 2 + (ty - ny) ** 2
-        if dist_sq < min_dist_sq:
-            min_dist_sq = dist_sq
+        dist = abs(tx - nx) + abs(ty - ny)
+        if dist < min_dist:
+            min_dist = dist
             closest_node = node
     return closest_node
 
