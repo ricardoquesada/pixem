@@ -6,6 +6,7 @@ import sys
 import uuid
 
 import networkx as nx
+from coloraide import Color
 from PySide6.QtGui import QColor, QImage
 
 from partition import Partition
@@ -27,10 +28,7 @@ def _get_node_with_one_neighbor(G):
     Returns:
         The first node found with a degree of 1, or None if no such node exists.
     """
-    nodes_with_one_neighbor = [node for node, degree in G.degree() if degree == 1]
-    if len(nodes_with_one_neighbor) > 0:
-        return nodes_with_one_neighbor[0]
-    return None
+    return next((node for node, degree in G.degree() if degree == 1), None)
 
 
 def _get_top_left_node(G):
@@ -47,7 +45,7 @@ def _get_top_left_node(G):
         The node (tuple of x, y) closest to the origin.
     """
     curr_node = None
-    curr_dist = 1000000
+    curr_dist = float("inf")
     for node in G.nodes():
         x, y = node
         d = x * x + y * y
@@ -139,6 +137,7 @@ class ImageParser:
 
         This ensures that all pixels of a given color are visited in a
         continuous, predictable sequence, which is essential for creating a
+
         single stitch path for the entire color group.
 
         Args:
@@ -199,16 +198,22 @@ class ImageParser:
             if not (0 <= px < w_pixel and 0 <= py < h_pixel):
                 return sys.maxsize
 
-            px_color = self._image[px][py]
-            r_diff = abs(((px_color >> 16) & 0xFF) - ((color >> 16) & 0xFF))
-            g_diff = abs(((px_color >> 8) & 0xFF) - ((color >> 8) & 0xFF))
-            b_diff = abs((px_color & 0xFF) - (color & 0xFF))
-            total_diff = r_diff + g_diff + b_diff
-            # Using a quadratic function for an exponential-like growth. This
-            # penalizes paths over dissimilar colors more heavily than a
-            # linear function. The factor (0.04) is a tunable parameter
-            # that controls the steepness of the curve.
-            w = 1 + 0.04 * (total_diff**2)
+            px_color_val = self._image[px][py]
+            if px_color_val == -1:
+                return sys.maxsize
+
+            # Target color for the path
+            color1 = Color(f"#{color:06x}")
+
+            # Color of the pixel we are evaluating
+            color2 = Color(f"#{px_color_val:06x}")
+
+            # Calculate the perceptual color difference using CIEDE2000
+            delta_e = color1.delta_e(color2, method="2000")
+
+            # The weight should be low for similar colors (low delta_e) and high for different ones.
+            # Using a quadratic function penalizes paths over dissimilar colors more heavily.
+            w = 1 + 0.1 * (delta_e**2)
             return int(w)
 
         for y in range(h_vertex):
@@ -374,20 +379,9 @@ class ImageParser:
                     simplified_points = self._simplify_path_to_points(path_nodes)
                     shapes.append(Path(simplified_points))
                 else:
-                    # TODO: Think if we want to connect island. Probably not
-                    if False:
-                        # Fallback for safety, e.g. if islands are separated by transparency
-                        x1, y1 = current_node
-                        x2, y2 = next_node
-                        p1 = Point(x1, y1)
-                        p2 = Point(x2, y2)
-
-                        # Create a rectilinear path (only horizontal/vertical segments).
-                        if x1 == x2 or y1 == y2:
-                            shapes.append(Path([p1, p2]))
-                        else:
-                            p_intermediate = Point(x2, y1)
-                            shapes.append(Path([p1, p_intermediate, p2]))
+                    # If no path is found (e.g., islands separated by transparency),
+                    # we currently do not connect them.
+                    logger.info(f"Could not find a path to connect {current_node} and {next_node}")
 
         # Add the last rect
         shapes.append(Rect(ordered_nodes[-1][0], ordered_nodes[-1][1]))
@@ -450,10 +444,6 @@ class ImageParser:
                     neighbors.append((new_x, new_y))
                 d[color][(x, y)] = neighbors
         return d
-
-    @property
-    def conf(self):
-        return self._conf
 
     @property
     def partitions(self) -> dict[str, Partition]:
