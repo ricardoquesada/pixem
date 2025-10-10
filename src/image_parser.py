@@ -15,46 +15,6 @@ from shape import Path, Point, Rect, Shape
 logger = logging.getLogger(__name__)
 
 
-def _get_node_with_one_neighbor(G):
-    """
-    Finds a node in the graph with exactly one neighbor (a leaf node).
-
-    This is useful for finding a natural starting or ending point for a path
-    traversal in a graph that is not a cycle.
-
-    Args:
-        G: A networkx.Graph object.
-
-    Returns:
-        The first node found with a degree of 1, or None if no such node exists.
-    """
-    return next((node for node, degree in G.degree() if degree == 1), None)
-
-
-def _get_top_left_node(G):
-    """
-    Finds the node in the graph that is closest to the (0,0) origin.
-
-    This serves as a deterministic starting point for graph traversal when
-    no other obvious starting node (like a leaf node) is available.
-
-    Args:
-        G: A networkx.Graph object.
-
-    Returns:
-        The node (tuple of x, y) closest to the origin.
-    """
-    curr_node = None
-    curr_dist = float("inf")
-    for node in G.nodes():
-        x, y = node
-        d = x * x + y * y
-        if d < curr_dist:
-            curr_dist = d
-            curr_node = node
-    return curr_node
-
-
 def _find_closest_node(target_node, candidate_nodes):
     """Finds the node in candidate_nodes with the shortest rectilinear distance to target_node."""
     closest_node = None
@@ -143,69 +103,6 @@ class ImageParser:
                     continue
                 color = argb & 0xFFFFFF
                 self._image[x][y] = color
-
-    def _get_component_order_from_candidates(
-        self, start_node: tuple[int, int], candidate_nodes: set[tuple[int, int]], image_graph: dict
-    ) -> list[tuple[int, int]]:
-        """
-        Finds all nodes in a connected component from a set of candidates and returns them in DFS order.
-        """
-        component_order = []
-        stack = [start_node]
-        visited_in_component = set()
-
-        while stack:
-            node = stack.pop()
-            if node in candidate_nodes and node not in visited_in_component:
-                visited_in_component.add(node)
-                component_order.append(node)
-                # Add unvisited neighbors to the stack.
-                # Sorting neighbors makes the traversal deterministic.
-                neighbors = sorted(image_graph.get(node, []), reverse=True)
-                for neighbor in neighbors:
-                    if neighbor in candidate_nodes and neighbor not in visited_in_component:
-                        stack.append(neighbor)
-        return component_order
-
-    def _get_ordered_nodes_for_color(self, image_graph: dict) -> list[tuple[int, int]]:
-        """
-        Orders all nodes of a color by traversing connected components.
-        After traversing a component, it jumps to the closest unvisited node
-        to continue the traversal, ensuring a geometrically optimized path.
-
-        Args:
-            image_graph: An adjacency list representation of the graph for a single color.
-
-        Returns:
-            A list of all nodes (pixels) for the color, in a single traversal order.
-        """
-        unvisited_nodes = set(image_graph.keys())
-        if not unvisited_nodes:
-            return []
-
-        ordered_nodes = []
-        last_node = None
-
-        while unvisited_nodes:
-            # If this is the first component, start with the top-leftmost node.
-            # Otherwise, start with the node closest to the end of the last component.
-            if last_node is None:
-                start_node = min(unvisited_nodes, key=lambda p: p[0] * p[0] + p[1] * p[1])
-            else:
-                start_node = _find_closest_node(last_node, unvisited_nodes)
-
-            # Perform DFS for the current component starting from start_node.
-            component_nodes = self._get_component_order_from_candidates(
-                start_node, unvisited_nodes, image_graph
-            )
-
-            ordered_nodes.extend(component_nodes)
-            unvisited_nodes.difference_update(component_nodes)
-
-            if component_nodes:
-                last_node = component_nodes[-1]
-
-        return ordered_nodes
 
     def _get_vertex_graph_for_color(self, color: int) -> nx.Graph:
         """
@@ -386,102 +283,109 @@ class ImageParser:
 
         return simplified
 
-    def _find_first_intermediate_node_on_path(
-        self, path_vertices: list[tuple[int, int]], future_nodes: set[tuple[int, int]]
-    ) -> tuple[int, int] | None:
+    def _generate_shapes_for_color(self, color: int, image_graph: dict) -> list[Shape]:
         """
-        Checks if a path of vertices passes adjacent to any future nodes.
+        Generates an optimized list of shapes for a single color by processing
+        disconnected blocks (components) intelligently.
 
-        Args:
-            path_vertices: A list of (x, y) tuples representing the vertices of a path.
-            future_nodes: A set of (x, y) tuples for nodes that will be visited later.
+        The algorithm is as follows:
+        1. Identify all disconnected blocks of pixels for the given color.
+        2. Start with the block containing the top-left-most pixel.
+        3. Traverse the current block, generating Rect shapes for its pixels.
+        4. Once the block is complete, find the last stitched pixel.
+        5. Evaluate the shortest path (by segment count) from this last pixel to
+           the closest pixel of each remaining block.
+        6. Choose the block with the shortest path, create a Path shape for the jump.
+        7. Make that block the current one and repeat from step 3 until all blocks
+           are processed.
+        """
+        if not image_graph:
+            return []
 
-        Returns:
-            The first future node found adjacent to the path, or None.
-        """
-        # We don't check the very first vertex, as it's part of the start node.
-        for vx, vy in path_vertices[1:]:
-            # A vertex (vx, vy) is at the corner of four pixels.
-            # The pixels are at (vx-1, vy-1), (vx, vy-1), (vx-1, vy), (vx, vy).
-            adjacent_pixels = [
-                (vx - 1, vy - 1),
-                (vx, vy - 1),
-                (vx - 1, vy),
-                (vx, vy),
-            ]
-            for px, py in adjacent_pixels:
-                if (px, py) in future_nodes:
-                    return (px, py)  # Return the first one found
-        return None
+        # Create a NetworkX graph to find connected components
+        G = nx.Graph(image_graph)
+        blocks = list(nx.connected_components(G))
 
-    def _create_shapes_from_ordered_nodes(
-        self, color: int, ordered_nodes: list[tuple[int, int]], image_graph: dict
-    ) -> list[Shape]:
-        """
-        Builds a list of Rect and Path shapes from an ordered list of nodes.
-        Inserts rectilinear Path objects to connect non-neighboring nodes.
-        """
-        if not ordered_nodes:
+        if not blocks:
             return []
 
         shapes = []
-        i = 0
-        while i < len(ordered_nodes) - 1:
-            current_node = ordered_nodes[i]
-            next_node = ordered_nodes[i + 1]
 
-            # Add the rect for the current node
-            shapes.append(Rect(current_node[0], current_node[1]))
+        # Find the top-leftmost pixel to determine the starting block
+        top_left_pixel = min(G.nodes, key=lambda p: p[0] ** 2 + p[1] ** 2)
 
-            # Check if the next node is a neighbor. If not, add a path.
-            if next_node not in image_graph.get(current_node, []):
-                path_nodes = self._find_shortest_pixel_path(color, current_node, next_node)
+        # Find which block contains the top-left pixel
+        current_block_index = -1
+        for i, block in enumerate(blocks):
+            if top_left_pixel in block:
+                current_block_index = i
+                break
 
-                if path_nodes:
-                    # Check for intermediate nodes to shorten the jump
-                    remaining_nodes = set(ordered_nodes[i + 2 :])
-                    if remaining_nodes:
-                        intermediate_node = self._find_first_intermediate_node_on_path(
-                            path_nodes, remaining_nodes
-                        )
+        current_block = blocks.pop(current_block_index)
+        entry_pixel = top_left_pixel
+        last_stitched_pixel = None
 
-                        if intermediate_node:
-                            # A closer, unvisited node was found. Reroute the entire traversal.
-                            nodes_to_check = set(ordered_nodes[i + 1 :])
-                            rerouted_comp = self._get_component_order_from_candidates(
-                                intermediate_node, nodes_to_check, image_graph
-                            )
+        while current_block:
+            # --- 1. Traverse and stitch the current block ---
+            # Use DFS to traverse the component from the entry_pixel
+            dfs_stack = [entry_pixel]
+            visited_in_block = {entry_pixel}
 
-                            # Remove the old instances of these nodes from the main list.
-                            rerouted_comp_set = set(rerouted_comp)
-                            ordered_nodes = [n for n in ordered_nodes if n not in rerouted_comp_set]
+            while dfs_stack:
+                pixel_to_stitch = dfs_stack.pop()
+                shapes.append(Rect(pixel_to_stitch[0], pixel_to_stitch[1]))
+                last_stitched_pixel = pixel_to_stitch
 
-                            # Insert the newly ordered component right after the current node.
-                            current_idx = ordered_nodes.index(current_node)
-                            ordered_nodes[current_idx + 1 : current_idx + 1] = rerouted_comp
+                # Add neighbors from the same block to the stack
+                neighbors = sorted(image_graph.get(pixel_to_stitch, []), reverse=True)
+                for neighbor in neighbors:
+                    if neighbor in current_block and neighbor not in visited_in_block:
+                        visited_in_block.add(neighbor)
+                        dfs_stack.append(neighbor)
 
-                            # The list is reordered. Recalculate the path for the current iteration.
-                            next_node = ordered_nodes[i + 1]
-                            path_nodes = self._find_shortest_pixel_path(
-                                color, current_node, next_node
-                            )
+            # The block is now fully stitched. Remove any remaining pixels from it.
+            # This handles cases where the block was not fully connected from the entry point,
+            # though this shouldn't happen with `nx.connected_components`.
+            current_block -= visited_in_block
 
-                    if path_nodes:
-                        path_nodes = self._remove_redundant_points_from_start_and_end_nodes(
-                            path_nodes
-                        )
-                        simplified_points = self._simplify_path_to_points(path_nodes)
-                        shapes.append(Path(simplified_points))
-                    else:
-                        logger.info(
-                            f"Could not find a path to connect {current_node} and {next_node}"
-                        )
-                else:
-                    logger.info(f"Could not find a path to connect {current_node} and {next_node}")
-            i += 1
+            # --- 2. Find the best next block to jump to ---
+            if not blocks:
+                break
 
-        # Add the last rect
-        shapes.append(Rect(ordered_nodes[-1][0], ordered_nodes[-1][1]))
+            best_path_len = float("inf")
+            best_path_nodes = None
+            best_target_pixel = None
+            best_block_index = -1
+
+            for i, next_block in enumerate(blocks):
+                # Find the closest pixel in this candidate block to our last stitched pixel
+                candidate_pixel = _find_closest_node(last_stitched_pixel, next_block)
+
+                # Find the path to that pixel
+                path_nodes = self._find_shortest_pixel_path(
+                    color, last_stitched_pixel, candidate_pixel
+                )
+
+                if path_nodes and len(path_nodes) < best_path_len:
+                    best_path_len = len(path_nodes)
+                    best_path_nodes = path_nodes
+                    best_target_pixel = candidate_pixel
+                    best_block_index = i
+
+            # --- 3. Perform the jump ---
+            if best_path_nodes:
+                path_nodes = self._remove_redundant_points_from_start_and_end_nodes(best_path_nodes)
+                simplified_points = self._simplify_path_to_points(path_nodes)
+                shapes.append(Path(simplified_points))
+
+                # Set up for the next iteration
+                current_block = blocks.pop(best_block_index)
+                entry_pixel = best_target_pixel
+            else:
+                # Should not happen in a single image, but as a fallback, stop processing.
+                logger.error("Could not find a path between any remaining blocks.")
+                break
+
         return shapes
 
     def _create_single_partition_for_color(self, image_graph: dict, color: int) -> None:
@@ -498,22 +402,14 @@ class ImageParser:
         name = f"#{color:06x}_0"
         color_str = f"#{color:06x}"
 
-        ordered_nodes = self._get_ordered_nodes_for_color(image_graph)
-        if not ordered_nodes:
-            return
+        shapes = self._generate_shapes_for_color(color, image_graph)
 
-        shapes = self._create_shapes_from_ordered_nodes(color, ordered_nodes, image_graph)
+        if not shapes:
+            return
 
         partition = Partition(shapes, name, color_str)
         partition_uuid = str(uuid.uuid4())
         self._partitions[partition_uuid] = partition
-
-    def _get_starting_node(self, G):
-        node = _get_node_with_one_neighbor(G)
-        if node is None:
-            node = _get_top_left_node(G)
-        assert node is not None
-        return node
 
     def _create_color_graph(self, width, height) -> dict:
         # Creates a dictionary of key=color, value=dict of nodes and its edges
