@@ -144,6 +144,29 @@ class ImageParser:
                 color = argb & 0xFFFFFF
                 self._image[x][y] = color
 
+    def _get_component_order_from_candidates(
+        self, start_node: tuple[int, int], candidate_nodes: set[tuple[int, int]], image_graph: dict
+    ) -> list[tuple[int, int]]:
+        """
+        Finds all nodes in a connected component from a set of candidates and returns them in DFS order.
+        """
+        component_order = []
+        stack = [start_node]
+        visited_in_component = set()
+
+        while stack:
+            node = stack.pop()
+            if node in candidate_nodes and node not in visited_in_component:
+                visited_in_component.add(node)
+                component_order.append(node)
+                # Add unvisited neighbors to the stack.
+                # Sorting neighbors makes the traversal deterministic.
+                neighbors = sorted(image_graph.get(node, []), reverse=True)
+                for neighbor in neighbors:
+                    if neighbor in candidate_nodes and neighbor not in visited_in_component:
+                        stack.append(neighbor)
+        return component_order
+
     def _get_ordered_nodes_for_color(self, image_graph: dict) -> list[tuple[int, int]]:
         """
         Orders all nodes of a color by traversing connected components.
@@ -373,6 +396,34 @@ class ImageParser:
 
         return simplified
 
+    def _find_first_intermediate_node_on_path(
+        self, path_vertices: list[tuple[int, int]], future_nodes: set[tuple[int, int]]
+    ) -> tuple[int, int] | None:
+        """
+        Checks if a path of vertices passes adjacent to any future nodes.
+
+        Args:
+            path_vertices: A list of (x, y) tuples representing the vertices of a path.
+            future_nodes: A set of (x, y) tuples for nodes that will be visited later.
+
+        Returns:
+            The first future node found adjacent to the path, or None.
+        """
+        # We don't check the very first vertex, as it's part of the start node.
+        for vx, vy in path_vertices[1:]:
+            # A vertex (vx, vy) is at the corner of four pixels.
+            # The pixels are at (vx-1, vy-1), (vx, vy-1), (vx-1, vy), (vx, vy).
+            adjacent_pixels = [
+                (vx - 1, vy - 1),
+                (vx, vy - 1),
+                (vx - 1, vy),
+                (vx, vy),
+            ]
+            for px, py in adjacent_pixels:
+                if (px, py) in future_nodes:
+                    return (px, py)  # Return the first one found
+        return None
+
     def _create_shapes_from_ordered_nodes(
         self, color: int, ordered_nodes: list[tuple[int, int]], image_graph: dict
     ) -> list[Shape]:
@@ -384,7 +435,8 @@ class ImageParser:
             return []
 
         shapes = []
-        for i in range(len(ordered_nodes) - 1):
+        i = 0
+        while i < len(ordered_nodes) - 1:
             current_node = ordered_nodes[i]
             next_node = ordered_nodes[i + 1]
 
@@ -396,13 +448,47 @@ class ImageParser:
                 path_nodes = self._find_shortest_pixel_path(color, current_node, next_node)
 
                 if path_nodes:
-                    path_nodes = self._remove_redundant_points_from_start_and_end_nodes(path_nodes)
-                    simplified_points = self._simplify_path_to_points(path_nodes)
-                    shapes.append(Path(simplified_points))
+                    # Check for intermediate nodes to shorten the jump
+                    remaining_nodes = set(ordered_nodes[i + 2 :])
+                    if remaining_nodes:
+                        intermediate_node = self._find_first_intermediate_node_on_path(
+                            path_nodes, remaining_nodes
+                        )
+
+                        if intermediate_node:
+                            # A closer, unvisited node was found. Reroute the entire traversal.
+                            nodes_to_check = set(ordered_nodes[i + 1 :])
+                            rerouted_comp = self._get_component_order_from_candidates(
+                                intermediate_node, nodes_to_check, image_graph
+                            )
+
+                            # Remove the old instances of these nodes from the main list.
+                            rerouted_comp_set = set(rerouted_comp)
+                            ordered_nodes = [n for n in ordered_nodes if n not in rerouted_comp_set]
+
+                            # Insert the newly ordered component right after the current node.
+                            current_idx = ordered_nodes.index(current_node)
+                            ordered_nodes[current_idx + 1 : current_idx + 1] = rerouted_comp
+
+                            # The list is reordered. Recalculate the path for the current iteration.
+                            next_node = ordered_nodes[i + 1]
+                            path_nodes = self._find_shortest_pixel_path(
+                                color, current_node, next_node
+                            )
+
+                    if path_nodes:
+                        path_nodes = self._remove_redundant_points_from_start_and_end_nodes(
+                            path_nodes
+                        )
+                        simplified_points = self._simplify_path_to_points(path_nodes)
+                        shapes.append(Path(simplified_points))
+                    else:
+                        logger.info(
+                            f"Could not find a path to connect {current_node} and {next_node}"
+                        )
                 else:
-                    # If no path is found (e.g., islands separated by transparency),
-                    # we currently do not connect them.
                     logger.info(f"Could not find a path to connect {current_node} and {next_node}")
+            i += 1
 
         # Add the last rect
         shapes.append(Rect(ordered_nodes[-1][0], ordered_nodes[-1][1]))
