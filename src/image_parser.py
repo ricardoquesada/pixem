@@ -104,13 +104,16 @@ class ImageParser:
                 color = argb & 0xFFFFFF
                 self._image[x][y] = color
 
-    def _get_vertex_graph_for_color(self, color: int) -> nx.Graph:
+    def _get_vertex_graph_for_color(self, color: int, use_weights: bool) -> nx.Graph:
         """
         Builds and caches a networkx.Graph of all valid path vertices.
 
         The nodes of the graph are the vertices of the pixel grid. An edge
         is created between two vertices if the path segment between them is
         "valid" — meaning it runs alongside at least one non-transparent pixel.
+
+        If use_weights is True, edge weights are determined by the color
+        difference of adjacent pixels. Otherwise, all edges have a weight of 1.
         """
 
         def is_solid(px: int, py: int) -> bool:
@@ -119,6 +122,9 @@ class ImageParser:
             return False
 
         def get_weight(px: int, py: int) -> int:
+            if not use_weights:
+                return 1
+
             if not (0 <= px < w_pixel and 0 <= py < h_pixel):
                 return sys.maxsize
 
@@ -126,22 +132,16 @@ class ImageParser:
             if px_color_val == -1:
                 return sys.maxsize
 
-            # Target color for the path
             color1 = Color(f"#{color:06x}")
-
-            # Color of the pixel we are evaluating
             color2 = Color(f"#{px_color_val:06x}")
-
-            # Calculate the perceptual color difference using CIEDE2000
             delta_e = color1.delta_e(color2, method="2000")
-
-            # The weight should be low for similar colors (low delta_e) and high for different ones.
-            # Using a quadratic function penalizes paths over dissimilar colors more heavily.
             w = 1 + 0.1 * (delta_e**2)
             return int(w)
 
-        if color in self._vertex_graph:
-            return self._vertex_graph[color]
+        # Use a tuple key to cache both weighted and unweighted graphs
+        graph_key = (color, use_weights)
+        if graph_key in self._vertex_graph:
+            return self._vertex_graph[graph_key]
 
         G = nx.Graph()
         w_pixel, h_pixel = len(self._image), len(self._image[0])
@@ -149,58 +149,49 @@ class ImageParser:
 
         for y in range(h_vertex):
             for x in range(w_vertex):
-                # Check for horizontal connection to the right
                 if x + 1 < w_vertex:
-                    # Path from (x,y) to (x+1,y) is between pixels (x, y-1) and (x, y)
                     if is_solid(x, y - 1) or is_solid(x, y):
                         weight = min(get_weight(x, y - 1), get_weight(x, y))
                         G.add_edge((x, y), (x + 1, y), weight=weight)
 
-                # Check for vertical connection downwards
                 if y + 1 < h_vertex:
-                    # Path from (x,y) to (x,y+1) is between pixels (x-1, y) and (x, y)
                     if is_solid(x - 1, y) or is_solid(x, y):
                         weight = min(get_weight(x - 1, y), get_weight(x, y))
                         G.add_edge((x, y), (x, y + 1), weight=weight)
 
-        self._vertex_graph[color] = G
-        return self._vertex_graph[color]
+        self._vertex_graph[graph_key] = G
+        return self._vertex_graph[graph_key]
 
     def _find_shortest_pixel_path(
-        self, color: int, start_node: tuple[int, int], end_node: tuple[int, int]
+        self, color: int, start_node: tuple[int, int], end_node: tuple[int, int], use_weights: bool
     ) -> list[tuple[int, int]] | None:
         """
-        Finds the shortest rectilinear path between two vertices on the pixel grid.
+        Finds the shortest path between two vertices on the pixel grid.
 
-        This method leverages a pre-built graph of all valid path segments for a
-        given color, where edge weights are determined by the color difference
-        of adjacent pixels. It uses Dijkstra's algorithm (via networkx) to find
-        the path with the minimum total weight.
-
-        This is used to create jump stitches between disconnected areas of the
-        same color.
+        If use_weights is True, it finds the path with the minimum total weight
+        (using Dijkstra), considering color differences. If False, it finds the
+        path with the fewest segments (using BFS).
 
         Args:
-            color: The target color for the path. The path will try to follow
-                   pixels of this color.
+            color: The target color for the path.
             start_node: The starting vertex (x, y).
             end_node: The ending vertex (x, y).
+            use_weights: Whether to use color-based weights in pathfinding.
 
         Returns:
-            A list of vertices representing the shortest path, or None if no
-            path exists.
+            A list of vertices representing the shortest path, or None.
         """
-        G = self._get_vertex_graph_for_color(color)
+        G = self._get_vertex_graph_for_color(color, use_weights)
         try:
-            # Check if nodes exist in graph to prevent NetworkXError
             if start_node not in G or end_node not in G:
                 logger.warning(
                     f"Start or end node not in vertex graph. Start: {start_node}, End: {end_node}"
                 )
                 return None
-            return nx.shortest_path(G, source=start_node, target=end_node, weight="weight")
+            # When weight is None, it uses BFS (fewest segments). When it's 'weight', it uses Dijkstra.
+            weight_arg = "weight" if use_weights else None
+            return nx.shortest_path(G, source=start_node, target=end_node, weight=weight_arg)
         except nx.NetworkXNoPath:
-            # Probably an island
             logger.info(f"No path found between {start_node} and {end_node}")
             return None
 
@@ -294,9 +285,10 @@ class ImageParser:
         3. Traverse the current block using a greedy nearest-neighbor approach,
            creating Paths for any non-adjacent moves within the block.
         4. Once the block is complete, find the last stitched pixel.
-        5. Evaluate the shortest path (by segment count) from this last pixel to
-           the closest pixel of each remaining block.
-        6. Choose the block with the shortest path, create a Path shape for the jump.
+        5. For each remaining block, find the color-weighted shortest path from
+           the last stitched pixel to the block's closest pixel.
+        6. Choose the block whose path has the fewest *segments*, create a Path
+           shape for that jump.
         7. Make that block the current one and repeat from step 3 until all blocks
            are processed.
         """
@@ -350,7 +342,7 @@ class ImageParser:
                     closest_remaining = _find_closest_node(pixel_to_stitch, unstitched_in_block)
 
                     path_nodes = self._find_shortest_pixel_path(
-                        color, pixel_to_stitch, closest_remaining
+                        color, pixel_to_stitch, closest_remaining, use_weights=True
                     )
                     if path_nodes:
                         path_nodes = self._remove_redundant_points_from_start_and_end_nodes(
@@ -376,7 +368,7 @@ class ImageParser:
             for i, next_block in enumerate(blocks):
                 candidate_pixel = _find_closest_node(last_stitched_pixel, next_block)
                 path_nodes = self._find_shortest_pixel_path(
-                    color, last_stitched_pixel, candidate_pixel
+                    color, last_stitched_pixel, candidate_pixel, use_weights=True
                 )
 
                 if path_nodes and len(path_nodes) < best_path_len:
