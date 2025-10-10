@@ -291,7 +291,8 @@ class ImageParser:
         The algorithm is as follows:
         1. Identify all disconnected blocks of pixels for the given color.
         2. Start with the block containing the top-left-most pixel.
-        3. Traverse the current block, generating Rect shapes for its pixels.
+        3. Traverse the current block using a greedy nearest-neighbor approach,
+           creating Paths for any non-adjacent moves within the block.
         4. Once the block is complete, find the last stitched pixel.
         5. Evaluate the shortest path (by segment count) from this last pixel to
            the closest pixel of each remaining block.
@@ -302,53 +303,68 @@ class ImageParser:
         if not image_graph:
             return []
 
-        # Create a NetworkX graph to find connected components
+        # 1. Identify all disconnected blocks
         G = nx.Graph(image_graph)
         blocks = list(nx.connected_components(G))
-
         if not blocks:
             return []
 
         shapes = []
 
-        # Find the top-leftmost pixel to determine the starting block
+        # 2. Determine starting block
         top_left_pixel = min(G.nodes, key=lambda p: p[0] ** 2 + p[1] ** 2)
-
-        # Find which block contains the top-left pixel
-        current_block_index = -1
+        start_block_idx = -1
         for i, block in enumerate(blocks):
             if top_left_pixel in block:
-                current_block_index = i
+                start_block_idx = i
                 break
 
-        current_block = blocks.pop(current_block_index)
+        current_block_set = blocks.pop(start_block_idx)
         entry_pixel = top_left_pixel
         last_stitched_pixel = None
 
-        while current_block:
-            # --- 1. Traverse and stitch the current block ---
-            # Use DFS to traverse the component from the entry_pixel
-            dfs_stack = [entry_pixel]
-            visited_in_block = {entry_pixel}
+        # 3. Loop until all blocks are processed
+        while current_block_set:
+            # --- TRAVERSE WITHIN BLOCK ---
+            unstitched_in_block = set(current_block_set)
+            pixel_to_stitch = entry_pixel
 
-            while dfs_stack:
-                pixel_to_stitch = dfs_stack.pop()
+            while unstitched_in_block:
                 shapes.append(Rect(pixel_to_stitch[0], pixel_to_stitch[1]))
+                unstitched_in_block.remove(pixel_to_stitch)
                 last_stitched_pixel = pixel_to_stitch
 
-                # Add neighbors from the same block to the stack
+                # Find next pixel: prefer direct neighbors
+                next_pixel_in_block = None
                 neighbors = sorted(image_graph.get(pixel_to_stitch, []), reverse=True)
                 for neighbor in neighbors:
-                    if neighbor in current_block and neighbor not in visited_in_block:
-                        visited_in_block.add(neighbor)
-                        dfs_stack.append(neighbor)
+                    if neighbor in unstitched_in_block:
+                        next_pixel_in_block = neighbor
+                        break
 
-            # The block is now fully stitched. Remove any remaining pixels from it.
-            # This handles cases where the block was not fully connected from the entry point,
-            # though this shouldn't happen with `nx.connected_components`.
-            current_block -= visited_in_block
+                if next_pixel_in_block:
+                    # Simple move to neighbor, no path needed
+                    pixel_to_stitch = next_pixel_in_block
+                elif unstitched_in_block:
+                    # No unstitched neighbors, must jump to another part of the same block
+                    closest_remaining = _find_closest_node(pixel_to_stitch, unstitched_in_block)
 
-            # --- 2. Find the best next block to jump to ---
+                    path_nodes = self._find_shortest_pixel_path(
+                        color, pixel_to_stitch, closest_remaining
+                    )
+                    if path_nodes:
+                        path_nodes = self._remove_redundant_points_from_start_and_end_nodes(
+                            path_nodes
+                        )
+                        simplified_points = self._simplify_path_to_points(path_nodes)
+                        shapes.append(Path(simplified_points))
+
+                    pixel_to_stitch = closest_remaining
+                else:
+                    # Block is finished
+                    break
+
+            # --- JUMP BETWEEN BLOCKS ---
             if not blocks:
                 break
 
@@ -358,10 +374,7 @@ class ImageParser:
             best_block_index = -1
 
             for i, next_block in enumerate(blocks):
-                # Find the closest pixel in this candidate block to our last stitched pixel
                 candidate_pixel = _find_closest_node(last_stitched_pixel, next_block)
-
-                # Find the path to that pixel
                 path_nodes = self._find_shortest_pixel_path(
                     color, last_stitched_pixel, candidate_pixel
                 )
@@ -372,17 +385,14 @@ class ImageParser:
                     best_target_pixel = candidate_pixel
                     best_block_index = i
 
-            # --- 3. Perform the jump ---
             if best_path_nodes:
                 path_nodes = self._remove_redundant_points_from_start_and_end_nodes(best_path_nodes)
                 simplified_points = self._simplify_path_to_points(path_nodes)
                 shapes.append(Path(simplified_points))
 
-                # Set up for the next iteration
-                current_block = blocks.pop(best_block_index)
+                current_block_set = blocks.pop(best_block_index)
                 entry_pixel = best_target_pixel
             else:
-                # Should not happen in a single image, but as a fallback, stop processing.
                 logger.error("Could not find a path between any remaining blocks.")
                 break
 
