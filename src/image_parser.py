@@ -195,25 +195,15 @@ class ImageParser:
                 start_node = _find_closest_node(last_node, unvisited_nodes)
 
             # Perform DFS for the current component starting from start_node.
-            stack = [start_node]
-            component_nodes_in_dfs_order = []
+            component_nodes = self._get_component_order_from_candidates(
+                start_node, unvisited_nodes, image_graph
+            )
 
-            while stack:
-                node_to_visit = stack.pop()
-                if node_to_visit in unvisited_nodes:
-                    unvisited_nodes.remove(node_to_visit)
-                    component_nodes_in_dfs_order.append(node_to_visit)
+            ordered_nodes.extend(component_nodes)
+            unvisited_nodes.difference_update(component_nodes)
 
-                    # Add unvisited neighbors to the stack.
-                    # Sorting neighbors makes the traversal deterministic.
-                    neighbors = sorted(image_graph.get(node_to_visit, []), reverse=True)
-                    for neighbor in neighbors:
-                        if neighbor in unvisited_nodes:
-                            stack.append(neighbor)
-
-            ordered_nodes.extend(component_nodes_in_dfs_order)
-            if component_nodes_in_dfs_order:
-                last_node = component_nodes_in_dfs_order[-1]
+            if component_nodes:
+                last_node = component_nodes[-1]
 
         return ordered_nodes
 
