@@ -81,6 +81,14 @@ class ImageParser:
         for color in g:
             self._create_single_partition_for_color(g[color], color)
 
+        self._sort_partitions()
+
+    def _sort_partitions(self):
+        for partition in self._partitions:
+            color = partition.color
+            Color(color).convert("oklab")
+        # sorted_keys = sorted(self._partitions.keys(), key=lambda c: Color(c).convert("oklab").l)
+
     def _put_pixels_in_matrix(self, img: QImage, width: int, height: int):
         """
         Populates an internal 2D list with pixel color data from the QImage.
