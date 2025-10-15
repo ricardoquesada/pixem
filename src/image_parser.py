@@ -81,13 +81,16 @@ class ImageParser:
         for color in g:
             self._create_single_partition_for_color(g[color], color)
 
-        self._sort_partitions()
+        self._sort_partitions_by_lightness()
 
-    def _sort_partitions(self):
-        for partition in self._partitions:
-            color = partition.color
-            Color(color).convert("oklab")
-        # sorted_keys = sorted(self._partitions.keys(), key=lambda c: Color(c).convert("oklab").l)
+    def _sort_partitions_by_lightness(self):
+        sorted_keys = sorted(
+            self._partitions.keys(), key=lambda p: Color(self._partitions[p].color).get("oklab.l")
+        )
+        new_dict = {}
+        for key in sorted_keys:
+            new_dict[key] = self._partitions[key]
+        self._partitions = new_dict
 
     def _put_pixels_in_matrix(self, img: QImage, width: int, height: int):
         """
