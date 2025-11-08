@@ -78,7 +78,7 @@ class ImageParser:
         # Group the ones that are touching/same-color together
         g = self._create_color_graph(width, height)
 
-        # Sort colors from darker to lighter.
+        # Sort colors from darker to lighter
         sorted_colors = sorted(g.keys(), key=lambda c: Color(f"#{c:06x}").get("oklab.l"))
 
         for color in sorted_colors:
@@ -292,9 +292,10 @@ class ImageParser:
            the last stitched pixel to the block's closest pixel.
         6. Choose the block whose path has the fewest *segments*, create a Path
            shape for that jump.
-        7. Make that block the current one and repeat from step 3 until all blocks
+        7. If no reachable blocks are found (islands), "teleport" to the
+           geometrically closest island without creating a path.
+        8. Make that block the current one and repeat from step 3 until all blocks
            are processed.
-        8. If any blocks remain (unreachable islands), add them at the end.
         """
         if not image_graph:
             return []
@@ -382,6 +383,7 @@ class ImageParser:
                     best_block_index = i
 
             if best_path_nodes:
+                # Case 1: Found a reachable block
                 path_nodes = self._remove_redundant_points_from_start_and_end_nodes(best_path_nodes)
                 simplified_points = self._simplify_path_to_points(path_nodes)
                 shapes.append(Path(simplified_points))
@@ -389,21 +391,26 @@ class ImageParser:
                 current_block_set = blocks.pop(best_block_index)
                 entry_pixel = best_target_pixel
             else:
-                # --- HANDLE UNREACHABLE ISLANDS ---
+                # Case 2: No reachable blocks, must jump to an island
                 logger.info(
-                    f"Could not find path to any of the {len(blocks)} remaining blocks. Treating as islands."
+                    f"No reachable blocks from {last_stitched_pixel}. Finding closest island."
                 )
-                all_island_nodes = []
-                for island_block in blocks:
-                    all_island_nodes.extend(list(island_block))
+                all_remaining_nodes = {node for block in blocks for node in block}
+                closest_island_pixel = _find_closest_node(last_stitched_pixel, all_remaining_nodes)
 
-                # Sort for deterministic order and add as Rects
-                all_island_nodes.sort()
-                for node in all_island_nodes:
-                    shapes.append(Rect(node[0], node[1]))
+                island_block_index = -1
+                for i, block in enumerate(blocks):
+                    if closest_island_pixel in block:
+                        island_block_index = i
+                        break
 
-                # All nodes processed, exit loop
-                break
+                if island_block_index != -1:
+                    # No path shape is generated for this "teleport"
+                    current_block_set = blocks.pop(island_block_index)
+                    entry_pixel = closest_island_pixel
+                else:
+                    logger.error("Could not find block for closest island pixel. Aborting.")
+                    break
 
         return shapes
 
