@@ -78,19 +78,11 @@ class ImageParser:
         # Group the ones that are touching/same-color together
         g = self._create_color_graph(width, height)
 
-        for color in g:
+        # Sort colors from darker to lighter.
+        sorted_colors = sorted(g.keys(), key=lambda c: Color(f"#{c:06x}").get("oklab.l"))
+
+        for color in sorted_colors:
             self._create_single_partition_for_color(g[color], color)
-
-        self._sort_partitions_by_lightness()
-
-    def _sort_partitions_by_lightness(self):
-        sorted_keys = sorted(
-            self._partitions.keys(), key=lambda p: Color(self._partitions[p].color).get("oklab.l")
-        )
-        new_dict = {}
-        for key in sorted_keys:
-            new_dict[key] = self._partitions[key]
-        self._partitions = new_dict
 
     def _put_pixels_in_matrix(self, img: QImage, width: int, height: int):
         """
@@ -302,6 +294,7 @@ class ImageParser:
            shape for that jump.
         7. Make that block the current one and repeat from step 3 until all blocks
            are processed.
+        8. If any blocks remain (unreachable islands), add them at the end.
         """
         if not image_graph:
             return []
@@ -396,7 +389,20 @@ class ImageParser:
                 current_block_set = blocks.pop(best_block_index)
                 entry_pixel = best_target_pixel
             else:
-                logger.error("Could not find a path between any remaining blocks.")
+                # --- HANDLE UNREACHABLE ISLANDS ---
+                logger.info(
+                    f"Could not find path to any of the {len(blocks)} remaining blocks. Treating as islands."
+                )
+                all_island_nodes = []
+                for island_block in blocks:
+                    all_island_nodes.extend(list(island_block))
+
+                # Sort for deterministic order and add as Rects
+                all_island_nodes.sort()
+                for node in all_island_nodes:
+                    shapes.append(Rect(node[0], node[1]))
+
+                # All nodes processed, exit loop
                 break
 
         return shapes
