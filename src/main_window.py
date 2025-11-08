@@ -1173,6 +1173,7 @@ class MainWindow(QMainWindow):
         if file_name:
             layer = ImageLayer(file_name)
             layer.name = f"ImageLayer {len(self._state.layers) + 1}"
+            layer.create_partitions()
             self._add_layer(layer)
 
     @Slot()
