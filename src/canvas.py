@@ -70,16 +70,20 @@ class Canvas(QWidget):
         preferences = get_global_preferences()
         if self._state is None:
             self._cached_hoop_size = preferences.get_hoop_size()
+            self._cached_hoop_color = QColor(preferences.get_hoop_color_name())
+            self._cached_hoop_visible = preferences.get_hoop_visible()
+            self._cached_partition_background_color = QColor(
+                preferences.get_partition_background_color_name()
+            )
+            self._cached_canvas_background_color = QColor(
+                preferences.get_canvas_background_color_name()
+            )
         else:
             self._cached_hoop_size = self._state.hoop_size
-        self._cached_hoop_color = QColor(preferences.get_hoop_color_name())
-        self._cached_hoop_visible = preferences.get_hoop_visible()
-        self._cached_partition_background_color = QColor(
-            preferences.get_partition_background_color_name()
-        )
-        self._cached_canvas_background_color = QColor(
-            preferences.get_canvas_background_color_name()
-        )
+            self._cached_hoop_color = QColor(self._state.hoop_color)
+            self._cached_hoop_visible = self._state.hoop_visible
+            self._cached_partition_background_color = QColor(self._state.partition_background_color)
+            self._cached_canvas_background_color = QColor(self._state.canvas_background_color)
 
         # FIXME: must be set according to layer size
         self.setFixedSize(QSize(152 * 2, 254 * 2))
@@ -588,11 +592,21 @@ class Canvas(QWidget):
     #
     def on_preferences_updated(self):
         """Updates the preference cache."""
-        self._cached_hoop_visible = get_global_preferences().get_hoop_visible()
         if self._state:
             self._cached_hoop_size = self._state.hoop_size
+            self._cached_hoop_visible = self._state.hoop_visible
+            self._cached_hoop_color = QColor(self._state.hoop_color)
+            self._cached_canvas_background_color = QColor(self._state.canvas_background_color)
+            self._cached_partition_background_color = QColor(self._state.partition_background_color)
         else:
-            self._cached_hoop_size = get_global_preferences().get_hoop_size()
+            prefs = get_global_preferences()
+            self._cached_hoop_visible = prefs.get_hoop_visible()
+            self._cached_hoop_size = prefs.get_hoop_size()
+            self._cached_hoop_color = QColor(prefs.get_hoop_color_name())
+            self._cached_canvas_background_color = QColor(prefs.get_canvas_background_color_name())
+            self._cached_partition_background_color = QColor(
+                prefs.get_partition_background_color_name()
+            )
 
     def recalculate_fixed_size(self):
         """Recalculates the fixed size of the canvas."""

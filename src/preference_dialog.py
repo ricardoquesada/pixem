@@ -37,8 +37,15 @@ class ColorType(IntEnum):
 
 
 class PreferenceDialog(QDialog):
-    def __init__(self, hoop_size: tuple[float, float]):
+    def __init__(self, settings=None):
         super().__init__()
+
+        if settings is None:
+            self._settings = get_global_preferences()
+            self._is_global = True
+        else:
+            self._settings = settings
+            self._is_global = False
 
         self._colors = {
             ColorType.PARTITION_FOREGROUND: {},
@@ -47,16 +54,16 @@ class PreferenceDialog(QDialog):
             ColorType.HOOP_FOREGROUND: {},
         }
         self._colors[ColorType.PARTITION_FOREGROUND]["color"] = QColor(
-            get_global_preferences().get_partition_foreground_color_name()
+            self._settings.get_partition_foreground_color_name()
         )
         self._colors[ColorType.PARTITION_BACKGROUND]["color"] = QColor(
-            get_global_preferences().get_partition_background_color_name()
+            self._settings.get_partition_background_color_name()
         )
         self._colors[ColorType.CANVAS_BACKGROUND]["color"] = QColor(
-            get_global_preferences().get_canvas_background_color_name()
+            self._settings.get_canvas_background_color_name()
         )
         self._colors[ColorType.HOOP_FOREGROUND]["color"] = QColor(
-            get_global_preferences().get_hoop_color_name()
+            self._settings.get_hoop_color_name()
         )
 
         self.setWindowTitle(self.tr("Preference Dialog"))
@@ -175,6 +182,8 @@ class PreferenceDialog(QDialog):
 
         # Open the latest file on startup
         self._open_file_startup_checkbox = QCheckBox(self.tr("Open the latest file on startup"))
+        if not self._is_global:
+            self._open_file_startup_checkbox.setVisible(False)
 
         # Buttons
         self._button_box = QDialogButtonBox(
@@ -189,15 +198,17 @@ class PreferenceDialog(QDialog):
         main_layout.addWidget(hoop_group_box)
         main_layout.addWidget(canvas_color_group)
         main_layout.addWidget(partition_color_group)
-        main_layout.addWidget(self._open_file_startup_checkbox)
+        if self._is_global:
+            main_layout.addWidget(self._open_file_startup_checkbox)
         main_layout.addWidget(self._button_box)
 
         self.setLayout(main_layout)
 
         # Populate from global preferences
-        hoop_visible = get_global_preferences().get_hoop_visible()
+        hoop_visible = self._settings.get_hoop_visible()
 
         # Pre-defined, convert it to integers so it is easier to match them
+        hoop_size = self._settings.get_hoop_size()
         hoop_size_i = (int(hoop_size[0]), int(hoop_size[1]))
         self._visibility_checkbox.setChecked(hoop_visible)
 
@@ -223,9 +234,8 @@ class PreferenceDialog(QDialog):
 
         radio_button.setChecked(True)
 
-        self._open_file_startup_checkbox.setChecked(
-            get_global_preferences().get_open_file_on_startup()
-        )
+        if self._is_global:
+            self._open_file_startup_checkbox.setChecked(self._settings.get_open_file_on_startup())
 
     def _apply(self) -> None:
         hoop_size = (0, 0)
@@ -249,20 +259,20 @@ class PreferenceDialog(QDialog):
                 self._custom_size_y_spinbox.value(),
             )
         hoop_visible = self._visibility_checkbox.isChecked()
-        prefs = get_global_preferences()
-        prefs.set_hoop_size(hoop_size)
-        prefs.set_hoop_visible(hoop_visible)
-        prefs.set_open_file_on_startup(self._open_file_startup_checkbox.isChecked())
-        prefs.set_partition_foreground_color_name(
+        self._settings.set_hoop_size(hoop_size)
+        self._settings.set_hoop_visible(hoop_visible)
+        if self._is_global:
+            self._settings.set_open_file_on_startup(self._open_file_startup_checkbox.isChecked())
+        self._settings.set_partition_foreground_color_name(
             self._colors[ColorType.PARTITION_FOREGROUND]["color"].name(QColor.HexArgb)
         )
-        prefs.set_partition_background_color_name(
+        self._settings.set_partition_background_color_name(
             self._colors[ColorType.PARTITION_BACKGROUND]["color"].name(QColor.HexArgb)
         )
-        prefs.set_canvas_background_color_name(
+        self._settings.set_canvas_background_color_name(
             self._colors[ColorType.CANVAS_BACKGROUND]["color"].name(QColor.HexArgb)
         )
-        prefs.set_hoop_color_name(
+        self._settings.set_hoop_color_name(
             self._colors[ColorType.HOOP_FOREGROUND]["color"].name(QColor.HexArgb)
         )
 

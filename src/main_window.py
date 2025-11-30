@@ -253,6 +253,12 @@ class MainWindow(QMainWindow):
         self._preferences_action.triggered.connect(self._on_preferences)
         edit_menu.addAction(self._preferences_action)
 
+        self._document_properties_action = QAction(
+            QIcon.fromTheme("document-properties"), self.tr("&Document Properties"), self
+        )
+        self._document_properties_action.triggered.connect(self._on_document_properties)
+        edit_menu.addAction(self._document_properties_action)
+
         self._view_menu = QMenu("&View", self)
         menu_bar.addMenu(self._view_menu)
         self._zoom_in_action = QAction(QIcon.fromTheme("zoom-in"), self.tr("Zoom In"), self)
@@ -1156,13 +1162,22 @@ class MainWindow(QMainWindow):
     @Slot()
     def _on_preferences(self) -> None:
         """Slot to open the preferences dialog."""
-        hoop_size = get_global_preferences().get_hoop_size()
-        if self._state is not None:
-            hoop_size = self._state.hoop_size
-        dialog = PreferenceDialog(hoop_size)
+        dialog = PreferenceDialog(get_global_preferences())
         if dialog.exec() == QDialog.Accepted:
             if self._state:
-                self._state.hoop_size = get_global_preferences().get_hoop_size()
+                # If global preferences changed, we might need to update the canvas if it uses global prefs
+                # But Canvas listens to signals, so it should be fine.
+                # However, if we want to enforce state hoop size from global (legacy behavior?), we might need logic here.
+                # But now State has its own hoop size.
+                pass
+
+    @Slot()
+    def _on_document_properties(self) -> None:
+        """Slot to open the document properties dialog."""
+        if self._state is None:
+            return
+        dialog = PreferenceDialog(self._state)
+        dialog.exec()
 
     @Slot()
     def _on_layer_add_image(self) -> None:
@@ -1497,15 +1512,30 @@ class MainWindow(QMainWindow):
             StatePropertyFlags.HOOP_SIZE,
             StatePropertyFlags.ZOOM_FACTOR,
             StatePropertyFlags.SELECTED_LAYER_UUID,
+            StatePropertyFlags.HOOP_VISIBLE,
+            StatePropertyFlags.HOOP_COLOR,
+            StatePropertyFlags.CANVAS_BACKGROUND_COLOR,
+            StatePropertyFlags.PARTITION_FOREGROUND_COLOR,
+            StatePropertyFlags.PARTITION_BACKGROUND_COLOR,
         ]:
             return
-        if flag == StatePropertyFlags.HOOP_SIZE:
+
+        if flag in [
+            StatePropertyFlags.HOOP_SIZE,
+            StatePropertyFlags.HOOP_VISIBLE,
+            StatePropertyFlags.HOOP_COLOR,
+            StatePropertyFlags.CANVAS_BACKGROUND_COLOR,
+            StatePropertyFlags.PARTITION_FOREGROUND_COLOR,
+            StatePropertyFlags.PARTITION_BACKGROUND_COLOR,
+        ]:
             self._canvas.on_preferences_updated()
 
         if flag == StatePropertyFlags.HOOP_SIZE or flag == StatePropertyFlags.ZOOM_FACTOR:
             self._canvas.recalculate_fixed_size()
             self._canvas.update()
             self.update()
+        else:
+            self._canvas.update()
 
     @Slot()
     def _on_state_layer_added(self, layer: Layer):

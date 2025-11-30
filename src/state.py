@@ -29,6 +29,13 @@ from undo_commands import (
     UpdateStateZoomFactorCommand,
     UpdateTextLayerCommand,
 )
+from undo_commands_properties import (
+    UpdateStateCanvasBackgroundColorCommand,
+    UpdateStateHoopColorCommand,
+    UpdateStateHoopVisibleCommand,
+    UpdateStatePartitionBackgroundColorCommand,
+    UpdateStatePartitionForegroundColorCommand,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -51,10 +58,16 @@ class State(QObject):
     def __init__(self):
         super().__init__()
         self._project_filename = None
+        prefs = get_global_preferences()
         self._properties = StateProperties(
-            hoop_size=get_global_preferences().get_hoop_size(),
+            hoop_size=prefs.get_hoop_size(),
             zoom_factor=1.0,
             selected_layer_uuid=None,
+            hoop_visible=prefs.get_hoop_visible(),
+            hoop_color=prefs.get_hoop_color_name(),
+            canvas_background_color=prefs.get_canvas_background_color_name(),
+            partition_foreground_color=prefs.get_partition_foreground_color_name(),
+            partition_background_color=prefs.get_partition_background_color_name(),
             export_filename=None,
         )
         self._layers: dict[str, Layer] = {}
@@ -71,7 +84,13 @@ class State(QObject):
             if key != layer.uuid:
                 logger.error(f"Dictionary key {key} does not match layer UUID {layer.uuid}")
         if "properties" in d:
-            state._properties = StateProperties(**d["properties"])
+            # Handle backward compatibility:
+            # Old files might miss some properties.
+            # We start with the defaults (initialized in __init__) and update them with the loaded values.
+            props_data = asdict(state._properties)
+            props_data.update(d["properties"])
+
+            state._properties = StateProperties(**props_data)
             # Covert to tuple, not list since it is being compared
             state._properties.hoop_size = tuple(state._properties.hoop_size)
         return state
@@ -284,6 +303,51 @@ class State(QObject):
         if self._properties.hoop_size != hoop_size:
             self._undo_stack.push(UpdateStateHoopSizeCommand(self, hoop_size, None))
 
+    @property
+    def hoop_visible(self) -> bool:
+        return self._properties.hoop_visible
+
+    @hoop_visible.setter
+    def hoop_visible(self, visible: bool) -> None:
+        if self._properties.hoop_visible != visible:
+            self._undo_stack.push(UpdateStateHoopVisibleCommand(self, visible, None))
+
+    @property
+    def hoop_color(self) -> str:
+        return self._properties.hoop_color
+
+    @hoop_color.setter
+    def hoop_color(self, color: str) -> None:
+        if self._properties.hoop_color != color:
+            self._undo_stack.push(UpdateStateHoopColorCommand(self, color, None))
+
+    @property
+    def canvas_background_color(self) -> str:
+        return self._properties.canvas_background_color
+
+    @canvas_background_color.setter
+    def canvas_background_color(self, color: str) -> None:
+        if self._properties.canvas_background_color != color:
+            self._undo_stack.push(UpdateStateCanvasBackgroundColorCommand(self, color, None))
+
+    @property
+    def partition_foreground_color(self) -> str:
+        return self._properties.partition_foreground_color
+
+    @partition_foreground_color.setter
+    def partition_foreground_color(self, color: str) -> None:
+        if self._properties.partition_foreground_color != color:
+            self._undo_stack.push(UpdateStatePartitionForegroundColorCommand(self, color, None))
+
+    @property
+    def partition_background_color(self) -> str:
+        return self._properties.partition_background_color
+
+    @partition_background_color.setter
+    def partition_background_color(self, color: str) -> None:
+        if self._properties.partition_background_color != color:
+            self._undo_stack.push(UpdateStatePartitionBackgroundColorCommand(self, color, None))
+
     #
     # Private methods, mostly to be called by Undo Commands
     #
@@ -331,9 +395,74 @@ class State(QObject):
         self._properties.hoop_size = hoop_size
         self.state_property_changed.emit(StatePropertyFlags.HOOP_SIZE, self.properties)
 
+    def _set_hoop_visible(self, visible: bool) -> None:
+        self._properties.hoop_visible = visible
+        self.state_property_changed.emit(StatePropertyFlags.HOOP_VISIBLE, self.properties)
+
+    def _set_hoop_color(self, color: str) -> None:
+        self._properties.hoop_color = color
+        self.state_property_changed.emit(StatePropertyFlags.HOOP_COLOR, self.properties)
+
+    def _set_canvas_background_color(self, color: str) -> None:
+        self._properties.canvas_background_color = color
+        self.state_property_changed.emit(
+            StatePropertyFlags.CANVAS_BACKGROUND_COLOR, self.properties
+        )
+
+    def _set_partition_foreground_color(self, color: str) -> None:
+        self._properties.partition_foreground_color = color
+        self.state_property_changed.emit(
+            StatePropertyFlags.PARTITION_FOREGROUND_COLOR, self.properties
+        )
+
+    def _set_partition_background_color(self, color: str) -> None:
+        self._properties.partition_background_color = color
+        self.state_property_changed.emit(
+            StatePropertyFlags.PARTITION_BACKGROUND_COLOR, self.properties
+        )
+
     def _set_zoom_factor(self, zoom_factor: float) -> None:
         self._properties.zoom_factor = zoom_factor
         self.state_property_changed.emit(StatePropertyFlags.ZOOM_FACTOR, self.properties)
+
+    #
+    # Compatibility methods for PreferenceDialog
+    #
+    def get_hoop_size(self) -> tuple[float, float]:
+        return self.hoop_size
+
+    def set_hoop_size(self, size: tuple[float, float]) -> None:
+        self.hoop_size = size
+
+    def get_hoop_visible(self) -> bool:
+        return self.hoop_visible
+
+    def set_hoop_visible(self, visible: bool) -> None:
+        self.hoop_visible = visible
+
+    def get_hoop_color_name(self) -> str:
+        return self.hoop_color
+
+    def set_hoop_color_name(self, color: str) -> None:
+        self.hoop_color = color
+
+    def get_canvas_background_color_name(self) -> str:
+        return self.canvas_background_color
+
+    def set_canvas_background_color_name(self, color: str) -> None:
+        self.canvas_background_color = color
+
+    def get_partition_foreground_color_name(self) -> str:
+        return self.partition_foreground_color
+
+    def set_partition_foreground_color_name(self, color: str) -> None:
+        self.partition_foreground_color = color
+
+    def get_partition_background_color_name(self) -> str:
+        return self.partition_background_color
+
+    def set_partition_background_color_name(self, color: str) -> None:
+        self.partition_background_color = color
 
     def _update_text_layer(self, new_layer: Layer):
         if new_layer.uuid not in self._layers:
