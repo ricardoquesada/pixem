@@ -1393,7 +1393,7 @@ class MainWindow(QMainWindow):
         # Furthest colors first (bottom), closest colors last (top)
         sorted_items = sorted(
             layer.partitions.items(),
-            key=lambda item: Color(f"#{item[1].color:06x}").delta_e(bg, method="2000"),
+            key=lambda item: Color(item[1].color).delta_e(bg, method="2000"),
             reverse=True,
         )
 
