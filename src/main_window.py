@@ -1162,7 +1162,7 @@ class MainWindow(QMainWindow):
     @Slot()
     def _on_preferences(self) -> None:
         """Slot to open the preferences dialog."""
-        dialog = PreferenceDialog(get_global_preferences())
+        dialog = PreferenceDialog()
         if dialog.exec() == QDialog.Accepted:
             if self._state:
                 # If global preferences changed, we might need to update the canvas if it uses global prefs

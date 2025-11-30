@@ -66,7 +66,10 @@ class PreferenceDialog(QDialog):
             self._settings.get_hoop_color_name()
         )
 
-        self.setWindowTitle(self.tr("Preference Dialog"))
+        if self._is_global:
+            self.setWindowTitle(self.tr("Preferences"))
+        else:
+            self.setWindowTitle(self.tr("Document Properties"))
 
         # Hoop Properties
         hoop_group_box = QGroupBox(self.tr("Hoop Properties"))
