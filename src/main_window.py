@@ -16,6 +16,7 @@ import sys
 from collections.abc import Iterable
 from contextlib import contextmanager
 
+from coloraide import Color
 from PySide6.QtCore import QObject, QPointF, QSize, Qt, Slot
 from PySide6.QtGui import (
     QAction,
@@ -59,6 +60,7 @@ from deselectable_list_widget import DeselectableListWidget
 from font_dialog import FontDialog
 from image_utils import create_icon_from_svg
 from layer import EmbroideryParameters, ImageLayer, Layer, LayerAlign, LayerProperties, TextLayer
+from partition import Partition
 from partition_dialog import PartitionDialog
 from preference_dialog import PreferenceDialog
 from preferences import get_global_preferences
@@ -379,6 +381,10 @@ class MainWindow(QMainWindow):
         self._edit_partition_action.triggered.connect(self._on_partition_edit)
         partition_menu.addAction(self._edit_partition_action)
 
+        self._reorder_partitions_action = QAction(self.tr("Reorder Partitions"), self)
+        self._reorder_partitions_action.triggered.connect(self._on_partition_reorder)
+        partition_menu.addAction(self._reorder_partitions_action)
+
         help_menu = QMenu(self.tr("&Help"), self)
         menu_bar.addMenu(help_menu)
 
@@ -677,6 +683,7 @@ class MainWindow(QMainWindow):
         # Not really actions, but should be disabled anyway
         self._layer_list.setEnabled(enabled)
         self._partition_list.setEnabled(enabled)
+        self._reorder_partitions_action.setEnabled(enabled)
         self._property_editor.setEnabled(enabled)
         self._embroidery_params_editor.setEnabled(enabled)
 
@@ -778,7 +785,8 @@ class MainWindow(QMainWindow):
         self._canvas.state = state
         self._state.layer_property_changed.connect(self._on_state_layer_property_changed)
         self._state.state_property_changed.connect(self._on_state_state_property_changed)
-        self._state.layer_added.connect(self._on_state_layer_added)
+        self._state.partition_path_updated.connect(self._on_state_partition_path_updated)
+        self._state.layer_partitions_changed.connect(self._on_state_layer_partitions_changed)
         self._state.layer_removed.connect(self._on_state_layer_removed)
         self._state.layer_pixels_changed.connect(self._on_state_layer_pixels_changed)
 
@@ -1369,6 +1377,30 @@ class MainWindow(QMainWindow):
             partition.path = path
 
     @Slot()
+    def _on_partition_reorder(self):
+        """Slot to reorder partitions based on distance from background color."""
+        if self._state is None or self._state.selected_layer is None:
+            return
+
+        layer = self._state.selected_layer
+        if len(layer.partitions) == 0:
+            return
+
+        bg_color = QColor(self._state.canvas_background_color)
+        bg = Color(bg_color.name())
+
+        # Sort partitions by distance from background color
+        # Furthest colors first (bottom), closest colors last (top)
+        sorted_items = sorted(
+            layer.partitions.items(),
+            key=lambda item: Color(f"#{item[1].color:06x}").delta_e(bg, method="2000"),
+            reverse=True,
+        )
+
+        new_partitions = {k: v for k, v in sorted_items}
+        self._state.update_layer_partitions(layer, new_partitions)
+
+    @Slot()
     def _on_partition_rows_moved(self, parent, start, end, destination):
         """Slot for when partitions are reordered in the partition list."""
         if self._state is None or self._state.selected_layer is None:
@@ -1601,11 +1633,38 @@ class MainWindow(QMainWindow):
             logger.warning(f"Failed to delete layer from list {layer.name}")
 
         # _partition_list should get auto-populated
+        # by _on_layer_current_item_changed
+
+    @Slot(Layer)
+    def _on_state_layer_partitions_changed(self, layer: Layer):
+        """
+        Slot for when a layer's partitions are reordered.
+
+        Args:
+            layer: The layer whose partitions were reordered.
+        """
+        if self._state.selected_layer != layer:
+            return
+        self._populate_partitions(layer)
         # because a "_on_layer_current_item_changed" should be triggered by "_layer_list.takeItem()"
 
         self._update_statusbar()
         self._canvas.recalculate_fixed_size()
-        self.update()
+        self._canvas.update()
+
+    @Slot(Layer, Partition)
+    def _on_state_partition_path_updated(self, layer: Layer, partition: Partition):
+        """
+        Slot for when a partition's path is updated.
+
+        Args:
+            layer: The layer containing the partition.
+            partition: The partition whose path was updated.
+        """
+        if self._state.selected_layer != layer:
+            return
+        # No need to update the list, just the canvas
+        self._canvas.update()
 
     @Slot()
     def _on_state_layer_pixels_changed(self, layer: Layer):

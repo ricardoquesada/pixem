@@ -209,3 +209,24 @@ class UpdatePartitionPathCommand(QUndoCommand):
 
     def redo(self) -> None:
         self._state._update_partition_path(self._layer, self._partition, self._new_path)
+
+
+class UpdateLayerPartitionsCommand(QUndoCommand):
+    def __init__(
+        self,
+        state,
+        layer: Layer,
+        partitions: dict[str, Partition],
+        parent: QUndoCommand | None,
+    ):
+        super().__init__(f"Reorder Partitions: {layer.name}", parent)
+        self._state = state
+        self._layer = layer
+        self._new_partitions = partitions
+        self._old_partitions = layer.partitions
+
+    def undo(self) -> None:
+        self._state._update_layer_partitions(self._layer, self._old_partitions)
+
+    def redo(self) -> None:
+        self._state._update_layer_partitions(self._layer, self._new_partitions)

@@ -20,6 +20,7 @@ from undo_commands import (
     DeleteLayerCommand,
     UpdateLayerNameCommand,
     UpdateLayerOpacityCommand,
+    UpdateLayerPartitionsCommand,
     UpdateLayerPixelSizeCommand,
     UpdateLayerPositionCommand,
     UpdateLayerRotationCommand,
@@ -54,6 +55,8 @@ class State(QObject):
     state_property_changed = Signal(StatePropertyFlags, StateProperties)
     # Triggered when a partition'path gets updated.
     partition_path_updated = Signal(Layer, Partition)
+    # Triggered when a layer's partitions are reordered.
+    layer_partitions_changed = Signal(Layer)
 
     def __init__(self):
         super().__init__()
@@ -220,6 +223,15 @@ class State(QObject):
 
         self._undo_stack.push(UpdatePartitionPathCommand(self, layer, partition, path, None))
 
+    def update_layer_partitions(self, layer: Layer, partitions: dict[str, Partition]):
+        if layer.uuid not in self._layers:
+            logger.error(
+                f"Cannot update layer partitions. Layer {layer.name} does not belong to this state"
+            )
+            return
+
+        self._undo_stack.push(UpdateLayerPartitionsCommand(self, layer, partitions, None))
+
     def update_text_layer(self, layer: Layer, text: str, font_name: str, color_name: str):
         if layer.uuid not in self._layers:
             logger.error(
@@ -371,6 +383,15 @@ class State(QObject):
             return
         partition.path = path
         self.partition_path_updated.emit(layer, partition)
+
+    def _update_layer_partitions(self, layer: Layer, partitions: dict[str, Partition]):
+        if layer.uuid not in self._layers:
+            logger.error(
+                f"Cannot update layer partitions. Layer {layer.name} does not belong to this state"
+            )
+            return
+        layer.partitions = partitions
+        self.layer_partitions_changed.emit(layer)
 
     def _add_layer(self, layer: Layer) -> None:
         self._layers[layer.uuid] = layer
