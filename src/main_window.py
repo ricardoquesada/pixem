@@ -266,6 +266,7 @@ class MainWindow(QMainWindow):
         self._document_properties_action = QAction(
             QIcon.fromTheme("document-properties"), self.tr("&Document Properties"), self
         )
+        self._document_properties_action.setShortcut(QKeySequence("Ctrl+Shift+D"))
         self._document_properties_action.triggered.connect(self._on_document_properties)
         edit_menu.addAction(self._document_properties_action)
 
