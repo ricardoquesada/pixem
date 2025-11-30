@@ -17,7 +17,15 @@ from collections.abc import Iterable
 from contextlib import contextmanager
 
 from PySide6.QtCore import QObject, QPointF, QSize, Qt, Slot
-from PySide6.QtGui import QAction, QCloseEvent, QGuiApplication, QIcon, QKeySequence, QUndoStack
+from PySide6.QtGui import (
+    QAction,
+    QCloseEvent,
+    QColor,
+    QGuiApplication,
+    QIcon,
+    QKeySequence,
+    QUndoStack,
+)
 from PySide6.QtWidgets import (
     QApplication,
     QCheckBox,
@@ -1007,7 +1015,7 @@ class MainWindow(QMainWindow):
                 self._on_new_project()
                 layer = ImageLayer(filename)
                 layer.name = f"ImageLayer {len(self._state.layers) + 1}"
-                layer.create_partitions()
+                layer.create_partitions(QColor(self._state.canvas_background_color))
                 self._add_layer(layer)
         else:
             logger.warning("Could not open file. Invalid filename")
@@ -1188,7 +1196,7 @@ class MainWindow(QMainWindow):
         if file_name:
             layer = ImageLayer(file_name)
             layer.name = f"ImageLayer {len(self._state.layers) + 1}"
-            layer.create_partitions()
+            layer.create_partitions(QColor(self._state.canvas_background_color))
             self._add_layer(layer)
 
     @Slot()
@@ -1200,7 +1208,7 @@ class MainWindow(QMainWindow):
             if len(text) > 0:
                 layer = TextLayer(text, font_name, color_name)
                 layer.name = f"TextLayer {len(self._state.layers) + 1}"
-                layer.create_partitions()
+                layer.create_partitions(QColor(self._state.canvas_background_color))
                 self._add_layer(layer)
 
     @Slot()

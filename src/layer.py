@@ -9,7 +9,7 @@ from enum import IntEnum, auto
 from typing import Self, overload
 
 from PySide6.QtCore import QPointF, QRectF, QSizeF
-from PySide6.QtGui import QImage, QTransform
+from PySide6.QtGui import QColor, QImage, QTransform
 
 import image_utils
 from image_parser import ImageParser
@@ -127,8 +127,8 @@ class Layer:
             d["partitions"][k] = part
         return d
 
-    def create_partitions(self):
-        parser = ImageParser(self._image)
+    def create_partitions(self, background_color: QColor | None = None):
+        parser = ImageParser(self._image, background_color)
         self._partitions = parser.partitions
 
     @property

@@ -57,12 +57,13 @@ class ImageParser:
         "W": (-1, 0),
     }
 
-    def __init__(self, image: QImage):
+    def __init__(self, image: QImage, background_color: QColor | None = None):
         """
         Initializes the ImageParser and processes the given image.
 
         Args:
             image: The QImage to be parsed.
+            background_color: The background color to compare against for sorting.
         """
         width, height = image.width(), image.height()
 
@@ -78,8 +79,19 @@ class ImageParser:
         # Group the ones that are touching/same-color together
         g = self._create_color_graph(width, height)
 
-        # Sort colors from darker to lighter
-        sorted_colors = sorted(g.keys(), key=lambda c: Color(f"#{c:06x}").get("oklab.l"))
+        # Sort colors based on distance to background color
+        # If no background color, sort by lightness (legacy behavior)
+        if background_color is None:
+            sorted_colors = sorted(g.keys(), key=lambda c: Color(f"#{c:06x}").get("oklab.l"))
+        else:
+            # Sort by distance to background color (descending)
+            # Furthest colors first (drawn at bottom), Closest colors last (drawn on top)
+            bg = Color(background_color.name())
+            sorted_colors = sorted(
+                g.keys(),
+                key=lambda c: Color(f"#{c:06x}").delta_e(bg, method="2000"),
+                reverse=True,
+            )
 
         for color in sorted_colors:
             self._create_single_partition_for_color(g[color], color)
