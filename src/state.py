@@ -241,12 +241,18 @@ class State(QObject):
             )
             return
 
-        if partition.uuid not in layer.partitions:
+        partition_uuid = None
+        for uuid, part in layer.partitions.items():
+            if part == partition:
+                partition_uuid = uuid
+                break
+
+        if partition_uuid is None:
             logger.error(f"Partition {partition.name} does not belong to layer {layer.name}")
             return
 
         new_partitions = copy.copy(layer.partitions)
-        del new_partitions[partition.uuid]
+        del new_partitions[partition_uuid]
         self._undo_stack.push(DeletePartitionCommand(self, layer, partition, new_partitions, None))
 
     def update_text_layer(self, layer: Layer, text: str, font_name: str, color_name: str):
