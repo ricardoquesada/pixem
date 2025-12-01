@@ -1085,7 +1085,11 @@ class MainWindow(QMainWindow):
         """Slot for exporting the project to a new file (SVG)."""
         fullpath_svg = self._state.properties.export_filename
         if fullpath_svg is None:
-            fullpath_svg = "export.svg"
+            if self._state.project_filename:
+                base, _ = os.path.splitext(self._state.project_filename)
+                fullpath_svg = f"{base}.svg"
+            else:
+                fullpath_svg = "export.svg"
         filename, _ = QFileDialog.getSaveFileName(
             self,
             self.tr("Export Project"),
@@ -1104,7 +1108,11 @@ class MainWindow(QMainWindow):
         """Slot for exporting the current canvas view to a PNG file."""
         fullpath_svg = self._state.properties.export_filename
         if fullpath_svg is None:
-            fullpath_svg = "export.svg"
+            if self._state.project_filename:
+                base, _ = os.path.splitext(self._state.project_filename)
+                fullpath_svg = f"{base}.svg"
+            else:
+                fullpath_svg = "export.svg"
         base, _ = os.path.splitext(fullpath_svg)
         fullpath_png = f"{base}.png"
         filename, _ = QFileDialog.getSaveFileName(
