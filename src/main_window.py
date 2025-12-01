@@ -795,6 +795,7 @@ class MainWindow(QMainWindow):
         self._state.layer_partitions_changed.connect(self._on_state_layer_partitions_changed)
         self._state.layer_removed.connect(self._on_state_layer_removed)
         self._state.layer_pixels_changed.connect(self._on_state_layer_pixels_changed)
+        self._state.layer_added.connect(self._on_state_layer_added)
 
         self._undo_action.triggered.connect(self._state.undo_stack.undo)
         self._redo_action.triggered.connect(self._state.undo_stack.redo)
@@ -1559,7 +1560,7 @@ class MainWindow(QMainWindow):
 
             # Update Layer Name. Could have been changed from the editor
             item = self._layer_list.item(self._layer_list.currentRow())
-            if item.data(Qt.UserRole) == layer.uuid:
+            if item and item.data(Qt.UserRole) == layer.uuid:
                 item.setText(layer.name)
         else:
             # It is possible that the changed layer is not the selected one.
@@ -1627,8 +1628,8 @@ class MainWindow(QMainWindow):
         with block_signals(self._partition_list):
             for partition_key, partition in layer.partitions.items():
                 item = QListWidgetItem(partition.name)
-            item.setData(Qt.UserRole, partition_key)
-            self._partition_list.addItem(item)
+                item.setData(Qt.UserRole, partition_key)
+                self._partition_list.addItem(item)
 
         # Order matters: first layer, then partition
         # Triggers on_layer_item_changed
