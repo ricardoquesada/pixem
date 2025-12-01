@@ -302,6 +302,8 @@ class Canvas(QWidget):
         Args:
             color: The new color as a hex string.
         """
+        if self._state is not None:
+            return
         self._cached_partition_background_color = QColor(color)
         self.update()
 
@@ -313,6 +315,8 @@ class Canvas(QWidget):
         Args:
             color: The new color as a hex string.
         """
+        if self._state is not None:
+            return
         self._cached_canvas_background_color = QColor(color)
         self.update()
 
@@ -324,6 +328,8 @@ class Canvas(QWidget):
         Args:
             color: The new color as a hex string.
         """
+        if self._state is not None:
+            return
         self._cached_hoop_color = QColor(color)
         self.update()
 
@@ -335,6 +341,8 @@ class Canvas(QWidget):
         Args:
             visible: True if the hoop should be visible, False otherwise.
         """
+        if self._state is not None:
+            return
         self._cached_hoop_visible = visible
         self.update()
 
@@ -346,6 +354,8 @@ class Canvas(QWidget):
         Args:
             size: A tuple containing the new width and height of the hoop.
         """
+        if self._state is not None:
+            return
         self._cached_hoop_size = size
         self.recalculate_fixed_size()
         self.update()
@@ -645,7 +655,4 @@ class Canvas(QWidget):
     @state.setter
     def state(self, value: State) -> None:
         self._state = value
-        if self._state:
-            self._cached_hoop_size = self._state.hoop_size
-        else:
-            self._cached_hoop_size = get_global_preferences().get_hoop_size()
+        self.on_preferences_updated()
