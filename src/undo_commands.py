@@ -230,3 +230,26 @@ class UpdateLayerPartitionsCommand(QUndoCommand):
 
     def redo(self) -> None:
         self._state._update_layer_partitions(self._layer, self._new_partitions)
+
+
+class DeletePartitionCommand(QUndoCommand):
+    def __init__(
+        self,
+        state,
+        layer: Layer,
+        partition: Partition,
+        new_partitions: dict[str, Partition],
+        parent: QUndoCommand | None,
+    ):
+        super().__init__(f"Delete Partition: {partition.name}", parent)
+        self._state = state
+        self._layer = layer
+        self._partition = partition
+        self._new_partitions = new_partitions
+        self._old_partitions = layer.partitions
+
+    def undo(self) -> None:
+        self._state._update_layer_partitions(self._layer, self._old_partitions)
+
+    def redo(self) -> None:
+        self._state._update_layer_partitions(self._layer, self._new_partitions)

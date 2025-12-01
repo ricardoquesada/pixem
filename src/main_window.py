@@ -386,6 +386,10 @@ class MainWindow(QMainWindow):
         self._reorder_partitions_action.triggered.connect(self._on_partition_reorder)
         partition_menu.addAction(self._reorder_partitions_action)
 
+        self._delete_partition_action = QAction(self.tr("Delete Partition"), self)
+        self._delete_partition_action.triggered.connect(self._on_partition_delete)
+        partition_menu.addAction(self._delete_partition_action)
+
         help_menu = QMenu(self.tr("&Help"), self)
         menu_bar.addMenu(help_menu)
 
@@ -685,6 +689,7 @@ class MainWindow(QMainWindow):
         self._layer_list.setEnabled(enabled)
         self._partition_list.setEnabled(enabled)
         self._reorder_partitions_action.setEnabled(enabled)
+        self._delete_partition_action.setEnabled(enabled)
         self._property_editor.setEnabled(enabled)
         self._embroidery_params_editor.setEnabled(enabled)
 
@@ -1376,6 +1381,25 @@ class MainWindow(QMainWindow):
             path = dialog.get_path()
             self._state.update_partition_path(layer, partition, path)
             partition.path = path
+
+    @Slot()
+    def _on_partition_delete(self) -> None:
+        """Slot to delete the selected partition."""
+        if self._state is None:
+            return
+
+        layer = self._state.selected_layer
+        if layer is None:
+            return
+
+        if layer.selected_partition_uuid is None:
+            return
+
+        if layer.selected_partition_uuid not in layer.partitions:
+            return
+
+        partition = layer.partitions[layer.selected_partition_uuid]
+        self._state.delete_partition(layer, partition)
 
     @Slot()
     def _on_partition_reorder(self):

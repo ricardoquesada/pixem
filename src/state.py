@@ -1,6 +1,7 @@
 # Pixem
 # Copyright 2025 - Ricardo Quesada
 
+import copy
 import logging
 from dataclasses import asdict
 from typing import Self
@@ -18,6 +19,7 @@ from state_properties import StateProperties, StatePropertyFlags
 from undo_commands import (
     AddLayerCommand,
     DeleteLayerCommand,
+    DeletePartitionCommand,
     UpdateLayerNameCommand,
     UpdateLayerOpacityCommand,
     UpdateLayerPartitionsCommand,
@@ -231,6 +233,21 @@ class State(QObject):
             return
 
         self._undo_stack.push(UpdateLayerPartitionsCommand(self, layer, partitions, None))
+
+    def delete_partition(self, layer: Layer, partition: Partition):
+        if layer.uuid not in self._layers:
+            logger.error(
+                f"Cannot delete partition. Layer {layer.name} does not belong to this state"
+            )
+            return
+
+        if partition.uuid not in layer.partitions:
+            logger.error(f"Partition {partition.name} does not belong to layer {layer.name}")
+            return
+
+        new_partitions = copy.copy(layer.partitions)
+        del new_partitions[partition.uuid]
+        self._undo_stack.push(DeletePartitionCommand(self, layer, partition, new_partitions, None))
 
     def update_text_layer(self, layer: Layer, text: str, font_name: str, color_name: str):
         if layer.uuid not in self._layers:
