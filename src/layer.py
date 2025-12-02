@@ -2,7 +2,6 @@
 # Copyright 2025 - Ricardo Quesada
 
 import logging
-import traceback
 import uuid
 from dataclasses import asdict, dataclass
 from enum import IntEnum, auto
@@ -212,9 +211,7 @@ class Layer:
     @selected_partition_uuid.setter
     def selected_partition_uuid(self, value: str):
         if value is not None and value not in self.partitions:
-            logger.error(f"Invalid partition uuid: {value} for layer {self.uuid}")
-            traceback.print_stack()
-            return
+            raise ValueError(f"Invalid partition uuid: {value} for layer {self.uuid}")
         self._selected_partition_uuid = value
 
     @property

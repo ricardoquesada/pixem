@@ -85,8 +85,7 @@ class Canvas(QWidget):
             self._cached_partition_background_color = QColor(self._state.partition_background_color)
             self._cached_canvas_background_color = QColor(self._state.canvas_background_color)
 
-        # FIXME: must be set according to layer size
-        self.setFixedSize(QSize(152 * 2, 254 * 2))
+        self.recalculate_fixed_size()
 
         self._mouse_start_coords = QPointF(0.0, 0.0)
         self._mouse_delta = QPointF(0.0, 0.0)

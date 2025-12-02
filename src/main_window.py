@@ -743,6 +743,11 @@ class MainWindow(QMainWindow):
         state = State.load_from_filename(filename)
         if state is None:
             logger.warning(f"Failed to load state from filename {filename}")
+            QMessageBox.warning(
+                self,
+                self.tr("Error loading project"),
+                self.tr(f"Failed to load project from {filename}"),
+            )
             return
 
         self._setup_state(state)
