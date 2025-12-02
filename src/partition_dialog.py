@@ -70,21 +70,9 @@ class ImageWidget(QWidget):
         # To prevent creating the rect, we have them pre-created
         self._cached_rects_dict = {}
         self._cached_paths_dict = {}
-        for shape in shapes:
-            if isinstance(shape, Rect):
-                self._cached_rects_dict[(shape.x, shape.y)] = QRect(shape.x, shape.y, 1, 1)
-            elif isinstance(shape, Path):
-                point_list = shape.path
-                if len(point_list) < 2:
-                    continue
-                path = QPainterPath()
-                path.moveTo(point_list[0].x, point_list[0].y)
-                for point in point_list[1:]:
-                    path.lineTo(point.x, point.y)
-                self._cached_paths_dict[point_list[0].x, point_list[0].y] = path
-
-        self._cached_all_rects = list(self._cached_rects_dict.values())
-        self._cached_all_paths = list(self._cached_paths_dict.values())
+        self._cached_all_rects = []
+        self._cached_all_paths = []
+        self._rebuild_cache()
 
         # The two primitives that are supported: shape.Rect, and shape.Path
         self._cached_selected_rects = []
@@ -110,6 +98,25 @@ class ImageWidget(QWidget):
 
         # Set initial size
         self._update_widget_size()
+
+    def _rebuild_cache(self):
+        self._cached_rects_dict = {}
+        self._cached_paths_dict = {}
+        for shape in self._original_shapes:
+            if isinstance(shape, Rect):
+                self._cached_rects_dict[(shape.x, shape.y)] = QRect(shape.x, shape.y, 1, 1)
+            elif isinstance(shape, Path):
+                point_list = shape.path
+                if len(point_list) < 2:
+                    continue
+                path = QPainterPath()
+                path.moveTo(point_list[0].x, point_list[0].y)
+                for point in point_list[1:]:
+                    path.lineTo(point.x, point.y)
+                self._cached_paths_dict[point_list[0].x, point_list[0].y] = path
+
+        self._cached_all_rects = list(self._cached_rects_dict.values())
+        self._cached_all_paths = list(self._cached_paths_dict.values())
 
     def _update_widget_size(self):
         """
@@ -212,6 +219,9 @@ class ImageWidget(QWidget):
             self._original_shapes = full_shapes
             self._partition_dialog.update_shapes(self._selected_shapes, full_shapes)
             event.accept()
+        elif key in [Qt.Key.Key_Delete, Qt.Key.Key_Backspace]:
+            self.delete_selection()
+            event.accept()
         else:
             # If we don't handle the key, pass the event to the base class
             super().keyPressEvent(event)
@@ -255,6 +265,20 @@ class ImageWidget(QWidget):
     def set_selected_shapes(self, shapes: list[Shape]):
         self._selected_shapes = shapes
         self._update_selected_shapes_cache()
+
+    def delete_selection(self):
+        if not self._selected_shapes:
+            return
+
+        # Remove selected shapes from original shapes
+        for shape in self._selected_shapes:
+            if shape in self._original_shapes:
+                self._original_shapes.remove(shape)
+
+        self._partition_dialog.remove_shapes(self._selected_shapes)
+        self.set_selected_shapes([])
+        self._rebuild_cache()
+        self.update()
 
     def set_edit_mode(self, mode: EditMode):
         self._edit_mode = mode
@@ -312,7 +336,10 @@ class ImageWidget(QWidget):
             event.accept()
             return
 
-        if self._edit_mode not in [ImageWidget.EditMode.PAINT, ImageWidget.EditMode.FILL]:
+        if self._edit_mode not in [
+            ImageWidget.EditMode.PAINT,
+            ImageWidget.EditMode.FILL,
+        ]:
             event.ignore()
             return
         event.accept()
@@ -378,7 +405,10 @@ class ImageWidget(QWidget):
             event.accept()
             return
 
-        if self._edit_mode not in [ImageWidget.EditMode.PAINT, ImageWidget.EditMode.FILL]:
+        if self._edit_mode not in [
+            ImageWidget.EditMode.PAINT,
+            ImageWidget.EditMode.FILL,
+        ]:
             event.ignore()
             return
 
@@ -420,6 +450,7 @@ class PartitionDialog(QDialog):
 
         # Create List Widget
         self._list_widget = QListWidget()
+        self._list_widget.installEventFilter(self)
         self._populate_list_widget(shapes)
         self._connect_list_widget()
 
@@ -438,9 +469,17 @@ class PartitionDialog(QDialog):
 
         # Edit modes
         action_modes = [
-            (ImageWidget.EditMode.PAINT, self.tr("Paint"), "draw-freehand-symbolic.svg"),
+            (
+                ImageWidget.EditMode.PAINT,
+                self.tr("Paint"),
+                "draw-freehand-symbolic.svg",
+            ),
             (ImageWidget.EditMode.FILL, self.tr("Fill"), "color-fill-symbolic.svg"),
-            (ImageWidget.EditMode.SELECT, self.tr("Select"), "dialog-layers-symbolic.svg"),
+            (
+                ImageWidget.EditMode.SELECT,
+                self.tr("Select"),
+                "dialog-layers-symbolic.svg",
+            ),
         ]
         for mode in action_modes:
             path = f":/icons/svg/actions/{mode[2]}"
@@ -457,7 +496,11 @@ class PartitionDialog(QDialog):
 
         # Fill modes
         fill_modes = [
-            (Partition.WalkMode.SPIRAL_CW, self.tr("Spiral CW"), "arrow-clockwise-pixem.svg"),
+            (
+                Partition.WalkMode.SPIRAL_CW,
+                self.tr("Spiral CW"),
+                "arrow-clockwise-pixem.svg",
+            ),
             (
                 Partition.WalkMode.SPIRAL_CCW,
                 self.tr("Spiral CCW"),
@@ -481,8 +524,18 @@ class PartitionDialog(QDialog):
 
         toolbar.addSeparator()
         zoom_actions = [
-            (self.tr("Zoom In"), "zoom-in", QKeySequence.StandardKey.ZoomIn, self._on_zoom_in),
-            (self.tr("Zoom Out"), "zoom-out", QKeySequence.StandardKey.ZoomOut, self._on_zoom_out),
+            (
+                self.tr("Zoom In"),
+                "zoom-in",
+                QKeySequence.StandardKey.ZoomIn,
+                self._on_zoom_in,
+            ),
+            (
+                self.tr("Zoom Out"),
+                "zoom-out",
+                QKeySequence.StandardKey.ZoomOut,
+                self._on_zoom_out,
+            ),
         ]
         for text, icon_name, key_sequence, slot in zoom_actions:
             action = QAction(QIcon.fromTheme(icon_name), text, self)
@@ -614,7 +667,7 @@ class PartitionDialog(QDialog):
             if isinstance(shape, Rect):
                 item.setText(f"{i} - Rect({shape.x}, {shape.y})")
             elif isinstance(shape, Path):
-                item.setText(f"{i} - Path({shape.points})")
+                item.setText(f"{i} - Path({shape.path})")
             else:
                 raise Exception(f"Unknown shape: {shape}")
             item.setData(Qt.UserRole, shape)
@@ -630,6 +683,24 @@ class PartitionDialog(QDialog):
 
         self._connect_list_widget()
 
+    def remove_shapes(self, shapes_to_remove: list[Shape]):
+        """
+        Remove the specified shapes from the list widget.
+        Called from ImageWidget.
+        """
+        self._disconnect_list_widget()
+
+        # We need to find the items associated with the shapes
+        # Since we don't have a direct mapping, we iterate.
+        # It is safer to iterate backwards when removing items.
+        for i in range(self._list_widget.count() - 1, -1, -1):
+            item = self._list_widget.item(i)
+            shape = item.data(Qt.UserRole)
+            if shape in shapes_to_remove:
+                self._list_widget.takeItem(i)
+
+        self._connect_list_widget()
+
     def get_path(self) -> list[Shape]:
         """
         Return the path.
@@ -639,3 +710,10 @@ class PartitionDialog(QDialog):
             self._list_widget.item(i).data(Qt.UserRole) for i in range(self._list_widget.count())
         ]
         return path
+
+    def eventFilter(self, source, event):
+        if event.type() == QKeyEvent.Type.KeyPress and source is self._list_widget:
+            if event.key() in [Qt.Key.Key_Delete, Qt.Key.Key_Backspace]:
+                self._image_widget.delete_selection()
+                return True
+        return super().eventFilter(source, event)
