@@ -4,7 +4,7 @@
 import logging
 from enum import IntEnum, auto
 
-from PySide6.QtCore import QItemSelectionModel, QRect, QSize, Qt, Slot
+from PySide6.QtCore import QItemSelectionModel, QPointF, QRect, QSize, Qt, Slot
 from PySide6.QtGui import (
     QAction,
     QColor,
@@ -35,7 +35,7 @@ from PySide6.QtWidgets import (
 from image_utils import create_icon_from_svg
 from partition import Partition
 from preferences import get_global_preferences
-from shape import Path, Rect, Shape
+from shape import Path, Point, Rect, Shape
 
 PAINT_SCALE_FACTOR = 16
 ICON_SIZE = 22
@@ -55,6 +55,7 @@ class ImageWidget(QWidget):
     class EditMode(IntEnum):
         PAINT = auto()
         FILL = auto()
+        ADD_PATH = auto()
         SELECT = auto()
 
     def __init__(self, partition_dialog, image: QImage, shapes: list[Shape]):
@@ -77,6 +78,7 @@ class ImageWidget(QWidget):
         # The two primitives that are supported: shape.Rect, and shape.Path
         self._cached_selected_rects = []
         self._cached_selected_paths = []
+        self._current_building_path = []
 
         self._edit_mode = self.EditMode.PAINT
         self._walk_mode = Partition.WalkMode.SPIRAL_CW
@@ -191,9 +193,17 @@ class ImageWidget(QWidget):
             self.zoom_reset()
             event.accept()
         elif key == Qt.Key.Key_Escape:
-            # Clear the selection and update the UI
-            self.set_selected_shapes([])
-            self._partition_dialog.update_shapes([], self._original_shapes)
+            if self._current_building_path:
+                self._current_building_path = []
+                self.update()
+            else:
+                # Clear the selection and update the UI
+                self.set_selected_shapes([])
+                self._partition_dialog.update_shapes([], self._original_shapes)
+            event.accept()
+        elif key in [Qt.Key.Key_Return, Qt.Key.Key_Enter]:
+            if self._edit_mode == self.EditMode.ADD_PATH:
+                self._finalize_current_path()
             event.accept()
         elif (
             key in [Qt.Key.Key_Up, Qt.Key.Key_Down, Qt.Key.Key_Left, Qt.Key.Key_Right]
@@ -327,7 +337,53 @@ class ImageWidget(QWidget):
         for path in self._cached_selected_paths:
             painter.drawPath(path)
         painter.restore()
+
+        if self._current_building_path:
+            painter.save()
+            pen = QPen(self._foreground_color, 2.0 / self._zoom_factor, Qt.PenStyle.DashLine)
+            painter.setPen(pen)
+            painter.setBrush(Qt.BrushStyle.NoBrush)
+
+            path = QPainterPath()
+            if len(self._current_building_path) > 0:
+                p0 = self._current_building_path[0]
+                path.moveTo(p0.x, p0.y)
+                for p in self._current_building_path[1:]:
+                    path.lineTo(p.x, p.y)
+
+            painter.drawPath(path)
+
+            # Draw points
+            painter.setBrush(self._foreground_color)
+            w = 4.0 / self._zoom_factor
+            h = 4.0 / self._zoom_factor
+            for p in self._current_building_path:
+                painter.drawEllipse(QPointF(p.x, p.y), w, h)
+
+            painter.restore()
+
         painter.end()
+
+    def _finalize_current_path(self):
+        if len(self._current_building_path) >= 2:
+            new_path = Path(self._current_building_path)
+
+            insert_index = len(self._original_shapes)
+            if self._selected_shapes:
+                # Find the max index of selected shapes
+                indices = [
+                    self._original_shapes.index(s)
+                    for s in self._selected_shapes
+                    if s in self._original_shapes
+                ]
+                if indices:
+                    insert_index = max(indices) + 1
+
+            self._original_shapes.insert(insert_index, new_path)
+            self._partition_dialog.update_shapes(self._selected_shapes, self._original_shapes)
+            self._rebuild_cache()
+        self._current_building_path = []
+        self.update()
 
     def mousePressEvent(self, event: QMouseEvent):
         if event.button() == Qt.MouseButton.MiddleButton:
@@ -339,6 +395,7 @@ class ImageWidget(QWidget):
         if self._edit_mode not in [
             ImageWidget.EditMode.PAINT,
             ImageWidget.EditMode.FILL,
+            ImageWidget.EditMode.ADD_PATH,
         ]:
             event.ignore()
             return
@@ -369,6 +426,13 @@ class ImageWidget(QWidget):
                 ordered_partition = part.path
                 self._selected_shapes = self._selected_shapes + ordered_partition
                 self._update_selected_shapes_cache()
+            case ImageWidget.EditMode.ADD_PATH:
+                if event.button() == Qt.MouseButton.RightButton:
+                    self._finalize_current_path()
+                elif event.button() == Qt.LeftButton:
+                    self._current_building_path.append(Point(int(x), int(y)))
+                    print(f"Added point: ({int(x)}, {int(y)})")
+                    self.update()
 
     def mouseMoveEvent(self, event: QMouseEvent):
         if event.buttons() & Qt.MouseButton.MiddleButton and self._pan_last_pos:
@@ -473,6 +537,11 @@ class PartitionDialog(QDialog):
                 ImageWidget.EditMode.PAINT,
                 self.tr("Paint"),
                 "draw-freehand-symbolic.svg",
+            ),
+            (
+                ImageWidget.EditMode.ADD_PATH,
+                self.tr("Add Path"),
+                "draw-path-symbolic.svg",
             ),
             (ImageWidget.EditMode.FILL, self.tr("Fill"), "color-fill-symbolic.svg"),
             (
@@ -587,6 +656,9 @@ class PartitionDialog(QDialog):
                 case ImageWidget.EditMode.PAINT:
                     self._list_widget.setDragDropMode(QListWidget.NoDragDrop)
                     self._list_widget.setSelectionMode(QListWidget.ContiguousSelection)
+                case ImageWidget.EditMode.ADD_PATH:
+                    self._list_widget.setDragDropMode(QListWidget.NoDragDrop)
+                    self._list_widget.setSelectionMode(QListWidget.ContiguousSelection)
                 case ImageWidget.EditMode.FILL:
                     self._list_widget.setDragDropMode(QListWidget.NoDragDrop)
                     self._list_widget.setSelectionMode(QListWidget.ContiguousSelection)
@@ -664,6 +736,10 @@ class PartitionDialog(QDialog):
         lastest_selected_item = None
         for i, shape in enumerate(full_shapes):
             item = self._list_widget.item(i)
+            if item is None:
+                item = QListWidgetItem()
+                self._list_widget.addItem(item)
+
             if isinstance(shape, Rect):
                 item.setText(f"{i} - Rect({shape.x}, {shape.y})")
             elif isinstance(shape, Path):
