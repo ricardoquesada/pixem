@@ -690,7 +690,10 @@ class MainWindow(QMainWindow):
         self._partition_list.setEnabled(enabled)
         self._reorder_partitions_action.setEnabled(enabled)
         self._delete_partition_action.setEnabled(enabled)
-        self._property_editor.setEnabled(enabled)
+
+        # Only enable property editors if a layer is selected
+        layer_selected = enabled and self._layer_list.currentItem() is not None
+        self._property_editor.setEnabled(layer_selected)
         self._embroidery_params_editor.setEnabled(enabled)
 
     def _load_settings(self):
@@ -1296,7 +1299,7 @@ class MainWindow(QMainWindow):
         # Gets triggered when a new layers gets selected. Might happen when an entry gets removed.
         enabled = current is not None and len(self._state.layers) > 0
         self._property_editor.setEnabled(enabled)
-        self._embroidery_params_editor.setEnabled(enabled)
+        self._embroidery_params_editor.setEnabled(self._state is not None)
         if enabled:
             layer_uuid = current.data(Qt.UserRole)
             layer = self._state.get_layer_for_uuid(layer_uuid)
@@ -1479,19 +1482,19 @@ class MainWindow(QMainWindow):
     def _on_update_embroidery_property(self) -> None:
         """Slot to update the selected layer's embroidery parameters from the editor."""
         selected_layer = self._state.selected_layer
-        enabled = selected_layer is not None
-        self._embroidery_params_editor.setEnabled(enabled)
-        if enabled:
-            embroidery_params = EmbroideryParameters(
-                pull_compensation_mm=self._pull_compensation_spinbox.value(),
-                max_stitch_length_mm=self._max_stitch_length_spinbox.value(),
-                min_jump_stitch_length_mm=self._min_jump_stitch_length_spinbox.value(),
-                odd_pixel_angle_degrees=self._odd_angle_spinbox.value(),
-                even_pixel_angle_degrees=self._even_angle_spinbox.value(),
-                fill_method=self._fill_method_combo.currentData(),
-                fill_underlay=self._fill_underlay_checkbox.isChecked(),
-            )
-            selected_layer.embroidery_params = embroidery_params
+        if selected_layer is None:
+            return
+
+        embroidery_params = EmbroideryParameters(
+            pull_compensation_mm=self._pull_compensation_spinbox.value(),
+            max_stitch_length_mm=self._max_stitch_length_spinbox.value(),
+            min_jump_stitch_length_mm=self._min_jump_stitch_length_spinbox.value(),
+            odd_pixel_angle_degrees=self._odd_angle_spinbox.value(),
+            even_pixel_angle_degrees=self._even_angle_spinbox.value(),
+            fill_method=self._fill_method_combo.currentData(),
+            fill_underlay=self._fill_underlay_checkbox.isChecked(),
+        )
+        selected_layer.embroidery_params = embroidery_params
 
     @Slot()
     def _on_show_about_dialog(self) -> None:
