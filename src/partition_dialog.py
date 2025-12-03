@@ -459,10 +459,11 @@ class ImageWidget(QWidget):
                 self._update_selected_shapes_cache()
             case ImageWidget.EditMode.ADD_PATH:
                 if event.button() == Qt.MouseButton.RightButton:
-                    self._finalize_current_path()
+                    if self._current_building_path:
+                        self._current_building_path.pop()
+                        self.update()
                 elif event.button() == Qt.LeftButton:
                     self._current_building_path.append(Point(int(x), int(y)))
-                    print(f"Added point: ({int(x)}, {int(y)})")
                     self.update()
 
     def mouseMoveEvent(self, event: QMouseEvent):
@@ -517,6 +518,15 @@ class ImageWidget(QWidget):
         # Update original shapes with new order
         self._original_shapes = full_shapes
         self._partition_dialog.update_shapes(self._selected_shapes, full_shapes)
+
+    def mouseDoubleClickEvent(self, event: QMouseEvent):
+        if self._edit_mode != ImageWidget.EditMode.ADD_PATH:
+            event.ignore()
+            return
+
+        if event.button() == Qt.MouseButton.LeftButton:
+            self._finalize_current_path()
+            event.accept()
 
     def sizeHint(self):
         return QSize(
