@@ -405,7 +405,7 @@ class ImageWidget(QWidget):
         y = pos.y() / self._zoom_factor
         shape = Rect(int(x), int(y))
 
-        if shape not in self._original_shapes:
+        if shape not in self._original_shapes and self._edit_mode != ImageWidget.EditMode.ADD_PATH:
             event.ignore()
             return
 
