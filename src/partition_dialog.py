@@ -660,22 +660,22 @@ class PartitionDialog(QDialog):
             (
                 ImageWidget.CornerPosition.TOP_LEFT,
                 self.tr("Top-Left"),
-                "align-vertical-top-symbolic.svg",
+                "boundingbox_top_left-symbolic.svg",
             ),
             (
                 ImageWidget.CornerPosition.TOP_RIGHT,
                 self.tr("Top-Right"),
-                "align-horizontal-right-symbolic.svg",
+                "boundingbox_top_right-symbolic.svg",
             ),
             (
                 ImageWidget.CornerPosition.BOTTOM_LEFT,
                 self.tr("Bottom-Left"),
-                "align-horizontal-left-symbolic.svg",
+                "boundingbox_bottom_left-symbolic.svg",
             ),
             (
                 ImageWidget.CornerPosition.BOTTOM_RIGHT,
                 self.tr("Bottom-Right"),
-                "align-vertical-bottom-symbolic.svg",
+                "boundingbox_bottom_right-symbolic.svg",
             ),
         ]
         for pos in corner_positions:
