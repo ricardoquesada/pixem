@@ -1676,6 +1676,7 @@ class MainWindow(QMainWindow):
 
         # _partition_list should get auto-populated
         # by _on_layer_current_item_changed
+        self._canvas.recalculate_fixed_size()
 
     @Slot(Layer)
     def _on_state_layer_partitions_changed(self, layer: Layer):
