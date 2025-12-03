@@ -58,6 +58,12 @@ class ImageWidget(QWidget):
         ADD_PATH = auto()
         SELECT = auto()
 
+    class CornerPosition(IntEnum):
+        TOP_LEFT = auto()
+        TOP_RIGHT = auto()
+        BOTTOM_LEFT = auto()
+        BOTTOM_RIGHT = auto()
+
     def __init__(self, partition_dialog, image: QImage, shapes: list[Shape]):
         super().__init__()
         self._partition_dialog = partition_dialog
@@ -82,6 +88,7 @@ class ImageWidget(QWidget):
 
         self._edit_mode = self.EditMode.PAINT
         self._walk_mode = Partition.WalkMode.SPIRAL_CW
+        self._corner_position = self.CornerPosition.TOP_LEFT
         self._coord_mode: ImageWidget.CoordMode = self.CoordMode.ADD
         self._show_grid = False
 
@@ -297,6 +304,9 @@ class ImageWidget(QWidget):
     def set_walk_mode(self, mode: Partition.WalkMode):
         self._walk_mode = mode
 
+    def set_corner_position(self, position: CornerPosition):
+        self._corner_position = position
+
     def set_show_grid(self, show: bool):
         self._show_grid = show
         self.update()
@@ -463,6 +473,16 @@ class ImageWidget(QWidget):
                         self._current_building_path.pop()
                         self.update()
                 elif event.button() == Qt.LeftButton:
+                    match self._corner_position:
+                        case ImageWidget.CornerPosition.TOP_LEFT:
+                            pass
+                        case ImageWidget.CornerPosition.TOP_RIGHT:
+                            x += 1
+                        case ImageWidget.CornerPosition.BOTTOM_LEFT:
+                            y += 1
+                        case ImageWidget.CornerPosition.BOTTOM_RIGHT:
+                            x += 1
+                            y += 1
                     self._current_building_path.append(Point(int(x), int(y)))
                     self.update()
 
@@ -561,6 +581,7 @@ class PartitionDialog(QDialog):
 
         self._mode_actions = {}
         self._fill_mode_actions = {}
+        self._corner_actions = {}
 
         self._edit_mode = None
         self._set_edit_mode(ImageWidget.EditMode.PAINT)
@@ -631,6 +652,44 @@ class PartitionDialog(QDialog):
             action.setEnabled(False)
             self._fill_mode_actions[mode[0]] = action
         self._fill_mode_actions[Partition.WalkMode.SPIRAL_CW].setChecked(True)
+
+        toolbar.addSeparator()
+
+        # Corner positions
+        corner_positions = [
+            (
+                ImageWidget.CornerPosition.TOP_LEFT,
+                self.tr("Top-Left"),
+                "align-vertical-top-symbolic.svg",
+            ),
+            (
+                ImageWidget.CornerPosition.TOP_RIGHT,
+                self.tr("Top-Right"),
+                "align-horizontal-right-symbolic.svg",
+            ),
+            (
+                ImageWidget.CornerPosition.BOTTOM_LEFT,
+                self.tr("Bottom-Left"),
+                "align-horizontal-left-symbolic.svg",
+            ),
+            (
+                ImageWidget.CornerPosition.BOTTOM_RIGHT,
+                self.tr("Bottom-Right"),
+                "align-vertical-bottom-symbolic.svg",
+            ),
+        ]
+        for pos in corner_positions:
+            # FIXME: Use better icons
+            path = f":/icons/svg/actions/{pos[2]}"
+            icon = create_icon_from_svg(path, ICON_SIZE)
+            action = QAction(icon, pos[1], self)
+            toolbar.addAction(action)
+            action.setCheckable(True)
+            action.triggered.connect(self._on_action_corner_position)
+            action.setData(pos[0])
+            action.setEnabled(False)
+            self._corner_actions[pos[0]] = action
+        self._corner_actions[ImageWidget.CornerPosition.TOP_LEFT].setChecked(True)
 
         toolbar.addSeparator()
         zoom_actions = [
@@ -720,12 +779,22 @@ class PartitionDialog(QDialog):
             enabled = mode == ImageWidget.EditMode.FILL
             self._enable_fill_mode_actions(enabled)
 
+            enabled = mode == ImageWidget.EditMode.ADD_PATH
+            self._enable_corner_actions(enabled)
+
     def _enable_fill_mode_actions(self, enabled: bool):
         for action in self._fill_mode_actions.values():
             action.setEnabled(enabled)
 
+    def _enable_corner_actions(self, enabled: bool):
+        for action in self._corner_actions.values():
+            action.setEnabled(enabled)
+
     def _set_walk_mode(self, mode: Partition.WalkMode):
         self._image_widget.set_walk_mode(mode)
+
+    def _set_corner_position(self, position: ImageWidget.CornerPosition):
+        self._image_widget.set_corner_position(position)
 
     @Slot()
     def _on_zoom_in(self):
@@ -761,6 +830,19 @@ class PartitionDialog(QDialog):
 
         mode: Partition.WalkMode = sender.data()
         self._set_walk_mode(mode)
+
+    @Slot()
+    def _on_action_corner_position(self, value):
+        sender: QAction = self.sender()
+        if sender not in self._corner_actions.values():
+            logger.warning("Unknown actions {sender}")
+            return
+        for action in self._corner_actions.values():
+            action.setChecked(False)
+        sender.setChecked(True)
+
+        position: ImageWidget.CornerPosition = sender.data()
+        self._set_corner_position(position)
 
     @Slot()
     def _on_action_show_grid(self, checked):
