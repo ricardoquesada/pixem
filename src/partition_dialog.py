@@ -83,6 +83,7 @@ class ImageWidget(QWidget):
         self._edit_mode = self.EditMode.PAINT
         self._walk_mode = Partition.WalkMode.SPIRAL_CW
         self._coord_mode: ImageWidget.CoordMode = self.CoordMode.ADD
+        self._show_grid = False
 
         self._background_color = QColor(
             get_global_preferences().get_partition_background_color_name()
@@ -296,11 +297,41 @@ class ImageWidget(QWidget):
     def set_walk_mode(self, mode: Partition.WalkMode):
         self._walk_mode = mode
 
+    def set_show_grid(self, show: bool):
+        self._show_grid = show
+        self.update()
+
     def paintEvent(self, event):
         painter = QPainter(self)
         pixmap = QPixmap.fromImage(self._image)
         painter.scale(self._zoom_factor, self._zoom_factor)
         painter.drawPixmap(0, 0, pixmap)
+
+        if self._show_grid:
+            painter.save()
+            # Subtle grid
+            pen = QPen(QColor(128, 128, 128, 128), 1.0 / self._zoom_factor)
+            pen.setCosmetic(
+                True
+            )  # Keeps width constant regardless of scale? No, we want it to scale with zoom but stay thin.
+            # Actually, if we use cosmetic, it's 1 pixel on screen.
+            # If we use 1.0/zoom, it's 1 pixel on screen.
+            # Let's use cosmetic for consistent thin lines.
+            pen = QPen(QColor(100, 100, 100, 80), 1)
+            pen.setCosmetic(True)
+            painter.setPen(pen)
+
+            w = self._image.width()
+            h = self._image.height()
+
+            # Draw vertical lines
+            for x in range(w + 1):
+                painter.drawLine(x, 0, x, h)
+
+            # Draw horizontal lines
+            for y in range(h + 1):
+                painter.drawLine(0, y, w, y)
+            painter.restore()
 
         # painter.setPen(Qt.NoPen)
         painter.setPen(QPen(Qt.GlobalColor.gray, 0.1, Qt.PenStyle.SolidLine))
@@ -613,6 +644,16 @@ class PartitionDialog(QDialog):
             action.triggered.connect(slot)
 
         # Create Buttons
+        self._action_show_grid = QAction(
+            create_icon_from_svg(":/icons/svg/actions/show-grid-symbolic.svg", ICON_SIZE),
+            self.tr("Show Grid"),
+            self,
+        )
+        self._action_show_grid.setCheckable(True)
+        self._action_show_grid.toggled.connect(self._on_action_show_grid)
+        toolbar.addAction(self._action_show_grid)
+
+        # Create Buttons
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
@@ -710,6 +751,10 @@ class PartitionDialog(QDialog):
 
         mode: Partition.WalkMode = sender.data()
         self._set_walk_mode(mode)
+
+    @Slot()
+    def _on_action_show_grid(self, checked):
+        self._image_widget.set_show_grid(checked)
 
     @Slot()
     def _on_rows_moved(self, parent, start, end, destination):
