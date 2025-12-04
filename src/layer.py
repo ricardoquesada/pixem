@@ -33,7 +33,7 @@ class LayerAlign(IntEnum):
 class EmbroideryParameters:
     pull_compensation_mm: float = 0.0
     max_stitch_length_mm: float = 1000.0
-    fill_method: str = "auto_fill"
+    fill_method: str = "contour_fill"
     odd_pixel_angle_degrees: int = 0
     even_pixel_angle_degrees: int = 90
     min_jump_stitch_length_mm: float = 0.0

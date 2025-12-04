@@ -566,6 +566,19 @@ class MainWindow(QMainWindow):
             self.tr("Min Jump Stitch Length (mm):"), self._min_jump_stitch_length_spinbox
         )
 
+        self._fill_method_combo = QComboBox()
+        fill_items = {
+            "auto_fill": self.tr("Auto Fill"),
+            "circular_fill": self.tr("Circular Fill"),
+            "contour_fill": self.tr("Contour Fill"),
+            "legacy_fill": self.tr("Legacy Fill"),
+        }
+        for k, v in fill_items.items():
+            self._fill_method_combo.addItem(v, k)
+        self._fill_method_combo.currentIndexChanged.connect(self._on_update_embroidery_property)
+        self._fill_method_combo.currentIndexChanged.connect(self._update_embroidery_ui_state)
+        self._embroidery_params_layout.addRow(self.tr("Fill Method:"), self._fill_method_combo)
+
         self._odd_angle_spinbox = QSpinBox()
         self._odd_angle_spinbox.setMinimum(0)
         self._odd_angle_spinbox.setMaximum(360)
@@ -581,18 +594,6 @@ class MainWindow(QMainWindow):
         self._embroidery_params_layout.addRow(
             self.tr("Even-Pixel Angle (degrees):"), self._even_angle_spinbox
         )
-
-        self._fill_method_combo = QComboBox()
-        fill_items = {
-            "auto_fill": self.tr("Auto Fill"),
-            "circular_fill": self.tr("Circular Fill"),
-            "contour_fill": self.tr("Contour Fill"),
-            "legacy_fill": self.tr("Legacy Fill"),
-        }
-        for k, v in fill_items.items():
-            self._fill_method_combo.addItem(v, k)
-        self._fill_method_combo.currentIndexChanged.connect(self._on_update_embroidery_property)
-        self._embroidery_params_layout.addRow(self.tr("Fill Method:"), self._fill_method_combo)
 
         self._embroidery_params_dock = QDockWidget(self.tr("Layer Embroidery Properties"), self)
         self._embroidery_params_dock.setObjectName("layer_embroidery_dock")
@@ -927,6 +928,8 @@ class MainWindow(QMainWindow):
                 self._fill_method_combo.setCurrentIndex(index)
         with block_signals(self._fill_underlay_checkbox):
             self._fill_underlay_checkbox.setChecked(embroidery_params.fill_underlay)
+
+        self._update_embroidery_ui_state()
 
     def _maybe_abort_operation_if_dirty(self) -> bool:
         """
@@ -1495,6 +1498,13 @@ class MainWindow(QMainWindow):
                 fill_underlay=self._fill_underlay_checkbox.isChecked(),
             )
             selected_layer.embroidery_params = embroidery_params
+
+    def _update_embroidery_ui_state(self):
+        """Updates the enabled state of embroidery widgets based on the selected fill method."""
+        fill_method = self._fill_method_combo.currentData()
+        enable_angles = fill_method in ("legacy_fill", "auto_fill")
+        self._odd_angle_spinbox.setEnabled(enable_angles)
+        self._even_angle_spinbox.setEnabled(enable_angles)
 
     @Slot()
     def _on_show_about_dialog(self) -> None:
