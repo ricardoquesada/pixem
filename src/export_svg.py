@@ -41,6 +41,7 @@ class ExportToSvg:
     def _write_rect_to_svg(
         self,
         file: TextIO,
+        indent: str,
         layer_idx: int,
         x: int,
         y: int,
@@ -66,7 +67,7 @@ class ExportToSvg:
             embroidery_params: Embroidery parameters for the layer.
         """
         file.write(
-            f'<rect x="{x * pixel_size[0]}" y="{y * pixel_size[1]}" '
+            f'{indent}<rect x="{x * pixel_size[0]}" y="{y * pixel_size[1]}" '
             f'width="{pixel_size[0]}" height="{pixel_size[1]}" '
             f'fill="{color}" '
             f'id="pixel_{layer_idx}_{x}_{y}_{angle}" '
@@ -87,6 +88,7 @@ class ExportToSvg:
     def _write_path_to_svg(
         self,
         file: TextIO,
+        indent: str,
         layer_idx: int,
         partition_name: str,
         shape_idx: int,
@@ -124,7 +126,7 @@ class ExportToSvg:
 
         part_name_sanitized = partition_name.replace("#", "")
         file.write(
-            f'<path d="{d_str}" '
+            f'{indent}<path d="{d_str}" '
             f'id="path_{layer_idx}_{part_name_sanitized}_{shape_idx}" '
             f'style="fill:none;stroke:{color};stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" '
             f'inkstitch:satin_column="False" '
@@ -164,40 +166,40 @@ class ExportToSvg:
                 f'  xmlns:inkstitch="http://inkstitch.org/namespace"\n'
                 ">\n"
             )
-            f.write(f'<title id="title1023">{os.path.basename(self._export_filename)}</title>\n')
+            f.write(f'  <title id="title1023">{os.path.basename(self._export_filename)}</title>\n')
             f.write(
-                "<sodipodi:namedview\n"
-                '  inkscape:document-units="mm"\n'
-                '  inkscape:pagecheckerboard="true"\n'
-                '  showgrid="true"\n'
-                ">\n"
+                "  <sodipodi:namedview\n"
+                '    inkscape:document-units="mm"\n'
+                '    inkscape:pagecheckerboard="true"\n'
+                '    showgrid="true"\n'
+                "  >\n"
             )
             f.write(
-                '<metadata id="metadata1">\n'
-                "  <inkstitch:inkstitch_svg_version>3</inkstitch:inkstitch_svg_version>\n"
-                "</metadata>\n"
+                '    <metadata id="metadata1">\n'
+                "      <inkstitch:inkstitch_svg_version>3</inkstitch:inkstitch_svg_version>\n"
+                "    </metadata>\n"
             )
             f.write(
-                "<inkscape:grid\n"
-                '  id="grid1"\n'
-                '  units="mm"\n'
-                '  originx="0"\n'
-                '  originy="0"\n'
-                f'  spacingx="{self._layers[0].properties.pixel_size[0]}"\n'
-                f'  spacingy="{self._layers[0].properties.pixel_size[1]}"\n'
-                '  enabled="true"\n'
-                '  visible="true"\n'
-                "/>\n"
+                "    <inkscape:grid\n"
+                '      id="grid1"\n'
+                '      units="mm"\n'
+                '      originx="0"\n'
+                '      originy="0"\n'
+                f'      spacingx="{self._layers[0].properties.pixel_size[0]}"\n'
+                f'      spacingy="{self._layers[0].properties.pixel_size[1]}"\n'
+                '      enabled="true"\n'
+                '      visible="true"\n'
+                "    />\n"
             )
-            f.write("</sodipodi:namedview>\n")
-            f.write("<defs\n" '  id="defs1"\n' "/>\n")
+            f.write("  </sodipodi:namedview>\n")
+            f.write("  <defs\n" '    id="defs1"\n' "  />\n")
 
             for layer_idx, layer in enumerate(self._layers):
-                f.write(f"<!--  layer uuid: {layer.uuid}, name: {layer.name} -->\n")
+                f.write(f"  <!--  layer uuid: {layer.uuid}, name: {layer.name} -->\n")
                 f.write(
-                    "<!-- layer embroidery params\n"
-                    f'  {asdict(layer.embroidery_params)}"\n'
-                    "-->\n"
+                    "  <!-- layer embroidery params\n"
+                    f'    {asdict(layer.embroidery_params)}"\n'
+                    "  -->\n"
                 )
                 name = layer.name
                 pixel_size = layer.properties.pixel_size
@@ -207,7 +209,7 @@ class ExportToSvg:
                 rotation_anchor_y = layer.image.height() * pixel_size[1] / 2
                 partitions = layer.partitions
                 f.write(
-                    f'<g id="{name}" transform="'
+                    f'  <g id="{name}" transform="'
                     f"translate({translate[0]} {translate[1]}) "
                     f"rotate({rotation} {rotation_anchor_x} {rotation_anchor_y}) "
                     "scale(1 1)"
@@ -221,7 +223,7 @@ class ExportToSvg:
                     color = partition.color
                     part_id = f"partition_{layer_idx}_{partition.name}"
                     part_id = part_id.replace("#", "")
-                    f.write(f'<g id="{part_id}">\n')
+                    f.write(f'    <g id="{part_id}">\n')
                     for shape_idx, shape in enumerate(path):
                         if isinstance(shape, Rect):
                             x, y = shape.x, shape.y
@@ -231,6 +233,7 @@ class ExportToSvg:
                                 angle = layer.embroidery_params.odd_pixel_angle_degrees
                             self._write_rect_to_svg(
                                 f,
+                                "      ",
                                 layer_idx,
                                 x,
                                 y,
@@ -242,6 +245,7 @@ class ExportToSvg:
                         elif isinstance(shape, Path):
                             self._write_path_to_svg(
                                 f,
+                                "      ",
                                 layer_idx,
                                 partition.name,
                                 shape_idx,
@@ -254,9 +258,9 @@ class ExportToSvg:
                             raise Exception(f"Unknown shape type: {shape}")
 
                     # partition
-                    f.write("</g>\n")
+                    f.write("    </g>\n")
                 # layer
-                f.write("</g>\n")
+                f.write("  </g>\n")
             f.write("</svg>\n")
 
     def add_layer(self, layer: Layer):
