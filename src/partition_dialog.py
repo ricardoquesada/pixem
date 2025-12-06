@@ -56,6 +56,7 @@ class ImageWidget(QWidget):
         PAINT = auto()
         FILL = auto()
         ADD_MANUAL_PATH = auto()
+        ADD_AUTO_PATH = auto()
         SELECT = auto()
 
     class CornerPosition(IntEnum):
@@ -437,6 +438,7 @@ class ImageWidget(QWidget):
             ImageWidget.EditMode.PAINT,
             ImageWidget.EditMode.FILL,
             ImageWidget.EditMode.ADD_MANUAL_PATH,
+            ImageWidget.EditMode.ADD_AUTO_PATH,
         ]:
             event.ignore()
             return
@@ -446,10 +448,10 @@ class ImageWidget(QWidget):
         y = pos.y() / self._zoom_factor
         shape = Rect(int(x), int(y))
 
-        if (
-            shape not in self._original_shapes
-            and self._edit_mode != ImageWidget.EditMode.ADD_MANUAL_PATH
-        ):
+        if shape not in self._original_shapes and self._edit_mode not in [
+            ImageWidget.EditMode.ADD_MANUAL_PATH,
+            ImageWidget.EditMode.ADD_AUTO_PATH,
+        ]:
             event.ignore()
             return
 
@@ -488,6 +490,9 @@ class ImageWidget(QWidget):
                             y += 1
                     self._current_building_path.append(Point(int(x), int(y)))
                     self.update()
+            case ImageWidget.EditMode.ADD_AUTO_PATH:
+                # FIXME: Implement Add Auto Path logic
+                pass
 
     def mouseMoveEvent(self, event: QMouseEvent):
         if event.buttons() & Qt.MouseButton.MiddleButton and self._pan_last_pos:
@@ -606,6 +611,11 @@ class PartitionDialog(QDialog):
             (
                 ImageWidget.EditMode.ADD_MANUAL_PATH,
                 self.tr("Add Manual Path"),
+                "draw-path-symbolic.svg",
+            ),
+            (
+                ImageWidget.EditMode.ADD_AUTO_PATH,
+                self.tr("Add Auto Path"),
                 "draw-path-symbolic.svg",
             ),
             (ImageWidget.EditMode.FILL, self.tr("Fill"), "color-fill-symbolic.svg"),
@@ -770,6 +780,9 @@ class PartitionDialog(QDialog):
                     self._list_widget.setDragDropMode(QListWidget.NoDragDrop)
                     self._list_widget.setSelectionMode(QListWidget.ContiguousSelection)
                 case ImageWidget.EditMode.ADD_MANUAL_PATH:
+                    self._list_widget.setDragDropMode(QListWidget.NoDragDrop)
+                    self._list_widget.setSelectionMode(QListWidget.ContiguousSelection)
+                case ImageWidget.EditMode.ADD_AUTO_PATH:
                     self._list_widget.setDragDropMode(QListWidget.NoDragDrop)
                     self._list_widget.setSelectionMode(QListWidget.ContiguousSelection)
                 case ImageWidget.EditMode.FILL:
