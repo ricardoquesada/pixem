@@ -34,6 +34,7 @@ from PySide6.QtWidgets import (
 
 from image_utils import create_icon_from_svg
 from partition import Partition
+from path_finder import PathFinder
 from preferences import get_global_preferences
 from shape import Path, Point, Rect, Shape
 
@@ -65,12 +66,21 @@ class ImageWidget(QWidget):
         BOTTOM_LEFT = auto()
         BOTTOM_RIGHT = auto()
 
-    def __init__(self, partition_dialog, image: QImage, shapes: list[Shape]):
+    def __init__(
+        self, partition_dialog, image: QImage, shapes: list[Shape], partition_color_str: str
+    ):
         super().__init__()
         self._partition_dialog = partition_dialog
         self._image = image
+        self._path_finder = PathFinder(image)
         self._original_shapes = shapes
         self._selected_shapes = []
+
+        # Convert hex string "#RRGGBB" to int 0xRRGGBB
+        if partition_color_str:
+            self._partition_color = int(partition_color_str.lstrip("#"), 16)
+        else:
+            self._partition_color = -1
 
         # Ensure widget is at least image size
         self.setMinimumSize(self._image.size())
@@ -86,6 +96,7 @@ class ImageWidget(QWidget):
         self._cached_selected_rects = []
         self._cached_selected_paths = []
         self._current_building_path = []
+        self._auto_path_points = []
 
         self._edit_mode = self.EditMode.PAINT
         self._walk_mode = Partition.WalkMode.SPIRAL_CW
@@ -491,8 +502,56 @@ class ImageWidget(QWidget):
                     self._current_building_path.append(Point(int(x), int(y)))
                     self.update()
             case ImageWidget.EditMode.ADD_AUTO_PATH:
-                # FIXME: Implement Add Auto Path logic
-                pass
+                if event.button() == Qt.MouseButton.LeftButton:
+                    self._auto_path_points.append((int(x), int(y)))
+                    if len(self._auto_path_points) == 2:
+                        start_node = self._auto_path_points[0]
+                        end_node = self._auto_path_points[1]
+
+                        start_color = self._path_finder.get_pixel_color(
+                            start_node[0], start_node[1]
+                        )
+                        end_color = self._path_finder.get_pixel_color(end_node[0], end_node[1])
+
+                        # Validate that both points and the partition have the same color
+                        if start_color == end_color and start_color == self._partition_color:
+
+                            path_nodes = self._path_finder.find_shortest_pixel_path(
+                                self._partition_color, start_node, end_node, use_weights=True
+                            )
+
+                            if path_nodes:
+                                path_nodes = self._path_finder.remove_redundant_points_from_start_and_end_nodes(
+                                    path_nodes
+                                )
+                                simplified_points = self._path_finder.simplify_path_to_points(
+                                    path_nodes
+                                )
+                                new_path = Path(simplified_points)
+
+                                insert_index = len(self._original_shapes)
+                                if self._selected_shapes:
+                                    indices = [
+                                        self._original_shapes.index(s)
+                                        for s in self._selected_shapes
+                                        if s in self._original_shapes
+                                    ]
+                                    if indices:
+                                        insert_index = max(indices) + 1
+
+                                self._original_shapes.insert(insert_index, new_path)
+                                self._partition_dialog.update_shapes(
+                                    self._selected_shapes, self._original_shapes
+                                )
+                                self._rebuild_cache()
+                                self.update()
+                        else:
+                            logger.warning(
+                                f"Auto Path validation failed: Start Color={start_color:#x}, "
+                                f"End Color={end_color:#x}, Partition Color={self._partition_color:#x}"
+                            )
+
+                        self._auto_path_points = []
 
     def mouseMoveEvent(self, event: QMouseEvent):
         if event.buttons() & Qt.MouseButton.MiddleButton and self._pan_last_pos:
@@ -571,7 +630,7 @@ class PartitionDialog(QDialog):
         shapes = partition.path
 
         # Create Image Widget
-        self._image_widget = ImageWidget(self, image, shapes)
+        self._image_widget = ImageWidget(self, image, shapes, partition.color)
 
         #  Wrap ImageWidget in a QScrollArea to handle zooming
         self._scroll_area = QScrollArea()
