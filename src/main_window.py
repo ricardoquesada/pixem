@@ -802,6 +802,7 @@ class MainWindow(QMainWindow):
         self._state.state_property_changed.connect(self._on_state_state_property_changed)
         self._state.partition_path_updated.connect(self._on_state_partition_path_updated)
         self._state.layer_partitions_changed.connect(self._on_state_layer_partitions_changed)
+        self._state.layers_reordered.connect(self._on_state_layers_reordered)
         self._state.layer_removed.connect(self._on_state_layer_removed)
         self._state.layer_pixels_changed.connect(self._on_state_layer_pixels_changed)
         self._state.layer_added.connect(self._on_state_layer_added)
@@ -1332,7 +1333,7 @@ class MainWindow(QMainWindow):
                 if layer.uuid == layer_uuid:
                     new_layers.append(layer)
                     break
-        self._state.layers = new_layers
+        self._state.reorder_layers(new_layers)
 
     @Slot()
     def _on_layer_item_double_clicked(self, item: QListWidgetItem):
@@ -1460,7 +1461,7 @@ class MainWindow(QMainWindow):
             item = self._partition_list.item(row)
             partition_uuid = item.data(Qt.UserRole)
             new_partitions[partition_uuid] = partitions[partition_uuid]
-        layer.partitions = new_partitions
+        self._state.update_layer_partitions(layer, new_partitions)
 
     @Slot()
     def _on_update_layer_property(self) -> None:
@@ -1703,6 +1704,26 @@ class MainWindow(QMainWindow):
 
         self._update_statusbar()
         self._canvas.recalculate_fixed_size()
+        self._canvas.update()
+
+    @Slot()
+    def _on_state_layers_reordered(self):
+        """
+        Slot for when layers are reordered in the application state.
+        """
+        # Save selection
+        selected_uuid = self._state.selected_layer_uuid
+
+        with block_signals(self._layer_list):
+            self._layer_list.clear()
+            for layer in self._state.layers:
+                item = QListWidgetItem(layer.name)
+                item.setData(Qt.UserRole, layer.uuid)
+                self._layer_list.addItem(item)
+                if layer.uuid == selected_uuid:
+                    item.setSelected(True)
+                    self._layer_list.setCurrentItem(item)
+
         self._canvas.update()
 
     @Slot(Layer, Partition)

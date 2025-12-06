@@ -29,6 +29,7 @@ from undo_commands import (
     UpdateLayerVisibleCommand,
     UpdatePartitionPathCommand,
     UpdateStateHoopSizeCommand,
+    UpdateStateLayersCommand,
     UpdateStateZoomFactorCommand,
     UpdateTextLayerCommand,
 )
@@ -59,6 +60,8 @@ class State(QObject):
     partition_path_updated = Signal(Layer, Partition)
     # Triggered when a layer's partitions are reordered.
     layer_partitions_changed = Signal(Layer)
+    # Triggered when layers are reordered.
+    layers_reordered = Signal()
 
     def __init__(self):
         super().__init__()
@@ -296,17 +299,21 @@ class State(QObject):
             return
         self._properties.selected_layer_uuid = uuid
 
+    def _set_layers(self, layers: list[Layer]) -> None:
+        self._layers = {}
+        for layer in layers:
+            self._layers[layer.uuid] = layer
+        self.layers_reordered.emit()
+
+    def reorder_layers(self, layers: list[Layer]) -> None:
+        # Must be a re-order of the existing list
+        self._undo_stack.push(UpdateStateLayersCommand(self, layers, None))
+
     @property
     def layers(self) -> list[Layer]:
         return list(self._layers.values())
 
-    @layers.setter
-    def layers(self, layers: list[Layer]) -> None:
-        # Must be a re-order of the existing list
-        # FIXME: add checks, or rename function, or add a proper "reorder layers" method
-        self._layers = {}
-        for layer in layers:
-            self._layers[layer.uuid] = layer
+    # Removed setter to enforce usage of reorder_layers or add/delete
 
     @property
     def properties(self) -> StateProperties:

@@ -222,8 +222,8 @@ class UpdateLayerPartitionsCommand(QUndoCommand):
         super().__init__(f"Reorder Partitions: {layer.name}", parent)
         self._state = state
         self._layer = layer
-        self._new_partitions = partitions
-        self._old_partitions = layer.partitions
+        self._new_partitions = copy.copy(partitions)
+        self._old_partitions = copy.copy(layer.partitions)
 
     def undo(self) -> None:
         self._state._update_layer_partitions(self._layer, self._old_partitions)
@@ -253,3 +253,17 @@ class DeletePartitionCommand(QUndoCommand):
 
     def redo(self) -> None:
         self._state._update_layer_partitions(self._layer, self._new_partitions)
+
+
+class UpdateStateLayersCommand(QUndoCommand):
+    def __init__(self, state, layers: list[Layer], parent: QUndoCommand | None):
+        super().__init__("Reorder Layers", parent)
+        self._state = state
+        self._new_layers = layers
+        self._old_layers = state.layers
+
+    def undo(self) -> None:
+        self._state._set_layers(self._old_layers)
+
+    def redo(self) -> None:
+        self._state._set_layers(self._new_layers)
