@@ -668,14 +668,14 @@ class PartitionDialog(QDialog):
                 "draw-freehand-symbolic.svg",
             ),
             (
-                ImageWidget.EditMode.ADD_MANUAL_PATH,
-                self.tr("Add Manual Path"),
-                "draw-path-symbolic.svg",
-            ),
-            (
                 ImageWidget.EditMode.ADD_AUTO_PATH,
                 self.tr("Add Auto Path"),
-                "draw-path-symbolic.svg",
+                "rectangle-make-corners-sharp-symbolic.svg",
+            ),
+            (
+                ImageWidget.EditMode.ADD_MANUAL_PATH,
+                self.tr("Add Manual Path"),
+                "construct-grid-symbolic.svg",
             ),
             (ImageWidget.EditMode.FILL, self.tr("Fill"), "color-fill-symbolic.svg"),
             (
