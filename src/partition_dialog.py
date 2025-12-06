@@ -55,7 +55,7 @@ class ImageWidget(QWidget):
     class EditMode(IntEnum):
         PAINT = auto()
         FILL = auto()
-        ADD_PATH = auto()
+        ADD_MANUAL_PATH = auto()
         SELECT = auto()
 
     class CornerPosition(IntEnum):
@@ -210,8 +210,8 @@ class ImageWidget(QWidget):
                 self._partition_dialog.update_shapes([], self._original_shapes)
             event.accept()
         elif key in [Qt.Key.Key_Return, Qt.Key.Key_Enter]:
-            if self._edit_mode == self.EditMode.ADD_PATH:
-                self._finalize_current_path()
+            if self._edit_mode == self.EditMode.ADD_MANUAL_PATH:
+                self._finalize_current_manual_path()
             event.accept()
         elif (
             key in [Qt.Key.Key_Up, Qt.Key.Key_Down, Qt.Key.Key_Left, Qt.Key.Key_Right]
@@ -405,7 +405,7 @@ class ImageWidget(QWidget):
 
         painter.end()
 
-    def _finalize_current_path(self):
+    def _finalize_current_manual_path(self):
         if len(self._current_building_path) >= 2:
             new_path = Path(self._current_building_path)
 
@@ -436,7 +436,7 @@ class ImageWidget(QWidget):
         if self._edit_mode not in [
             ImageWidget.EditMode.PAINT,
             ImageWidget.EditMode.FILL,
-            ImageWidget.EditMode.ADD_PATH,
+            ImageWidget.EditMode.ADD_MANUAL_PATH,
         ]:
             event.ignore()
             return
@@ -446,7 +446,10 @@ class ImageWidget(QWidget):
         y = pos.y() / self._zoom_factor
         shape = Rect(int(x), int(y))
 
-        if shape not in self._original_shapes and self._edit_mode != ImageWidget.EditMode.ADD_PATH:
+        if (
+            shape not in self._original_shapes
+            and self._edit_mode != ImageWidget.EditMode.ADD_MANUAL_PATH
+        ):
             event.ignore()
             return
 
@@ -467,7 +470,7 @@ class ImageWidget(QWidget):
                 ordered_partition = part.path
                 self._selected_shapes = self._selected_shapes + ordered_partition
                 self._update_selected_shapes_cache()
-            case ImageWidget.EditMode.ADD_PATH:
+            case ImageWidget.EditMode.ADD_MANUAL_PATH:
                 if event.button() == Qt.MouseButton.RightButton:
                     if self._current_building_path:
                         self._current_building_path.pop()
@@ -540,12 +543,12 @@ class ImageWidget(QWidget):
         self._partition_dialog.update_shapes(self._selected_shapes, full_shapes)
 
     def mouseDoubleClickEvent(self, event: QMouseEvent):
-        if self._edit_mode != ImageWidget.EditMode.ADD_PATH:
+        if self._edit_mode != ImageWidget.EditMode.ADD_MANUAL_PATH:
             event.ignore()
             return
 
         if event.button() == Qt.MouseButton.LeftButton:
-            self._finalize_current_path()
+            self._finalize_current_manual_path()
             event.accept()
 
     def sizeHint(self):
@@ -601,8 +604,8 @@ class PartitionDialog(QDialog):
                 "draw-freehand-symbolic.svg",
             ),
             (
-                ImageWidget.EditMode.ADD_PATH,
-                self.tr("Add Path"),
+                ImageWidget.EditMode.ADD_MANUAL_PATH,
+                self.tr("Add Manual Path"),
                 "draw-path-symbolic.svg",
             ),
             (ImageWidget.EditMode.FILL, self.tr("Fill"), "color-fill-symbolic.svg"),
@@ -766,7 +769,7 @@ class PartitionDialog(QDialog):
                 case ImageWidget.EditMode.PAINT:
                     self._list_widget.setDragDropMode(QListWidget.NoDragDrop)
                     self._list_widget.setSelectionMode(QListWidget.ContiguousSelection)
-                case ImageWidget.EditMode.ADD_PATH:
+                case ImageWidget.EditMode.ADD_MANUAL_PATH:
                     self._list_widget.setDragDropMode(QListWidget.NoDragDrop)
                     self._list_widget.setSelectionMode(QListWidget.ContiguousSelection)
                 case ImageWidget.EditMode.FILL:
@@ -779,7 +782,7 @@ class PartitionDialog(QDialog):
             enabled = mode == ImageWidget.EditMode.FILL
             self._enable_fill_mode_actions(enabled)
 
-            enabled = mode == ImageWidget.EditMode.ADD_PATH
+            enabled = mode == ImageWidget.EditMode.ADD_MANUAL_PATH
             self._enable_corner_actions(enabled)
 
     def _enable_fill_mode_actions(self, enabled: bool):
