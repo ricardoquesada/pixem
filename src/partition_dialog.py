@@ -203,6 +203,12 @@ class ImageWidget(QWidget):
         elif key == Qt.Key.Key_S:
             dialog_actions[self.EditMode.SELECT].trigger()
             event.accept()
+        elif key == Qt.Key.Key_A:
+            dialog_actions[self.EditMode.ADD_AUTO_PATH].trigger()
+            event.accept()
+        elif key == Qt.Key.Key_M:
+            dialog_actions[self.EditMode.ADD_MANUAL_PATH].trigger()
+            event.accept()
         elif key in [Qt.Key.Key_Plus, Qt.Key.Key_Equal]:
             self.zoom_in()
             event.accept()
@@ -564,11 +570,19 @@ class ImageWidget(QWidget):
                                 if indices:
                                     insert_index = max(indices) + 1
 
+                            # Update selection to include the new path
+                            if new_path not in self._selected_shapes:
+                                self._selected_shapes.append(new_path)
+                            self._update_selected_shapes_cache()
+
                             self._original_shapes.insert(insert_index, new_path)
                             self._partition_dialog.update_shapes(
                                 self._selected_shapes, self._original_shapes
                             )
                             self._rebuild_cache()
+
+                            # Switch to Paint mode
+                            self._partition_dialog._mode_actions[self.EditMode.PAINT].trigger()
 
                         # Clear points (removes visual mark) and update
                         self._auto_path_points = []
