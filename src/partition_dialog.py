@@ -306,12 +306,21 @@ class ImageWidget(QWidget):
         if not self._selected_shapes:
             return
 
+        delete_point_enabled = get_global_preferences().get_delete_point_enabled()
+
         # Remove selected shapes from original shapes
+        shapes_to_remove = []
         for shape in self._selected_shapes:
+            if isinstance(shape, Rect) and not delete_point_enabled:
+                logger.info("Point deletion is disabled in preferences.")
+                continue
+            shapes_to_remove.append(shape)
+
+        for shape in shapes_to_remove:
             if shape in self._original_shapes:
                 self._original_shapes.remove(shape)
 
-        self._partition_dialog.remove_shapes(self._selected_shapes)
+        self._partition_dialog.remove_shapes(shapes_to_remove)
         self.set_selected_shapes([])
         self._rebuild_cache()
         self.update()

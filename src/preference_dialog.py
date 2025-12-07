@@ -149,9 +149,9 @@ class PreferenceDialog(QDialog):
         canvas_color_vlayout.addLayout(canvas_color_hlayout)
         canvas_color_group.setLayout(canvas_color_vlayout)
 
-        # Partition Color
-        partition_color_group = QGroupBox(self.tr("Partition Color"))
-        partition_color_vlayout = QVBoxLayout()
+        # Partition Properties
+        partition_group = QGroupBox(self.tr("Partition Properties"))
+        partition_vlayout = QVBoxLayout()
         partition_color_hlayout1 = QHBoxLayout()
         partition_color_hlayout2 = QHBoxLayout()
 
@@ -179,9 +179,13 @@ class PreferenceDialog(QDialog):
         self._colors[ColorType.PARTITION_BACKGROUND]["button"] = button
         self._update_color_label(ColorType.PARTITION_BACKGROUND)
 
-        partition_color_vlayout.addLayout(partition_color_hlayout1)
-        partition_color_vlayout.addLayout(partition_color_hlayout2)
-        partition_color_group.setLayout(partition_color_vlayout)
+        # Delete Point Enabled
+        self._delete_point_checkbox = QCheckBox(self.tr("Enable Deleting Points"))
+
+        partition_vlayout.addLayout(partition_color_hlayout1)
+        partition_vlayout.addLayout(partition_color_hlayout2)
+        partition_vlayout.addWidget(self._delete_point_checkbox)
+        partition_group.setLayout(partition_vlayout)
 
         # Open the latest file on startup
         self._open_file_startup_checkbox = QCheckBox(self.tr("Open the latest file on startup"))
@@ -200,7 +204,7 @@ class PreferenceDialog(QDialog):
         main_layout = QVBoxLayout()
         main_layout.addWidget(hoop_group_box)
         main_layout.addWidget(canvas_color_group)
-        main_layout.addWidget(partition_color_group)
+        main_layout.addWidget(partition_group)
         if self._is_global:
             main_layout.addWidget(self._open_file_startup_checkbox)
         main_layout.addWidget(self._button_box)
@@ -240,6 +244,8 @@ class PreferenceDialog(QDialog):
         if self._is_global:
             self._open_file_startup_checkbox.setChecked(self._settings.get_open_file_on_startup())
 
+        self._delete_point_checkbox.setChecked(self._settings.get_delete_point_enabled())
+
     def _apply(self) -> None:
         hoop_size = (0, 0)
         if self._hoop_1_25_radio.isChecked():
@@ -278,6 +284,7 @@ class PreferenceDialog(QDialog):
         self._settings.set_hoop_color_name(
             self._colors[ColorType.HOOP_FOREGROUND]["color"].name(QColor.HexArgb)
         )
+        self._settings.set_delete_point_enabled(self._delete_point_checkbox.isChecked())
 
     def _update_color_label(self, color_type: ColorType):
         self._colors[color_type]["button"].setStyleSheet(

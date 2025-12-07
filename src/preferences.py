@@ -133,6 +133,12 @@ class Preferences(QObject):
             self._settings.setValue("canvas/background_color", color)
             self.canvas_background_color_changed.emit(color)
 
+    def set_delete_point_enabled(self, enabled: bool) -> None:
+        self._settings.setValue("partition/delete_point_enabled", enabled)
+
+    def get_delete_point_enabled(self) -> bool:
+        return bool(self._settings.value("partition/delete_point_enabled", defaultValue=False))
+
     def _load_recent_files(self) -> None:
         recent_files = self._settings.value("files/recent_files", [])
         if isinstance(recent_files, list):
