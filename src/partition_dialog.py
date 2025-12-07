@@ -36,6 +36,7 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QListWidget,
     QListWidgetItem,
+    QMessageBox,
     QScrollArea,
     QToolBar,
     QVBoxLayout,
@@ -319,6 +320,14 @@ class ImageWidget(QWidget):
         self._selected_shapes = shapes
         self._update_selected_shapes_cache()
 
+    def set_original_shapes(self, shapes: list[Shape]):
+        """
+        Update the internal list of shapes.
+        Typically called when the order changes in the list widget.
+        """
+        self._original_shapes = shapes
+        self.update()
+
     def delete_selection(self):
         if not self._selected_shapes:
             return
@@ -338,6 +347,7 @@ class ImageWidget(QWidget):
                 self._original_shapes.remove(shape)
 
         self._partition_dialog.remove_shapes(shapes_to_remove)
+        self._partition_dialog.mark_dirty()
         self.set_selected_shapes([])
         self._rebuild_cache()
         self.update()
@@ -484,6 +494,7 @@ class ImageWidget(QWidget):
 
             self._original_shapes.insert(insert_index, new_path)
             self._partition_dialog.update_shapes(self._selected_shapes, self._original_shapes)
+            self._partition_dialog.mark_dirty()
             self._rebuild_cache()
         self._current_building_path = []
         self.update()
@@ -533,6 +544,7 @@ class ImageWidget(QWidget):
                 ordered_partition = part.path
                 self._selected_shapes = self._selected_shapes + ordered_partition
                 self._update_selected_shapes_cache()
+                self._partition_dialog.mark_dirty()
             case ImageWidget.EditMode.ADD_MANUAL_PATH:
                 if event.button() == Qt.MouseButton.RightButton:
                     if self._current_building_path:
@@ -605,10 +617,12 @@ class ImageWidget(QWidget):
                             self._partition_dialog.update_shapes(
                                 self._selected_shapes, self._original_shapes
                             )
-                            self._rebuild_cache()
+                            self.set_selected_shapes(self._selected_shapes)
+                            self._update_selected_shapes_cache()
 
-                            # Switch to Paint mode
+                            # Switch back to Paint mode
                             self._partition_dialog._mode_actions[self.EditMode.PAINT].trigger()
+                            self._partition_dialog.mark_dirty()
 
                         # Clear points (removes visual mark) and update
                         self._auto_path_points = []
@@ -714,6 +728,8 @@ class PartitionDialog(QDialog):
 
         self._edit_mode = None
         self._set_edit_mode(ImageWidget.EditMode.PAINT)
+
+        self._is_dirty = False
 
         # Layouts
         image_list_layout = QHBoxLayout()
@@ -947,7 +963,7 @@ class PartitionDialog(QDialog):
     def _on_action_edit_mode(self, value):
         sender: QAction = self.sender()
         if sender not in self._mode_actions.values():
-            logger.warning("Unknown actions {sender}")
+            logger.warning(f"Unknown actions {sender}")
             return
         for action in self._mode_actions.values():
             action.setChecked(False)
@@ -989,11 +1005,13 @@ class PartitionDialog(QDialog):
 
     @Slot()
     def _on_rows_moved(self, parent, start, end, destination):
-        # FIXME: Do something ? It seems that the partition data was automatically updated (???)
-        # You can access the new order of items here
-        # for row in range(self._list_widget.count()):
-        #     item = self._list_widget.item(row)
-        pass
+        new_shapes = []
+        for row in range(self._list_widget.count()):
+            item = self._list_widget.item(row)
+            shape = item.data(Qt.UserRole)
+            new_shapes.append(shape)
+        self._image_widget.set_original_shapes(new_shapes)
+        self.mark_dirty()
 
     @Slot()
     def _on_item_selection_changed(self):
@@ -1001,6 +1019,23 @@ class PartitionDialog(QDialog):
         selected_shapes = [item.data(Qt.UserRole) for item in selected_items]
         self._image_widget.set_selected_shapes(selected_shapes)
         # logger.info(f"Current Index: {self._list_widget.currentIndex()}")
+
+    def mark_dirty(self):
+        self._is_dirty = True
+
+    def reject(self):
+        if self._is_dirty:
+            ret = QMessageBox.question(
+                self,
+                self.tr("Unsaved Changes"),
+                self.tr("You have unsaved changes. Are you sure you want to discard them?"),
+                QMessageBox.StandardButton.Discard | QMessageBox.StandardButton.Cancel,
+                QMessageBox.StandardButton.Cancel,
+            )
+            if ret == QMessageBox.StandardButton.Cancel:
+                return
+
+        super().reject()
 
     def update_shapes(self, selected_shapes: list[Shape], full_shapes: list[Shape]):
         """
