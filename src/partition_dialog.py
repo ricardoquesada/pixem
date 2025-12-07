@@ -677,6 +677,9 @@ class ImageWidget(QWidget):
         for shape in self._original_shapes:
             if shape not in full_shapes:
                 full_shapes.append(shape)
+        if self._original_shapes != full_shapes:
+            self._partition_dialog.mark_dirty()
+
         # Update original shapes with new order
         self._original_shapes = full_shapes
         self._partition_dialog.update_shapes(self._selected_shapes, full_shapes)
