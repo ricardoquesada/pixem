@@ -537,7 +537,19 @@ class ImageWidget(QWidget):
                 if shape in self._selected_shapes:
                     # Could be a user error, when it clicks a pixel that it is already painted
                     return
-                partial_partition = list(set(self._original_shapes) - set(self._selected_shapes))
+                # Fix for unhashable Path objects (TypeError) and performance optimization for Rects
+                selected_rects = {s for s in self._selected_shapes if isinstance(s, Rect)}
+                selected_paths = [s for s in self._selected_shapes if isinstance(s, Path)]
+
+                partial_partition = []
+                for s in self._original_shapes:
+                    if isinstance(s, Rect):
+                        if s not in selected_rects:
+                            partial_partition.append(s)
+                    else:
+                        # Path or other unhashable shapes
+                        if s not in selected_paths:
+                            partial_partition.append(s)
                 # Create temporal partition
                 part = Partition(partial_partition)
                 part.walk_path(self._walk_mode, (shape.x, shape.y))
