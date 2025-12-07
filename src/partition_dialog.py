@@ -4,7 +4,16 @@
 import logging
 from enum import IntEnum, auto
 
-from PySide6.QtCore import QItemSelectionModel, QPointF, QRect, QSize, Qt, Slot
+from PySide6.QtCore import (
+    QEvent,
+    QItemSelection,
+    QItemSelectionModel,
+    QPointF,
+    QRect,
+    QSize,
+    Qt,
+    Slot,
+)
 from PySide6.QtGui import (
     QAction,
     QColor,
@@ -236,25 +245,7 @@ class ImageWidget(QWidget):
             key in [Qt.Key.Key_Up, Qt.Key.Key_Down, Qt.Key.Key_Left, Qt.Key.Key_Right]
             and is_shift_pressed
         ):
-            # Emulate QListWidget behavior to select items.
-            # This is needed since QListWidget; when it loses focus, it doesn't
-            #  keep the state of the current cursor position on the selected items.
-            # At least this is true for Qt 6.9
-            if key in [Qt.Key.Key_Up, Qt.Key.Key_Left]:
-                self._selected_shapes = self._selected_shapes[:-1]
-            elif key in [Qt.Key.Key_Down, Qt.Key.Key_Right]:
-                for shape in self._original_shapes:
-                    if shape not in self._selected_shapes:
-                        self._selected_shapes.append(shape)
-                        break
-            self.set_selected_shapes(self._selected_shapes)
-            full_shapes = self._selected_shapes[:]
-            for shape in self._original_shapes:
-                if shape not in full_shapes:
-                    full_shapes.append(shape)
-            # Update original shapes with new order
-            self._original_shapes = full_shapes
-            self._partition_dialog.update_shapes(self._selected_shapes, full_shapes)
+            self.handle_shift_selection(key)
             event.accept()
         elif key in [Qt.Key.Key_Delete, Qt.Key.Key_Backspace]:
             self.delete_selection()
@@ -262,6 +253,31 @@ class ImageWidget(QWidget):
         else:
             # If we don't handle the key, pass the event to the base class
             super().keyPressEvent(event)
+
+    def handle_shift_selection(self, key):
+        """
+        Handles shift + arrow keys to select/deselect items.
+        Common logic used by both ImageWidget and PartitionDialog's list widget.
+        """
+        # Emulate QListWidget behavior to select items.
+        # This is needed since QListWidget; when it loses focus, it doesn't
+        #  keep the state of the current cursor position on the selected items.
+        # At least this is true for Qt 6.9
+        if key in [Qt.Key.Key_Up, Qt.Key.Key_Left]:
+            self._selected_shapes = self._selected_shapes[:-1]
+        elif key in [Qt.Key.Key_Down, Qt.Key.Key_Right]:
+            for shape in self._original_shapes:
+                if shape not in self._selected_shapes:
+                    self._selected_shapes.append(shape)
+                    break
+        self.set_selected_shapes(self._selected_shapes)
+        full_shapes = self._selected_shapes[:]
+        for shape in self._original_shapes:
+            if shape not in full_shapes:
+                full_shapes.append(shape)
+        # Update original shapes with new order
+        self._original_shapes = full_shapes
+        self._partition_dialog.update_shapes(self._selected_shapes, full_shapes)
 
     def _update_shape(self, shape: Shape):
         if shape not in self._original_shapes:
@@ -688,6 +704,7 @@ class PartitionDialog(QDialog):
         # Create List Widget
         self._list_widget = QListWidget()
         self._list_widget.installEventFilter(self)
+        self._list_widget.viewport().installEventFilter(self)
         self._populate_list_widget(shapes)
         self._connect_list_widget()
 
@@ -1047,10 +1064,47 @@ class PartitionDialog(QDialog):
         return path
 
     def eventFilter(self, source, event):
-        if event.type() == QKeyEvent.Type.KeyPress and source is self._list_widget:
-            if event.key() in [Qt.Key.Key_Delete, Qt.Key.Key_Backspace]:
+        if event.type() == QEvent.Type.KeyPress and source is self._list_widget:
+            key = event.key()
+            modifiers = event.modifiers()
+            is_shift_pressed = modifiers & Qt.KeyboardModifier.ShiftModifier
+
+            if key in [Qt.Key.Key_Delete, Qt.Key.Key_Backspace]:
                 self._image_widget.delete_selection()
                 return True
+            elif (
+                key in [Qt.Key.Key_Up, Qt.Key.Key_Down, Qt.Key.Key_Left, Qt.Key.Key_Right]
+                and is_shift_pressed
+            ):
+                self._image_widget.handle_shift_selection(key)
+                return True
+        elif event.type() == QEvent.Type.MouseButtonPress and (
+            source is self._list_widget or source is self._list_widget.viewport()
+        ):
+            if event.button() == Qt.MouseButton.RightButton:
+                item = self._list_widget.itemAt(event.pos())
+                if item:
+                    row = self._list_widget.row(item)
+
+                    self._disconnect_list_widget()
+
+                    # Create a range selection from the first item to the clicked item
+                    top_index = self._list_widget.model().index(0, 0)
+                    bottom_index = self._list_widget.model().index(row, 0)
+                    selection = QItemSelection(top_index, bottom_index)
+
+                    self._list_widget.selectionModel().select(
+                        selection, QItemSelectionModel.ClearAndSelect
+                    )
+                    self._list_widget.selectionModel().setCurrentIndex(
+                        bottom_index, QItemSelectionModel.Current
+                    )
+
+                    # Manually trigger update since we disconnected signals
+                    self._on_item_selection_changed()
+                    self._connect_list_widget()
+
+                    return True
         return super().eventFilter(source, event)
 
     def _resize_dialog(self):
