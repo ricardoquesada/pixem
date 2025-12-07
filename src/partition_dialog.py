@@ -8,6 +8,7 @@ from PySide6.QtCore import QItemSelectionModel, QPointF, QRect, QSize, Qt, Slot
 from PySide6.QtGui import (
     QAction,
     QColor,
+    QGuiApplication,
     QIcon,
     QImage,
     QKeyEvent,
@@ -851,6 +852,8 @@ class PartitionDialog(QDialog):
 
         self.setLayout(main_layout)
 
+        self._resize_dialog()
+
     def _connect_list_widget(self):
         self._list_widget.model().rowsMoved.connect(self._on_rows_moved)
         self._list_widget.itemSelectionChanged.connect(self._on_item_selection_changed)
@@ -1049,3 +1052,26 @@ class PartitionDialog(QDialog):
                 self._image_widget.delete_selection()
                 return True
         return super().eventFilter(source, event)
+
+    def _resize_dialog(self):
+        """
+        Resize the dialog to fit the image and the list widget.
+        The max size is 90% of the available screen geometry.
+        """
+        # Calculate available geometry (screen size)
+        screen_geometry = QGuiApplication.primaryScreen().availableGeometry()
+        max_width = int(screen_geometry.width() * 0.9)
+        max_height = int(screen_geometry.height() * 0.9)
+
+        # Calculate desired size
+        # Image width + ListWidget width + Margins
+        # FIXME: Hardcoded values for margins
+        width = self._image_widget.sizeHint().width() + self._list_widget.sizeHint().width() + 60
+        # Image height + Toolbar + Buttons + Margins
+        height = self._image_widget.sizeHint().height() + 100
+
+        # Clamp to screen size
+        width = min(width, max_width)
+        height = min(height, max_height)
+
+        self.resize(width, height)

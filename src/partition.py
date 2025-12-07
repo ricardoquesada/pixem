@@ -97,35 +97,57 @@ class Partition:
         return d
 
     def walk_path(self, mode: WalkMode, start_point: tuple[int, int]) -> None:
+        # Create a set of coordinates for O(1) lookup
+        # This resolves the issue where we were mixing Shapes and tuples
+        path_coords = set()
+        for shape in self._path:
+            if isinstance(shape, Rect):
+                path_coords.add((shape.x, shape.y))
+            # Path shapes are ignored for the "fill" algorithm as it works on pixels (Rects)
+
         visited = set()
         node = Partition.Node(start_point, "N")
 
         stack = [node]
-        new_path = []
+        new_path_coords = []
 
         while stack:
             node = stack.pop()
             coord = node.coord
             if coord not in visited:
                 visited.add(coord)
-                new_path.append(coord)
-                neighbors = self._find_neighbors(mode, node)
+                new_path_coords.append(coord)
+                neighbors = self._find_neighbors(mode, node, path_coords)
                 for neighbor in neighbors:
                     new_coord = neighbor.coord
                     if new_coord not in visited:
                         stack.append(neighbor)
 
         # add possible missing nodes. Could happen since diagonals are not visited in this algorithm
-        for coord in self._path:
-            if coord not in new_path:
-                new_path.append(coord)
-        path = [Rect(shape.x, shape.y) for shape in new_path]
-        # FIXME Remove me: Sanity check
+        # We only add back Rects (pixels)
+        for shape in self._path:
+            if isinstance(shape, Rect):
+                coord = (shape.x, shape.y)
+                if coord not in visited:
+                    new_path_coords.append(coord)
+            # Preserve Path objects? - The original code was overwriting self._path with new Rects.
+            # If we want to preserve Paths, we should append them separately.
+            # But based on "path = [Rect(shape.x, shape.y) for shape in new_path]",
+            # the original intent was to convert everything to Rects?
+            # Or effectively "rasterize" what was visited.
+            # Assuming we only care about Rects for now as this is "Fill".
+
+        # Reconstruct path as Rects
+        path = [Rect(x, y) for x, y in new_path_coords]
+
+        # Original code assertion
         for shape in path:
             assert isinstance(shape, Shape)
         self._path = path
 
-    def _find_neighbors(self, mode: WalkMode, node: Node) -> list[Node]:
+    def _find_neighbors(
+        self, mode: WalkMode, node: Node, path_coords: set[tuple[int, int]]
+    ) -> list[Node]:
         offsets = [
             Partition.Node((0, 1), "S"),  # down
             Partition.Node((-1, 0), "W"),  # left
@@ -140,7 +162,7 @@ class Partition:
         neighbors = []
         for offset in offsets:
             neighbor = (node.coord[0] + offset.coord[0], node.coord[1] + offset.coord[1])
-            if neighbor in self._path:
+            if neighbor in path_coords:
                 new_node = Partition.Node(neighbor, offset.dir)
                 if mode == Partition.WalkMode.SPIRAL_CW:
                     neighbors.insert(0, new_node)
