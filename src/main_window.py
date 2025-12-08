@@ -492,9 +492,16 @@ class MainWindow(QMainWindow):
         self._position_y_spinbox.valueChanged.connect(self._on_update_layer_property)
         self._property_layout.addRow(self.tr("Position Y (mm):"), self._position_y_spinbox)
 
+        self._pixel_aspect_ratio_combo = QComboBox()
+        self._pixel_aspect_ratio_combo.addItems(["Square", "VGA / NTSC", "PAL-N", "Freeform"])
+        self._pixel_aspect_ratio_combo.currentIndexChanged.connect(
+            self._on_pixel_aspect_ratio_changed
+        )
+        self._property_layout.addRow(self.tr("Pixel Aspect Ratio:"), self._pixel_aspect_ratio_combo)
+
         self._pixel_width_spinbox = QDoubleSpinBox()
         self._pixel_width_spinbox.setMinimum(1.0)
-        self._pixel_width_spinbox.valueChanged.connect(self._on_update_layer_property)
+        self._pixel_width_spinbox.valueChanged.connect(self._on_pixel_width_changed)
         self._property_layout.addRow(self.tr("Pixel Width (mm):"), self._pixel_width_spinbox)
 
         self._pixel_height_spinbox = QDoubleSpinBox()
@@ -903,6 +910,11 @@ class MainWindow(QMainWindow):
             self._visible_checkbox.setChecked(properties.visible)
         with block_signals(self._opacity_slider):
             self._opacity_slider.setValue(round(properties.opacity * 100))
+        with block_signals(self._pixel_aspect_ratio_combo):
+            self._pixel_aspect_ratio_combo.setCurrentText(properties.pixel_aspect_ratio_mode)
+
+        # Update UI state based on mode
+        self._pixel_height_spinbox.setEnabled(properties.pixel_aspect_ratio_mode == "Freeform")
 
     def _populate_embroidery_editor(self, embroidery_params: EmbroideryParameters):
         """
@@ -1464,6 +1476,43 @@ class MainWindow(QMainWindow):
         self._state.update_layer_partitions(layer, new_partitions)
 
     @Slot()
+    def _on_pixel_width_changed(self) -> None:
+        """Slot for when the pixel width changes."""
+        width = self._pixel_width_spinbox.value()
+        mode = self._pixel_aspect_ratio_combo.currentText()
+        if mode != "Freeform":
+            height = width
+            if mode == "VGA / NTSC":
+                height = width * 1.2
+            elif mode == "PAL-N":
+                height = width * 0.83
+
+            with block_signals(self._pixel_height_spinbox):
+                self._pixel_height_spinbox.setValue(height)
+
+        self._on_update_layer_property()
+
+    @Slot()
+    def _on_pixel_aspect_ratio_changed(self) -> None:
+        """Slot for when the pixel aspect ratio mode changes."""
+        mode = self._pixel_aspect_ratio_combo.currentText()
+        width = self._pixel_width_spinbox.value()
+
+        self._pixel_height_spinbox.setEnabled(mode == "Freeform")
+
+        if mode != "Freeform":
+            height = width
+            if mode == "VGA / NTSC":
+                height = width * 1.2
+            elif mode == "PAL-N":
+                height = width * 0.83
+
+            with block_signals(self._pixel_height_spinbox):
+                self._pixel_height_spinbox.setValue(height)
+
+        self._on_update_layer_property()
+
+    @Slot()
     def _on_update_layer_property(self) -> None:
         """Slot to update the selected layer's properties from the property editor."""
         enabled = self._state is not None and self._state.selected_layer is not None
@@ -1476,6 +1525,7 @@ class MainWindow(QMainWindow):
                 visible=self._visible_checkbox.isChecked(),
                 opacity=self._opacity_slider.value() / 100.0,
                 name=self._name_edit.text(),
+                pixel_aspect_ratio_mode=self._pixel_aspect_ratio_combo.currentText(),
             )
             self._state.set_layer_properties(self._state.selected_layer, properties)
 

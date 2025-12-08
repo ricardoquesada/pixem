@@ -50,6 +50,7 @@ class LayerProperties:
     visible: bool = True
     opacity: float = 1.0
     name: str | None = None
+    pixel_aspect_ratio_mode: str = "Square"
 
 
 class Layer:

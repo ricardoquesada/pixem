@@ -134,6 +134,16 @@ class UpdateLayerNameCommand(UpdateLayerPropertiesCommand):
         self.setText(f"Name: {name}")
 
 
+class UpdateLayerPixelAspectRatioModeCommand(UpdateLayerPropertiesCommand):
+    def __init__(
+        self, state, layer: Layer, pixel_aspect_ratio_mode: str, parent: QUndoCommand | None
+    ):
+        properties = copy.deepcopy(layer.properties)
+        properties.pixel_aspect_ratio_mode = pixel_aspect_ratio_mode
+        super().__init__(state, layer, properties, parent)
+        self.setText(f"Pixel Aspect Ratio Mode: {pixel_aspect_ratio_mode}")
+
+
 class UpdateStateHoopSizeCommand(QUndoCommand):
     def __init__(self, state, hoop_size: tuple[float, float], parent: QUndoCommand | None):
         super().__init__(f"Hoop Size: {hoop_size}", parent)

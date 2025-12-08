@@ -23,6 +23,7 @@ from undo_commands import (
     UpdateLayerNameCommand,
     UpdateLayerOpacityCommand,
     UpdateLayerPartitionsCommand,
+    UpdateLayerPixelAspectRatioModeCommand,
     UpdateLayerPixelSizeCommand,
     UpdateLayerPositionCommand,
     UpdateLayerRotationCommand,
@@ -214,6 +215,12 @@ class State(QObject):
             self._undo_stack.push(UpdateLayerOpacityCommand(self, layer, properties.opacity, None))
         if properties.name != layer.properties.name:
             self._undo_stack.push(UpdateLayerNameCommand(self, layer, properties.name, None))
+        if properties.pixel_aspect_ratio_mode != layer.properties.pixel_aspect_ratio_mode:
+            self._undo_stack.push(
+                UpdateLayerPixelAspectRatioModeCommand(
+                    self, layer, properties.pixel_aspect_ratio_mode, None
+                )
+            )
 
     def update_partition_path(self, layer: Layer, partition: Partition, path: list[Shape]):
         if layer.uuid not in self._layers:
