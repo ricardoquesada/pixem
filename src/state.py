@@ -197,6 +197,25 @@ class State(QObject):
 
         # To make it easier for the user, we split the Undo Commands in multiple ones.
         # Easier to create "mergeables"
+        changes_count = 0
+        if properties.rotation != layer.properties.rotation:
+            changes_count += 1
+        if properties.position != layer.properties.position:
+            changes_count += 1
+        if properties.pixel_size != layer.properties.pixel_size:
+            changes_count += 1
+        if properties.visible != layer.properties.visible:
+            changes_count += 1
+        if properties.opacity != layer.properties.opacity:
+            changes_count += 1
+        if properties.name != layer.properties.name:
+            changes_count += 1
+        if properties.pixel_aspect_ratio_mode != layer.properties.pixel_aspect_ratio_mode:
+            changes_count += 1
+
+        if changes_count > 1:
+            self._undo_stack.beginMacro("Update Layer Properties")
+
         if properties.rotation != layer.properties.rotation:
             self._undo_stack.push(
                 UpdateLayerRotationCommand(self, layer, properties.rotation, None)
@@ -221,6 +240,9 @@ class State(QObject):
                     self, layer, properties.pixel_aspect_ratio_mode, None
                 )
             )
+
+        if changes_count > 1:
+            self._undo_stack.endMacro()
 
     def update_partition_path(self, layer: Layer, partition: Partition, path: list[Shape]):
         if layer.uuid not in self._layers:
