@@ -712,7 +712,7 @@ class MainWindow(QMainWindow):
             self.restoreGeometry(geometry)
         state = prefs.get_window_state()
         if state is not None:
-            self.restoreState(state)
+            self.restoreState(state, prefs.STATE_VERSION)
 
     def _save_default_settings(self):
         """Saves the initial window layout as the default."""
