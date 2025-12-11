@@ -852,7 +852,8 @@ class MainWindow(QMainWindow):
 
         # Second: select the correct one if present
         if selected_partition_idx >= 0:
-            self._partition_list.setCurrentRow(selected_partition_idx)
+            with block_signals(self._partition_list):
+                self._partition_list.setCurrentRow(selected_partition_idx)
 
     def _populate_property_editor(self, properties: LayerProperties) -> None:
         """
@@ -1331,6 +1332,9 @@ class MainWindow(QMainWindow):
             current: The newly selected partition item.
             previous: The previously selected partition item.
         """
+        if self._state is None:
+            return
+
         enabled = current is not None
         selected_layer = self._state.selected_layer
         new_uuid = None
@@ -1338,7 +1342,10 @@ class MainWindow(QMainWindow):
             new_uuid = current.data(Qt.UserRole)
 
         if selected_layer is not None:
-            selected_layer.selected_partition_uuid = new_uuid
+            # Sanity check: ensure the new_uuid belongs to the selected layer
+            # This prevents ValueErrors if the UI is out of sync with the model
+            if new_uuid is None or new_uuid in selected_layer.partitions:
+                selected_layer.selected_partition_uuid = new_uuid
 
         if self._canvas:
             self._canvas.update()
@@ -1854,8 +1861,10 @@ class MainWindow(QMainWindow):
 
     def _refresh_docks(self):
         """Refreshes all docks based on the current active state."""
-        self._layer_list.clear()
-        self._partition_list.clear()
+        with block_signals(self._layer_list):
+            self._layer_list.clear()
+        with block_signals(self._partition_list):
+            self._partition_list.clear()
 
         if self._state:
             # Populate Layers
@@ -1868,9 +1877,32 @@ class MainWindow(QMainWindow):
                     if selected_layer and layer.uuid == selected_layer.uuid:
                         item.setSelected(True)
 
+            # Ensure a layer is selected if possible
+            if not selected_layer and self._state.layers:
+                # Default to the top layer (last in list)
+                selected_layer = self._state.layers[-1]
+                self._state.selected_layer_uuid = selected_layer.uuid
+
+                # Update UI selection to match
+                # Find the item corresponding to this uuid
+                for i in range(self._layer_list.count()):
+                    item = self._layer_list.item(i)
+                    if item.data(Qt.UserRole) == selected_layer.uuid:
+                        with block_signals(self._layer_list):
+                            item.setSelected(True)
+                        break
+
             # Populate Partitions (triggered by selection or manual)
             if selected_layer:
                 self._populate_partitions(selected_layer)
+                # Since signals were blocked, we must manually update the UI for the selected layer
+                self._property_editor.setEnabled(True)
+                self._embroidery_params_editor.setEnabled(True)
+                self._populate_property_editor(selected_layer.properties)
+                self._populate_embroidery_editor(selected_layer.embroidery_params)
+            else:
+                self._property_editor.setEnabled(False)
+                self._embroidery_params_editor.setEnabled(False)
 
         # Update properties dock state
         self._update_qactions()
