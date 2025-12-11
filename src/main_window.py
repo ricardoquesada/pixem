@@ -123,15 +123,32 @@ class MainWindow(QMainWindow):
         self._save_default_settings()
         self._load_settings()
 
-        # If no documents are open, create a new one
-        if self._tab_widget.count() == 0:
-            self._on_new_project()
-
         open_on_startup = get_global_preferences().get_open_file_on_startup()
         if open_on_startup:
-            files = get_global_preferences().get_recent_files()
-            if len(files) > 0:
-                self._open_filename(files[0])
+            # Try to open "open files" from previous session
+            files = get_global_preferences().get_open_files()
+            if not files:
+                # Fallback to recent files if no session files
+                files = get_global_preferences().get_recent_files()
+                if len(files) > 0:
+                    files = [files[0]]
+
+            for filename in files:
+                if os.path.exists(filename):
+                    self._open_filename(filename)
+
+            # Restore active file
+            active_file = get_global_preferences().get_active_file()
+            if active_file:
+                for i in range(self._tab_widget.count()):
+                    doc = self._tab_widget.widget(i)
+                    if isinstance(doc, Document) and doc.state.project_filename == active_file:
+                        self._tab_widget.setCurrentIndex(i)
+                        break
+
+        # If still no documents are open (either startup disabled, or no files found), create a new one
+        if self._tab_widget.count() == 0:
+            self._on_new_project()
 
         self._update_window_title()
 
@@ -730,6 +747,21 @@ class MainWindow(QMainWindow):
         prefs.set_window_geometry(self.saveGeometry())
         prefs.set_window_state(self.saveState(prefs.STATE_VERSION))
         prefs.save_recent_files()
+
+        # Save open files
+        open_files = []
+        active_filename = None
+        current_tab_index = self._tab_widget.currentIndex()
+
+        for i in range(self._tab_widget.count()):
+            doc = self._tab_widget.widget(i)
+            if isinstance(doc, Document) and doc.state.project_filename:
+                open_files.append(doc.state.project_filename)
+                if i == current_tab_index:
+                    active_filename = doc.state.project_filename
+
+        prefs.set_open_files(open_files)
+        prefs.set_active_file(active_filename)
 
     def _update_window_title(self):
         """

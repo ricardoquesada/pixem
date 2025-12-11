@@ -86,6 +86,21 @@ class Preferences(QObject):
     def get_open_file_on_startup(self) -> bool:
         return bool(self._settings.value("files/open_file_on_startup", defaultValue=True))
 
+    def set_open_files(self, files: list[str]) -> None:
+        self._settings.setValue("files/open_files", files)
+
+    def get_open_files(self) -> list[str]:
+        files = self._settings.value("files/open_files", [])
+        if isinstance(files, str):
+            return [files]
+        return files
+
+    def set_active_file(self, filename: str | None) -> None:
+        self._settings.setValue("files/active_file", filename)
+
+    def get_active_file(self) -> str | None:
+        return self._settings.value("files/active_file", defaultValue=None)
+
     def get_recent_files(self) -> list[str]:
         return self._recent_files
 
