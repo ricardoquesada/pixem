@@ -25,7 +25,7 @@ from PySide6.QtGui import (
     QGuiApplication,
     QIcon,
     QKeySequence,
-    QUndoStack,
+    QUndoGroup,
 )
 from PySide6.QtWidgets import (
     QApplication,
@@ -44,11 +44,11 @@ from PySide6.QtWidgets import (
     QMainWindow,
     QMenu,
     QMessageBox,
-    QScrollArea,
     QSlider,
     QSpinBox,
     QStatusBar,
     QStyle,
+    QTabWidget,
     QToolBar,
     QUndoView,
     QWidget,
@@ -57,6 +57,7 @@ from PySide6.QtWidgets import (
 from about_dialog import AboutDialog
 from canvas import Canvas
 from deselectable_list_widget import DeselectableListWidget
+from document import Document
 from font_dialog import FontDialog
 from image_utils import create_icon_from_svg
 from layer import EmbroideryParameters, ImageLayer, Layer, LayerAlign, LayerProperties, TextLayer
@@ -115,13 +116,16 @@ class MainWindow(QMainWindow):
         """Initializes the MainWindow, sets up the UI, and loads settings."""
         super().__init__()
 
-        self._state = None
+        self._undo_group = QUndoGroup(self)
+        self._connected_doc = None
         self._setup_ui()
 
         self._save_default_settings()
         self._load_settings()
 
-        self._cleanup_state()
+        # If no documents are open, create a new one
+        if self._tab_widget.count() == 0:
+            self._on_new_project()
 
         open_on_startup = get_global_preferences().get_open_file_on_startup()
         if open_on_startup:
@@ -228,13 +232,14 @@ class MainWindow(QMainWindow):
         edit_menu = QMenu(self.tr("&Edit"), self)
         menu_bar.addMenu(edit_menu)
 
-        self._undo_action = QAction(QIcon.fromTheme("edit-undo"), self.tr("&Undo"), self)
+        self._undo_action = self._undo_group.createUndoAction(self, self.tr("&Undo"))
         self._undo_action.setShortcut("Ctrl+Z")
-        self._undo_action.setEnabled(False)
+        self._undo_action.setIcon(QIcon.fromTheme("edit-undo"))
         edit_menu.addAction(self._undo_action)
-        self._redo_action = QAction(QIcon.fromTheme("edit-redo"), self.tr("&Redo"), self)
+
+        self._redo_action = self._undo_group.createRedoAction(self, self.tr("&Redo"))
         self._redo_action.setShortcut("Ctrl+Shift+Z")
-        self._redo_action.setEnabled(False)
+        self._redo_action.setIcon(QIcon.fromTheme("edit-redo"))
         edit_menu.addAction(self._redo_action)
 
         edit_menu.addSeparator()
@@ -432,17 +437,15 @@ class MainWindow(QMainWindow):
         self._toolbar.addAction(self._zoom_out_action)
 
     def _setup_central_widget(self):
-        """Creates the central canvas widget and sets it in a scroll area."""
-        self._canvas = Canvas(self._state)
-        self._canvas.position_changed.connect(self._on_canvas_position_changed)
-        self._canvas.layer_selection_changed.connect(self._on_canvas_layer_selection_changed)
-        self._canvas.layer_double_clicked.connect(self._on_canvas_layer_double_clicked)
+        """Creates the central tab widget for managing multiple documents."""
+        self._tab_widget = QTabWidget()
+        self._tab_widget.setDocumentMode(True)
+        self._tab_widget.setTabsClosable(True)
+        self._tab_widget.setMovable(True)
+        self._tab_widget.tabCloseRequested.connect(self._on_tab_close_requested)
+        self._tab_widget.currentChanged.connect(self._on_current_document_changed)
 
-        scroll_area = QScrollArea()
-        scroll_area.setWidgetResizable(True)
-        scroll_area.setWidget(self._canvas)
-
-        self.setCentralWidget(scroll_area)
+        self.setCentralWidget(self._tab_widget)
 
     def _setup_layers_dock(self):
         """Creates the dock widget for displaying and managing layers."""
@@ -746,7 +749,7 @@ class MainWindow(QMainWindow):
 
     def _open_filename(self, filename: str) -> None:
         """
-        Loads a project from a given filename and sets up the application state.
+        Loads a project from a given filename and creates a new document.
 
         Args:
             filename: The path to the project file to open.
@@ -761,88 +764,54 @@ class MainWindow(QMainWindow):
             )
             return
 
-        self._setup_state(state)
+        self._create_document(state, filename)
 
-        selected_layer_idx = -1
-        selected_layer = self._state.selected_layer
-
-        with block_signals(self._layer_list):
-            self._layer_list.clear()
-            for i, layer in enumerate(self._state.layers):
-                item = QListWidgetItem(layer.name)
-                item.setData(Qt.UserRole, layer.uuid)
-                self._layer_list.addItem(item)
-                if selected_layer is not None and layer.uuid == selected_layer.uuid:
-                    selected_layer_idx = i
-
-        # This will trigger "on_" callback, and will populate _partitions_list
-        if selected_layer_idx >= 0:
-            self._layer_list.setCurrentRow(selected_layer_idx)
-        else:
-            logger.error("Selected layer not found")
-
-        # FIXME: update state should be done in one method
-        self._update_qactions()
-        self._canvas.recalculate_fixed_size()
-        self.update()
-
-        self._update_window_title()
         get_global_preferences().add_recent_file(filename)
         self._populate_recent_menu()
 
-        # FIXME: Should be updated in a Slot
-        self._update_statusbar()
+    def _connect_document_signals(self, doc: Document):
+        """Connects signals from the document's state and canvas."""
+        if not doc:
+            return
 
-    def _setup_state(self, state: State):
-        """
-        Sets up the application with a new state object.
+        state = doc.state
+        state.layer_property_changed.connect(self._on_state_layer_property_changed)
+        state.state_property_changed.connect(self._on_state_state_property_changed)
+        state.partition_path_updated.connect(self._on_state_partition_path_updated)
+        state.layer_partitions_changed.connect(self._on_state_layer_partitions_changed)
+        state.layers_reordered.connect(self._on_state_layers_reordered)
+        state.layer_removed.connect(self._on_state_layer_removed)
+        state.layer_pixels_changed.connect(self._on_state_layer_pixels_changed)
+        state.layer_added.connect(self._on_state_layer_added)
 
-        This involves connecting all the necessary signals from the state to the
-        main window's slots.
+        canvas = doc.canvas
+        canvas.position_changed.connect(self._on_canvas_position_changed)
+        canvas.layer_selection_changed.connect(self._on_canvas_layer_selection_changed)
+        canvas.layer_double_clicked.connect(self._on_canvas_layer_double_clicked)
 
-        Args:
-            state: The new application state.
-        """
-        self._state = state
-        self._canvas.state = state
-        self._state.layer_property_changed.connect(self._on_state_layer_property_changed)
-        self._state.state_property_changed.connect(self._on_state_state_property_changed)
-        self._state.partition_path_updated.connect(self._on_state_partition_path_updated)
-        self._state.layer_partitions_changed.connect(self._on_state_layer_partitions_changed)
-        self._state.layers_reordered.connect(self._on_state_layers_reordered)
-        self._state.layer_removed.connect(self._on_state_layer_removed)
-        self._state.layer_pixels_changed.connect(self._on_state_layer_pixels_changed)
-        self._state.layer_added.connect(self._on_state_layer_added)
+    def _disconnect_document_signals(self, doc: Document):
+        """Disconnects signals from the document."""
+        if not doc:
+            return
 
-        self._undo_action.triggered.connect(self._state.undo_stack.undo)
-        self._redo_action.triggered.connect(self._state.undo_stack.redo)
-        self._state.undo_stack.indexChanged.connect(self._on_undo_stack_index_changed)
+        # Use try-pass to handle cases where objects are already deleted
+        try:
+            state = doc.state
+            state.layer_property_changed.disconnect(self._on_state_layer_property_changed)
+            state.state_property_changed.disconnect(self._on_state_state_property_changed)
+            state.partition_path_updated.disconnect(self._on_state_partition_path_updated)
+            state.layer_partitions_changed.disconnect(self._on_state_layer_partitions_changed)
+            state.layers_reordered.disconnect(self._on_state_layers_reordered)
+            state.layer_removed.disconnect(self._on_state_layer_removed)
+            state.layer_pixels_changed.disconnect(self._on_state_layer_pixels_changed)
+            state.layer_added.disconnect(self._on_state_layer_added)
 
-        self._undo_view.setStack(self._state.undo_stack)
-        self._undo_dock.setEnabled(True)
-
-    def _cleanup_state(self):
-        """
-        Cleans up the current state.
-
-        Disconnects all signals and resets the UI to a state with no open project.
-        """
-        if self._state is not None:
-            self._state.layer_property_changed.disconnect(self._on_state_layer_property_changed)
-            self._state.state_property_changed.disconnect(self._on_state_state_property_changed)
-            self._state.layer_added.disconnect(self._on_state_layer_added)
-            self._state.layer_removed.disconnect(self._on_state_layer_removed)
-            self._state.layer_pixels_changed.disconnect(self._on_state_layer_pixels_changed)
-            self._undo_action.triggered.disconnect(self._state.undo_stack.undo)
-            self._redo_action.triggered.disconnect(self._state.undo_stack.redo)
-            self._state.undo_stack.indexChanged.disconnect(self._on_undo_stack_index_changed)
-        self._undo_action.setEnabled(False)
-        self._redo_action.setEnabled(False)
-
-        self._state = None
-        self._canvas.state = None
-        self._undo_view.setStack(QUndoStack())
-        self._undo_dock.setEnabled(False)
+            canvas = doc.canvas
+            canvas.position_changed.disconnect(self._on_canvas_position_changed)
+            canvas.layer_selection_changed.disconnect(self._on_canvas_layer_selection_changed)
+            canvas.layer_double_clicked.disconnect(self._on_canvas_layer_double_clicked)
+        except (RuntimeError, TypeError, ValueError):
+            pass
 
     def _add_layer(self, layer: Layer):
         """
@@ -944,15 +913,15 @@ class MainWindow(QMainWindow):
 
         self._update_embroidery_ui_state()
 
-    def _maybe_abort_operation_if_dirty(self) -> bool:
+    def _maybe_abort_operation_if_dirty(self, doc: Document) -> bool:
         """
-        Checks if there are unsaved changes and asks the user for confirmation to proceed.
+        Checks if there are unsaved changes in a document and asks the user for confirmation to proceed.
 
         Returns:
             True if the operation should be aborted, False otherwise.
         """
         # Returns true if it should abort
-        if self._state and not self._state.undo_stack.isClean():
+        if doc and not doc.state.undo_stack.isClean():
             reply = QMessageBox.question(
                 self,
                 self.tr("Warning"),
@@ -1000,9 +969,12 @@ class MainWindow(QMainWindow):
         Args:
             event: The close event.
         """
-        if self._maybe_abort_operation_if_dirty():
-            event.ignore()
-            return
+        # Check all documents for unsaved changes
+        for i in range(self._tab_widget.count()):
+            doc = self._tab_widget.widget(i)
+            if isinstance(doc, Document) and self._maybe_abort_operation_if_dirty(doc):
+                event.ignore()
+                return
 
         logger.info("Closing Pixem")
         self._save_settings()
@@ -1013,29 +985,13 @@ class MainWindow(QMainWindow):
     #
     @Slot()
     def _on_new_project(self) -> None:
-        """Slot for creating a new, empty project."""
-        if self._maybe_abort_operation_if_dirty():
-            return
-
+        """Creates a new project in a new tab."""
         state = State()
-        self._setup_state(state)
-        # Triggers on_layer_item_changed / on_change_partition, but not an issue
-        self._layer_list.clear()
-        self._partition_list.clear()
-
-        # FIXME: update state should be done in one method
-        self._update_qactions()
-        self._canvas.recalculate_fixed_size()
-        self.update()
-
-        self._update_window_title()
+        self._create_document(state, None)
 
     @Slot()
     def _on_open_image_or_project(self) -> None:
         """Slot for opening an image or a project file."""
-        if self._maybe_abort_operation_if_dirty():
-            return
-
         options = QFileDialog.Options()  # For more options if needed
         filename, _ = QFileDialog.getOpenFileName(
             self,
@@ -1051,11 +1007,13 @@ class MainWindow(QMainWindow):
             if ext == ".pixemproj":
                 self._open_filename(filename)
             else:
-                self._on_new_project()
+                # If opening an image, create a new project for it
+                state = State()
+                doc = self._create_document(state, None)
                 layer = ImageLayer(filename)
-                layer.name = f"ImageLayer {len(self._state.layers) + 1}"
-                layer.create_partitions(QColor(self._state.canvas_background_color))
-                self._add_layer(layer)
+                layer.name = f"ImageLayer {len(doc.state.layers) + 1}"
+                layer.create_partitions(QColor(doc.state.canvas_background_color))
+                doc.state.add_layer(layer)
         else:
             logger.warning("Could not open file. Invalid filename")
 
@@ -1074,6 +1032,8 @@ class MainWindow(QMainWindow):
     @Slot()
     def _on_save_project(self) -> None:
         """Slot for saving the current project."""
+        if self._state is None:
+            return
         filename = self._state.project_filename
         if filename is None:
             self._on_save_project_as()
@@ -1083,6 +1043,8 @@ class MainWindow(QMainWindow):
     @Slot()
     def _on_save_project_as(self) -> None:
         """Slot for saving the current project to a new file."""
+        if self._state is None:
+            return
         filename, _ = QFileDialog.getSaveFileName(
             self, self.tr("Save Project"), "", self.tr("Pixem files (*.pixemproj);;All files (*)")
         )
@@ -1098,6 +1060,8 @@ class MainWindow(QMainWindow):
     @Slot()
     def _on_export_project(self) -> None:
         """Slot for exporting the project to its last used export path."""
+        if self._state is None:
+            return
         filename = self._state.properties.export_filename
         if filename is None or len(filename) == 0 or not os.path.exists(filename):
             self._on_export_project_as()
@@ -1108,6 +1072,8 @@ class MainWindow(QMainWindow):
     @Slot()
     def _on_export_project_as(self) -> None:
         """Slot for exporting the project to a new file (SVG)."""
+        if self._state is None:
+            return
         fullpath_svg = self._state.properties.export_filename
         if fullpath_svg is None:
             if self._state.project_filename:
@@ -1131,6 +1097,8 @@ class MainWindow(QMainWindow):
     @Slot()
     def _on_export_to_png_as(self) -> None:
         """Slot for exporting the current canvas view to a PNG file."""
+        if self._state is None or self._canvas is None:
+            return
         fullpath_svg = self._state.properties.export_filename
         if fullpath_svg is None:
             if self._state.project_filename:
@@ -1156,26 +1124,10 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def _on_close_project(self) -> None:
-        """Slot for closing the current project."""
-        if self._maybe_abort_operation_if_dirty():
-            return
-
-        self._cleanup_state()
-
-        with block_signals(self._layer_list):
-            self._layer_list.clear()
-        with block_signals(self._partition_list):
-            self._partition_list.clear()
-
-        # FIXME: update state should be done in one method
-        self._update_qactions()
-        self._canvas.recalculate_fixed_size()
-        self.update()
-
-        self._update_window_title()
-
-        # FIXME: Should be updated in a Slot
-        self._update_statusbar()
+        """Closes the current project tab."""
+        index = self._tab_widget.currentIndex()
+        if index != -1:
+            self._tab_widget.tabCloseRequested.emit(index)
 
     @Slot()
     def _on_exit_application(self) -> None:
@@ -1192,8 +1144,9 @@ class MainWindow(QMainWindow):
         """
         is_checked = action.isChecked()
         get_global_preferences().set_hoop_visible(is_checked)
-        self._canvas.on_preferences_updated()
-        self._canvas.update()
+        if self._canvas:
+            self._canvas.on_preferences_updated()
+            self._canvas.update()
         self.update()
 
     @Slot()
@@ -1237,6 +1190,8 @@ class MainWindow(QMainWindow):
     @Slot()
     def _on_layer_add_image(self) -> None:
         """Slot to add a new image layer from a file."""
+        if self._state is None:
+            return
         file_name, _ = QFileDialog.getOpenFileName(
             self, self.tr("Open Image"), "", self.tr("Images (*.png *.jpg *.bmp);;All files (*)")
         )
@@ -1249,6 +1204,8 @@ class MainWindow(QMainWindow):
     @Slot()
     def _on_layer_add_text(self) -> None:
         """Slot to add a new text layer via the FontDialog."""
+        if self._state is None:
+            return
         dialog = FontDialog()
         if dialog.exec() == QDialog.Accepted:
             text, font_name, color_name = dialog.get_data()
@@ -1313,7 +1270,7 @@ class MainWindow(QMainWindow):
             previous: The previously selected layer item.
         """
         # Gets triggered when a new layers gets selected. Might happen when an entry gets removed.
-        enabled = current is not None and len(self._state.layers) > 0
+        enabled = current is not None and self._state is not None and len(self._state.layers) > 0
         self._property_editor.setEnabled(enabled)
         self._embroidery_params_editor.setEnabled(enabled)
         if enabled:
@@ -1383,7 +1340,8 @@ class MainWindow(QMainWindow):
         if selected_layer is not None:
             selected_layer.selected_partition_uuid = new_uuid
 
-        self._canvas.update()
+        if self._canvas:
+            self._canvas.update()
         self.update()
 
     @Slot(QListWidgetItem)
@@ -1401,6 +1359,8 @@ class MainWindow(QMainWindow):
     @Slot()
     def _on_partition_edit(self):
         """Slot to open the partition editor for the selected partition."""
+        if self._state is None:
+            return
         layer = self._state.selected_layer
         if layer is None:
             return
@@ -1529,7 +1489,8 @@ class MainWindow(QMainWindow):
             )
             self._state.set_layer_properties(self._state.selected_layer, properties)
 
-            self._canvas.recalculate_fixed_size()
+            if self._canvas:
+                self._canvas.recalculate_fixed_size()
             self.update()
 
     @Slot()
@@ -1637,7 +1598,8 @@ class MainWindow(QMainWindow):
             pass
 
         self._update_qactions()
-        self._canvas.recalculate_fixed_size()
+        if self._canvas:
+            self._canvas.recalculate_fixed_size()
         self.update()
 
     @Slot()
@@ -1663,22 +1625,23 @@ class MainWindow(QMainWindow):
         ]:
             return
 
-        if flag in [
-            StatePropertyFlags.HOOP_SIZE,
-            StatePropertyFlags.HOOP_VISIBLE,
-            StatePropertyFlags.HOOP_COLOR,
-            StatePropertyFlags.CANVAS_BACKGROUND_COLOR,
-            StatePropertyFlags.PARTITION_FOREGROUND_COLOR,
-            StatePropertyFlags.PARTITION_BACKGROUND_COLOR,
-        ]:
-            self._canvas.on_preferences_updated()
+        if self._canvas:
+            if flag in [
+                StatePropertyFlags.HOOP_SIZE,
+                StatePropertyFlags.HOOP_VISIBLE,
+                StatePropertyFlags.HOOP_COLOR,
+                StatePropertyFlags.CANVAS_BACKGROUND_COLOR,
+                StatePropertyFlags.PARTITION_FOREGROUND_COLOR,
+                StatePropertyFlags.PARTITION_BACKGROUND_COLOR,
+            ]:
+                self._canvas.on_preferences_updated()
 
-        if flag == StatePropertyFlags.HOOP_SIZE or flag == StatePropertyFlags.ZOOM_FACTOR:
-            self._canvas.recalculate_fixed_size()
-            self._canvas.update()
-            self.update()
-        else:
-            self._canvas.update()
+            if flag == StatePropertyFlags.HOOP_SIZE or flag == StatePropertyFlags.ZOOM_FACTOR:
+                self._canvas.recalculate_fixed_size()
+                self._canvas.update()
+                self.update()
+            else:
+                self._canvas.update()
 
     @Slot()
     def _on_state_layer_added(self, layer: Layer):
@@ -1708,7 +1671,8 @@ class MainWindow(QMainWindow):
             self._partition_list.setCurrentRow(0)
 
         self._update_statusbar()
-        self._canvas.recalculate_fixed_size()
+        if self._canvas:
+            self._canvas.recalculate_fixed_size()
         self.update()
 
     @Slot()
@@ -1737,7 +1701,8 @@ class MainWindow(QMainWindow):
 
         # _partition_list should get auto-populated
         # by _on_layer_current_item_changed
-        self._canvas.recalculate_fixed_size()
+        if self._canvas:
+            self._canvas.recalculate_fixed_size()
 
     @Slot(Layer)
     def _on_state_layer_partitions_changed(self, layer: Layer):
@@ -1753,8 +1718,9 @@ class MainWindow(QMainWindow):
         # because a "_on_layer_current_item_changed" should be triggered by "_layer_list.takeItem()"
 
         self._update_statusbar()
-        self._canvas.recalculate_fixed_size()
-        self._canvas.update()
+        if self._canvas:
+            self._canvas.recalculate_fixed_size()
+            self._canvas.update()
 
     @Slot()
     def _on_state_layers_reordered(self):
@@ -1774,7 +1740,8 @@ class MainWindow(QMainWindow):
                     item.setSelected(True)
                     self._layer_list.setCurrentItem(item)
 
-        self._canvas.update()
+        if self._canvas:
+            self._canvas.update()
 
     @Slot(Layer, Partition)
     def _on_state_partition_path_updated(self, layer: Layer, partition: Partition):
@@ -1788,7 +1755,8 @@ class MainWindow(QMainWindow):
         if self._state.selected_layer != layer:
             return
         # No need to update the list, just the canvas
-        self._canvas.update()
+        if self._canvas:
+            self._canvas.update()
 
     @Slot()
     def _on_state_layer_pixels_changed(self, layer: Layer):
@@ -1799,11 +1767,12 @@ class MainWindow(QMainWindow):
             layer: The layer whose pixels have changed.
         """
         item = self._layer_list.currentItem()
-        if item.data(Qt.UserRole) == layer.uuid:
+        if item and item.data(Qt.UserRole) == layer.uuid:
             self._populate_partitions(layer)
 
         self._update_statusbar()
-        self._canvas.recalculate_fixed_size()
+        if self._canvas:
+            self._canvas.recalculate_fixed_size()
         self.update()
 
     @Slot()
@@ -1811,28 +1780,100 @@ class MainWindow(QMainWindow):
         """Switches the canvas to 'Move' mode."""
         self._canvas_mode_move_action.setChecked(True)
         self._canvas_mode_drawing_action.setChecked(False)
-        self._canvas.mode = Canvas.Mode.MOVE
+        if self._canvas:
+            self._canvas.mode = Canvas.Mode.MOVE
 
     @Slot()
     def _on_canvas_mode_drawing(self):
         """Switches the canvas to 'Drawing' mode."""
         self._canvas_mode_move_action.setChecked(False)
         self._canvas_mode_drawing_action.setChecked(True)
-        self._canvas.mode = Canvas.Mode.DRAWING
+        if self._canvas:
+            self._canvas.mode = Canvas.Mode.DRAWING
 
-    @Slot()
-    def _on_undo_stack_index_changed(self, index: int):
-        """
-        Slot for when the undo stack's index changes.
+    @property
+    def active_document(self) -> Document | None:
+        if self._tab_widget.count() == 0:
+            return None
+        return self._tab_widget.currentWidget()
 
-        Updates the enabled state of the undo/redo actions.
+    @property
+    def _state(self) -> State | None:
+        doc = self.active_document
+        return doc.state if doc else None
 
-        Args:
-            index: The new index in the undo stack.
-        """
+    @property
+    def _canvas(self) -> Canvas | None:
+        doc = self.active_document
+        return doc.canvas if doc else None
+
+    def _create_document(self, state: State | None = None, filename: str | None = None) -> Document:
+        doc = Document(state, filename)
+        self._tab_widget.addTab(
+            doc, os.path.basename(filename) if filename else self.tr("Untitled")
+        )
+        self._tab_widget.setCurrentWidget(doc)
+
+        # Add undo stack to group
+        self._undo_group.addStack(doc.state.undo_stack)
+
+        return doc
+
+    def _on_tab_close_requested(self, index: int):
+        widget = self._tab_widget.widget(index)
+        if isinstance(widget, Document):
+            if self._maybe_abort_operation_if_dirty(widget):
+                return
+            self._undo_group.removeStack(widget.state.undo_stack)
+            self._tab_widget.removeTab(index)
+            widget.deleteLater()
+            # If no tabs left, update UI
+            if self._tab_widget.count() == 0:
+                self._on_new_project()  # Create a new empty project
+                # self._on_current_document_changed(-1) # This would disable everything
+
+    def _on_current_document_changed(self, index: int):
+        # Disconnect previous
+        if self._connected_doc:
+            self._disconnect_document_signals(self._connected_doc)
+            self._connected_doc = None
+
+        doc = self.active_document
+        if doc:
+            self._connect_document_signals(doc)
+            self._connected_doc = doc
+            self._undo_group.setActiveStack(doc.state.undo_stack)
+            self._undo_view.setStack(doc.state.undo_stack)  # Update undo view for active stack
+
+        self._update_window_title()
+        self._update_qactions()
+        self._update_statusbar()
+        self._refresh_docks()
+
+        # Ensure canvas has focus if possible, or update other UI related to active canvas
+
+    def _refresh_docks(self):
+        """Refreshes all docks based on the current active state."""
+        self._layer_list.clear()
+        self._partition_list.clear()
+
         if self._state:
-            self._undo_action.setEnabled(self._state.undo_stack.canUndo())
-            self._redo_action.setEnabled(self._state.undo_stack.canRedo())
+            # Populate Layers
+            selected_layer = self._state.selected_layer
+            with block_signals(self._layer_list):
+                for layer in self._state.layers:
+                    item = QListWidgetItem(layer.name)
+                    item.setData(Qt.UserRole, layer.uuid)
+                    self._layer_list.addItem(item)
+                    if selected_layer and layer.uuid == selected_layer.uuid:
+                        item.setSelected(True)
+
+            # Populate Partitions (triggered by selection or manual)
+            if selected_layer:
+                self._populate_partitions(selected_layer)
+
+        # Update properties dock state
+        self._update_qactions()
 
 
 if __name__ == "__main__":
