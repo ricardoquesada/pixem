@@ -644,8 +644,8 @@ class MainWindow(QMainWindow):
         colors = set()
         total_partitions = 0
         total_pixels = 0
-        if self._state is not None:
-            for layer in self._state.layers:
+        if self.state is not None:
+            for layer in self.state.layers:
                 for partition in layer.partitions.values():
                     total_partitions += 1
                     colors.add(partition.color)
@@ -674,7 +674,7 @@ class MainWindow(QMainWindow):
 
     def _update_qactions(self):
         """Enables or disables QActions based on whether a project is open."""
-        enabled = self._state is not None
+        enabled = self.state is not None
 
         self._save_action.setEnabled(enabled)
         self._save_as_action.setEnabled(enabled)
@@ -738,12 +738,12 @@ class MainWindow(QMainWindow):
         The title includes the project name and an asterisk (*) if there are unsaved changes.
         """
         title = "Pixem"
-        if self._state is not None:
-            is_dirty = not self._state.undo_stack.isClean()
+        if self.state is not None:
+            is_dirty = not self.state.undo_stack.isClean()
             dirty_str = "*" if is_dirty else ""
             filename = "(untitled)"
-            if self._state.project_filename is not None:
-                filename = f"{os.path.basename(self._state.project_filename)}"
+            if self.state.project_filename is not None:
+                filename = f"{os.path.basename(self.state.project_filename)}"
             title = f"{filename}{dirty_str} - {title}"
         self.setWindowTitle(title)
 
@@ -820,7 +820,7 @@ class MainWindow(QMainWindow):
         Args:
             layer: The layer to add.
         """
-        self._state.add_layer(layer)
+        self.state.add_layer(layer)
 
     def _populate_partitions(self, layer: Layer):
         """
@@ -944,7 +944,7 @@ class MainWindow(QMainWindow):
         Args:
             layer_uuid: The UUID of the double-clicked layer.
         """
-        layer = self._state.get_layer_for_uuid(layer_uuid)
+        layer = self.state.get_layer_for_uuid(layer_uuid)
         if layer is None:
             logger.warning(f"Cannot find layer with UUID {layer_uuid}")
         if isinstance(layer, TextLayer):
@@ -956,7 +956,7 @@ class MainWindow(QMainWindow):
                     or font_name != layer.font_name
                     or color_name != layer.color_name
                 ):
-                    self._state.update_text_layer(layer, text, font_name, color_name)
+                    self.state.update_text_layer(layer, text, font_name, color_name)
 
     #
     # pyside6 events
@@ -1033,18 +1033,18 @@ class MainWindow(QMainWindow):
     @Slot()
     def _on_save_project(self) -> None:
         """Slot for saving the current project."""
-        if self._state is None:
+        if self.state is None:
             return
-        filename = self._state.project_filename
+        filename = self.state.project_filename
         if filename is None:
             self._on_save_project_as()
             return
-        self._state.save_to_filename(filename)
+        self.state.save_to_filename(filename)
 
     @Slot()
     def _on_save_project_as(self) -> None:
         """Slot for saving the current project to a new file."""
-        if self._state is None:
+        if self.state is None:
             return
         filename, _ = QFileDialog.getSaveFileName(
             self, self.tr("Save Project"), "", self.tr("Pixem files (*.pixemproj);;All files (*)")
@@ -1053,7 +1053,7 @@ class MainWindow(QMainWindow):
             _, ext = os.path.splitext(filename)
             if ext != ".pixemproj":
                 filename = filename + ".pixemproj"
-            self._state.save_to_filename(filename)
+            self.state.save_to_filename(filename)
             self._update_window_title()
             get_global_preferences().add_recent_file(filename)
             self._populate_recent_menu()
@@ -1061,24 +1061,24 @@ class MainWindow(QMainWindow):
     @Slot()
     def _on_export_project(self) -> None:
         """Slot for exporting the project to its last used export path."""
-        if self._state is None:
+        if self.state is None:
             return
-        filename = self._state.properties.export_filename
+        filename = self.state.properties.export_filename
         if filename is None or len(filename) == 0 or not os.path.exists(filename):
             self._on_export_project_as()
             return
 
-        self._state.export_to_svg(filename)
+        self.state.export_to_svg(filename)
 
     @Slot()
     def _on_export_project_as(self) -> None:
         """Slot for exporting the project to a new file (SVG)."""
-        if self._state is None:
+        if self.state is None:
             return
-        fullpath_svg = self._state.properties.export_filename
+        fullpath_svg = self.state.properties.export_filename
         if fullpath_svg is None:
-            if self._state.project_filename:
-                base, _ = os.path.splitext(self._state.project_filename)
+            if self.state.project_filename:
+                base, _ = os.path.splitext(self.state.project_filename)
                 fullpath_svg = f"{base}.svg"
             else:
                 fullpath_svg = "export.svg"
@@ -1093,17 +1093,17 @@ class MainWindow(QMainWindow):
             _, ext = os.path.splitext(filename)
             if ext != ".svg":
                 filename = filename + ".svg"
-            self._state.export_to_svg(filename)
+            self.state.export_to_svg(filename)
 
     @Slot()
     def _on_export_to_png_as(self) -> None:
         """Slot for exporting the current canvas view to a PNG file."""
-        if self._state is None or self._canvas is None:
+        if self.state is None or self.canvas is None:
             return
-        fullpath_svg = self._state.properties.export_filename
+        fullpath_svg = self.state.properties.export_filename
         if fullpath_svg is None:
-            if self._state.project_filename:
-                base, _ = os.path.splitext(self._state.project_filename)
+            if self.state.project_filename:
+                base, _ = os.path.splitext(self.state.project_filename)
                 fullpath_svg = f"{base}.svg"
             else:
                 fullpath_svg = "export.svg"
@@ -1116,12 +1116,12 @@ class MainWindow(QMainWindow):
             self.tr("PNG (*.png);;All files (*)"),
             "PNG (*.png)",
         )
-        image = self._canvas.render_to_qimage()
+        image = self.canvas.render_to_qimage()
         if filename and image is not None:
             _, ext = os.path.splitext(filename)
             if ext != ".png":
                 filename = filename + ".png"
-            self._state.export_to_png(filename, image)
+            self.state.export_to_png(filename, image)
 
     @Slot()
     def _on_close_project(self) -> None:
@@ -1145,9 +1145,9 @@ class MainWindow(QMainWindow):
         """
         is_checked = action.isChecked()
         get_global_preferences().set_hoop_visible(is_checked)
-        if self._canvas:
-            self._canvas.on_preferences_updated()
-            self._canvas.update()
+        if self.canvas:
+            self.canvas.on_preferences_updated()
+            self.canvas.update()
         self.update()
 
     @Slot()
@@ -1173,7 +1173,7 @@ class MainWindow(QMainWindow):
         """Slot to open the preferences dialog."""
         dialog = PreferenceDialog()
         if dialog.exec() == QDialog.Accepted:
-            if self._state:
+            if self.state:
                 # If global preferences changed, we might need to update the canvas if it uses global prefs
                 # But Canvas listens to signals, so it should be fine.
                 # However, if we want to enforce state hoop size from global (legacy behavior?), we might need logic here.
@@ -1183,79 +1183,79 @@ class MainWindow(QMainWindow):
     @Slot()
     def _on_document_properties(self) -> None:
         """Slot to open the document properties dialog."""
-        if self._state is None:
+        if self.state is None:
             return
-        dialog = PreferenceDialog(self._state)
+        dialog = PreferenceDialog(self.state)
         dialog.exec()
 
     @Slot()
     def _on_layer_add_image(self) -> None:
         """Slot to add a new image layer from a file."""
-        if self._state is None:
+        if self.state is None:
             return
         file_name, _ = QFileDialog.getOpenFileName(
             self, self.tr("Open Image"), "", self.tr("Images (*.png *.jpg *.bmp);;All files (*)")
         )
         if file_name:
             layer = ImageLayer(file_name)
-            layer.name = f"ImageLayer {len(self._state.layers) + 1}"
-            layer.create_partitions(QColor(self._state.canvas_background_color))
+            layer.name = f"ImageLayer {len(self.state.layers) + 1}"
+            layer.create_partitions(QColor(self.state.canvas_background_color))
             self._add_layer(layer)
 
     @Slot()
     def _on_layer_add_text(self) -> None:
         """Slot to add a new text layer via the FontDialog."""
-        if self._state is None:
+        if self.state is None:
             return
         dialog = FontDialog()
         if dialog.exec() == QDialog.Accepted:
             text, font_name, color_name = dialog.get_data()
             if len(text) > 0:
                 layer = TextLayer(text, font_name, color_name)
-                layer.name = f"TextLayer {len(self._state.layers) + 1}"
-                layer.create_partitions(QColor(self._state.canvas_background_color))
+                layer.name = f"TextLayer {len(self.state.layers) + 1}"
+                layer.create_partitions(QColor(self.state.canvas_background_color))
                 self._add_layer(layer)
 
     @Slot()
     def _on_layer_delete(self) -> None:
         """Slot to delete the currently selected layer."""
         selected_items = self._layer_list.selectedItems()
-        layer = self._state.selected_layer
+        layer = self.state.selected_layer
 
         if not selected_items or not layer:
             logger.warning("Cannot delete layer, no layers selected")
             return
 
         # Remove it from the state
-        self._state.delete_layer(layer)
+        self.state.delete_layer(layer)
 
     @Slot()
     def _on_layer_align(self):
         """Slot to align the selected layer based on the triggered action."""
         s = self.sender()
-        if self._state is None or self._state.selected_layer is None:
+        if self.state is None or self.state.selected_layer is None:
             return
-        x, y = self._state.selected_layer.calculate_pos_for_align(s.data(), self._state.hoop_size)
+        x, y = self.state.selected_layer.calculate_pos_for_align(s.data(), self.state.hoop_size)
         self._position_x_spinbox.setValue(x)
         self._position_y_spinbox.setValue(y)
 
     @Slot()
     def _on_zoom_in(self):
         """Zooms in the canvas."""
-        if self._canvas and self._state:
-            self._canvas.zoom_in()
+        if self.canvas and self.state:
+            self.canvas.zoom_in()
 
     @Slot()
     def _on_zoom_out(self):
         """Zooms out the canvas."""
-        if self._canvas and self._state:
-            self._canvas.zoom_out()
+        if self.canvas and self.state:
+            self.canvas.zoom_out()
 
     @Slot()
     def _on_zoom_reset(self):
         """Resets zoom to 1:1."""
-        if self._canvas and self._state:
-            self._canvas.zoom_reset()
+        if self.canvas and self.state:
+            self.canvas.zoom_reset()
 
     @Slot()
     def _on_layer_current_item_changed(
@@ -1271,30 +1271,30 @@ class MainWindow(QMainWindow):
             previous: The previously selected layer item.
         """
         # Gets triggered when a new layers gets selected. Might happen when an entry gets removed.
-        enabled = current is not None and self._state is not None and len(self._state.layers) > 0
+        enabled = current is not None and self.state is not None and len(self.state.layers) > 0
         self._property_editor.setEnabled(enabled)
         self._embroidery_params_editor.setEnabled(enabled)
         if enabled:
             layer_uuid = current.data(Qt.UserRole)
-            layer = self._state.get_layer_for_uuid(layer_uuid)
+            layer = self.state.get_layer_for_uuid(layer_uuid)
             if not layer:
-                layer = self._state.layers[-1]
+                layer = self.state.layers[-1]
 
-            self._state.selected_layer_uuid = layer.uuid
+            self.state.selected_layer_uuid = layer.uuid
             self._populate_partitions(layer)
             self._populate_property_editor(layer.properties)
             self._populate_embroidery_editor(layer.embroidery_params)
         else:
-            if self._state is not None:
-                self._state.selected_layer_uuid = None
+            if self.state is not None:
+                self.state.selected_layer_uuid = None
 
     @Slot()
     def _on_layer_rows_moved(self, parent, start, end, destination):
         """Slot for when layers are reordered in the layer list."""
-        if self._state is None:
+        if self.state is None:
             logger.warning("Cannot reorder layers, no active state")
             return
-        layers = self._state.layers
+        layers = self.state.layers
         new_layers = []
         for row in range(self._layer_list.count()):
             item = self._layer_list.item(row)
@@ -1303,7 +1303,7 @@ class MainWindow(QMainWindow):
                 if layer.uuid == layer_uuid:
                     new_layers.append(layer)
                     break
-        self._state.reorder_layers(new_layers)
+        self.state.reorder_layers(new_layers)
 
     @Slot()
     def _on_layer_item_double_clicked(self, item: QListWidgetItem):
@@ -1313,11 +1313,11 @@ class MainWindow(QMainWindow):
         Args:
             item: The double-clicked list widget item.
         """
-        if self._state is None:
+        if self.state is None:
             logger.warning("Cannot edit layer, no active state")
             return
 
-        if self._state is not None:
+        if self.state is not None:
             layer_uuid = item.data(Qt.UserRole)
             self._process_double_click_on_layer(layer_uuid)
 
@@ -1332,11 +1332,11 @@ class MainWindow(QMainWindow):
             current: The newly selected partition item.
             previous: The previously selected partition item.
         """
-        if self._state is None:
+        if self.state is None:
             return
 
         enabled = current is not None
-        selected_layer = self._state.selected_layer
+        selected_layer = self.state.selected_layer
         new_uuid = None
         if enabled:
             new_uuid = current.data(Qt.UserRole)
@@ -1347,8 +1347,8 @@ class MainWindow(QMainWindow):
             if new_uuid is None or new_uuid in selected_layer.partitions:
                 selected_layer.selected_partition_uuid = new_uuid
 
-        if self._canvas:
-            self._canvas.update()
+        if self.canvas:
+            self.canvas.update()
         self.update()
 
     @Slot(QListWidgetItem)
@@ -1366,9 +1366,9 @@ class MainWindow(QMainWindow):
     @Slot()
     def _on_partition_edit(self):
         """Slot to open the partition editor for the selected partition."""
-        if self._state is None:
+        if self.state is None:
             return
-        layer = self._state.selected_layer
+        layer = self.state.selected_layer
         if layer is None:
             return
 
@@ -1379,16 +1379,16 @@ class MainWindow(QMainWindow):
         dialog = PartitionDialog(layer.image, partition)
         if dialog.exec():
             path = dialog.get_path()
-            self._state.update_partition_path(layer, partition, path)
+            self.state.update_partition_path(layer, partition, path)
             partition.path = path
 
     @Slot()
     def _on_partition_delete(self) -> None:
         """Slot to delete the selected partition."""
-        if self._state is None:
+        if self.state is None:
             return
 
-        layer = self._state.selected_layer
+        layer = self.state.selected_layer
         if layer is None:
             return
 
@@ -1399,19 +1399,19 @@ class MainWindow(QMainWindow):
             return
 
         partition = layer.partitions[layer.selected_partition_uuid]
-        self._state.delete_partition(layer, partition)
+        self.state.delete_partition(layer, partition)
 
     @Slot()
     def _on_partition_reorder(self):
         """Slot to reorder partitions based on distance from background color."""
-        if self._state is None or self._state.selected_layer is None:
+        if self.state is None or self.state.selected_layer is None:
             return
 
-        layer = self._state.selected_layer
+        layer = self.state.selected_layer
         if len(layer.partitions) == 0:
             return
 
-        bg_color = QColor(self._state.canvas_background_color)
+        bg_color = QColor(self.state.canvas_background_color)
         bg = Color(bg_color.name())
 
         # Sort partitions by distance from background color
@@ -1423,15 +1423,15 @@ class MainWindow(QMainWindow):
         )
 
         new_partitions = {k: v for k, v in sorted_items}
-        self._state.update_layer_partitions(layer, new_partitions)
+        self.state.update_layer_partitions(layer, new_partitions)
 
     @Slot()
     def _on_partition_rows_moved(self, parent, start, end, destination):
         """Slot for when partitions are reordered in the partition list."""
-        if self._state is None or self._state.selected_layer is None:
+        if self.state is None or self.state.selected_layer is None:
             logger.warning("Cannot reorder partitions, no layer selected")
             return
-        layer = self._state.selected_layer
+        layer = self.state.selected_layer
         partitions = layer.partitions
 
         # reorder dict keys. Dictionary maintains order
@@ -1440,7 +1440,7 @@ class MainWindow(QMainWindow):
             item = self._partition_list.item(row)
             partition_uuid = item.data(Qt.UserRole)
             new_partitions[partition_uuid] = partitions[partition_uuid]
-        self._state.update_layer_partitions(layer, new_partitions)
+        self.state.update_layer_partitions(layer, new_partitions)
 
     @Slot()
     def _on_pixel_width_changed(self) -> None:
@@ -1482,7 +1482,7 @@ class MainWindow(QMainWindow):
     @Slot()
     def _on_update_layer_property(self) -> None:
         """Slot to update the selected layer's properties from the property editor."""
-        enabled = self._state is not None and self._state.selected_layer is not None
+        enabled = self.state is not None and self.state.selected_layer is not None
         self._property_editor.setEnabled(enabled)
         if enabled:
             properties = LayerProperties(
@@ -1494,16 +1494,16 @@ class MainWindow(QMainWindow):
                 name=self._name_edit.text(),
                 pixel_aspect_ratio_mode=self._pixel_aspect_ratio_combo.currentText(),
             )
-            self._state.set_layer_properties(self._state.selected_layer, properties)
+            self.state.set_layer_properties(self.state.selected_layer, properties)
 
-            if self._canvas:
-                self._canvas.recalculate_fixed_size()
+            if self.canvas:
+                self.canvas.recalculate_fixed_size()
             self.update()
 
     @Slot()
     def _on_update_embroidery_property(self) -> None:
         """Slot to update the selected layer's embroidery parameters from the editor."""
-        selected_layer = self._state.selected_layer
+        selected_layer = self.state.selected_layer
         enabled = selected_layer is not None
         self._embroidery_params_editor.setEnabled(enabled)
         if enabled:
@@ -1576,7 +1576,7 @@ class MainWindow(QMainWindow):
         Args:
             layer_uuid: The UUID of the double-clicked layer.
         """
-        if self._state is None:
+        if self.state is None:
             return
         self._process_double_click_on_layer(layer_uuid)
 
@@ -1588,11 +1588,11 @@ class MainWindow(QMainWindow):
         Args:
             layer: The layer whose properties have changed.
         """
-        if self._state is None:
+        if self.state is None:
             logger.warning("Unexpected state. Should not be none")
             return
 
-        if self._state.selected_layer == layer:
+        if self.state.selected_layer == layer:
             self._populate_property_editor(layer.properties)
 
             # Update Layer Name. Could have been changed from the editor
@@ -1605,8 +1605,8 @@ class MainWindow(QMainWindow):
             pass
 
         self._update_qactions()
-        if self._canvas:
-            self._canvas.recalculate_fixed_size()
+        if self.canvas:
+            self.canvas.recalculate_fixed_size()
         self.update()
 
     @Slot()
@@ -1632,7 +1632,7 @@ class MainWindow(QMainWindow):
         ]:
             return
 
-        if self._canvas:
+        if self.canvas:
             if flag in [
                 StatePropertyFlags.HOOP_SIZE,
                 StatePropertyFlags.HOOP_VISIBLE,
@@ -1641,14 +1641,14 @@ class MainWindow(QMainWindow):
                 StatePropertyFlags.PARTITION_FOREGROUND_COLOR,
                 StatePropertyFlags.PARTITION_BACKGROUND_COLOR,
             ]:
-                self._canvas.on_preferences_updated()
+                self.canvas.on_preferences_updated()
 
             if flag == StatePropertyFlags.HOOP_SIZE or flag == StatePropertyFlags.ZOOM_FACTOR:
-                self._canvas.recalculate_fixed_size()
-                self._canvas.update()
+                self.canvas.recalculate_fixed_size()
+                self.canvas.update()
                 self.update()
             else:
-                self._canvas.update()
+                self.canvas.update()
 
     @Slot()
     def _on_state_layer_added(self, layer: Layer):
@@ -1672,14 +1672,14 @@ class MainWindow(QMainWindow):
 
         # Order matters: first layer, then partition
         # Triggers on_layer_item_changed
-        self._layer_list.setCurrentRow(len(self._state.layers) - 1)
+        self._layer_list.setCurrentRow(len(self.state.layers) - 1)
         # Triggers on_change_partition
         if len(layer.partitions) > 0:
             self._partition_list.setCurrentRow(0)
 
         self._update_statusbar()
-        if self._canvas:
-            self._canvas.recalculate_fixed_size()
+        if self.canvas:
+            self.canvas.recalculate_fixed_size()
         self.update()
 
     @Slot()
@@ -1708,8 +1708,8 @@ class MainWindow(QMainWindow):
 
         # _partition_list should get auto-populated
         # by _on_layer_current_item_changed
-        if self._canvas:
-            self._canvas.recalculate_fixed_size()
+        if self.canvas:
+            self.canvas.recalculate_fixed_size()
 
     @Slot(Layer)
     def _on_state_layer_partitions_changed(self, layer: Layer):
@@ -1719,15 +1719,15 @@ class MainWindow(QMainWindow):
         Args:
             layer: The layer whose partitions were reordered.
         """
-        if self._state.selected_layer != layer:
+        if self.state.selected_layer != layer:
             return
         self._populate_partitions(layer)
         # because a "_on_layer_current_item_changed" should be triggered by "_layer_list.takeItem()"
 
         self._update_statusbar()
-        if self._canvas:
-            self._canvas.recalculate_fixed_size()
-            self._canvas.update()
+        if self.canvas:
+            self.canvas.recalculate_fixed_size()
+            self.canvas.update()
 
     @Slot()
     def _on_state_layers_reordered(self):
@@ -1735,11 +1735,11 @@ class MainWindow(QMainWindow):
         Slot for when layers are reordered in the application state.
         """
         # Save selection
-        selected_uuid = self._state.selected_layer_uuid
+        selected_uuid = self.state.selected_layer_uuid
 
         with block_signals(self._layer_list):
             self._layer_list.clear()
-            for layer in self._state.layers:
+            for layer in self.state.layers:
                 item = QListWidgetItem(layer.name)
                 item.setData(Qt.UserRole, layer.uuid)
                 self._layer_list.addItem(item)
@@ -1747,8 +1747,8 @@ class MainWindow(QMainWindow):
                     item.setSelected(True)
                     self._layer_list.setCurrentItem(item)
 
-        if self._canvas:
-            self._canvas.update()
+        if self.canvas:
+            self.canvas.update()
 
     @Slot(Layer, Partition)
     def _on_state_partition_path_updated(self, layer: Layer, partition: Partition):
@@ -1759,11 +1759,11 @@ class MainWindow(QMainWindow):
             layer: The layer containing the partition.
             partition: The partition whose path was updated.
         """
-        if self._state.selected_layer != layer:
+        if self.state.selected_layer != layer:
             return
         # No need to update the list, just the canvas
-        if self._canvas:
-            self._canvas.update()
+        if self.canvas:
+            self.canvas.update()
 
     @Slot()
     def _on_state_layer_pixels_changed(self, layer: Layer):
@@ -1778,8 +1778,8 @@ class MainWindow(QMainWindow):
             self._populate_partitions(layer)
 
         self._update_statusbar()
-        if self._canvas:
-            self._canvas.recalculate_fixed_size()
+        if self.canvas:
+            self.canvas.recalculate_fixed_size()
         self.update()
 
     @Slot()
@@ -1787,16 +1787,16 @@ class MainWindow(QMainWindow):
         """Switches the canvas to 'Move' mode."""
         self._canvas_mode_move_action.setChecked(True)
         self._canvas_mode_drawing_action.setChecked(False)
-        if self._canvas:
-            self._canvas.mode = Canvas.Mode.MOVE
+        if self.canvas:
+            self.canvas.mode = Canvas.Mode.MOVE
 
     @Slot()
     def _on_canvas_mode_drawing(self):
         """Switches the canvas to 'Drawing' mode."""
         self._canvas_mode_move_action.setChecked(False)
         self._canvas_mode_drawing_action.setChecked(True)
-        if self._canvas:
-            self._canvas.mode = Canvas.Mode.DRAWING
+        if self.canvas:
+            self.canvas.mode = Canvas.Mode.DRAWING
 
     @property
     def active_document(self) -> Document | None:
@@ -1805,12 +1805,12 @@ class MainWindow(QMainWindow):
         return self._tab_widget.currentWidget()
 
     @property
-    def _state(self) -> State | None:
+    def state(self) -> State | None:
         doc = self.active_document
         return doc.state if doc else None
 
     @property
-    def _canvas(self) -> Canvas | None:
+    def canvas(self) -> Canvas | None:
         doc = self.active_document
         return doc.canvas if doc else None
 
@@ -1866,11 +1866,11 @@ class MainWindow(QMainWindow):
         with block_signals(self._partition_list):
             self._partition_list.clear()
 
-        if self._state:
+        if self.state:
             # Populate Layers
-            selected_layer = self._state.selected_layer
+            selected_layer = self.state.selected_layer
             with block_signals(self._layer_list):
-                for layer in self._state.layers:
+                for layer in self.state.layers:
                     item = QListWidgetItem(layer.name)
                     item.setData(Qt.UserRole, layer.uuid)
                     self._layer_list.addItem(item)
@@ -1878,10 +1878,10 @@ class MainWindow(QMainWindow):
                         item.setSelected(True)
 
             # Ensure a layer is selected if possible
-            if not selected_layer and self._state.layers:
+            if not selected_layer and self.state.layers:
                 # Default to the top layer (last in list)
-                selected_layer = self._state.layers[-1]
-                self._state.selected_layer_uuid = selected_layer.uuid
+                selected_layer = self.state.layers[-1]
+                self.state.selected_layer_uuid = selected_layer.uuid
 
                 # Update UI selection to match
                 # Find the item corresponding to this uuid
