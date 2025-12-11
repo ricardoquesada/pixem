@@ -127,11 +127,6 @@ class MainWindow(QMainWindow):
         if open_on_startup:
             # Try to open "open files" from previous session
             files = get_global_preferences().get_open_files()
-            if not files:
-                # Fallback to recent files if no session files
-                files = get_global_preferences().get_recent_files()
-                if len(files) > 0:
-                    files = [files[0]]
 
             for filename in files:
                 if os.path.exists(filename):
@@ -145,10 +140,6 @@ class MainWindow(QMainWindow):
                     if isinstance(doc, Document) and doc.state.project_filename == active_file:
                         self._tab_widget.setCurrentIndex(i)
                         break
-
-        # If still no documents are open (either startup disabled, or no files found), create a new one
-        if self._tab_widget.count() == 0:
-            self._on_new_project()
 
         self._update_window_title()
 
