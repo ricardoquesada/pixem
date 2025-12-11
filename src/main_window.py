@@ -1868,8 +1868,7 @@ class MainWindow(QMainWindow):
             widget.deleteLater()
             # If no tabs left, update UI
             if self._tab_widget.count() == 0:
-                self._on_new_project()  # Create a new empty project
-                # self._on_current_document_changed(-1) # This would disable everything
+                pass
 
     def _on_current_document_changed(self, index: int):
         # Disconnect previous
