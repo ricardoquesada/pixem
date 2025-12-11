@@ -1875,7 +1875,7 @@ class MainWindow(QMainWindow):
                     item.setData(Qt.UserRole, layer.uuid)
                     self._layer_list.addItem(item)
                     if selected_layer and layer.uuid == selected_layer.uuid:
-                        item.setSelected(True)
+                        self._layer_list.setCurrentItem(item)
 
             # Ensure a layer is selected if possible
             if not selected_layer and self.state.layers:
@@ -1889,7 +1889,7 @@ class MainWindow(QMainWindow):
                     item = self._layer_list.item(i)
                     if item.data(Qt.UserRole) == selected_layer.uuid:
                         with block_signals(self._layer_list):
-                            item.setSelected(True)
+                            self._layer_list.setCurrentItem(item)
                         break
 
             # Populate Partitions (triggered by selection or manual)
