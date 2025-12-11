@@ -29,17 +29,15 @@ from undo_commands import (
     UpdateLayerRotationCommand,
     UpdateLayerVisibleCommand,
     UpdatePartitionPathCommand,
-    UpdateStateHoopSizeCommand,
-    UpdateStateLayersCommand,
-    UpdateStateZoomFactorCommand,
-    UpdateTextLayerCommand,
-)
-from undo_commands_properties import (
     UpdateStateCanvasBackgroundColorCommand,
     UpdateStateHoopColorCommand,
+    UpdateStateHoopSizeCommand,
     UpdateStateHoopVisibleCommand,
+    UpdateStateLayersCommand,
     UpdateStatePartitionBackgroundColorCommand,
     UpdateStatePartitionForegroundColorCommand,
+    UpdateStateZoomFactorCommand,
+    UpdateTextLayerCommand,
 )
 
 logger = logging.getLogger(__name__)
