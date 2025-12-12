@@ -298,6 +298,60 @@ class Layer:
 
         return new_layer
 
+    def calculate_fit_to_hoop_properties(
+        self, hoop_size_inches: tuple[float, float]
+    ) -> LayerProperties:
+        """
+        Calculates new properties (position and pixel_size) to fit the layer within the hoop.
+        Preserves aspect ratio and rotation.
+        """
+        hoop_w_mm = hoop_size_inches[0] * INCHES_TO_MM
+        hoop_h_mm = hoop_size_inches[1] * INCHES_TO_MM
+
+        # Current dimensions (physical mm)
+        curr_pixel_size = self._properties.pixel_size
+        orig_w = self._image.width() * curr_pixel_size[0]
+        orig_h = self._image.height() * curr_pixel_size[1]
+
+        # Rotated bounding box dimensions
+        rot_w, rot_h = image_utils.rotated_rectangle_dimensions(
+            orig_w, orig_h, self._properties.rotation
+        )
+
+        # Calculate scale factor to fit
+        # Avoid division by zero
+        if rot_w == 0 or rot_h == 0:
+            return copy.deepcopy(self._properties)
+
+        scale_w = hoop_w_mm / rot_w
+        scale_h = hoop_h_mm / rot_h
+        scale = min(scale_w, scale_h)
+
+        # Apply scale to pixel size
+        new_pixel_size = (curr_pixel_size[0] * scale, curr_pixel_size[1] * scale)
+
+        # Calculate new position to center
+        # We need to re-calculate rotated dimensions with new scale
+        new_orig_w = self._image.width() * new_pixel_size[0]
+        new_orig_h = self._image.height() * new_pixel_size[1]
+        new_rot_w, new_rot_h = image_utils.rotated_rectangle_dimensions(
+            new_orig_w, new_orig_h, self._properties.rotation
+        )
+
+        # Center logic same as align center
+        diff_w = (new_orig_w - new_rot_w) / 2
+        diff_h = (new_orig_h - new_rot_h) / 2
+
+        new_x = (hoop_w_mm - new_rot_w) / 2 - diff_w
+        new_y = (hoop_h_mm - new_rot_h) / 2 - diff_h
+
+        # Create new properties
+        new_props = copy.deepcopy(self._properties)
+        new_props.pixel_size = new_pixel_size
+        new_props.position = (new_x, new_y)
+
+        return new_props
+
 
 class ImageLayer(Layer):
     @overload

@@ -394,6 +394,13 @@ class MainWindow(QMainWindow):
             if i == 2:
                 layer_menu.addSeparator()
 
+        layer_menu.addSeparator()
+
+        self._fit_to_hoop_action = QAction(self.tr("Fit to Hoop"), self)
+        self._fit_to_hoop_action.setShortcut(QKeySequence("Ctrl+Shift+H"))
+        self._fit_to_hoop_action.triggered.connect(self._on_layer_fit_to_hoop)
+        layer_menu.addAction(self._fit_to_hoop_action)
+
         partition_menu = QMenu(self.tr("&Partition"), self)
         menu_bar.addMenu(partition_menu)
 
@@ -702,6 +709,7 @@ class MainWindow(QMainWindow):
         self._add_image_layer_action.setEnabled(enabled)
         self._delete_layer_action.setEnabled(enabled)
         self._duplicate_layer_action.setEnabled(enabled)
+        self._fit_to_hoop_action.setEnabled(enabled)
 
         self._edit_partition_action.setEnabled(enabled)
 
@@ -1270,6 +1278,17 @@ class MainWindow(QMainWindow):
             layer = self.state.selected_layer
             if layer:
                 self.state.duplicate_layer(layer)
+
+    @Slot()
+    def _on_layer_fit_to_hoop(self) -> None:
+        """Fits the currently selected layer to the hoop."""
+        if self.state is None:
+            return
+
+        with block_signals(self._layer_list):
+            layer = self.state.selected_layer
+            if layer:
+                self.state.fit_layer_to_hoop(layer)
 
     @Slot()
     def _on_layer_align(self):

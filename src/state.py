@@ -205,6 +205,16 @@ class State(QObject):
 
         self._undo_stack.push(AddLayerCommand(self, new_layer, None))
 
+    def fit_layer_to_hoop(self, layer: Layer) -> None:
+        if layer.uuid not in self._layers:
+            logger.error(
+                f"Cannot fit layer to hoop. Layer {layer.name} does not belong to this state"
+            )
+            return
+
+        new_props = layer.calculate_fit_to_hoop_properties(self._properties.hoop_size)
+        self.set_layer_properties(layer, new_props)
+
     def get_layer_for_uuid(self, layer_uuid: str) -> Layer | None:
         if layer_uuid in self._layers:
             return self._layers[layer_uuid]
