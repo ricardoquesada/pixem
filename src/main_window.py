@@ -338,18 +338,18 @@ class MainWindow(QMainWindow):
         self._add_text_layer_action.triggered.connect(self._on_layer_add_text)
         layer_menu.addAction(self._add_text_layer_action)
 
-        self._delete_layer_action = QAction(
-            QIcon.fromTheme("edit-delete"), self.tr("Delete Layer"), self
-        )
-        self._delete_layer_action.triggered.connect(self._on_layer_delete)
-        layer_menu.addAction(self._delete_layer_action)
-
         self._duplicate_layer_action = QAction(
             QIcon.fromTheme("edit-copy"), self.tr("Duplicate Layer"), self
         )
         self._duplicate_layer_action.setShortcut(QKeySequence("Ctrl+D"))
         self._duplicate_layer_action.triggered.connect(self._on_layer_duplicate)
         layer_menu.addAction(self._duplicate_layer_action)
+
+        self._delete_layer_action = QAction(
+            QIcon.fromTheme("edit-delete"), self.tr("Delete Layer"), self
+        )
+        self._delete_layer_action.triggered.connect(self._on_layer_delete)
+        layer_menu.addAction(self._delete_layer_action)
 
         layer_menu.addSeparator()
         aligns = [
