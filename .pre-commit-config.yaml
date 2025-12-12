@@ -32,3 +32,10 @@ repos:
         types_or: [ python, pyi ]
         args: [--line-length, '100', --fix, --exit-non-zero-on-fix]
         exclude: "^(design/|pixel/|setup.py$|pixem/resources_rc.py)"
+-   repo: local
+    hooks:
+    -   id: unittest
+        name: unittest
+        entry: venv/bin/python -m unittest discover tests
+        language: system
+        pass_filenames: false
