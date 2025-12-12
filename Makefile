@@ -8,7 +8,7 @@ run:
 	pyside6-project run
 
 dist: resources
-	pyinstaller --name Pixem src/main.py
+	pyinstaller --clean --noconfirm pixem.spec
 
 resources:
 	pyside6-rcc src/res/resources.qrc -o src/res/rc_resources.py
