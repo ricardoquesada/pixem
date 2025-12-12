@@ -54,7 +54,7 @@ class Partition:
                     points = [Point(x=p[0], y=p[1]) for p in shape["path"]]
                     path.append(Path(points))
                 else:
-                    raise Exception(f"Unknown shape type: {shape["type"]}")
+                    raise Exception(f"Unknown shape type: {shape['type']}")
             elif isinstance(shape, list):
                 # Backward compatible
                 # Sanity check
