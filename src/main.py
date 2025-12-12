@@ -51,6 +51,8 @@ def main():
         app.installTranslator(translator)
 
     app.setApplicationName("Pixem")
+    app.setApplicationDisplayName("Pixem")
+    app.setDesktopFileName("Pixem")
     app.setOrganizationName("RetroMoe")
     app.setOrganizationDomain("retro.moe")
     app.setWindowIcon(QIcon(":/icons/pixem.png"))
