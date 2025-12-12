@@ -243,8 +243,9 @@ class PreferenceDialog(QDialog):
 
         if self._is_global:
             self._open_file_startup_checkbox.setChecked(self._settings.get_open_file_on_startup())
-
-        self._delete_point_checkbox.setChecked(self._settings.get_delete_point_enabled())
+            self._delete_point_checkbox.setChecked(self._settings.get_delete_point_enabled())
+        else:
+            self._delete_point_checkbox.setVisible(False)
 
     def _apply(self) -> None:
         hoop_size = (0, 0)
@@ -284,7 +285,9 @@ class PreferenceDialog(QDialog):
         self._settings.set_hoop_color_name(
             self._colors[ColorType.HOOP_FOREGROUND]["color"].name(QColor.HexArgb)
         )
-        self._settings.set_delete_point_enabled(self._delete_point_checkbox.isChecked())
+
+        if self._is_global:
+            self._settings.set_delete_point_enabled(self._delete_point_checkbox.isChecked())
 
     def _update_color_label(self, color_type: ColorType):
         self._colors[color_type]["button"].setStyleSheet(
