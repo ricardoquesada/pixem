@@ -344,6 +344,13 @@ class MainWindow(QMainWindow):
         self._delete_layer_action.triggered.connect(self._on_layer_delete)
         layer_menu.addAction(self._delete_layer_action)
 
+        self._duplicate_layer_action = QAction(
+            QIcon.fromTheme("edit-copy"), self.tr("Duplicate Layer"), self
+        )
+        self._duplicate_layer_action.setShortcut(QKeySequence("Ctrl+D"))
+        self._duplicate_layer_action.triggered.connect(self._on_layer_duplicate)
+        layer_menu.addAction(self._duplicate_layer_action)
+
         layer_menu.addSeparator()
         aligns = [
             (
@@ -694,6 +701,7 @@ class MainWindow(QMainWindow):
         self._add_text_layer_action.setEnabled(enabled)
         self._add_image_layer_action.setEnabled(enabled)
         self._delete_layer_action.setEnabled(enabled)
+        self._duplicate_layer_action.setEnabled(enabled)
 
         self._edit_partition_action.setEnabled(enabled)
 
@@ -1251,6 +1259,17 @@ class MainWindow(QMainWindow):
 
         # Remove it from the state
         self.state.delete_layer(layer)
+
+    @Slot()
+    def _on_layer_duplicate(self) -> None:
+        """Duplicates the currently selected layer."""
+        if self.state is None:
+            return
+
+        with block_signals(self._layer_list):
+            layer = self.state.selected_layer
+            if layer:
+                self.state.duplicate_layer(layer)
 
     @Slot()
     def _on_layer_align(self):

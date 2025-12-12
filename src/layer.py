@@ -1,6 +1,7 @@
 # Pixem
 # Copyright 2025 - Ricardo Quesada
 
+import copy
 import logging
 import uuid
 from dataclasses import asdict, dataclass
@@ -284,6 +285,19 @@ class Layer:
 
         return new_pos
 
+    def clone(self) -> "Layer":
+        # Create a new instance using the constructor
+        new_layer = Layer(self._image.copy())
+
+        # Copy common Layer attributes
+        new_layer._properties = copy.deepcopy(self._properties)
+        new_layer._embroidery_params = copy.deepcopy(self._embroidery_params)
+
+        # Deep copy partitions
+        new_layer._partitions = {k: copy.deepcopy(v) for k, v in self._partitions.items()}
+
+        return new_layer
+
 
 class ImageLayer(Layer):
     @overload
@@ -314,6 +328,22 @@ class ImageLayer(Layer):
         d = super().to_dict()
         d["image_file_name"] = self._image_file_name
         return d
+
+    def clone(self) -> "ImageLayer":
+        # Create a new instance using the constructor
+        new_layer = ImageLayer(self._image.copy())
+
+        # Manually copy ImageLayer specific attributes
+        new_layer._image_file_name = self._image_file_name
+
+        # Copy common Layer attributes
+        new_layer._properties = copy.deepcopy(self._properties)
+        new_layer._embroidery_params = copy.deepcopy(self._embroidery_params)
+
+        # Deep copy partitions
+        new_layer._partitions = {k: copy.deepcopy(v) for k, v in self._partitions.items()}
+
+        return new_layer
 
 
 class TextLayer(Layer):
@@ -367,3 +397,23 @@ class TextLayer(Layer):
         d["font_name"] = self._font_name
         d["color_name"] = self._color_name
         return d
+
+    def clone(self) -> "TextLayer":
+        # Create a new instance using the constructor
+        # We pass the image directly to avoid re-rendering text
+        new_layer = TextLayer(self._image.copy())
+
+        # Manually copy TextLayer specific attributes
+        new_layer._text = self._text
+        new_layer._font_name = self._font_name
+        new_layer._color_name = self._color_name
+
+        # Copy common Layer attributes
+        # Properties and EmbroideryParams are data classes, so we can copy them
+        new_layer._properties = copy.deepcopy(self._properties)
+        new_layer._embroidery_params = copy.deepcopy(self._embroidery_params)
+
+        # Deep copy partitions
+        new_layer._partitions = {k: copy.deepcopy(v) for k, v in self._partitions.items()}
+
+        return new_layer

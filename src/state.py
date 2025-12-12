@@ -178,6 +178,33 @@ class State(QObject):
     def delete_layer(self, layer: Layer) -> None:
         self._undo_stack.push(DeleteLayerCommand(self, layer, None))
 
+    def duplicate_layer(self, layer: Layer) -> None:
+        if layer.uuid not in self._layers:
+            logger.error(
+                f"Cannot duplicate layer. Layer {layer.name} does not belong to this state"
+            )
+            return
+
+        new_layer = layer.clone()
+        # Offset slightly so the user sees the new layer
+        # 10mm offset seems reasonable? Or maybe 2mm?
+        # Let's use 2mm to be safe
+        new_pos = (layer.position.x() + 2.0, layer.position.y() + 2.0)
+        new_layer.properties.position = new_pos
+
+        # We need to ensure the UUID is unique, which is handled by the constructor.
+        # But clone() might have copied 'properties' which doesn't contain UUID.
+        # Wait, Layer constructor generates a new UUID.
+        # And my clone() implementation creates a new Layer() which calls __init__, so new UUID.
+        # Then it copies properties. Properties dataclass doesn't have UUID.
+        # So UUID should be unique.
+
+        # Add "copy" to the name
+        if new_layer.name:
+            new_layer.name = f"{new_layer.name} copy"
+
+        self._undo_stack.push(AddLayerCommand(self, new_layer, None))
+
     def get_layer_for_uuid(self, layer_uuid: str) -> Layer | None:
         if layer_uuid in self._layers:
             return self._layers[layer_uuid]
