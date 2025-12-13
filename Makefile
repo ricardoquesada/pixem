@@ -45,6 +45,9 @@ format:
 lint:
 	ruff check --line-length=100 --fix *.py
 
+tests:
+	python3 -m unittest discover tests
+
 clean:
 	pyside6-project clean
 
@@ -53,4 +56,4 @@ purge: clean
 	rm -rf dist
 
 help:
-	echo "Options: run, resources, venv, format, clean"
+	echo "Options: run, resources, venv, format, lint, tests, clean"
