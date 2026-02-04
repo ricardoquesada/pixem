@@ -1,8 +1,10 @@
 name: Release Binary
 
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - '*'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -63,3 +65,5 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: dist/${{ matrix.artifact_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
