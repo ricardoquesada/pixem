@@ -80,4 +80,4 @@ Pixem is licensed under the Apache License, Version 2.0. See the [LICENSE](LICEN
 See the [AUTHORS](AUTHORS) file for a list of contributors.
 
 ---
-Copyright (c) 2024-2025 Ricardo Quesada - [retro.moe](https://retro.moe)
+Copyright (c) 2025-2026 Ricardo Quesada - [retro.moe](https://retro.moe)
