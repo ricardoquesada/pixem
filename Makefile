@@ -1,5 +1,3 @@
-.SILENT:
-
 SHELL := /bin/bash
 
 all: help
