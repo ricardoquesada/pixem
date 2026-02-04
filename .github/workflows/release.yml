@@ -1,0 +1,65 @@
+name: Release Binary
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact_name: pixem-linux
+          - os: windows-latest
+            artifact_name: pixem-windows.exe
+          - os: macos-latest
+            artifact_name: pixem-macos.zip
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Generate Resources
+        run: pyside6-rcc src/res/resources.qrc -o src/res/rc_resources.py
+
+      - name: Build with PyInstaller
+        # Only use --windowed (noconsole) for GUI apps
+        run: pyinstaller --clean --onefile --windowed --name pixem src/main.py
+
+      # Packaging
+      - name: Package (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: mv dist/pixem dist/${{ matrix.artifact_name }}
+
+      - name: Package (Windows)
+        if: matrix.os == 'windows-latest'
+        run: Move-Item -Path dist/pixem.exe -Destination dist/${{ matrix.artifact_name }}
+
+      - name: Package (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          cd dist
+          zip -r ${{ matrix.artifact_name }} pixem.app
+          cd ..
+
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/${{ matrix.artifact_name }}
