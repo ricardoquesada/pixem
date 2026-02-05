@@ -38,6 +38,11 @@ jobs:
           pip install -r requirements.txt
           pip install pyinstaller
 
+      - name: Compile Translations
+        run: |
+          pyside6-lrelease src/res/translations/en/pixem_en.ts
+          pyside6-lrelease src/res/translations/es/pixem_es.ts
+
       - name: Generate Resources
         run: pyside6-rcc src/res/resources.qrc -o src/res/rc_resources.py
 
