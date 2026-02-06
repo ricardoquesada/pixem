@@ -5,7 +5,11 @@ import functools
 import logging
 import sys
 from enum import IntEnum, auto
-from typing import override
+
+try:
+    from typing import override
+except ImportError:
+    from typing_extensions import override
 
 from PySide6.QtCore import Slot
 from PySide6.QtGui import QColor
