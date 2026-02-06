@@ -91,6 +91,8 @@ class Preferences(QObject):
 
     def get_open_files(self) -> list[str]:
         files = self._settings.value("files/open_files", [])
+        if files is None:
+            return []
         if isinstance(files, str):
             return [files]
         return files
