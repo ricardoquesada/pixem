@@ -57,7 +57,7 @@ class AboutDialog(QDialog):
             <p><b>Pixem</b></p>
             <p>A pixel-art to machine-embroidery application</p>
             <p>Version {VERSION}</p>
-            <p>Copyright (c) 2024-2025 Ricardo Quesada</p>
+            <p>Copyright (c) 2024-2026 Ricardo Quesada</p>
             <a href="https://github.com/ricardoquesada/pixem">https://github.com/ricardoquesada/pixem</a>
             """
             )
