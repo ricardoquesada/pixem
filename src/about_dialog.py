@@ -1,13 +1,41 @@
 # Pixem
 # Copyright 2025 - Ricardo Quesada
 
+import subprocess
 import sys
 
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QApplication, QDialog, QDialogButtonBox, QLabel, QVBoxLayout
 
+
 VERSION = "0.9.0"
+
+
+def get_git_version():
+    try:
+        tag = (
+            subprocess.check_output(
+                ["git", "describe", "--tags", "--abbrev=0"], stderr=subprocess.DEVNULL
+            )
+            .strip()
+            .decode("utf-8")
+        )
+        h = (
+            subprocess.check_output(
+                ["git", "rev-parse", "--short", "HEAD"], stderr=subprocess.DEVNULL
+            )
+            .strip()
+            .decode("utf-8")
+        )
+        return f"{tag} ({h})"
+    except Exception:
+        return None
+
+
+git_version = get_git_version()
+if git_version:
+    VERSION = git_version
 
 
 class AboutDialog(QDialog):
