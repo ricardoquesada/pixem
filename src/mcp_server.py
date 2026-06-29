@@ -53,7 +53,7 @@ class McpServerThread(QThread):
 
     def _setup_tools(self):
         @self.mcp.tool()
-        async def get_project_info() -> str:
+        async def pixem_get_project_info() -> str:
             """Get general project status, hoop size, and list of layers."""
             try:
                 res = await self.bridge._call_main_thread(self.bridge.get_project_info_requested)
@@ -62,7 +62,7 @@ class McpServerThread(QThread):
                 return json.dumps({"success": False, "error": str(e)})
 
         @self.mcp.tool()
-        async def get_layer_details(layer_uuid: str) -> str:
+        async def pixem_get_layer_details(layer_uuid: str) -> str:
             """Get detailed properties and partitions of a specific layer.
 
             Args:
@@ -77,7 +77,7 @@ class McpServerThread(QThread):
                 return json.dumps({"success": False, "error": str(e)})
 
         @self.mcp.tool()
-        async def get_layer_image(layer_uuid: str) -> str:
+        async def pixem_get_layer_image(layer_uuid: str) -> str:
             """Get the layer's image as a Base64-encoded PNG string.
 
             Args:
@@ -92,7 +92,7 @@ class McpServerThread(QThread):
                 return json.dumps({"success": False, "error": str(e)})
 
         @self.mcp.tool()
-        async def get_partition_route(layer_uuid: str, partition_uuid: str) -> str:
+        async def pixem_get_partition_route(layer_uuid: str, partition_uuid: str) -> str:
             """Get the current route (ordered list of shapes) for a specific partition.
 
             Args:
@@ -108,7 +108,7 @@ class McpServerThread(QThread):
                 return json.dumps({"success": False, "error": str(e)})
 
         @self.mcp.tool()
-        async def find_auto_path(
+        async def pixem_find_auto_path(
             layer_uuid: str,
             partition_uuid: str,
             start_x: int,
@@ -152,7 +152,7 @@ class McpServerThread(QThread):
                 return json.dumps({"success": False, "error": str(e)})
 
         @self.mcp.tool()
-        async def add_layer(
+        async def pixem_add_layer(
             filepath: str = None, text: str = None, font_name: str = None, color_name: str = None
         ) -> str:
             """Add a new image or text layer. Provide filepath for image layer, or text/font_name/color_name for text layer.
@@ -176,7 +176,7 @@ class McpServerThread(QThread):
                 return json.dumps({"success": False, "error": str(e)})
 
         @self.mcp.tool()
-        async def delete_layer(layer_uuid: str) -> str:
+        async def pixem_delete_layer(layer_uuid: str) -> str:
             """Delete an existing layer.
 
             Args:
@@ -191,7 +191,7 @@ class McpServerThread(QThread):
                 return json.dumps({"success": False, "error": str(e)})
 
         @self.mcp.tool()
-        async def duplicate_layer(layer_uuid: str) -> str:
+        async def pixem_duplicate_layer(layer_uuid: str) -> str:
             """Duplicate an existing layer.
 
             Args:
@@ -206,7 +206,7 @@ class McpServerThread(QThread):
                 return json.dumps({"success": False, "error": str(e)})
 
         @self.mcp.tool()
-        async def fit_layer_to_hoop(layer_uuid: str) -> str:
+        async def pixem_fit_layer_to_hoop(layer_uuid: str) -> str:
             """Fit a layer to the hoop size.
 
             Args:
@@ -221,7 +221,7 @@ class McpServerThread(QThread):
                 return json.dumps({"success": False, "error": str(e)})
 
         @self.mcp.tool()
-        async def set_layer_properties(
+        async def pixem_set_layer_properties(
             layer_uuid: str,
             position_x: float = None,
             position_y: float = None,
@@ -272,7 +272,9 @@ class McpServerThread(QThread):
                 return json.dumps({"success": False, "error": str(e)})
 
         @self.mcp.tool()
-        async def set_partition_route(layer_uuid: str, partition_uuid: str, route_json: str) -> str:
+        async def pixem_set_partition_route(
+            layer_uuid: str, partition_uuid: str, route_json: str
+        ) -> str:
             """Replace the entire route (list of shapes) of a partition.
 
             Args:
@@ -291,7 +293,7 @@ class McpServerThread(QThread):
                 return json.dumps({"success": False, "error": str(e)})
 
         @self.mcp.tool()
-        async def delete_partition(layer_uuid: str, partition_uuid: str) -> str:
+        async def pixem_delete_partition(layer_uuid: str, partition_uuid: str) -> str:
             """Delete a partition from a layer.
 
             Args:
@@ -307,7 +309,7 @@ class McpServerThread(QThread):
                 return json.dumps({"success": False, "error": str(e)})
 
         @self.mcp.tool()
-        async def update_layer_partitions(layer_uuid: str, partition_uuids: list[str]) -> str:
+        async def pixem_update_layer_partitions(layer_uuid: str, partition_uuids: list[str]) -> str:
             """Reorder or update the partitions of a layer.
 
             Args:
@@ -323,7 +325,7 @@ class McpServerThread(QThread):
                 return json.dumps({"success": False, "error": str(e)})
 
         @self.mcp.tool()
-        async def undo() -> str:
+        async def pixem_undo() -> str:
             """Undo the last action on the main undo stack."""
             try:
                 res = await self.bridge._call_main_thread(self.bridge.undo_requested)
@@ -332,7 +334,7 @@ class McpServerThread(QThread):
                 return json.dumps({"success": False, "error": str(e)})
 
         @self.mcp.tool()
-        async def redo() -> str:
+        async def pixem_redo() -> str:
             """Redo the last undone action on the main undo stack."""
             try:
                 res = await self.bridge._call_main_thread(self.bridge.redo_requested)
@@ -341,7 +343,7 @@ class McpServerThread(QThread):
                 return json.dumps({"success": False, "error": str(e)})
 
         @self.mcp.tool()
-        async def set_project_properties(
+        async def pixem_set_project_properties(
             hoop_size_x: float = None,
             hoop_size_y: float = None,
             hoop_visible: bool = None,

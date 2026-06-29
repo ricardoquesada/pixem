@@ -73,7 +73,7 @@ class TestMcpServer(unittest.TestCase):
         }
         self.bridge.get_project_info_requested.connect(lambda fut: fut.set_result(mock_data))
 
-        res = self._run_tool_with_loop("get_project_info")
+        res = self._run_tool_with_loop("pixem_get_project_info")
         self.assertTrue(len(res[0]) > 0)
         self.assertIn("test_project.pixem", res[0][0].text)
 
@@ -93,7 +93,7 @@ class TestMcpServer(unittest.TestCase):
 
         self.bridge.get_layer_details_requested.connect(handle_details)
 
-        res = self._run_tool_with_loop("get_layer_details", {"layer_uuid": "layer-123"})
+        res = self._run_tool_with_loop("pixem_get_layer_details", {"layer_uuid": "layer-123"})
         self.assertEqual(received_uuid, "layer-123")
         self.assertTrue(len(res[0]) > 0)
         self.assertIn("layer-123", res[0][0].text)
@@ -116,7 +116,7 @@ class TestMcpServer(unittest.TestCase):
 
         self.bridge.get_layer_image_requested.connect(handle_get_image)
 
-        res = self._run_tool_with_loop("get_layer_image", {"layer_uuid": "layer-1"})
+        res = self._run_tool_with_loop("pixem_get_layer_image", {"layer_uuid": "layer-1"})
         self.assertEqual(received_layer_uuid, "layer-1")
         self.assertTrue(len(res[0]) > 0)
         self.assertIn("image_base64", res[0][0].text)
@@ -140,7 +140,7 @@ class TestMcpServer(unittest.TestCase):
         self.bridge.get_partition_route_requested.connect(handle_get_route)
 
         res = self._run_tool_with_loop(
-            "get_partition_route", {"layer_uuid": "layer-1", "partition_uuid": "part-2"}
+            "pixem_get_partition_route", {"layer_uuid": "layer-1", "partition_uuid": "part-2"}
         )
         self.assertEqual(received_layer_uuid, "layer-1")
         self.assertEqual(received_partition_uuid, "part-2")
@@ -159,7 +159,7 @@ class TestMcpServer(unittest.TestCase):
         self.bridge.add_layer_requested.connect(handle_add)
 
         res = self._run_tool_with_loop(
-            "add_layer",
+            "pixem_add_layer",
             {
                 "filepath": "image.png",
                 "text": "hello",
@@ -182,7 +182,7 @@ class TestMcpServer(unittest.TestCase):
 
         self.bridge.delete_layer_requested.connect(handle_delete)
 
-        res = self._run_tool_with_loop("delete_layer", {"layer_uuid": "layer-to-delete"})
+        res = self._run_tool_with_loop("pixem_delete_layer", {"layer_uuid": "layer-to-delete"})
         self.assertEqual(received_uuid, "layer-to-delete")
         self.assertIn("true", res[0][0].text)
 
@@ -196,7 +196,7 @@ class TestMcpServer(unittest.TestCase):
 
         self.bridge.duplicate_layer_requested.connect(handle_duplicate)
 
-        res = self._run_tool_with_loop("duplicate_layer", {"layer_uuid": "layer-to-dup"})
+        res = self._run_tool_with_loop("pixem_duplicate_layer", {"layer_uuid": "layer-to-dup"})
         self.assertEqual(received_uuid, "layer-to-dup")
         self.assertIn("duplicate-uuid", res[0][0].text)
 
@@ -210,7 +210,7 @@ class TestMcpServer(unittest.TestCase):
 
         self.bridge.fit_layer_to_hoop_requested.connect(handle_fit)
 
-        res = self._run_tool_with_loop("fit_layer_to_hoop", {"layer_uuid": "layer-to-fit"})
+        res = self._run_tool_with_loop("pixem_fit_layer_to_hoop", {"layer_uuid": "layer-to-fit"})
         self.assertEqual(received_uuid, "layer-to-fit")
         self.assertIn("true", res[0][0].text)
 
@@ -227,7 +227,7 @@ class TestMcpServer(unittest.TestCase):
         self.bridge.set_layer_properties_requested.connect(handle_set_props)
 
         res = self._run_tool_with_loop(
-            "set_layer_properties",
+            "pixem_set_layer_properties",
             arguments={
                 "layer_uuid": "layer-111",
                 "position_x": 10.5,
@@ -258,7 +258,7 @@ class TestMcpServer(unittest.TestCase):
         self.bridge.set_partition_route_requested.connect(handle_set_route)
 
         res = self._run_tool_with_loop(
-            "set_partition_route",
+            "pixem_set_partition_route",
             {
                 "layer_uuid": "layer-1",
                 "partition_uuid": "part-2",
@@ -286,7 +286,7 @@ class TestMcpServer(unittest.TestCase):
         self.bridge.delete_partition_requested.connect(handle_delete_part)
 
         res = self._run_tool_with_loop(
-            "delete_partition", {"layer_uuid": "layer-1", "partition_uuid": "part-2"}
+            "pixem_delete_partition", {"layer_uuid": "layer-1", "partition_uuid": "part-2"}
         )
         self.assertEqual(received_layer_uuid, "layer-1")
         self.assertEqual(received_partition_uuid, "part-2")
@@ -305,7 +305,7 @@ class TestMcpServer(unittest.TestCase):
         self.bridge.update_layer_partitions_requested.connect(handle_update_parts)
 
         res = self._run_tool_with_loop(
-            "update_layer_partitions",
+            "pixem_update_layer_partitions",
             {"layer_uuid": "layer-1", "partition_uuids": ["part-2", "part-3"]},
         )
         self.assertEqual(received_layer_uuid, "layer-1")
@@ -329,8 +329,8 @@ class TestMcpServer(unittest.TestCase):
         self.bridge.undo_requested.connect(handle_undo)
         self.bridge.redo_requested.connect(handle_redo)
 
-        res_undo = self._run_tool_with_loop("undo")
-        res_redo = self._run_tool_with_loop("redo")
+        res_undo = self._run_tool_with_loop("pixem_undo")
+        res_redo = self._run_tool_with_loop("pixem_redo")
 
         self.assertTrue(undo_called)
         self.assertTrue(redo_called)
@@ -348,7 +348,7 @@ class TestMcpServer(unittest.TestCase):
         self.bridge.set_project_properties_requested.connect(handle_set_project_props)
 
         res = self._run_tool_with_loop(
-            "set_project_properties",
+            "pixem_set_project_properties",
             {
                 "hoop_size_x": 100.0,
                 "hoop_size_y": 150.0,
@@ -385,7 +385,7 @@ class TestMcpServer(unittest.TestCase):
         self.bridge.find_auto_path_requested.connect(handle_find_path)
 
         res = self._run_tool_with_loop(
-            "find_auto_path",
+            "pixem_find_auto_path",
             {
                 "layer_uuid": "layer-1",
                 "partition_uuid": "part-2",
@@ -437,7 +437,7 @@ class TestMcpServer(unittest.TestCase):
 
         # 4. Call the tool via the bridge (which will trigger the window's slot)
         res = self._run_tool_with_loop(
-            "find_auto_path",
+            "pixem_find_auto_path",
             {
                 "layer_uuid": layer.uuid,
                 "partition_uuid": partition_uuid,
