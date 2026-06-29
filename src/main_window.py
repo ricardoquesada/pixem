@@ -18,13 +18,14 @@ from concurrent.futures import Future
 from contextlib import contextmanager
 
 from coloraide import Color
-from PySide6.QtCore import QObject, QPointF, QSize, Qt, Slot
+from PySide6.QtCore import QObject, QPointF, QRunnable, QSize, Qt, Signal, Slot
 from PySide6.QtGui import (
     QAction,
     QCloseEvent,
     QColor,
     QGuiApplication,
     QIcon,
+    QImage,
     QKeySequence,
     QUndoGroup,
 )
@@ -119,6 +120,7 @@ class MainWindow(QMainWindow):
 
         self._undo_group = QUndoGroup(self)
         self._connected_doc = None
+        self._active_workers = set()
         self._setup_ui()
 
         self._save_default_settings()
@@ -1053,8 +1055,11 @@ class MainWindow(QMainWindow):
                 doc = self._create_document(state, None)
                 layer = ImageLayer(filename)
                 layer.name = f"ImageLayer {len(doc.state.layers) + 1}"
-                layer.create_partitions(QColor(doc.state.canvas_background_color))
-                doc.state.add_layer(layer)
+                self._parse_layer_asynchronously(
+                    layer,
+                    QColor(doc.state.canvas_background_color),
+                    lambda layer_obj: doc.state.add_layer(layer_obj),
+                )
         else:
             logger.warning("Could not open file. Invalid filename")
 
@@ -1239,8 +1244,9 @@ class MainWindow(QMainWindow):
         if file_name:
             layer = ImageLayer(file_name)
             layer.name = f"ImageLayer {len(self.state.layers) + 1}"
-            layer.create_partitions(QColor(self.state.canvas_background_color))
-            self._add_layer(layer)
+            self._parse_layer_asynchronously(
+                layer, QColor(self.state.canvas_background_color), self._add_layer
+            )
 
     @Slot()
     def _on_layer_add_text(self) -> None:
@@ -1253,8 +1259,9 @@ class MainWindow(QMainWindow):
             if len(text) > 0:
                 layer = TextLayer(text, font_name, color_name)
                 layer.name = f"TextLayer {len(self.state.layers) + 1}"
-                layer.create_partitions(QColor(self.state.canvas_background_color))
-                self._add_layer(layer)
+                self._parse_layer_asynchronously(
+                    layer, QColor(self.state.canvas_background_color), self._add_layer
+                )
 
     @Slot()
     def _on_layer_delete(self) -> None:
@@ -1888,6 +1895,35 @@ class MainWindow(QMainWindow):
 
         return doc
 
+    def _parse_layer_asynchronously(self, layer, background_color, callback):
+        """
+        Parses a layer's image in a background thread to generate partitions,
+        keeping the UI responsive.
+        """
+        from PySide6.QtCore import Qt, QThreadPool
+
+        self.statusBar().showMessage(self.tr("Analyzing image..."))
+        self.setEnabled(False)
+
+        worker = ParseImageWorker(layer.image, background_color)
+        self._active_workers.add(worker)
+
+        def on_finished(partitions):
+            self._active_workers.discard(worker)
+            layer._partitions = partitions
+            self.statusBar().clearMessage()
+            self.setEnabled(True)
+            callback(layer)
+
+        def on_error(err):
+            self._active_workers.discard(worker)
+            self.statusBar().showMessage(self.tr("Error analyzing image: ") + str(err), 5000)
+            self.setEnabled(True)
+
+        worker.signals.finished.connect(on_finished, Qt.QueuedConnection)
+        worker.signals.error.connect(on_error, Qt.QueuedConnection)
+        QThreadPool.globalInstance().start(worker)
+
     def _on_tab_close_requested(self, index: int):
         widget = self._tab_widget.widget(index)
         if isinstance(widget, Document):
@@ -2215,14 +2251,26 @@ class MainWindow(QMainWindow):
                     return
                 layer = Layer(image)
                 layer.name = os.path.basename(filepath)
-                self.state.add_layer(layer)
-                future.set_result({"success": True, "layer_uuid": layer.uuid})
+
+                def on_added(layer_obj):
+                    self.state.add_layer(layer_obj)
+                    future.set_result({"success": True, "layer_uuid": layer_obj.uuid})
+
+                self._parse_layer_asynchronously(
+                    layer, QColor(self.state.canvas_background_color), on_added
+                )
             elif text:
                 font_name = args.get("font_name", "Arial")
                 color_name = args.get("color_name", "#000000")
                 layer = TextLayer(text, font_name, color_name)
-                self.state.add_layer(layer)
-                future.set_result({"success": True, "layer_uuid": layer.uuid})
+
+                def on_added(layer_obj):
+                    self.state.add_layer(layer_obj)
+                    future.set_result({"success": True, "layer_uuid": layer_obj.uuid})
+
+                self._parse_layer_asynchronously(
+                    layer, QColor(self.state.canvas_background_color), on_added
+                )
             else:
                 future.set_result(
                     {"success": False, "error": "Must provide either 'filepath' or 'text'"}
@@ -2448,6 +2496,28 @@ class MainWindow(QMainWindow):
             future.set_result({"success": True})
         except Exception as e:
             future.set_exception(e)
+
+
+class ParseImageWorkerSignals(QObject):
+    finished = Signal(dict)
+    error = Signal(str)
+
+
+class ParseImageWorker(QRunnable):
+    def __init__(self, image: QImage, bg_color: QColor | None):
+        super().__init__()
+        self.image = image
+        self.bg_color = bg_color
+        self.signals = ParseImageWorkerSignals()
+
+    def run(self):
+        try:
+            from image_parser import ImageParser
+
+            parser = ImageParser(self.image, self.bg_color)
+            self.signals.finished.emit(parser.partitions)
+        except Exception as e:
+            self.signals.error.emit(str(e))
 
 
 if __name__ == "__main__":
