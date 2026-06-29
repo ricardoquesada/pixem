@@ -26,9 +26,10 @@ def main():
     )
 
     parser = argparse.ArgumentParser(description="Pixem")
+    parser.add_argument("file", nargs="?", help="Pixem project or image file to open")
     parser.add_argument("--mcp", action="store_true", help="Start MCP Server")
     parser.add_argument("--mcp-port", type=int, default=8123, help="MCP Server Port")
-    args, unknown = parser.parse_known_args()
+    args = parser.parse_args()
 
     app = QApplication(sys.argv)
 
@@ -63,7 +64,7 @@ def main():
     app.setOrganizationDomain("retro.moe")
     app.setWindowIcon(QIcon(":/icons/pixem.png"))
 
-    window = MainWindow()
+    window = MainWindow(filename=args.file)
 
     if args.mcp:
         from mcp_server import McpBridge, McpServerThread

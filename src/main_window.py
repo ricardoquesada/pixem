@@ -114,7 +114,7 @@ class MainWindow(QMainWindow):
     It also manages the application's state, including loading and saving projects.
     """
 
-    def __init__(self):
+    def __init__(self, filename: str | None = None):
         """Initializes the MainWindow, sets up the UI, and loads settings."""
         super().__init__()
 
@@ -126,23 +126,26 @@ class MainWindow(QMainWindow):
         self._save_default_settings()
         self._load_settings()
 
-        open_on_startup = get_global_preferences().get_open_file_on_startup()
-        if open_on_startup:
-            # Try to open "open files" from previous session
-            files = get_global_preferences().get_open_files()
+        if filename:
+            self.open_file(filename)
+        else:
+            open_on_startup = get_global_preferences().get_open_file_on_startup()
+            if open_on_startup:
+                # Try to open "open files" from previous session
+                files = get_global_preferences().get_open_files()
 
-            for filename in files:
-                if os.path.exists(filename):
-                    self._open_filename(filename)
+                for f in files:
+                    if os.path.exists(f):
+                        self._open_filename(f)
 
-            # Restore active file
-            active_file = get_global_preferences().get_active_file()
-            if active_file:
-                for i in range(self._tab_widget.count()):
-                    doc = self._tab_widget.widget(i)
-                    if isinstance(doc, Document) and doc.state.project_filename == active_file:
-                        self._tab_widget.setCurrentIndex(i)
-                        break
+                # Restore active file
+                active_file = get_global_preferences().get_active_file()
+                if active_file:
+                    for i in range(self._tab_widget.count()):
+                        doc = self._tab_widget.widget(i)
+                        if isinstance(doc, Document) and doc.state.project_filename == active_file:
+                            self._tab_widget.setCurrentIndex(i)
+                            break
 
         self._update_window_title()
 
@@ -189,7 +192,7 @@ class MainWindow(QMainWindow):
             QIcon.fromTheme("document-open"), self.tr("Open Image or Project"), self
         )
         self._open_action.setShortcut(QKeySequence("Ctrl+O"))
-        self._open_action.triggered.connect(self._on_open_image_or_project)
+        self._open_action.triggered.connect(self._on_file_open)
         file_menu.addAction(self._open_action)
 
         self._recent_menu = QMenu(self.tr("Recent Files"), file_menu)
@@ -1032,13 +1035,38 @@ class MainWindow(QMainWindow):
         state = State()
         self._create_document(state, None)
 
+    def open_file(self, filename: str):
+        """
+        Opens a project file or imports an image file as a new project.
+
+        Args:
+            filename: The path to the file to open.
+        """
+        if not filename:
+            return
+
+        _, ext = os.path.splitext(filename)
+        if ext.lower() == ".pixemproj":
+            self._open_filename(filename)
+        else:
+            # If opening an image, create a new project for it
+            state = State()
+            doc = self._create_document(state, None)
+            layer = ImageLayer(filename)
+            layer.name = f"ImageLayer {len(doc.state.layers) + 1}"
+            self._parse_layer_asynchronously(
+                layer,
+                QColor(doc.state.canvas_background_color),
+                lambda layer_obj: doc.state.add_layer(layer_obj),
+            )
+
     @Slot()
-    def _on_open_image_or_project(self) -> None:
-        """Slot for opening an image or a project file."""
-        options = QFileDialog.Options()  # For more options if needed
+    def _on_file_open(self) -> None:
+        """Slot for opening a project file or importing an image."""
+        options = QFileDialog.Options()
         filename, _ = QFileDialog.getOpenFileName(
             self,
-            self.tr("Open Pixem Project File"),
+            self.tr("Open File"),
             "",
             self.tr(
                 "All Supported Files (*.pixemproj *.png *.jpg *.bmp );;Pixem project (*.pixemproj);;All files (*)"
@@ -1046,20 +1074,7 @@ class MainWindow(QMainWindow):
             options=options,
         )
         if filename:
-            _, ext = os.path.splitext(filename)
-            if ext == ".pixemproj":
-                self._open_filename(filename)
-            else:
-                # If opening an image, create a new project for it
-                state = State()
-                doc = self._create_document(state, None)
-                layer = ImageLayer(filename)
-                layer.name = f"ImageLayer {len(doc.state.layers) + 1}"
-                self._parse_layer_asynchronously(
-                    layer,
-                    QColor(doc.state.canvas_background_color),
-                    lambda layer_obj: doc.state.add_layer(layer_obj),
-                )
+            self.open_file(filename)
         else:
             logger.warning("Could not open file. Invalid filename")
 
