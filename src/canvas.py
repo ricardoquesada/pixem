@@ -27,6 +27,7 @@ from PySide6.QtGui import (
 from PySide6.QtWidgets import QScrollArea, QWidget
 
 import image_utils
+from layer import Layer
 from preferences import get_global_preferences
 from shape import Path, Rect
 from state import State
@@ -424,6 +425,29 @@ class Canvas(QWidget):
             # Pass to parent (QScrollArea) for scrolling
             super().wheelEvent(event)
 
+    def _get_layer_at_position(self, pos: QPointF) -> Layer | None:
+        """
+        Finds the visible layer at the given canvas widget position.
+
+        Args:
+            pos: The position in widget coordinates (e.g. event.position()).
+
+        Returns:
+            The topmost Layer at that position, or None.
+        """
+        if not self._state or not self._state.layers:
+            return None
+
+        scale = self._state.zoom_factor * DEFAULT_SCALE_FACTOR
+        point = QPointF(pos.x() / scale, pos.y() / scale)
+
+        for layer in reversed(self._state.layers):
+            if not layer.visible or layer.opacity == 0:
+                continue
+            if layer.is_point_inside(point):
+                return layer
+        return None
+
     @override
     def mousePressEvent(self, event: QMouseEvent):
         """
@@ -448,20 +472,14 @@ class Canvas(QWidget):
             event.ignore()
             return
         event.accept()
-        # Layer on top (visually) first
-        for layer in reversed(self._state.layers):
-            if not layer.visible or layer.opacity == 0:
-                continue
-            point = event.position()
-            scale = self._state.zoom_factor * DEFAULT_SCALE_FACTOR
-            point = QPointF(point.x() / scale, point.y() / scale)
-            if layer.is_point_inside(point):
-                self._mouse_start_coords = event.position()
-                self._mode_status = Canvas.ModeStatus.MOVING
-                if layer.uuid != self._state.selected_layer_uuid:
-                    self.layer_selection_changed.emit(layer.uuid)
-                self.update()
-                break
+
+        layer = self._get_layer_at_position(event.position())
+        if layer:
+            self._mouse_start_coords = event.position()
+            self._mode_status = Canvas.ModeStatus.MOVING
+            if layer.uuid != self._state.selected_layer_uuid:
+                self.layer_selection_changed.emit(layer.uuid)
+            self.update()
 
     @override
     def mouseMoveEvent(self, event: QMouseEvent):
@@ -549,19 +567,12 @@ class Canvas(QWidget):
         Args:
             event: The mouse event.
         """
-        # Layer on top (visually) first
-        # FIXME: almost same code as mousePressEvent()
-        for layer in reversed(self._state.layers):
-            if not layer.visible or layer.opacity == 0:
-                continue
-            point = event.position()
-            scale = self._state.zoom_factor * DEFAULT_SCALE_FACTOR
-            point = QPointF(point.x() / scale, point.y() / scale)
-            if layer.is_point_inside(point):
-                self.layer_double_clicked.emit(layer.uuid)
-                event.accept()
-                break
-        event.ignore()
+        layer = self._get_layer_at_position(event.position())
+        if layer:
+            self.layer_double_clicked.emit(layer.uuid)
+            event.accept()
+        else:
+            event.ignore()
 
     @override
     def sizeHint(self) -> QSize:
