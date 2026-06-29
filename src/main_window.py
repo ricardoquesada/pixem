@@ -1979,7 +1979,7 @@ class MainWindow(QMainWindow):
         bridge.duplicate_layer_requested.connect(self._on_mcp_duplicate_layer)
         bridge.fit_layer_to_hoop_requested.connect(self._on_mcp_fit_layer_to_hoop)
         bridge.set_layer_properties_requested.connect(self._on_mcp_set_layer_properties)
-        bridge.update_partition_route_requested.connect(self._on_mcp_update_partition_route)
+        bridge.set_partition_route_requested.connect(self._on_mcp_set_partition_route)
         bridge.delete_partition_requested.connect(self._on_mcp_delete_partition)
         bridge.update_layer_partitions_requested.connect(self._on_mcp_update_layer_partitions)
         bridge.undo_requested.connect(self._on_mcp_undo)
@@ -2251,7 +2251,7 @@ class MainWindow(QMainWindow):
             future.set_exception(e)
 
     @Slot(str, str, list, Future)
-    def _on_mcp_update_partition_route(
+    def _on_mcp_set_partition_route(
         self, layer_uuid: str, partition_uuid: str, route_list: list, future: Future
     ):
         try:

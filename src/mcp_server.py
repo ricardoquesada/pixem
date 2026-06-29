@@ -23,7 +23,7 @@ class McpBridge(QObject):
     duplicate_layer_requested = Signal(str, Future)
     fit_layer_to_hoop_requested = Signal(str, Future)
     set_layer_properties_requested = Signal(str, dict, Future)
-    update_partition_route_requested = Signal(str, str, list, Future)
+    set_partition_route_requested = Signal(str, str, list, Future)
     delete_partition_requested = Signal(str, str, Future)
     update_layer_partitions_requested = Signal(str, list, Future)
     undo_requested = Signal(Future)
@@ -227,9 +227,7 @@ class McpServerThread(QThread):
                 return json.dumps({"success": False, "error": str(e)})
 
         @self.mcp.tool()
-        async def update_partition_route(
-            layer_uuid: str, partition_uuid: str, route_json: str
-        ) -> str:
+        async def set_partition_route(layer_uuid: str, partition_uuid: str, route_json: str) -> str:
             """Replace the entire route (list of shapes) of a partition.
 
             Args:
@@ -241,7 +239,7 @@ class McpServerThread(QThread):
             try:
                 route = json.loads(route_json)
                 res = await self.bridge._call_main_thread(
-                    self.bridge.update_partition_route_requested, layer_uuid, partition_uuid, route
+                    self.bridge.set_partition_route_requested, layer_uuid, partition_uuid, route
                 )
                 return json.dumps(res)
             except Exception as e:

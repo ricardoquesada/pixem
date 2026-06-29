@@ -242,22 +242,22 @@ class TestMcpServer(unittest.TestCase):
         self.assertTrue(len(res[0]) > 0)
         self.assertIn("success", res[0][0].text)
 
-    def test_update_partition_route_tool(self):
+    def test_set_partition_route_tool(self):
         received_layer_uuid = None
         received_partition_uuid = None
         received_route = None
 
-        def handle_update_route(layer_uuid, partition_uuid, route, future):
+        def handle_set_route(layer_uuid, partition_uuid, route, future):
             nonlocal received_layer_uuid, received_partition_uuid, received_route
             received_layer_uuid = layer_uuid
             received_partition_uuid = partition_uuid
             received_route = route
             future.set_result({"success": True})
 
-        self.bridge.update_partition_route_requested.connect(handle_update_route)
+        self.bridge.set_partition_route_requested.connect(handle_set_route)
 
         res = self._run_tool_with_loop(
-            "update_partition_route",
+            "set_partition_route",
             {
                 "layer_uuid": "layer-1",
                 "partition_uuid": "part-2",
