@@ -759,28 +759,39 @@ class PartitionDialog(QDialog):
                 ImageWidget.EditMode.PAINT,
                 self.tr("Paint"),
                 "draw-freehand-symbolic.svg",
+                "P",
             ),
             (
                 ImageWidget.EditMode.ADD_AUTO_PATH,
                 self.tr("Add Auto Path"),
                 "rectangle-make-corners-sharp-symbolic.svg",
+                "A",
             ),
             (
                 ImageWidget.EditMode.ADD_MANUAL_PATH,
                 self.tr("Add Manual Path"),
                 "path-mode-polyline-symbolic.svg",
+                "M",
             ),
-            (ImageWidget.EditMode.FILL, self.tr("Fill"), "color-fill-symbolic.svg"),
+            (
+                ImageWidget.EditMode.FILL,
+                self.tr("Fill"),
+                "color-fill-symbolic.svg",
+                "F",
+            ),
             (
                 ImageWidget.EditMode.SELECT,
                 self.tr("Select"),
                 "dialog-layers-symbolic.svg",
+                "S",
             ),
         ]
         for mode in action_modes:
             path = f":/icons/svg/actions/{mode[2]}"
             icon = create_icon_from_svg(path, ICON_SIZE)
             action = QAction(icon, mode[1], self)
+            action.setShortcut(QKeySequence(mode[3]))
+            action.setToolTip(f"{mode[1]} ({mode[3]})")
             toolbar.addAction(action)
             action.setCheckable(True)
             action.triggered.connect(self._on_action_edit_mode)
