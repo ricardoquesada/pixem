@@ -1974,6 +1974,7 @@ class MainWindow(QMainWindow):
         bridge.get_layer_details_requested.connect(self._on_mcp_get_layer_details)
         bridge.get_layer_image_requested.connect(self._on_mcp_get_layer_image)
         bridge.get_partition_route_requested.connect(self._on_mcp_get_partition_route)
+        bridge.find_auto_path_requested.connect(self._on_mcp_find_auto_path)
         bridge.add_layer_requested.connect(self._on_mcp_add_layer)
         bridge.delete_layer_requested.connect(self._on_mcp_delete_layer)
         bridge.duplicate_layer_requested.connect(self._on_mcp_duplicate_layer)
@@ -2125,6 +2126,67 @@ class MainWindow(QMainWindow):
             res = {
                 "success": True,
                 "shapes": shapes,
+            }
+            future.set_result(res)
+        except Exception as e:
+            future.set_exception(e)
+
+    @Slot(str, str, int, int, int, int, bool, bool, Future)
+    def _on_mcp_find_auto_path(
+        self,
+        layer_uuid: str,
+        partition_uuid: str,
+        start_x: int,
+        start_y: int,
+        end_x: int,
+        end_y: int,
+        use_weights: bool,
+        simplify: bool,
+        future: Future,
+    ):
+        try:
+            if self.state is None:
+                future.set_result({"success": False, "error": "No project loaded"})
+                return
+            layer = self.state.get_layer_for_uuid(layer_uuid)
+            if layer is None:
+                future.set_result({"success": False, "error": f"Layer {layer_uuid} not found"})
+                return
+            if partition_uuid not in layer.partitions:
+                future.set_result(
+                    {
+                        "success": False,
+                        "error": f"Partition {partition_uuid} not found in layer {layer_uuid}",
+                    }
+                )
+                return
+            partition = layer.partitions[partition_uuid]
+
+            # Convert hex color (e.g., "#ff0000") to integer
+            color_str = partition.color.lstrip("#")
+            color_int = int(color_str, 16)
+
+            from path_finder import PathFinder
+            from shape import Point
+
+            path_finder = PathFinder(layer.image)
+            path_nodes = path_finder.find_shortest_pixel_path(
+                color_int, (start_x, start_y), (end_x, end_y), use_weights=use_weights
+            )
+
+            if not path_nodes:
+                future.set_result({"success": False, "error": "No path found"})
+                return
+
+            path_nodes = path_finder.remove_redundant_points_from_start_and_end_nodes(path_nodes)
+            if simplify:
+                points = path_finder.simplify_path_to_points(path_nodes)
+            else:
+                points = [Point(n[0], n[1]) for n in path_nodes]
+
+            res = {
+                "success": True,
+                "points": [{"x": p.x, "y": p.y} for p in points],
             }
             future.set_result(res)
         except Exception as e:

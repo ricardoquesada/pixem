@@ -13,6 +13,7 @@ from concurrent.futures import Future
 sys.path.append(os.path.join(os.path.dirname(__file__), "../src"))
 
 from PySide6.QtCore import QCoreApplication
+from PySide6.QtWidgets import QApplication
 
 from mcp_server import McpBridge, McpServerThread
 
@@ -20,8 +21,8 @@ from mcp_server import McpBridge, McpServerThread
 class TestMcpServer(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        # Create QCoreApplication instance if it doesn't exist
-        cls.app = QCoreApplication.instance() or QCoreApplication([])
+        # Create QApplication instance if it doesn't exist (needed for MainWindow)
+        cls.app = QApplication.instance() or QApplication([])
 
     def setUp(self):
         self.bridge = McpBridge()
@@ -363,6 +364,120 @@ class TestMcpServer(unittest.TestCase):
         self.assertEqual(received_props["canvas_background_color"], "#000000")
         self.assertEqual(received_props["zoom_factor"], 2.0)
         self.assertIn("true", res[0][0].text)
+
+    def test_find_auto_path_tool(self):
+        received_args = {}
+
+        def handle_find_path(layer_uuid, partition_uuid, sx, sy, ex, ey, w, s, future):
+            received_args["layer_uuid"] = layer_uuid
+            received_args["partition_uuid"] = partition_uuid
+            received_args["start"] = (sx, sy)
+            received_args["end"] = (ex, ey)
+            received_args["weights"] = w
+            received_args["simplify"] = s
+            future.set_result(
+                {
+                    "success": True,
+                    "points": [{"x": sx, "y": sy}, {"x": ex, "y": ey}],
+                }
+            )
+
+        self.bridge.find_auto_path_requested.connect(handle_find_path)
+
+        res = self._run_tool_with_loop(
+            "find_auto_path",
+            {
+                "layer_uuid": "layer-1",
+                "partition_uuid": "part-2",
+                "start_x": 0,
+                "start_y": 0,
+                "end_x": 10,
+                "end_y": 10,
+                "use_weights": True,
+                "simplify": False,
+            },
+        )
+        self.assertEqual(received_args["layer_uuid"], "layer-1")
+        self.assertEqual(received_args["partition_uuid"], "part-2")
+        self.assertEqual(received_args["start"], (0, 0))
+        self.assertEqual(received_args["end"], (10, 10))
+        self.assertEqual(received_args["weights"], True)
+        self.assertEqual(received_args["simplify"], False)
+
+        self.assertTrue(len(res[0]) > 0)
+        self.assertIn("points", res[0][0].text)
+
+    def test_find_auto_path_integration(self):
+        import json
+
+        from PySide6.QtGui import QColor, QImage
+
+        from layer import Layer
+        from main_window import MainWindow
+        from state import State
+
+        # 1. Create MainWindow and State
+        window = MainWindow()
+        state = State()
+        window._create_document(state)
+
+        # 2. Create a simple 3x3 image (red)
+        image = QImage(3, 3, QImage.Format_ARGB32)
+        image.fill(QColor("red"))
+        layer = Layer(image)
+        layer.create_partitions(QColor(state.canvas_background_color))
+        state.add_layer(layer)
+
+        # Get the partition created for red
+        self.assertEqual(len(layer.partitions), 1)
+        partition_uuid = list(layer.partitions.keys())[0]
+
+        # 3. Set up the bridge and link to window
+        window.setup_mcp_bridge(self.bridge)
+
+        # 4. Call the tool via the bridge (which will trigger the window's slot)
+        res = self._run_tool_with_loop(
+            "find_auto_path",
+            {
+                "layer_uuid": layer.uuid,
+                "partition_uuid": partition_uuid,
+                "start_x": 0,
+                "start_y": 0,
+                "end_x": 2,
+                "end_y": 2,
+                "use_weights": True,
+                "simplify": False,
+            },
+        )
+
+        # 5. Verify the result
+        self.assertTrue(len(res[0]) > 0)
+        result_dict = json.loads(res[0][0].text)
+        self.assertTrue(result_dict["success"])
+        points = result_dict["points"]
+        # Since it's a 3x3 diagonal path, it should find a path with at least 2 points
+        self.assertTrue(len(points) >= 2)
+
+        # Verify the first point is one of the start pixel's vertices (0,0), (1,0), (0,1), (1,1)
+        start_pixel_vertices = [
+            {"x": 0, "y": 0},
+            {"x": 1, "y": 0},
+            {"x": 0, "y": 1},
+            {"x": 1, "y": 1},
+        ]
+        self.assertIn(points[0], start_pixel_vertices)
+
+        # Verify the last point is one of the end pixel's vertices (2,2), (3,2), (2,3), (3,3)
+        end_pixel_vertices = [
+            {"x": 2, "y": 2},
+            {"x": 3, "y": 2},
+            {"x": 2, "y": 3},
+            {"x": 3, "y": 3},
+        ]
+        self.assertIn(points[-1], end_pixel_vertices)
+
+        # Close the window to free resources
+        window.close()
 
 
 if __name__ == "__main__":

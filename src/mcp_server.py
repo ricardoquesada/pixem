@@ -18,6 +18,7 @@ class McpBridge(QObject):
     get_layer_details_requested = Signal(str, Future)
     get_layer_image_requested = Signal(str, Future)
     get_partition_route_requested = Signal(str, str, Future)
+    find_auto_path_requested = Signal(str, str, int, int, int, int, bool, bool, Future)
     add_layer_requested = Signal(dict, Future)
     delete_layer_requested = Signal(str, Future)
     duplicate_layer_requested = Signal(str, Future)
@@ -101,6 +102,50 @@ class McpServerThread(QThread):
             try:
                 res = await self.bridge._call_main_thread(
                     self.bridge.get_partition_route_requested, layer_uuid, partition_uuid
+                )
+                return json.dumps(res)
+            except Exception as e:
+                return json.dumps({"success": False, "error": str(e)})
+
+        @self.mcp.tool()
+        async def find_auto_path(
+            layer_uuid: str,
+            partition_uuid: str,
+            start_x: int,
+            start_y: int,
+            end_x: int,
+            end_y: int,
+            use_weights: bool = True,
+            simplify: bool = True,
+        ) -> str:
+            """Find an optimal stitching path (sequence of points) between two pixels in a layer.
+
+            This uses Pixem's internal pathfinding algorithm (which considers color distances to find
+            the best path) and returns a list of points.
+
+            Args:
+                layer_uuid: The unique identifier (UUID) of the layer.
+                partition_uuid: The unique identifier (UUID) of the partition.
+                start_x: X coordinate of the start pixel.
+                start_y: Y coordinate of the start pixel.
+                end_x: X coordinate of the end pixel.
+                end_y: Y coordinate of the end pixel.
+                use_weights: If True, uses color distances as weights to find the best path.
+                             If False, finds the path with the fewest segments.
+                simplify: If True, simplifies the path by keeping only corner points (collinear reduction).
+                          If False, returns all intermediate pixel vertices.
+            """
+            try:
+                res = await self.bridge._call_main_thread(
+                    self.bridge.find_auto_path_requested,
+                    layer_uuid,
+                    partition_uuid,
+                    start_x,
+                    start_y,
+                    end_x,
+                    end_y,
+                    use_weights,
+                    simplify,
                 )
                 return json.dumps(res)
             except Exception as e:
