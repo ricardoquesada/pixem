@@ -2,6 +2,7 @@
 # Pixem
 # Copyright 2024 Ricardo Quesada
 
+import argparse
 import logging
 import sys
 
@@ -23,6 +24,11 @@ def main():
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",  # Customize the date format
     )
+
+    parser = argparse.ArgumentParser(description="Pixem")
+    parser.add_argument("--mcp", action="store_true", help="Start MCP Server")
+    parser.add_argument("--mcp-port", type=int, default=8123, help="MCP Server Port")
+    args, unknown = parser.parse_known_args()
 
     app = QApplication(sys.argv)
 
@@ -58,6 +64,18 @@ def main():
     app.setWindowIcon(QIcon(":/icons/pixem.png"))
 
     window = MainWindow()
+
+    if args.mcp:
+        from mcp_server import McpBridge, McpServerThread
+
+        logger.info("Starting MCP Server...")
+        bridge = McpBridge()
+        server_thread = McpServerThread(bridge, port=args.mcp_port)
+        window.setup_mcp_bridge(bridge)
+        server_thread.start()
+        # Keep a reference to the thread so it doesn't get garbage collected
+        window._mcp_server_thread = server_thread
+
     window.show()
     sys.exit(app.exec())
 

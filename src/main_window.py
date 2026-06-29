@@ -14,6 +14,7 @@ import logging
 import os.path
 import sys
 from collections.abc import Iterable
+from concurrent.futures import Future
 from contextlib import contextmanager
 
 from coloraide import Color
@@ -1966,6 +1967,366 @@ class MainWindow(QMainWindow):
 
         # Update properties dock state
         self._update_qactions()
+
+    def setup_mcp_bridge(self, bridge):
+        self._mcp_bridge = bridge
+        bridge.get_project_info_requested.connect(self._on_mcp_get_project_info)
+        bridge.get_layer_details_requested.connect(self._on_mcp_get_layer_details)
+        bridge.add_layer_requested.connect(self._on_mcp_add_layer)
+        bridge.delete_layer_requested.connect(self._on_mcp_delete_layer)
+        bridge.duplicate_layer_requested.connect(self._on_mcp_duplicate_layer)
+        bridge.fit_layer_to_hoop_requested.connect(self._on_mcp_fit_layer_to_hoop)
+        bridge.set_layer_properties_requested.connect(self._on_mcp_set_layer_properties)
+        bridge.update_partition_path_requested.connect(self._on_mcp_update_partition_path)
+        bridge.delete_partition_requested.connect(self._on_mcp_delete_partition)
+        bridge.update_layer_partitions_requested.connect(self._on_mcp_update_layer_partitions)
+        bridge.undo_requested.connect(self._on_mcp_undo)
+        bridge.redo_requested.connect(self._on_mcp_redo)
+        bridge.set_project_properties_requested.connect(self._on_mcp_set_project_properties)
+
+    @Slot(Future)
+    def _on_mcp_get_project_info(self, future: Future):
+        try:
+            if self.state is None:
+                future.set_result({"success": False, "error": "No project loaded"})
+                return
+
+            layers = []
+            for layer in self.state.layers:
+                layers.append(
+                    {
+                        "uuid": layer.uuid,
+                        "name": layer.name,
+                        "type": "text" if isinstance(layer, TextLayer) else "image",
+                        "visible": layer.visible,
+                    }
+                )
+            res = {
+                "success": True,
+                "project_filename": self.state.project_filename,
+                "hoop_size": self.state.hoop_size,
+                "hoop_visible": self.state.hoop_visible,
+                "hoop_color": self.state.hoop_color,
+                "canvas_background_color": self.state.canvas_background_color,
+                "partition_foreground_color": self.state.partition_foreground_color,
+                "partition_background_color": self.state.partition_background_color,
+                "zoom_factor": self.state.zoom_factor,
+                "selected_layer_uuid": self.state.selected_layer_uuid,
+                "layers": layers,
+            }
+            future.set_result(res)
+        except Exception as e:
+            future.set_exception(e)
+
+    @Slot(str, Future)
+    def _on_mcp_get_layer_details(self, layer_uuid: str, future: Future):
+        try:
+            if self.state is None:
+                future.set_result({"success": False, "error": "No project loaded"})
+                return
+            layer = self.state.get_layer_for_uuid(layer_uuid)
+            if layer is None:
+                future.set_result({"success": False, "error": f"Layer {layer_uuid} not found"})
+                return
+
+            partitions = []
+            for p_uuid, partition in layer.partitions.items():
+                shapes = []
+                for shape in partition.path:
+                    # Using local import to avoid circular dependency issues
+                    from shape import Path, Rect
+
+                    if isinstance(shape, Rect):
+                        shapes.append({"type": "rect", "x": shape.x, "y": shape.y})
+                    elif isinstance(shape, Path):
+                        points = [{"x": p.x, "y": p.y} for p in shape.path]
+                        shapes.append({"type": "path", "points": points})
+                partitions.append(
+                    {
+                        "uuid": p_uuid,
+                        "name": partition.name,
+                        "color": partition.color,
+                        "shapes": shapes,
+                    }
+                )
+
+            res = {
+                "success": True,
+                "uuid": layer.uuid,
+                "name": layer.name,
+                "type": "text" if isinstance(layer, TextLayer) else "image",
+                "visible": layer.visible,
+                "opacity": layer.opacity,
+                "position": (layer.position.x(), layer.position.y()),
+                "rotation": layer.rotation,
+                "pixel_size": layer.pixel_size,
+                "pixel_aspect_ratio_mode": layer.pixel_aspect_ratio_mode,
+                "partitions": partitions,
+            }
+            if isinstance(layer, TextLayer):
+                res["text"] = layer.text
+                res["font_name"] = layer.font_name
+                res["color_name"] = layer.color_name
+            future.set_result(res)
+        except Exception as e:
+            future.set_exception(e)
+
+    @Slot(dict, Future)
+    def _on_mcp_add_layer(self, args: dict, future: Future):
+        try:
+            if self.state is None:
+                future.set_result({"success": False, "error": "No project loaded"})
+                return
+
+            filepath = args.get("filepath")
+            text = args.get("text")
+
+            if filepath:
+                from PySide6.QtGui import QImage
+
+                from layer import Layer
+
+                image = QImage(filepath)
+                if image.isNull():
+                    future.set_result(
+                        {"success": False, "error": f"Failed to load image from {filepath}"}
+                    )
+                    return
+                layer = Layer(image)
+                layer.name = os.path.basename(filepath)
+                self.state.add_layer(layer)
+                future.set_result({"success": True, "layer_uuid": layer.uuid})
+            elif text:
+                font_name = args.get("font_name", "Arial")
+                color_name = args.get("color_name", "#000000")
+                layer = TextLayer(text, font_name, color_name)
+                self.state.add_layer(layer)
+                future.set_result({"success": True, "layer_uuid": layer.uuid})
+            else:
+                future.set_result(
+                    {"success": False, "error": "Must provide either 'filepath' or 'text'"}
+                )
+        except Exception as e:
+            future.set_exception(e)
+
+    @Slot(str, Future)
+    def _on_mcp_delete_layer(self, layer_uuid: str, future: Future):
+        try:
+            if self.state is None:
+                future.set_result({"success": False, "error": "No project loaded"})
+                return
+            layer = self.state.get_layer_for_uuid(layer_uuid)
+            if layer is None:
+                future.set_result({"success": False, "error": f"Layer {layer_uuid} not found"})
+                return
+            self.state.delete_layer(layer)
+            future.set_result({"success": True})
+        except Exception as e:
+            future.set_exception(e)
+
+    @Slot(str, Future)
+    def _on_mcp_duplicate_layer(self, layer_uuid: str, future: Future):
+        try:
+            if self.state is None:
+                future.set_result({"success": False, "error": "No project loaded"})
+                return
+            layer = self.state.get_layer_for_uuid(layer_uuid)
+            if layer is None:
+                future.set_result({"success": False, "error": f"Layer {layer_uuid} not found"})
+                return
+            self.state.duplicate_layer(layer)
+            new_layer_uuid = self.state.selected_layer_uuid
+            future.set_result({"success": True, "layer_uuid": new_layer_uuid})
+        except Exception as e:
+            future.set_exception(e)
+
+    @Slot(str, Future)
+    def _on_mcp_fit_layer_to_hoop(self, layer_uuid: str, future: Future):
+        try:
+            if self.state is None:
+                future.set_result({"success": False, "error": "No project loaded"})
+                return
+            layer = self.state.get_layer_for_uuid(layer_uuid)
+            if layer is None:
+                future.set_result({"success": False, "error": f"Layer {layer_uuid} not found"})
+                return
+            self.state.fit_layer_to_hoop(layer)
+            future.set_result({"success": True})
+        except Exception as e:
+            future.set_exception(e)
+
+    @Slot(str, dict, Future)
+    def _on_mcp_set_layer_properties(self, layer_uuid: str, props: dict, future: Future):
+        try:
+            if self.state is None:
+                future.set_result({"success": False, "error": "No project loaded"})
+                return
+            layer = self.state.get_layer_for_uuid(layer_uuid)
+            if layer is None:
+                future.set_result({"success": False, "error": f"Layer {layer_uuid} not found"})
+                return
+
+            import copy
+
+            new_props = copy.deepcopy(layer.properties)
+
+            if "position" in props:
+                x, y = props["position"]
+                new_props.position = (x, y)
+            if "rotation" in props:
+                new_props.rotation = props["rotation"]
+            if "opacity" in props:
+                new_props.opacity = props["opacity"]
+            if "visible" in props:
+                new_props.visible = props["visible"]
+            if "name" in props:
+                new_props.name = props["name"]
+            if "pixel_size" in props:
+                new_props.pixel_size = props["pixel_size"]
+            if "pixel_aspect_ratio_mode" in props:
+                new_props.pixel_aspect_ratio_mode = props["pixel_aspect_ratio_mode"]
+
+            self.state.set_layer_properties(layer, new_props)
+            future.set_result({"success": True})
+        except Exception as e:
+            future.set_exception(e)
+
+    @Slot(str, str, list, Future)
+    def _on_mcp_update_partition_path(
+        self, layer_uuid: str, partition_uuid: str, path_list: list, future: Future
+    ):
+        try:
+            if self.state is None:
+                future.set_result({"success": False, "error": "No project loaded"})
+                return
+            layer = self.state.get_layer_for_uuid(layer_uuid)
+            if layer is None:
+                future.set_result({"success": False, "error": f"Layer {layer_uuid} not found"})
+                return
+            if partition_uuid not in layer.partitions:
+                future.set_result(
+                    {
+                        "success": False,
+                        "error": f"Partition {partition_uuid} not found in layer {layer_uuid}",
+                    }
+                )
+                return
+            partition = layer.partitions[partition_uuid]
+
+            from shape import Path, Point, Rect
+
+            shapes = []
+            for shape_dict in path_list:
+                t = shape_dict.get("type")
+                if t == "rect":
+                    shapes.append(Rect(shape_dict["x"], shape_dict["y"]))
+                elif t == "path":
+                    points = [Point(p["x"], p["y"]) for p in shape_dict["points"]]
+                    shapes.append(Path(points))
+                else:
+                    future.set_result({"success": False, "error": f"Unknown shape type: {t}"})
+                    return
+
+            self.state.update_partition_path(layer, partition, shapes)
+            future.set_result({"success": True})
+        except Exception as e:
+            future.set_exception(e)
+
+    @Slot(str, str, Future)
+    def _on_mcp_delete_partition(self, layer_uuid: str, partition_uuid: str, future: Future):
+        try:
+            if self.state is None:
+                future.set_result({"success": False, "error": "No project loaded"})
+                return
+            layer = self.state.get_layer_for_uuid(layer_uuid)
+            if layer is None:
+                future.set_result({"success": False, "error": f"Layer {layer_uuid} not found"})
+                return
+            if partition_uuid not in layer.partitions:
+                future.set_result(
+                    {"success": False, "error": f"Partition {partition_uuid} not found"}
+                )
+                return
+            partition = layer.partitions[partition_uuid]
+            self.state.delete_partition(layer, partition)
+            future.set_result({"success": True})
+        except Exception as e:
+            future.set_exception(e)
+
+    @Slot(str, list, Future)
+    def _on_mcp_update_layer_partitions(
+        self, layer_uuid: str, partition_uuids: list, future: Future
+    ):
+        try:
+            if self.state is None:
+                future.set_result({"success": False, "error": "No project loaded"})
+                return
+            layer = self.state.get_layer_for_uuid(layer_uuid)
+            if layer is None:
+                future.set_result({"success": False, "error": f"Layer {layer_uuid} not found"})
+                return
+
+            new_partitions = {}
+            for p_uuid in partition_uuids:
+                if p_uuid not in layer.partitions:
+                    future.set_result(
+                        {"success": False, "error": f"Partition {p_uuid} not found in layer"}
+                    )
+                    return
+                new_partitions[p_uuid] = layer.partitions[p_uuid]
+
+            self.state.update_layer_partitions(layer, new_partitions)
+            future.set_result({"success": True})
+        except Exception as e:
+            future.set_exception(e)
+
+    @Slot(Future)
+    def _on_mcp_undo(self, future: Future):
+        try:
+            if self.state is None:
+                future.set_result({"success": False, "error": "No project loaded"})
+                return
+            self.state.undo_stack.undo()
+            future.set_result({"success": True})
+        except Exception as e:
+            future.set_exception(e)
+
+    @Slot(Future)
+    def _on_mcp_redo(self, future: Future):
+        try:
+            if self.state is None:
+                future.set_result({"success": False, "error": "No project loaded"})
+                return
+            self.state.undo_stack.redo()
+            future.set_result({"success": True})
+        except Exception as e:
+            future.set_exception(e)
+
+    @Slot(dict, Future)
+    def _on_mcp_set_project_properties(self, props: dict, future: Future):
+        try:
+            if self.state is None:
+                future.set_result({"success": False, "error": "No project loaded"})
+                return
+
+            if "hoop_size" in props:
+                self.state.hoop_size = props["hoop_size"]
+            if "hoop_visible" in props:
+                self.state.hoop_visible = props["hoop_visible"]
+            if "hoop_color" in props:
+                self.state.hoop_color = props["hoop_color"]
+            if "canvas_background_color" in props:
+                self.state.canvas_background_color = props["canvas_background_color"]
+            if "partition_foreground_color" in props:
+                self.state.partition_foreground_color = props["partition_foreground_color"]
+            if "partition_background_color" in props:
+                self.state.partition_background_color = props["partition_background_color"]
+            if "zoom_factor" in props:
+                self.state.zoom_factor = props["zoom_factor"]
+
+            future.set_result({"success": True})
+        except Exception as e:
+            future.set_exception(e)
 
 
 if __name__ == "__main__":

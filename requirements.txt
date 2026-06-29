@@ -22,6 +22,7 @@ kiwisolver==1.4.8
 macholib==1.16.3
 matplotlib==3.10.5
 mccabe==0.7.0
+mcp
 msgpack==1.1.1
 mypy_extensions==1.1.0
 neovim==0.3.1
