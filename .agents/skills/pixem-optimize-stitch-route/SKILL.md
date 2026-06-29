@@ -19,11 +19,17 @@ This skill guides you through the process of optimizing the embroidery stitching
 1. Decode the base64 PNG image returned by `pixem_get_layer_image`.
 2. Map out the pixels belonging to each partition (each partition is defined by a unique color).
 3. Identify the connected components (clusters of pixels of the same color) for each partition.
+   * **Adjacency Rule**: Two pixels are considered adjacent (connected) if they share an edge or a corner. Horizontal, vertical, and diagonal neighbors are all valid connections. A sequence of adjacent pixels forms a continuous path without jump stitches.
 
 ### Step 3: Plan the Route for Each Partition
 For each partition:
 1. Retrieve the current route by calling `pixem_get_partition_route(layer_uuid, partition_uuid)`.
 2. Plan an optimized route (an ordered list of shapes) that visits all pixels of the partition's color.
+
+   **Routing Priorities**:
+   * **Priority 1 (Highest): Minimize Jump Stitches**. A jump stitch occurs when there is a gap between shapes in the route without a connecting `path` shape. Minimize these gaps by connecting as many pixels and components as possible into a continuous sequence.
+   * **Priority 2: Minimize Path Length**. Among routes with the same (minimum) number of jump stitches, choose the one with the shortest total length (both the pixel-to-pixel traversal and the connection paths).
+
 3. **Traversal within a component**:
    * Order the pixels (`rect` shapes) in a continuous sequence (e.g., using a snake-like traversal or nearest-neighbor) to minimize stitching distance.
 4. **Connecting disconnected components**:
