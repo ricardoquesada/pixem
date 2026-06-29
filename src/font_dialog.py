@@ -9,7 +9,6 @@ choose from a predefined list of 8-bit fonts, and select a color. It displays
 a live preview of the rendered text.
 """
 
-
 from PySide6.QtCore import QSize, Qt, Slot
 from PySide6.QtGui import QColor, QImage, QPainter, QPaintEvent
 from PySide6.QtWidgets import (

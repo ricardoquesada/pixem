@@ -197,6 +197,14 @@ class Layer:
         self._properties.rotation = value
 
     @property
+    def pixel_aspect_ratio_mode(self) -> str:
+        return self._properties.pixel_aspect_ratio_mode
+
+    @pixel_aspect_ratio_mode.setter
+    def pixel_aspect_ratio_mode(self, value: str):
+        self._properties.pixel_aspect_ratio_mode = value
+
+    @property
     def selected_partition(self) -> Partition | None:
         if self._selected_partition_uuid is None:
             return None

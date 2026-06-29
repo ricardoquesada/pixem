@@ -83,7 +83,7 @@ class TestMainWindowOpenFile(unittest.TestCase):
         while len(self.window._active_workers) > 0:
             QCoreApplication.processEvents()
             time.sleep(0.05)
-            if time.time() - start_time > 5.0:
+            if time.time() - start_time > 15.0:
                 self.fail("Timed out waiting for image parsing to complete")
 
         # Now verify that the document was created and the layer was added

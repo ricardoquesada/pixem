@@ -50,17 +50,13 @@ class AboutDialog(QDialog):
         icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # Create a label for the description
-        description_label = QLabel(
-            self.tr(
-                f"""
+        description_label = QLabel(self.tr(f"""
             <p><b>Pixem</b></p>
             <p>A pixel-art to machine-embroidery application</p>
             <p>Version {VERSION}</p>
             <p>Copyright (c) 2024-2026 Ricardo Quesada</p>
             <a href="https://github.com/ricardoquesada/pixem">https://github.com/ricardoquesada/pixem</a>
-            """
-            )
-        )
+            """))
         description_label.setWordWrap(True)
         description_label.setTextFormat(Qt.RichText)
         description_label.setOpenExternalLinks(True)

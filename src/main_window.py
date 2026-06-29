@@ -2102,7 +2102,7 @@ class MainWindow(QMainWindow):
                 "opacity": layer.opacity,
                 "position": (layer.position.x(), layer.position.y()),
                 "rotation": layer.rotation,
-                "pixel_size": layer.pixel_size,
+                "pixel_size": (layer.pixel_size.width(), layer.pixel_size.height()),
                 "pixel_aspect_ratio_mode": layer.pixel_aspect_ratio_mode,
                 "partitions": partitions,
             }

@@ -390,5 +390,5 @@ class McpServerThread(QThread):
                 return json.dumps({"success": False, "error": str(e)})
 
     def run(self):
-        logger.info(f"Starting MCP Server on port {self.port} using SSE...")
-        self.mcp.run(transport="sse")
+        logger.info(f"Starting MCP Server on port {self.port} using Streamable HTTP...")
+        self.mcp.run(transport="streamable-http")
