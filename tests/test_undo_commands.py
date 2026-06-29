@@ -1,6 +1,7 @@
 import os
 import sys
 import unittest
+from unittest.mock import MagicMock
 
 # Ensure src is in path
 sys.path.append(os.path.join(os.path.dirname(__file__), "../src"))
@@ -8,6 +9,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../src"))
 from PySide6.QtGui import QColor, QImage
 
 from layer import Layer, LayerProperties
+from partition_dialog import UpdateShapesCommand
+from shape import Rect
 from state import State
 from undo_commands import AddLayerCommand, DeleteLayerCommand, UpdateLayerPropertiesCommand
 
@@ -71,6 +74,36 @@ class TestUndoCommands(unittest.TestCase):
 
         cmd.redo()
         self.assertEqual(self.layer.name, "Renamed Layer")
+
+
+class TestPartitionDialogUndo(unittest.TestCase):
+    def test_update_shapes_command(self):
+        dialog = MagicMock()
+
+        old_selected = [Rect(1, 1)]
+        old_original = [Rect(1, 1), Rect(2, 2)]
+        new_selected = [Rect(2, 2)]
+        new_original = [Rect(2, 2), Rect(1, 1)]
+
+        cmd = UpdateShapesCommand(
+            dialog, "Test Command", old_selected, old_original, new_selected, new_original
+        )
+
+        # Test redo
+        cmd.redo()
+        dialog._image_widget.set_original_shapes.assert_called_with(new_original)
+        dialog._image_widget.set_selected_shapes.assert_called_with(new_selected)
+        dialog._image_widget._rebuild_cache.assert_called()
+        dialog.update_shapes.assert_called_with(new_selected, new_original)
+        dialog._image_widget.update.assert_called()
+
+        # Test undo
+        cmd.undo()
+        dialog._image_widget.set_original_shapes.assert_called_with(old_original)
+        dialog._image_widget.set_selected_shapes.assert_called_with(old_selected)
+        dialog._image_widget._rebuild_cache.assert_called()
+        dialog.update_shapes.assert_called_with(old_selected, old_original)
+        dialog._image_widget.update.assert_called()
 
 
 if __name__ == "__main__":

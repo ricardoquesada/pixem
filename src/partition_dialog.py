@@ -28,6 +28,8 @@ from PySide6.QtGui import (
     QPalette,
     QPen,
     QPixmap,
+    QUndoCommand,
+    QUndoStack,
     QWheelEvent,
 )
 from PySide6.QtWidgets import (
@@ -53,6 +55,38 @@ PAINT_SCALE_FACTOR = 16
 ICON_SIZE = 22
 
 logger = logging.getLogger(__name__)
+
+
+class UpdateShapesCommand(QUndoCommand):
+    def __init__(
+        self,
+        dialog,
+        description: str,
+        old_selected: list[Shape],
+        old_original: list[Shape],
+        new_selected: list[Shape],
+        new_original: list[Shape],
+    ):
+        super().__init__(description)
+        self._dialog = dialog
+        self._old_selected = list(old_selected)
+        self._old_original = list(old_original)
+        self._new_selected = list(new_selected)
+        self._new_original = list(new_original)
+
+    def undo(self):
+        self._dialog._image_widget.set_original_shapes(self._old_original)
+        self._dialog._image_widget.set_selected_shapes(self._old_selected)
+        self._dialog._image_widget._rebuild_cache()
+        self._dialog.update_shapes(self._old_selected, self._old_original)
+        self._dialog._image_widget.update()
+
+    def redo(self):
+        self._dialog._image_widget.set_original_shapes(self._new_original)
+        self._dialog._image_widget.set_selected_shapes(self._new_selected)
+        self._dialog._image_widget._rebuild_cache()
+        self._dialog.update_shapes(self._new_selected, self._new_original)
+        self._dialog._image_widget.update()
 
 
 class ImageWidget(QWidget):
@@ -260,25 +294,34 @@ class ImageWidget(QWidget):
         Handles shift + arrow keys to select/deselect items.
         Common logic used by both ImageWidget and PartitionDialog's list widget.
         """
-        # Emulate QListWidget behavior to select items.
-        # This is needed since QListWidget; when it loses focus, it doesn't
-        #  keep the state of the current cursor position on the selected items.
-        # At least this is true for Qt 6.9
+        old_original = list(self._original_shapes)
+        old_selected = list(self._selected_shapes)
+
+        new_selected = list(self._selected_shapes)
         if key in [Qt.Key.Key_Up, Qt.Key.Key_Left]:
-            self._selected_shapes = self._selected_shapes[:-1]
+            new_selected = new_selected[:-1]
         elif key in [Qt.Key.Key_Down, Qt.Key.Key_Right]:
             for shape in self._original_shapes:
-                if shape not in self._selected_shapes:
-                    self._selected_shapes.append(shape)
+                if shape not in new_selected:
+                    new_selected.append(shape)
                     break
-        self.set_selected_shapes(self._selected_shapes)
-        full_shapes = self._selected_shapes[:]
+
+        new_original = list(new_selected)
         for shape in self._original_shapes:
-            if shape not in full_shapes:
-                full_shapes.append(shape)
-        # Update original shapes with new order
-        self._original_shapes = full_shapes
-        self._partition_dialog.update_shapes(self._selected_shapes, full_shapes)
+            if shape not in new_original:
+                new_original.append(shape)
+
+        if new_original != old_original or new_selected != old_selected:
+            command = UpdateShapesCommand(
+                self._partition_dialog,
+                self.tr("Reorder Shapes"),
+                old_selected,
+                old_original,
+                new_selected,
+                new_original,
+            )
+            self._partition_dialog.undo_stack.push(command)
+            self._partition_dialog.mark_dirty()
 
     def _update_shape(self, shape: Shape):
         if shape not in self._original_shapes:
@@ -334,7 +377,11 @@ class ImageWidget(QWidget):
 
         delete_point_enabled = get_global_preferences().get_delete_point_enabled()
 
+        old_original = list(self._original_shapes)
+        old_selected = list(self._selected_shapes)
+
         # Remove selected shapes from original shapes
+        new_original = list(self._original_shapes)
         shapes_to_remove = []
         for shape in self._selected_shapes:
             if isinstance(shape, Rect) and not delete_point_enabled:
@@ -343,14 +390,22 @@ class ImageWidget(QWidget):
             shapes_to_remove.append(shape)
 
         for shape in shapes_to_remove:
-            if shape in self._original_shapes:
-                self._original_shapes.remove(shape)
+            if shape in new_original:
+                new_original.remove(shape)
 
-        self._partition_dialog.remove_shapes(shapes_to_remove)
-        self._partition_dialog.mark_dirty()
-        self.set_selected_shapes([])
-        self._rebuild_cache()
-        self.update()
+        new_selected = []
+
+        if new_original != old_original:
+            command = UpdateShapesCommand(
+                self._partition_dialog,
+                self.tr("Delete Selection"),
+                old_selected,
+                old_original,
+                new_selected,
+                new_original,
+            )
+            self._partition_dialog.undo_stack.push(command)
+            self._partition_dialog.mark_dirty()
 
     def set_edit_mode(self, mode: EditMode):
         if self._auto_path_points:
@@ -481,21 +536,32 @@ class ImageWidget(QWidget):
         if len(self._current_building_path) >= 2:
             new_path = Path(self._current_building_path)
 
-            insert_index = len(self._original_shapes)
+            old_original = list(self._original_shapes)
+            old_selected = list(self._selected_shapes)
+
+            new_original = list(self._original_shapes)
+            insert_index = len(new_original)
             if self._selected_shapes:
                 # Find the max index of selected shapes
                 indices = [
-                    self._original_shapes.index(s)
-                    for s in self._selected_shapes
-                    if s in self._original_shapes
+                    new_original.index(s) for s in self._selected_shapes if s in new_original
                 ]
                 if indices:
                     insert_index = max(indices) + 1
 
-            self._original_shapes.insert(insert_index, new_path)
-            self._partition_dialog.update_shapes(self._selected_shapes, self._original_shapes)
+            new_original.insert(insert_index, new_path)
+            new_selected = list(self._selected_shapes)
+
+            command = UpdateShapesCommand(
+                self._partition_dialog,
+                self.tr("Add Manual Path"),
+                old_selected,
+                old_original,
+                new_selected,
+                new_original,
+            )
+            self._partition_dialog.undo_stack.push(command)
             self._partition_dialog.mark_dirty()
-            self._rebuild_cache()
         self._current_building_path = []
         self.update()
 
@@ -514,6 +580,11 @@ class ImageWidget(QWidget):
         ]:
             event.ignore()
             return
+
+        if self._edit_mode in [ImageWidget.EditMode.PAINT, ImageWidget.EditMode.FILL]:
+            self._undo_old_original = list(self._original_shapes)
+            self._undo_old_selected = list(self._selected_shapes)
+
         event.accept()
         pos = event.pos()
         x = pos.x() / self._zoom_factor
@@ -610,31 +681,40 @@ class ImageWidget(QWidget):
                             )
                             new_path = Path(simplified_points)
 
-                            insert_index = len(self._original_shapes)
+                            old_original = list(self._original_shapes)
+                            old_selected = list(self._selected_shapes)
+
+                            new_original = list(self._original_shapes)
+                            insert_index = len(new_original)
                             if self._selected_shapes:
                                 indices = [
-                                    self._original_shapes.index(s)
+                                    new_original.index(s)
                                     for s in self._selected_shapes
-                                    if s in self._original_shapes
+                                    if s in new_original
                                 ]
                                 if indices:
                                     insert_index = max(indices) + 1
 
-                            # Update selection to include the new path
-                            if new_path not in self._selected_shapes:
-                                self._selected_shapes.append(new_path)
-                            self._update_selected_shapes_cache()
+                            new_original.insert(insert_index, new_path)
 
-                            self._original_shapes.insert(insert_index, new_path)
-                            self._partition_dialog.update_shapes(
-                                self._selected_shapes, self._original_shapes
+                            # Update selection to include the new path
+                            new_selected = list(self._selected_shapes)
+                            if new_path not in new_selected:
+                                new_selected.append(new_path)
+
+                            command = UpdateShapesCommand(
+                                self._partition_dialog,
+                                self.tr("Add Auto Path"),
+                                old_selected,
+                                old_original,
+                                new_selected,
+                                new_original,
                             )
-                            self.set_selected_shapes(self._selected_shapes)
-                            self._update_selected_shapes_cache()
+                            self._partition_dialog.undo_stack.push(command)
+                            self._partition_dialog.mark_dirty()
 
                             # Switch back to Paint mode
                             self._partition_dialog._mode_actions[self.EditMode.PAINT].trigger()
-                            self._partition_dialog.mark_dirty()
 
                         # Clear points (removes visual mark) and update
                         self._auto_path_points = []
@@ -683,18 +763,32 @@ class ImageWidget(QWidget):
             return
 
         event.accept()
-        if len(self._selected_shapes) == 0:
-            return
+
         full_shapes = self._selected_shapes[:]
         for shape in self._original_shapes:
             if shape not in full_shapes:
                 full_shapes.append(shape)
-        if self._original_shapes != full_shapes:
-            self._partition_dialog.mark_dirty()
 
-        # Update original shapes with new order
-        self._original_shapes = full_shapes
-        self._partition_dialog.update_shapes(self._selected_shapes, full_shapes)
+        if (self._undo_old_original != full_shapes) or (
+            self._undo_old_selected != self._selected_shapes
+        ):
+            # Capture the new selected shapes before restoring
+            new_selected = list(self._selected_shapes)
+
+            # Temporarily restore lists so the command's redo() can apply them
+            self._original_shapes = list(self._undo_old_original)
+            self._selected_shapes = list(self._undo_old_selected)
+
+            command = UpdateShapesCommand(
+                self._partition_dialog,
+                self.tr("Paint/Fill Partition"),
+                self._undo_old_selected,
+                self._undo_old_original,
+                new_selected,
+                full_shapes,
+            )
+            self._partition_dialog.undo_stack.push(command)
+            self._partition_dialog.mark_dirty()
 
     def mouseDoubleClickEvent(self, event: QMouseEvent):
         if self._edit_mode != ImageWidget.EditMode.ADD_MANUAL_PATH:
@@ -718,6 +812,9 @@ class PartitionDialog(QDialog):
 
         self.setWindowTitle(self.tr("Partition Editor"))
         shapes = partition.path
+
+        # Create local undo stack
+        self._undo_stack = QUndoStack(self)
 
         # Create Image Widget
         self._image_widget = ImageWidget(self, image, shapes, partition.color)
@@ -898,6 +995,18 @@ class PartitionDialog(QDialog):
         self._action_show_grid.toggled.connect(self._on_action_show_grid)
         toolbar.addAction(self._action_show_grid)
 
+        toolbar.addSeparator()
+
+        undo_action = self._undo_stack.createUndoAction(self, self.tr("Undo"))
+        undo_action.setShortcut(QKeySequence.StandardKey.Undo)
+        undo_action.setIcon(QIcon.fromTheme("edit-undo"))
+        toolbar.addAction(undo_action)
+
+        redo_action = self._undo_stack.createRedoAction(self, self.tr("Redo"))
+        redo_action.setShortcut(QKeySequence.StandardKey.Redo)
+        redo_action.setIcon(QIcon.fromTheme("edit-redo"))
+        toolbar.addAction(redo_action)
+
         # Create Buttons
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         button_box.accepted.connect(self.accept)
@@ -912,6 +1021,10 @@ class PartitionDialog(QDialog):
         self.setLayout(main_layout)
 
         self._resize_dialog()
+
+    @property
+    def undo_stack(self) -> QUndoStack:
+        return self._undo_stack
 
     def _connect_list_widget(self):
         self._list_widget.model().rowsMoved.connect(self._on_rows_moved)
@@ -1036,8 +1149,21 @@ class PartitionDialog(QDialog):
             item = self._list_widget.item(row)
             shape = item.data(Qt.UserRole)
             new_shapes.append(shape)
-        self._image_widget.set_original_shapes(new_shapes)
-        self.mark_dirty()
+
+        old_original = list(self._image_widget._original_shapes)
+        old_selected = list(self._image_widget._selected_shapes)
+
+        if old_original != new_shapes:
+            command = UpdateShapesCommand(
+                self,
+                self.tr("Reorder Shapes"),
+                old_selected,
+                old_original,
+                old_selected,
+                new_shapes,
+            )
+            self.undo_stack.push(command)
+            self.mark_dirty()
 
     @Slot()
     def _on_item_selection_changed(self):
@@ -1050,7 +1176,7 @@ class PartitionDialog(QDialog):
         self._is_dirty = True
 
     def reject(self):
-        if self._is_dirty:
+        if not self._undo_stack.isClean():
             ret = QMessageBox.question(
                 self,
                 self.tr("Unsaved Changes"),
@@ -1066,9 +1192,13 @@ class PartitionDialog(QDialog):
     def update_shapes(self, selected_shapes: list[Shape], full_shapes: list[Shape]):
         """
         Update the selected shapes in the list widget.
-        Called from ImageWidget.
+        Called from ImageWidget or UpdateShapesCommand.
         """
         self._disconnect_list_widget()
+
+        # Remove extra items
+        while self._list_widget.count() > len(full_shapes):
+            self._list_widget.takeItem(self._list_widget.count() - 1)
 
         lastest_selected_item = None
         for i, shape in enumerate(full_shapes):
@@ -1093,24 +1223,6 @@ class PartitionDialog(QDialog):
             self._list_widget.selectionModel().setCurrentIndex(
                 index, QItemSelectionModel.SelectCurrent
             )
-
-        self._connect_list_widget()
-
-    def remove_shapes(self, shapes_to_remove: list[Shape]):
-        """
-        Remove the specified shapes from the list widget.
-        Called from ImageWidget.
-        """
-        self._disconnect_list_widget()
-
-        # We need to find the items associated with the shapes
-        # Since we don't have a direct mapping, we iterate.
-        # It is safer to iterate backwards when removing items.
-        for i in range(self._list_widget.count() - 1, -1, -1):
-            item = self._list_widget.item(i)
-            shape = item.data(Qt.UserRole)
-            if shape in shapes_to_remove:
-                self._list_widget.takeItem(i)
 
         self._connect_list_widget()
 
