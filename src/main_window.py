@@ -817,7 +817,7 @@ class MainWindow(QMainWindow):
         state = doc.state
         state.layer_property_changed.connect(self._on_state_layer_property_changed)
         state.state_property_changed.connect(self._on_state_state_property_changed)
-        state.partition_path_updated.connect(self._on_state_partition_path_updated)
+        state.partition_route_updated.connect(self._on_state_partition_route_updated)
         state.layer_partitions_changed.connect(self._on_state_layer_partitions_changed)
         state.layers_reordered.connect(self._on_state_layers_reordered)
         state.layer_removed.connect(self._on_state_layer_removed)
@@ -839,7 +839,7 @@ class MainWindow(QMainWindow):
             state = doc.state
             state.layer_property_changed.disconnect(self._on_state_layer_property_changed)
             state.state_property_changed.disconnect(self._on_state_state_property_changed)
-            state.partition_path_updated.disconnect(self._on_state_partition_path_updated)
+            state.partition_route_updated.disconnect(self._on_state_partition_route_updated)
             state.layer_partitions_changed.disconnect(self._on_state_layer_partitions_changed)
             state.layers_reordered.disconnect(self._on_state_layers_reordered)
             state.layer_removed.disconnect(self._on_state_layer_removed)
@@ -1440,9 +1440,9 @@ class MainWindow(QMainWindow):
 
         dialog = PartitionDialog(layer.image, partition)
         if dialog.exec():
-            path = dialog.get_path()
-            self.state.update_partition_path(layer, partition, path)
-            partition.path = path
+            route = dialog.get_route()
+            self.state.update_partition_route(layer, partition, route)
+            partition.route = route
 
     @Slot()
     def _on_partition_delete(self) -> None:
@@ -1813,13 +1813,13 @@ class MainWindow(QMainWindow):
             self.canvas.update()
 
     @Slot(Layer, Partition)
-    def _on_state_partition_path_updated(self, layer: Layer, partition: Partition):
+    def _on_state_partition_route_updated(self, layer: Layer, partition: Partition):
         """
-        Slot for when a partition's path is updated.
+        Slot for when a partition's route is updated.
 
         Args:
             layer: The layer containing the partition.
-            partition: The partition whose path was updated.
+            partition: The partition whose route was updated.
         """
         if self.state.selected_layer != layer:
             return
@@ -1972,12 +1972,14 @@ class MainWindow(QMainWindow):
         self._mcp_bridge = bridge
         bridge.get_project_info_requested.connect(self._on_mcp_get_project_info)
         bridge.get_layer_details_requested.connect(self._on_mcp_get_layer_details)
+        bridge.get_layer_image_requested.connect(self._on_mcp_get_layer_image)
+        bridge.get_partition_route_requested.connect(self._on_mcp_get_partition_route)
         bridge.add_layer_requested.connect(self._on_mcp_add_layer)
         bridge.delete_layer_requested.connect(self._on_mcp_delete_layer)
         bridge.duplicate_layer_requested.connect(self._on_mcp_duplicate_layer)
         bridge.fit_layer_to_hoop_requested.connect(self._on_mcp_fit_layer_to_hoop)
         bridge.set_layer_properties_requested.connect(self._on_mcp_set_layer_properties)
-        bridge.update_partition_path_requested.connect(self._on_mcp_update_partition_path)
+        bridge.update_partition_route_requested.connect(self._on_mcp_update_partition_route)
         bridge.delete_partition_requested.connect(self._on_mcp_delete_partition)
         bridge.update_layer_partitions_requested.connect(self._on_mcp_update_layer_partitions)
         bridge.undo_requested.connect(self._on_mcp_undo)
@@ -2031,22 +2033,11 @@ class MainWindow(QMainWindow):
 
             partitions = []
             for p_uuid, partition in layer.partitions.items():
-                shapes = []
-                for shape in partition.path:
-                    # Using local import to avoid circular dependency issues
-                    from shape import Path, Rect
-
-                    if isinstance(shape, Rect):
-                        shapes.append({"type": "rect", "x": shape.x, "y": shape.y})
-                    elif isinstance(shape, Path):
-                        points = [{"x": p.x, "y": p.y} for p in shape.path]
-                        shapes.append({"type": "path", "points": points})
                 partitions.append(
                     {
                         "uuid": p_uuid,
                         "name": partition.name,
                         "color": partition.color,
-                        "shapes": shapes,
                     }
                 )
 
@@ -2067,6 +2058,74 @@ class MainWindow(QMainWindow):
                 res["text"] = layer.text
                 res["font_name"] = layer.font_name
                 res["color_name"] = layer.color_name
+            future.set_result(res)
+        except Exception as e:
+            future.set_exception(e)
+
+    @Slot(str, Future)
+    def _on_mcp_get_layer_image(self, layer_uuid: str, future: Future):
+        try:
+            if self.state is None:
+                future.set_result({"success": False, "error": "No project loaded"})
+                return
+            layer = self.state.get_layer_for_uuid(layer_uuid)
+            if layer is None:
+                future.set_result({"success": False, "error": f"Layer {layer_uuid} not found"})
+                return
+
+            # TextLayers might not have a raw image in the same way, but they still render to an image.
+            # We can serialize layer.image for both ImageLayer and TextLayer.
+            from PySide6.QtCore import QBuffer, QIODevice
+
+            buffer = QBuffer()
+            buffer.open(QIODevice.OpenModeFlag.WriteOnly)
+            layer.image.save(buffer, "PNG")
+            base64_data = buffer.data().toBase64().data().decode("utf-8")
+
+            res = {
+                "success": True,
+                "image_base64": base64_data,
+                "width": layer.image.width(),
+                "height": layer.image.height(),
+            }
+            future.set_result(res)
+        except Exception as e:
+            future.set_exception(e)
+
+    @Slot(str, str, Future)
+    def _on_mcp_get_partition_route(self, layer_uuid: str, partition_uuid: str, future: Future):
+        try:
+            if self.state is None:
+                future.set_result({"success": False, "error": "No project loaded"})
+                return
+            layer = self.state.get_layer_for_uuid(layer_uuid)
+            if layer is None:
+                future.set_result({"success": False, "error": f"Layer {layer_uuid} not found"})
+                return
+            if partition_uuid not in layer.partitions:
+                future.set_result(
+                    {
+                        "success": False,
+                        "error": f"Partition {partition_uuid} not found in layer {layer_uuid}",
+                    }
+                )
+                return
+
+            partition = layer.partitions[partition_uuid]
+            shapes = []
+            for shape in partition.route:
+                from shape import Path, Rect
+
+                if isinstance(shape, Rect):
+                    shapes.append({"type": "rect", "x": shape.x, "y": shape.y})
+                elif isinstance(shape, Path):
+                    points = [{"x": p.x, "y": p.y} for p in shape.path]
+                    shapes.append({"type": "path", "points": points})
+
+            res = {
+                "success": True,
+                "shapes": shapes,
+            }
             future.set_result(res)
         except Exception as e:
             future.set_exception(e)
@@ -2192,8 +2251,8 @@ class MainWindow(QMainWindow):
             future.set_exception(e)
 
     @Slot(str, str, list, Future)
-    def _on_mcp_update_partition_path(
-        self, layer_uuid: str, partition_uuid: str, path_list: list, future: Future
+    def _on_mcp_update_partition_route(
+        self, layer_uuid: str, partition_uuid: str, route_list: list, future: Future
     ):
         try:
             if self.state is None:
@@ -2216,7 +2275,7 @@ class MainWindow(QMainWindow):
             from shape import Path, Point, Rect
 
             shapes = []
-            for shape_dict in path_list:
+            for shape_dict in route_list:
                 t = shape_dict.get("type")
                 if t == "rect":
                     shapes.append(Rect(shape_dict["x"], shape_dict["y"]))
@@ -2227,7 +2286,7 @@ class MainWindow(QMainWindow):
                     future.set_result({"success": False, "error": f"Unknown shape type: {t}"})
                     return
 
-            self.state.update_partition_path(layer, partition, shapes)
+            self.state.update_partition_route(layer, partition, shapes)
             future.set_result({"success": True})
         except Exception as e:
             future.set_exception(e)

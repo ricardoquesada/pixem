@@ -219,12 +219,12 @@ class ExportToSvg:
                 for partition_key in partitions:
                     # Each partition is a list of list. Each list is a connected graph.
                     partition = partitions[partition_key]
-                    path = partition.path
+                    route = partition.route
                     color = partition.color
                     part_id = f"partition_{layer_idx}_{partition.name}"
                     part_id = part_id.replace("#", "")
                     f.write(f'    <g id="{part_id}">\n')
-                    for shape_idx, shape in enumerate(path):
+                    for shape_idx, shape in enumerate(route):
                         if isinstance(shape, Rect):
                             x, y = shape.x, shape.y
                             if (x + y) % 2 == 0:

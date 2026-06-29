@@ -16,12 +16,14 @@ class McpBridge(QObject):
     # Signals to request actions on the main thread
     get_project_info_requested = Signal(Future)
     get_layer_details_requested = Signal(str, Future)
+    get_layer_image_requested = Signal(str, Future)
+    get_partition_route_requested = Signal(str, str, Future)
     add_layer_requested = Signal(dict, Future)
     delete_layer_requested = Signal(str, Future)
     duplicate_layer_requested = Signal(str, Future)
     fit_layer_to_hoop_requested = Signal(str, Future)
     set_layer_properties_requested = Signal(str, dict, Future)
-    update_partition_path_requested = Signal(str, str, list, Future)
+    update_partition_route_requested = Signal(str, str, list, Future)
     delete_partition_requested = Signal(str, str, Future)
     update_layer_partitions_requested = Signal(str, list, Future)
     undo_requested = Signal(Future)
@@ -68,6 +70,37 @@ class McpServerThread(QThread):
             try:
                 res = await self.bridge._call_main_thread(
                     self.bridge.get_layer_details_requested, layer_uuid
+                )
+                return json.dumps(res)
+            except Exception as e:
+                return json.dumps({"success": False, "error": str(e)})
+
+        @self.mcp.tool()
+        async def get_layer_image(layer_uuid: str) -> str:
+            """Get the layer's image as a Base64-encoded PNG string.
+
+            Args:
+                layer_uuid: The unique identifier (UUID) of the layer.
+            """
+            try:
+                res = await self.bridge._call_main_thread(
+                    self.bridge.get_layer_image_requested, layer_uuid
+                )
+                return json.dumps(res)
+            except Exception as e:
+                return json.dumps({"success": False, "error": str(e)})
+
+        @self.mcp.tool()
+        async def get_partition_route(layer_uuid: str, partition_uuid: str) -> str:
+            """Get the current route (ordered list of shapes) for a specific partition.
+
+            Args:
+                layer_uuid: The unique identifier (UUID) of the layer containing the partition.
+                partition_uuid: The unique identifier (UUID) of the partition.
+            """
+            try:
+                res = await self.bridge._call_main_thread(
+                    self.bridge.get_partition_route_requested, layer_uuid, partition_uuid
                 )
                 return json.dumps(res)
             except Exception as e:
@@ -194,21 +227,21 @@ class McpServerThread(QThread):
                 return json.dumps({"success": False, "error": str(e)})
 
         @self.mcp.tool()
-        async def update_partition_path(
-            layer_uuid: str, partition_uuid: str, path_json: str
+        async def update_partition_route(
+            layer_uuid: str, partition_uuid: str, route_json: str
         ) -> str:
-            """Replace the entire path (list of shapes) of a partition.
+            """Replace the entire route (list of shapes) of a partition.
 
             Args:
                 layer_uuid: The unique identifier (UUID) of the layer containing the partition.
                 partition_uuid: The unique identifier (UUID) of the partition.
-                path_json: A JSON string representing a list of shapes. Each shape should have a 'type' ('rect' or 'path').
+                route_json: A JSON string representing a list of shapes. Each shape should have a 'type' ('rect' or 'path').
                            Example: '[{"type": "rect", "x": 10, "y": 12}, {"type": "path", "points": [{"x": 0, "y": 0}, {"x": 5, "y": 5}]}]'
             """
             try:
-                path = json.loads(path_json)
+                route = json.loads(route_json)
                 res = await self.bridge._call_main_thread(
-                    self.bridge.update_partition_path_requested, layer_uuid, partition_uuid, path
+                    self.bridge.update_partition_route_requested, layer_uuid, partition_uuid, route
                 )
                 return json.dumps(res)
             except Exception as e:

@@ -198,27 +198,27 @@ class DeleteLayerCommand(QUndoCommand):
         self._state._delete_layer(self._old_layer)
 
 
-class UpdatePartitionPathCommand(QUndoCommand):
+class UpdatePartitionRouteCommand(QUndoCommand):
     def __init__(
         self,
         state,
         layer: Layer,
         partition: Partition,
-        path: list[Shape],
+        route: list[Shape],
         parent: QUndoCommand | None,
     ):
-        super().__init__(f"Update Partition Path: {partition.name}", parent)
+        super().__init__(f"Update Partition Route: {partition.name}", parent)
         self._state = state
         self._layer = layer
         self._partition = partition
-        self._new_path = path
-        self._old_path = partition.path
+        self._new_route = route
+        self._old_route = partition.route
 
     def undo(self) -> None:
-        self._state._update_partition_path(self._layer, self._partition, self._old_path)
+        self._state._update_partition_route(self._layer, self._partition, self._old_route)
 
     def redo(self) -> None:
-        self._state._update_partition_path(self._layer, self._partition, self._new_path)
+        self._state._update_partition_route(self._layer, self._partition, self._new_route)
 
 
 class UpdateLayerPartitionsCommand(QUndoCommand):

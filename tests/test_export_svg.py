@@ -48,7 +48,7 @@ class TestExportSvg(unittest.TestCase):
         rect = Rect(1, 1)
         path_shape = Path([Point(1, 1), Point(2, 2)])
 
-        partition.path = [rect, path_shape]
+        partition.route = [rect, path_shape]
 
         # Layer.partitions is a dict
         layer.partitions = {"#ff0000": partition}

@@ -233,7 +233,7 @@ class Canvas(QWidget):
             if layer.selected_partition_uuid in layer.partitions:
                 partition = layer.partitions[layer.selected_partition_uuid]
 
-                for shape in partition.path:
+                for shape in partition.route:
                     if isinstance(shape, Rect):
                         x, y = shape.x, shape.y
                         polygon = [

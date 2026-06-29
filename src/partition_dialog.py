@@ -623,8 +623,8 @@ class ImageWidget(QWidget):
                             partial_partition.append(s)
                 # Create temporal partition
                 part = Partition(partial_partition)
-                part.walk_path(self._walk_mode, (shape.x, shape.y))
-                ordered_partition = part.path
+                part.walk_route(self._walk_mode, (shape.x, shape.y))
+                ordered_partition = part.route
                 self._selected_shapes = self._selected_shapes + ordered_partition
                 self._update_selected_shapes_cache()
                 self._partition_dialog.mark_dirty()
@@ -811,7 +811,7 @@ class PartitionDialog(QDialog):
         super().__init__()
 
         self.setWindowTitle(self.tr("Partition Editor"))
-        shapes = partition.path
+        shapes = partition.route
 
         # Create local undo stack
         self._undo_stack = QUndoStack(self)
@@ -1226,15 +1226,15 @@ class PartitionDialog(QDialog):
 
         self._connect_list_widget()
 
-    def get_path(self) -> list[Shape]:
+    def get_route(self) -> list[Shape]:
         """
-        Return the path.
+        Return the route.
         Called from MainWindow.
         """
-        path = [
+        route = [
             self._list_widget.item(i).data(Qt.UserRole) for i in range(self._list_widget.count())
         ]
-        return path
+        return route
 
     def eventFilter(self, source, event):
         if event.type() == QEvent.Type.KeyPress and source is self._list_widget:

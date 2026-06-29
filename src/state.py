@@ -28,7 +28,7 @@ from undo_commands import (
     UpdateLayerPositionCommand,
     UpdateLayerRotationCommand,
     UpdateLayerVisibleCommand,
-    UpdatePartitionPathCommand,
+    UpdatePartitionRouteCommand,
     UpdateStateCanvasBackgroundColorCommand,
     UpdateStateHoopColorCommand,
     UpdateStateHoopSizeCommand,
@@ -56,7 +56,7 @@ class State(QObject):
     # FIXME: Should pass State as parameter? but failed using forward refs, including "State"
     state_property_changed = Signal(StatePropertyFlags, StateProperties)
     # Triggered when a partition'path gets updated.
-    partition_path_updated = Signal(Layer, Partition)
+    partition_route_updated = Signal(Layer, Partition)
     # Triggered when a layer's partitions are reordered.
     layer_partitions_changed = Signal(Layer)
     # Triggered when layers are reordered.
@@ -279,10 +279,10 @@ class State(QObject):
         if changes_count > 1:
             self._undo_stack.endMacro()
 
-    def update_partition_path(self, layer: Layer, partition: Partition, path: list[Shape]):
+    def update_partition_route(self, layer: Layer, partition: Partition, route: list[Shape]):
         if layer.uuid not in self._layers:
             logger.error(
-                f"Cannot update partition path. Layer {layer.name} does not belong to this state"
+                f"Cannot update partition route. Layer {layer.name} does not belong to this state"
             )
             return
 
@@ -290,7 +290,7 @@ class State(QObject):
             logger.error(f"Partition {partition.name} does not belong to layer {layer.name}")
             return
 
-        self._undo_stack.push(UpdatePartitionPathCommand(self, layer, partition, path, None))
+        self._undo_stack.push(UpdatePartitionRouteCommand(self, layer, partition, route, None))
 
     def update_layer_partitions(self, layer: Layer, partitions: dict[str, Partition]):
         if layer.uuid not in self._layers:
@@ -466,17 +466,17 @@ class State(QObject):
         layer.properties = properties
         self.layer_property_changed.emit(layer)
 
-    def _update_partition_path(self, layer: Layer, partition: Partition, path: list[Shape]):
+    def _update_partition_route(self, layer: Layer, partition: Partition, route: list[Shape]):
         if layer.uuid not in self._layers:
             logger.error(
-                f"Cannot update partition path. Layer {layer.name} does not belong to this state"
+                f"Cannot update partition route. Layer {layer.name} does not belong to this state"
             )
             return
         if partition not in layer.partitions.values():
             logger.error(f"Partition {partition.name} does not belong to layer {layer.name}")
             return
-        partition.path = path
-        self.partition_path_updated.emit(layer, partition)
+        partition.route = route
+        self.partition_route_updated.emit(layer, partition)
 
     def _update_layer_partitions(self, layer: Layer, partitions: dict[str, Partition]):
         if layer.uuid not in self._layers:

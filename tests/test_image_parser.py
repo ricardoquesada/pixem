@@ -89,9 +89,9 @@ class TestImageParser(unittest.TestCase):
         # The parser connects disconnected regions of the same color with a Path.
         # So we expect: Rect(pixel 1) -> Path(jump) -> Rect(pixel 2)
         # Total shapes: 3
-        self.assertEqual(len(red_partition.path), 3)
+        self.assertEqual(len(red_partition.route), 3)
 
-        shapes = red_partition.path
+        shapes = red_partition.route
         from shape import Path, Rect
 
         self.assertIsInstance(shapes[0], Rect)
