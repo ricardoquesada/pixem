@@ -476,6 +476,9 @@ class TestMcpServer(unittest.TestCase):
         ]
         self.assertIn(points[-1], end_pixel_vertices)
 
+        # Mark the state as clean to bypass the "unsaved changes" dialog on close
+        state.undo_stack.setClean()
+
         # Close the window to free resources
         window.close()
 
