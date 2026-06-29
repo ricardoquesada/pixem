@@ -35,6 +35,7 @@ pixem/
 │   ├── layer.py        # Layer data models (ImageLayer, TextLayer)
 │   ├── canvas.py       # Custom widget for rendering the workspace
 │   ├── undo_commands.py # Command implementations for Undo/Redo
+│   ├── mcp_server.py   # MCP Server and Thread-safe Bridge
 │   ├── ...             # Other modules (dialogs, utilities, parsers)
 │   └── res/            # Resources (compiled Qt resources, icons)
 ├── tests/              # Unit tests
@@ -73,6 +74,12 @@ Pixem follows a structure that separates **State** (Data), **Logic**, and **UI**
 - `MainWindow` (`src/main_window.py`) orchestrates the application views and connects Signal/Slots.
 - `Canvas` (`src/canvas.py`) is the custom painting widget responsible for rendering layers and handling direct mouse interactions.
 
+### 5. Model Context Protocol (MCP) Server (`src/mcp_server.py`)
+- Pixem exposes its state-modifying and query operations to AI agents via an MCP Server.
+- **`McpServerThread`** (`QThread`): Runs the `FastMCP` server on a background event loop using the **SSE (Server-Sent Events)** transport on port `8123` (by default).
+- **`McpBridge`** (`QObject`): Dispatches tool calls from the background thread to the main GUI thread thread-safely using Qt's queued connections and `concurrent.futures.Future`.
+- **Exposed Tools**: Includes tools for querying project/layer details, fetching layer images (Base64 PNG), setting layer/project properties, setting/getting partition routes (`set_partition_route` / `get_partition_route`), pathfinding (`find_auto_path`), and triggering undo/redo. All state mutations from the MCP server are fully undoable and push to the main undo stack.
+
 ## Coding Conventions
 
 - **Type Hinting**: All logic code uses Python type hints extensively.
@@ -99,6 +106,12 @@ make tests
 make run
 # or
 python src/main.py
+
+# To start the application with the MCP Server enabled (default port 8123)
+python src/main.py --mcp
+
+# To start the application with the MCP Server on a custom port
+python src/main.py --mcp --mcp-port 9000
 ```
 
 ### Resource Management
