@@ -7,6 +7,7 @@
 ## Features
 
 - **Pixel-Art Conversion**: Seamlessly convert pixel-art designs into embroidery paths.
+- **Interactive Canvas Transformations**: Scale, rotate, and mirror layers directly on the canvas using interactive handles or quick keyboard shortcuts.
 - **Layer Management**: Organize your design into multiple layers for better control.
 - **Undo/Redo Support**: Full command-based undo/redo system for all actions.
 - **Export Options**: Export your designs to SVG and PNG formats (with more to come).
@@ -49,6 +50,21 @@ make run
 Or directly via python:
 ```shell
 python src/main.py
+```
+
+### Command Line Options
+
+You can pass arguments to the startup script to open files or enable developer features:
+
+```shell
+# Open a specific project or image on startup
+python src/main.py path/to/file.toml
+
+# Start the application with the Model Context Protocol (MCP) Server enabled (default port 8123)
+python src/main.py --mcp
+
+# Start the MCP Server on a custom port
+python src/main.py --mcp --mcp-port 9000
 ```
 
 ## Development
