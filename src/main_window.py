@@ -318,6 +318,43 @@ class MainWindow(QMainWindow):
         self._view_menu.addAction(self._show_hoop_action)
         self._show_hoop_action.setChecked(get_global_preferences().get_hoop_visible())
 
+        self._show_grid_action = QAction(QIcon.fromTheme("view-grid"), self.tr("Show &Grid"), self)
+        self._show_grid_action.setCheckable(True)
+        self._show_grid_action.setShortcut(QKeySequence("Ctrl+G"))
+        self._show_grid_action.triggered.connect(self._on_show_grid)
+        self._view_menu.addAction(self._show_grid_action)
+        self._show_grid_action.setChecked(get_global_preferences().get_grid_visible())
+
+        # Snapping Submenu
+        snapping_menu = QMenu(self.tr("Snapping"), self)
+        self._view_menu.addMenu(snapping_menu)
+
+        self._snap_to_grid_action = QAction(self.tr("Snap to Grid"), self)
+        self._snap_to_grid_action.setCheckable(True)
+        self._snap_to_grid_action.triggered.connect(self._on_snap_to_grid)
+        snapping_menu.addAction(self._snap_to_grid_action)
+        self._snap_to_grid_action.setChecked(get_global_preferences().get_snap_to_grid())
+
+        self._snap_to_hoop_action = QAction(self.tr("Snap to Hoop"), self)
+        self._snap_to_hoop_action.setCheckable(True)
+        self._snap_to_hoop_action.triggered.connect(self._on_snap_to_hoop)
+        snapping_menu.addAction(self._snap_to_hoop_action)
+        self._snap_to_hoop_action.setChecked(get_global_preferences().get_snap_to_hoop())
+
+        self._snap_to_layers_action = QAction(self.tr("Snap to Layers"), self)
+        self._snap_to_layers_action.setCheckable(True)
+        self._snap_to_layers_action.triggered.connect(self._on_snap_to_layers)
+        snapping_menu.addAction(self._snap_to_layers_action)
+        self._snap_to_layers_action.setChecked(get_global_preferences().get_snap_to_layers())
+
+        # Sync UI actions when preferences change externally (e.g. via Preference Dialog)
+        get_global_preferences().grid_visible_changed.connect(self._show_grid_action.setChecked)
+        get_global_preferences().snap_to_grid_changed.connect(self._snap_to_grid_action.setChecked)
+        get_global_preferences().snap_to_hoop_changed.connect(self._snap_to_hoop_action.setChecked)
+        get_global_preferences().snap_to_layers_changed.connect(
+            self._snap_to_layers_action.setChecked
+        )
+
         self._view_menu.addSeparator()
 
         self._reset_layout_action = QAction(self.tr("Reset Layout"), self)
@@ -470,6 +507,8 @@ class MainWindow(QMainWindow):
 
         self._toolbar.addAction(self._zoom_in_action)
         self._toolbar.addAction(self._zoom_out_action)
+        self._toolbar.addSeparator()
+        self._toolbar.addAction(self._show_grid_action)
 
     def _setup_central_widget(self):
         """Creates the central tab widget for managing multiple documents."""
@@ -1227,6 +1266,30 @@ class MainWindow(QMainWindow):
             self.canvas.on_preferences_updated()
             self.canvas.update()
         self.update()
+
+    @Slot()
+    def _on_show_grid(self) -> None:
+        """Slot to toggle the visibility of the canvas grid."""
+        visible = self._show_grid_action.isChecked()
+        get_global_preferences().set_grid_visible(visible)
+
+    @Slot()
+    def _on_snap_to_grid(self) -> None:
+        """Slot to toggle snapping to the grid."""
+        snap = self._snap_to_grid_action.isChecked()
+        get_global_preferences().set_snap_to_grid(snap)
+
+    @Slot()
+    def _on_snap_to_hoop(self) -> None:
+        """Slot to toggle snapping to the hoop boundaries/center."""
+        snap = self._snap_to_hoop_action.isChecked()
+        get_global_preferences().set_snap_to_hoop(snap)
+
+    @Slot()
+    def _on_snap_to_layers(self) -> None:
+        """Slot to toggle snapping to other layers."""
+        snap = self._snap_to_layers_action.isChecked()
+        get_global_preferences().set_snap_to_layers(snap)
 
     @Slot()
     def _on_reset_layout(self) -> None:

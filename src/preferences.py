@@ -17,6 +17,11 @@ class Preferences(QObject):
     canvas_background_color_changed = Signal(str)
     canvas_hoop_color_changed = Signal(str)
     canvas_handle_color_changed = Signal(str)
+    grid_visible_changed = Signal(bool)
+    grid_size_changed = Signal(float)
+    snap_to_grid_changed = Signal(bool)
+    snap_to_hoop_changed = Signal(bool)
+    snap_to_layers_changed = Signal(bool)
     hoop_visible_changed = Signal(bool)
     hoop_size_changed = Signal(tuple)
 
@@ -163,6 +168,51 @@ class Preferences(QObject):
         if current != color:
             self._settings.setValue("canvas/handle_color", color)
             self.canvas_handle_color_changed.emit(color)
+
+    def get_grid_visible(self) -> bool:
+        return bool(self._settings.value("canvas/grid_visible", defaultValue=False, type=bool))
+
+    def set_grid_visible(self, visible: bool):
+        current = self.get_grid_visible()
+        if current != visible:
+            self._settings.setValue("canvas/grid_visible", visible)
+            self.grid_visible_changed.emit(visible)
+
+    def get_grid_size_mm(self) -> float:
+        return float(self._settings.value("canvas/grid_size_mm", defaultValue=10.0, type=float))
+
+    def set_grid_size_mm(self, size: float):
+        current = self.get_grid_size_mm()
+        if current != size:
+            self._settings.setValue("canvas/grid_size_mm", size)
+            self.grid_size_changed.emit(size)
+
+    def get_snap_to_grid(self) -> bool:
+        return bool(self._settings.value("canvas/snap_to_grid", defaultValue=True, type=bool))
+
+    def set_snap_to_grid(self, snap: bool):
+        current = self.get_snap_to_grid()
+        if current != snap:
+            self._settings.setValue("canvas/snap_to_grid", snap)
+            self.snap_to_grid_changed.emit(snap)
+
+    def get_snap_to_hoop(self) -> bool:
+        return bool(self._settings.value("canvas/snap_to_hoop", defaultValue=True, type=bool))
+
+    def set_snap_to_hoop(self, snap: bool):
+        current = self.get_snap_to_hoop()
+        if current != snap:
+            self._settings.setValue("canvas/snap_to_hoop", snap)
+            self.snap_to_hoop_changed.emit(snap)
+
+    def get_snap_to_layers(self) -> bool:
+        return bool(self._settings.value("canvas/snap_to_layers", defaultValue=True, type=bool))
+
+    def set_snap_to_layers(self, snap: bool):
+        current = self.get_snap_to_layers()
+        if current != snap:
+            self._settings.setValue("canvas/snap_to_layers", snap)
+            self.snap_to_layers_changed.emit(snap)
 
     def set_delete_point_enabled(self, enabled: bool) -> None:
         self._settings.setValue("partition/delete_point_enabled", enabled)

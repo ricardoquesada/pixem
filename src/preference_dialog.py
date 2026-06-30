@@ -216,6 +216,37 @@ class PreferenceDialog(QDialog):
         if not self._is_global:
             self._open_file_startup_checkbox.setVisible(False)
 
+        # Grid & Snapping Properties (Only for Global Preferences)
+        if self._is_global:
+            self._grid_group_box = QGroupBox(self.tr("Grid & Snapping"))
+            grid_vlayout = QVBoxLayout()
+
+            # Grid Size
+            grid_size_hlayout = QHBoxLayout()
+            grid_size_label = QLabel(self.tr("Grid Size (mm)"))
+            self._grid_size_spinbox = QDoubleSpinBox()
+            self._grid_size_spinbox.setRange(1.0, 100.0)
+            self._grid_size_spinbox.setSingleStep(1.0)
+            self._grid_size_spinbox.setValue(self._settings.get_grid_size_mm())
+            grid_size_hlayout.addWidget(grid_size_label)
+            grid_size_hlayout.addWidget(self._grid_size_spinbox)
+            grid_vlayout.addLayout(grid_size_hlayout)
+
+            # Snapping Checkboxes
+            self._snap_grid_checkbox = QCheckBox(self.tr("Snap to Grid"))
+            self._snap_grid_checkbox.setChecked(self._settings.get_snap_to_grid())
+            grid_vlayout.addWidget(self._snap_grid_checkbox)
+
+            self._snap_hoop_checkbox = QCheckBox(self.tr("Snap to Hoop"))
+            self._snap_hoop_checkbox.setChecked(self._settings.get_snap_to_hoop())
+            grid_vlayout.addWidget(self._snap_hoop_checkbox)
+
+            self._snap_layers_checkbox = QCheckBox(self.tr("Snap to Other Layers"))
+            self._snap_layers_checkbox.setChecked(self._settings.get_snap_to_layers())
+            grid_vlayout.addWidget(self._snap_layers_checkbox)
+
+            self._grid_group_box.setLayout(grid_vlayout)
+
         # Buttons
         self._button_box = QDialogButtonBox(
             QDialogButtonBox.Ok | QDialogButtonBox.Cancel | QDialogButtonBox.Apply
@@ -230,6 +261,7 @@ class PreferenceDialog(QDialog):
         main_layout.addWidget(canvas_color_group)
         main_layout.addWidget(partition_group)
         if self._is_global:
+            main_layout.addWidget(self._grid_group_box)
             main_layout.addWidget(self._open_file_startup_checkbox)
         main_layout.addWidget(self._button_box)
 
@@ -316,6 +348,10 @@ class PreferenceDialog(QDialog):
 
         if self._is_global:
             self._settings.set_delete_point_enabled(self._delete_point_checkbox.isChecked())
+            self._settings.set_grid_size_mm(self._grid_size_spinbox.value())
+            self._settings.set_snap_to_grid(self._snap_grid_checkbox.isChecked())
+            self._settings.set_snap_to_hoop(self._snap_hoop_checkbox.isChecked())
+            self._settings.set_snap_to_layers(self._snap_layers_checkbox.isChecked())
 
     def _update_color_label(self, color_type: ColorType):
         self._colors[color_type]["button"].setStyleSheet(

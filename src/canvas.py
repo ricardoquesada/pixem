@@ -112,6 +112,11 @@ class Canvas(QWidget):
         self._active_handle = Canvas.HandleType.NONE
         self._cached_handle_color = QColor(preferences.get_canvas_handle_color_name())
 
+        self._cached_grid_visible = preferences.get_grid_visible()
+        self._cached_grid_size = preferences.get_grid_size_mm()
+        self._snap_guide_x = None
+        self._snap_guide_y = None
+
         self._mode = Canvas.Mode.MOVE
         self._mode_status = Canvas.ModeStatus.IDLE
 
@@ -128,6 +133,8 @@ class Canvas(QWidget):
         preferences.canvas_handle_color_changed.connect(self._on_handle_color_changed)
         preferences.hoop_visible_changed.connect(self._on_hoop_visible_changed)
         preferences.hoop_size_changed.connect(self._on_hoop_size_changed)
+        preferences.grid_visible_changed.connect(self._on_grid_visible_changed)
+        preferences.grid_size_changed.connect(self._on_grid_size_changed)
 
     def zoom_in(self):
         """Increases the zoom factor."""
@@ -176,6 +183,30 @@ class Canvas(QWidget):
             self._state.zoom_factor * DEFAULT_SCALE_FACTOR,
             self._state.zoom_factor * DEFAULT_SCALE_FACTOR,
         )
+
+        # Draw grid
+        if self._cached_grid_visible:
+            painter.save()
+            scale = self._state.zoom_factor * DEFAULT_SCALE_FACTOR
+            pen = QPen(QColor(200, 200, 200, 100), 0)  # 0 width is cosmetic (1px)
+            painter.setPen(pen)
+
+            hoop_w = self._cached_hoop_size[0] * INCHES_TO_MM
+            hoop_h = self._cached_hoop_size[1] * INCHES_TO_MM
+            grid_size = self._cached_grid_size
+
+            # Draw vertical lines
+            x = 0.0
+            while x <= hoop_w:
+                painter.drawLine(QPointF(x, 0), QPointF(x, hoop_h))
+                x += grid_size
+
+            # Draw horizontal lines
+            y = 0.0
+            while y <= hoop_h:
+                painter.drawLine(QPointF(0, y), QPointF(hoop_w, y))
+                y += grid_size
+            painter.restore()
 
         # Get selected layer preview properties
         selected_layer = self._state.selected_layer
@@ -327,6 +358,29 @@ class Canvas(QWidget):
             painter.drawPath(path)
             painter.restore()
 
+        # Draw snap guides
+        if self._snap_guide_x is not None or self._snap_guide_y is not None:
+            painter.save()
+            scale = self._state.zoom_factor * DEFAULT_SCALE_FACTOR
+            pen = QPen(QColor(255, 69, 0, 180), 1.5 / scale, Qt.PenStyle.DashLine)
+            painter.setPen(pen)
+
+            hoop_w = self._cached_hoop_size[0] * INCHES_TO_MM
+            hoop_h = self._cached_hoop_size[1] * INCHES_TO_MM
+            margin = 50.0
+
+            if self._snap_guide_x is not None:
+                painter.drawLine(
+                    QPointF(self._snap_guide_x, -margin),
+                    QPointF(self._snap_guide_x, hoop_h + margin),
+                )
+            if self._snap_guide_y is not None:
+                painter.drawLine(
+                    QPointF(-margin, self._snap_guide_y),
+                    QPointF(hoop_w + margin, self._snap_guide_y),
+                )
+            painter.restore()
+
         painter.end()
 
     #
@@ -356,6 +410,18 @@ class Canvas(QWidget):
         if self._state is not None:
             return
         self._cached_canvas_background_color = QColor(color)
+        self.update()
+
+    @Slot(bool)
+    def _on_grid_visible_changed(self, visible: bool):
+        """Slot for when the grid visibility preference changes."""
+        self._cached_grid_visible = visible
+        self.update()
+
+    @Slot(float)
+    def _on_grid_size_changed(self, size: float):
+        """Slot for when the grid size preference changes."""
+        self._cached_grid_size = size
         self.update()
 
     @Slot(str)
@@ -590,6 +656,186 @@ class Canvas(QWidget):
                 return layer
         return None
 
+    def _snap_point(self, pt: QPointF, exclude_layer: Layer | None = None) -> QPointF:
+        """Snaps a single point to the grid, hoop boundaries, or other layers."""
+        scale = (
+            self._state.zoom_factor * DEFAULT_SCALE_FACTOR if self._state else DEFAULT_SCALE_FACTOR
+        )
+        threshold_mm = 8 / scale
+
+        snap_grid = get_global_preferences().get_snap_to_grid()
+        snap_hoop = get_global_preferences().get_snap_to_hoop()
+        snap_layers = get_global_preferences().get_snap_to_layers()
+
+        best_dx = None
+        best_dy = None
+        snap_x_val = None
+        snap_y_val = None
+
+        def update_dx(delta, target_val):
+            nonlocal best_dx, snap_x_val
+            if abs(delta) <= threshold_mm:
+                if best_dx is None or abs(delta) < abs(best_dx):
+                    best_dx = delta
+                    snap_x_val = target_val
+
+        def update_dy(delta, target_val):
+            nonlocal best_dy, snap_y_val
+            if abs(delta) <= threshold_mm:
+                if best_dy is None or abs(delta) < abs(best_dy):
+                    best_dy = delta
+                    snap_y_val = target_val
+
+        if snap_grid:
+            grid_size = get_global_preferences().get_grid_size_mm()
+            near_x = round(pt.x() / grid_size) * grid_size
+            update_dx(near_x - pt.x(), near_x)
+            near_y = round(pt.y() / grid_size) * grid_size
+            update_dy(near_y - pt.y(), near_y)
+
+        if snap_hoop:
+            hoop_w = self._cached_hoop_size[0] * INCHES_TO_MM
+            hoop_h = self._cached_hoop_size[1] * INCHES_TO_MM
+            update_dx(0 - pt.x(), 0.0)
+            update_dx(hoop_w - pt.x(), hoop_w)
+            update_dy(0 - pt.y(), 0.0)
+            update_dy(hoop_h - pt.y(), hoop_h)
+
+        if snap_layers and self._state:
+            for other in self._state.layers:
+                if other.visible and (exclude_layer is None or other.uuid != exclude_layer.uuid):
+                    other_handles = self._get_layer_handles(other)
+                    for opt in [
+                        other_handles[Canvas.HandleType.TOP_LEFT],
+                        other_handles[Canvas.HandleType.TOP_RIGHT],
+                        other_handles[Canvas.HandleType.BOTTOM_RIGHT],
+                        other_handles[Canvas.HandleType.BOTTOM_LEFT],
+                    ]:
+                        update_dx(opt.x() - pt.x(), opt.x())
+                        update_dy(opt.y() - pt.y(), opt.y())
+
+        snapped = QPointF(pt)
+        if best_dx is not None:
+            snapped.setX(pt.x() + best_dx)
+            self._snap_guide_x = snap_x_val
+        if best_dy is not None:
+            snapped.setY(pt.y() + best_dy)
+            self._snap_guide_y = snap_y_val
+
+        return snapped
+
+    def _snap_position(self, layer: Layer, candidate_pos: QPointF) -> QPointF:
+        """Snaps a layer's candidate position (evaluating corners and center)."""
+        if not self._state:
+            return candidate_pos
+
+        scale = self._state.zoom_factor * DEFAULT_SCALE_FACTOR
+        threshold_mm = 8 / scale
+
+        snap_grid = get_global_preferences().get_snap_to_grid()
+        snap_hoop = get_global_preferences().get_snap_to_hoop()
+        snap_layers = get_global_preferences().get_snap_to_layers()
+
+        if not (snap_grid or snap_hoop or snap_layers):
+            return candidate_pos
+
+        orig_w = layer.image.width() * layer.pixel_size.width()
+        orig_h = layer.image.height() * layer.pixel_size.height()
+        rect_local = QRectF(0, 0, orig_w, orig_h)
+
+        center_local = rect_local.center()
+        transform = QTransform()
+        transform.translate(center_local.x(), center_local.y())
+        transform.rotate(layer.rotation)
+        transform.translate(-center_local.x(), -center_local.y())
+
+        local_pts = [
+            transform.map(rect_local.topLeft()),
+            transform.map(rect_local.topRight()),
+            transform.map(rect_local.bottomRight()),
+            transform.map(rect_local.bottomLeft()),
+            center_local,
+        ]
+
+        candidate_pts = [candidate_pos + p for p in local_pts]
+
+        best_dx = None
+        best_dy = None
+        snap_x_val = None
+        snap_y_val = None
+
+        def update_dx(delta, target_val):
+            nonlocal best_dx, snap_x_val
+            if abs(delta) <= threshold_mm:
+                if best_dx is None or abs(delta) < abs(best_dx):
+                    best_dx = delta
+                    snap_x_val = target_val
+
+        def update_dy(delta, target_val):
+            nonlocal best_dy, snap_y_val
+            if abs(delta) <= threshold_mm:
+                if best_dy is None or abs(delta) < abs(best_dy):
+                    best_dy = delta
+                    snap_y_val = target_val
+
+        if snap_grid:
+            grid_size = get_global_preferences().get_grid_size_mm()
+            for pt in candidate_pts:
+                near_x = round(pt.x() / grid_size) * grid_size
+                update_dx(near_x - pt.x(), near_x)
+                near_y = round(pt.y() / grid_size) * grid_size
+                update_dy(near_y - pt.y(), near_y)
+
+        if snap_hoop:
+            hoop_w = self._cached_hoop_size[0] * INCHES_TO_MM
+            hoop_h = self._cached_hoop_size[1] * INCHES_TO_MM
+
+            for pt in candidate_pts[:4]:
+                update_dx(0 - pt.x(), 0.0)
+                update_dx(hoop_w - pt.x(), hoop_w)
+                update_dy(0 - pt.y(), 0.0)
+                update_dy(hoop_h - pt.y(), hoop_h)
+
+            center_pt = candidate_pts[4]
+            update_dx(hoop_w / 2 - center_pt.x(), hoop_w / 2)
+            update_dy(hoop_h / 2 - center_pt.y(), hoop_h / 2)
+
+        if snap_layers:
+            for other in self._state.layers:
+                if other.uuid == layer.uuid or not other.visible:
+                    continue
+                other_handles = self._get_layer_handles(other)
+                other_pts = [
+                    other_handles[Canvas.HandleType.TOP_LEFT],
+                    other_handles[Canvas.HandleType.TOP_RIGHT],
+                    other_handles[Canvas.HandleType.BOTTOM_RIGHT],
+                    other_handles[Canvas.HandleType.BOTTOM_LEFT],
+                ]
+                other_orig_w = other.image.width() * other.pixel_size.width()
+                other_orig_h = other.image.height() * other.pixel_size.height()
+                other_rect = QRectF(
+                    other.position.x(), other.position.y(), other_orig_w, other_orig_h
+                )
+                other_pts.append(other_rect.center())
+
+                for pt in candidate_pts[:4]:
+                    for opt in other_pts[:4]:
+                        update_dx(opt.x() - pt.x(), opt.x())
+                        update_dy(opt.y() - pt.y(), opt.y())
+
+                update_dx(other_pts[4].x() - candidate_pts[4].x(), other_pts[4].x())
+                update_dy(other_pts[4].y() - candidate_pts[4].y(), other_pts[4].y())
+
+        snapped_pos = QPointF(candidate_pos)
+        if best_dx is not None:
+            snapped_pos.setX(candidate_pos.x() + best_dx)
+            self._snap_guide_x = snap_x_val
+        if best_dy is not None:
+            snapped_pos.setY(candidate_pos.y() + best_dy)
+            self._snap_guide_y = snap_y_val
+
+        return snapped_pos
+
     @override
     def mousePressEvent(self, event: QMouseEvent):
         """
@@ -690,8 +936,17 @@ class Canvas(QWidget):
 
         if self._mode_status == Canvas.ModeStatus.MOVING:
             event.accept()
+            layer = self._state.selected_layer
+            if not layer:
+                return
             delta = event.position() - self._mouse_start_coords
-            self._mouse_delta = QPointF(delta.x() / scale, delta.y() / scale)
+            candidate_pos = layer.position + QPointF(delta.x() / scale, delta.y() / scale)
+
+            self._snap_guide_x = None
+            self._snap_guide_y = None
+
+            snapped_pos = self._snap_position(layer, candidate_pos)
+            self._mouse_delta = snapped_pos - layer.position
             self.update()
 
         elif self._mode_status == Canvas.ModeStatus.ROTATING:
@@ -747,7 +1002,12 @@ class Canvas(QWidget):
                 return
 
             curr_pos_canvas = event.position() / scale
-            local_mouse = inverse_transform.map(curr_pos_canvas)
+
+            self._snap_guide_x = None
+            self._snap_guide_y = None
+
+            snapped_curr = self._snap_point(curr_pos_canvas, exclude_layer=layer)
+            local_mouse = inverse_transform.map(snapped_curr)
             local_anchor = inverse_transform.map(self._global_anchor)
 
             # New local width and height
@@ -827,12 +1087,8 @@ class Canvas(QWidget):
 
         if self._mode_status == Canvas.ModeStatus.MOVING:
             self._mode_status = Canvas.ModeStatus.IDLE
-            delta = event.position() - self._mouse_start_coords
-            scale_factor = self._state.zoom_factor * DEFAULT_SCALE_FACTOR
-            orig_pos = layer.position
-            new_pos = QPointF(
-                orig_pos.x() + delta.x() / scale_factor, orig_pos.y() + delta.y() / scale_factor
-            )
+            new_pos = layer.position + self._mouse_delta
+            self._mouse_delta = QPointF(0.0, 0.0)
             self.position_changed.emit(new_pos)
 
         elif self._mode_status == Canvas.ModeStatus.ROTATING:
@@ -867,6 +1123,8 @@ class Canvas(QWidget):
         self._active_handle = Canvas.HandleType.NONE
         self._mouse_start_coords = QPointF(0.0, 0.0)
         self._mouse_delta = QPointF(0.0, 0.0)
+        self._snap_guide_x = None
+        self._snap_guide_y = None
         self.update()
 
     @override
