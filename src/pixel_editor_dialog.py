@@ -345,10 +345,6 @@ class PixelEditorDialog(QDialog):
         palette_layout.addWidget(self._palette_list)
         palette_layout.addWidget(self._add_color_button)
         palette_group.setLayout(palette_layout)
-
-        # Populate palette from image
-        self._populate_palette()
-
         # Toolbar
         toolbar = QToolBar()
         self._mode_actions = {}
@@ -451,6 +447,9 @@ class PixelEditorDialog(QDialog):
 
         # Connect image widget signals
         self._image_widget.color_picked.connect(self._on_color_picked)
+
+        # Populate palette from image (must be done after toolbar actions are initialized)
+        self._populate_palette()
 
         self._resize_dialog()
 
