@@ -1380,6 +1380,8 @@ class MainWindow(QMainWindow):
             if self.state is not None:
                 self.state.selected_layer_uuid = None
 
+        self._update_qactions()
+
     @Slot()
     def _on_layer_rows_moved(self, parent, start, end, destination):
         """Slot for when layers are reordered in the layer list."""
