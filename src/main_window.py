@@ -847,6 +847,30 @@ class MainWindow(QMainWindow):
             title = f"{filename}{dirty_str} - {title}"
         self.setWindowTitle(title)
 
+    def _update_tab_title(self, index: int):
+        """Updates the tab title for the document at the given index."""
+        widget = self._tab_widget.widget(index)
+        if not isinstance(widget, Document):
+            return
+
+        state = widget.state
+        filename = self.tr("Untitled")
+        if state.project_filename:
+            filename = os.path.basename(state.project_filename)
+
+        is_dirty = not state.undo_stack.isClean()
+        dirty_str = "*" if is_dirty else ""
+
+        self._tab_widget.setTabText(index, f"{filename}{dirty_str}")
+
+    def _on_document_clean_changed(self, doc: Document):
+        """Slot called when a document's clean state changes."""
+        index = self._tab_widget.indexOf(doc)
+        if index != -1:
+            self._update_tab_title(index)
+        if doc == self.active_document:
+            self._update_window_title()
+
     def _open_filename(self, filename: str) -> None:
         """
         Loads a project from a given filename and creates a new document.
@@ -1172,6 +1196,12 @@ class MainWindow(QMainWindow):
                 filename = filename + ".pixemproj"
             self.state.save_to_filename(filename)
             self._update_window_title()
+
+            # Update tab title because filename changed
+            index = self._tab_widget.currentIndex()
+            if index != -1:
+                self._update_tab_title(index)
+
             get_global_preferences().add_recent_file(filename)
             self._populate_recent_menu()
 
@@ -2019,14 +2049,15 @@ class MainWindow(QMainWindow):
 
     def _create_document(self, state: State | None = None, filename: str | None = None) -> Document:
         doc = Document(state, filename)
-        self._tab_widget.addTab(
-            doc, os.path.basename(filename) if filename else self.tr("Untitled")
-        )
+        self._tab_widget.addTab(doc, "")
         self._tab_widget.setCurrentWidget(doc)
 
         # Add undo stack to group
         self._undo_group.addStack(doc.state.undo_stack)
         doc.state.undo_stack.indexChanged.connect(self._on_undo_stack_index_changed)
+        doc.state.undo_stack.cleanChanged.connect(lambda: self._on_document_clean_changed(doc))
+
+        self._update_tab_title(self._tab_widget.indexOf(doc))
 
         return doc
 
