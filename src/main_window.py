@@ -270,7 +270,6 @@ class MainWindow(QMainWindow):
         icon = create_icon_from_svg(":/icons/svg/actions/draw-freehand-symbolic.svg")
         self._edit_layer_pixels_action = QAction(icon, self.tr("Edit Layer Pixels"), self)
         self._edit_layer_pixels_action.triggered.connect(self._on_edit_layer_pixels)
-        edit_menu.addAction(self._edit_layer_pixels_action)
 
         edit_menu.addSeparator()
 
@@ -354,6 +353,8 @@ class MainWindow(QMainWindow):
         )
         self._delete_layer_action.triggered.connect(self._on_layer_delete)
         layer_menu.addAction(self._delete_layer_action)
+
+        layer_menu.addAction(self._edit_layer_pixels_action)
 
         layer_menu.addSeparator()
         aligns = [
