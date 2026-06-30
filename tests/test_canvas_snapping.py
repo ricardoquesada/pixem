@@ -54,12 +54,18 @@ class TestCanvasSnapping(unittest.TestCase):
         pt = QPointF(9.0, 10.5)
         snapped = self.canvas._snap_point(pt)
         self.assertEqual(snapped, QPointF(10.0, 10.0))
+        self.assertEqual(self.canvas._snap_guide_x, 10.0)
+        self.assertEqual(self.canvas._snap_guide_y, 10.0)
 
         # Point at (8.0, 10.5) is 2.0mm away in X, which is outside threshold
         # So it should only snap Y (10.5 -> 10.0), X should remain 8.0
         pt2 = QPointF(8.0, 10.5)
+        self.canvas._snap_guide_x = None
+        self.canvas._snap_guide_y = None
         snapped2 = self.canvas._snap_point(pt2)
         self.assertEqual(snapped2, QPointF(8.0, 10.0))
+        self.assertIsNone(self.canvas._snap_guide_x)
+        self.assertEqual(self.canvas._snap_guide_y, 10.0)
 
     def test_snap_point_to_hoop(self):
         self.prefs.set_snap_to_grid(False)
@@ -71,6 +77,8 @@ class TestCanvasSnapping(unittest.TestCase):
         pt = QPointF(1.0, 100.9)
         snapped = self.canvas._snap_point(pt)
         self.assertEqual(snapped, QPointF(0.0, 101.6))
+        self.assertEqual(self.canvas._snap_guide_x, 0.0)
+        self.assertEqual(self.canvas._snap_guide_y, 101.6)
 
     def test_snap_position_to_grid(self):
         self.prefs.set_snap_to_grid(True)
@@ -84,6 +92,8 @@ class TestCanvasSnapping(unittest.TestCase):
         candidate = QPointF(9.5, 9.5)
         snapped = self.canvas._snap_position(self.layer1, candidate)
         self.assertEqual(snapped, QPointF(10.0, 10.0))
+        self.assertEqual(self.canvas._snap_guide_x, 10.0)
+        self.assertEqual(self.canvas._snap_guide_y, 10.0)
 
     def test_snap_position_to_other_layer(self):
         self.prefs.set_snap_to_grid(False)
@@ -103,6 +113,34 @@ class TestCanvasSnapping(unittest.TestCase):
         candidate = QPointF(20.5, 20.5)
         snapped = self.canvas._snap_position(self.layer2, candidate)
         self.assertEqual(snapped, QPointF(20.0, 20.0))
+        self.assertEqual(self.canvas._snap_guide_x, 20.0)
+        self.assertEqual(self.canvas._snap_guide_y, 20.0)
+
+    def test_no_snapping_when_disabled(self):
+        self.prefs.set_snap_to_grid(False)
+        self.prefs.set_snap_to_hoop(False)
+        self.prefs.set_snap_to_layers(False)
+
+        pt = QPointF(9.5, 9.5)
+        self.canvas._snap_guide_x = None
+        self.canvas._snap_guide_y = None
+        snapped = self.canvas._snap_point(pt)
+        self.assertEqual(snapped, pt)
+        self.assertIsNone(self.canvas._snap_guide_x)
+        self.assertIsNone(self.canvas._snap_guide_y)
+
+    def test_canvas_grid_preference_slots(self):
+        # Initial cached values (matching setUp)
+        self.assertEqual(self.canvas._cached_grid_visible, False)
+        self.assertEqual(self.canvas._cached_grid_size, 10.0)
+
+        # Trigger slot for visibility
+        self.canvas._on_grid_visible_changed(True)
+        self.assertEqual(self.canvas._cached_grid_visible, True)
+
+        # Trigger slot for size
+        self.canvas._on_grid_size_changed(15.0)
+        self.assertEqual(self.canvas._cached_grid_size, 15.0)
 
 
 if __name__ == "__main__":
