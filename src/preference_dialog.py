@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
     QApplication,
     QCheckBox,
     QColorDialog,
+    QComboBox,
     QDialog,
     QDialogButtonBox,
     QDoubleSpinBox,
@@ -85,30 +86,47 @@ class PreferenceDialog(QDialog):
         hoop_vlayout = QVBoxLayout()
 
         # Hoop Size
-        hoop_size_group_box = QGroupBox(self.tr("Hoop Size (inches)"))
+        hoop_size_group_box = QGroupBox(self.tr("Hoop Size"))
         hoop_size_vlayout = QVBoxLayout()
-        self._hoop_1_25_radio = QRadioButton(self.tr("1x2.5"))
-        self._hoop_25_1_radio = QRadioButton(self.tr("2.5x1"))
-        self._hoop_7_5_radio = QRadioButton(self.tr("7x5"))
-        self._hoop_4_4_radio = QRadioButton(self.tr("4x4"))
-        self._hoop_5_7_radio = QRadioButton(self.tr("5x7"))
-        self._hoop_7_5_radio = QRadioButton(self.tr("7x5"))
-        self._hoop_6_10_radio = QRadioButton(self.tr("6x10"))
-        self._hoop_10_6_radio = QRadioButton(self.tr("10x6"))
+        self._hoop_1_25_radio = QRadioButton(self.tr("1x2.5 in (25x64 mm)"))
+        self._hoop_25_1_radio = QRadioButton(self.tr("2.5x1 in (64x25 mm)"))
+        self._hoop_4_4_radio = QRadioButton(self.tr("4x4 in (100x100 mm)"))
+        self._hoop_5_7_radio = QRadioButton(self.tr("5x7 in (130x180 mm)"))
+        self._hoop_7_5_radio = QRadioButton(self.tr("7x5 in (180x130 mm)"))
+        self._hoop_6_10_radio = QRadioButton(self.tr("6x10 in (160x260 mm)"))
+        self._hoop_10_6_radio = QRadioButton(self.tr("10x6 in (260x160 mm)"))
         self._hoop_custom_radio = QRadioButton(self.tr("Custom:"))
+
         self._custom_size_x_spinbox = QDoubleSpinBox()
+        self._custom_size_x_spinbox.setRange(0.1, 100.0)
+        self._custom_size_x_spinbox.setDecimals(3)
+        self._custom_size_x_spinbox.setSingleStep(0.1)
+        self._custom_size_x_spinbox.setSuffix(" in")
         self._custom_size_x_spinbox.setValue(10.0)
         self._custom_size_x_spinbox.setEnabled(False)
+
         self._custom_size_y_spinbox = QDoubleSpinBox()
+        self._custom_size_y_spinbox.setRange(0.1, 100.0)
+        self._custom_size_y_spinbox.setDecimals(3)
+        self._custom_size_y_spinbox.setSingleStep(0.1)
+        self._custom_size_y_spinbox.setSuffix(" in")
         self._custom_size_y_spinbox.setValue(10.0)
         self._custom_size_y_spinbox.setEnabled(False)
+
+        self._custom_unit_combo = QComboBox()
+        self._custom_unit_combo.addItems([self.tr("inches"), self.tr("mm")])
+        self._custom_unit_combo.setEnabled(False)
+        self._custom_unit_combo.currentIndexChanged.connect(self._on_custom_unit_changed)
+
         self._hoop_custom_radio.toggled.connect(self._custom_size_x_spinbox.setEnabled)
         self._hoop_custom_radio.toggled.connect(self._custom_size_y_spinbox.setEnabled)
+        self._hoop_custom_radio.toggled.connect(self._custom_unit_combo.setEnabled)
 
         custom_layout = QHBoxLayout()
         custom_layout.addWidget(self._hoop_custom_radio)
         custom_layout.addWidget(self._custom_size_x_spinbox)
         custom_layout.addWidget(self._custom_size_y_spinbox)
+        custom_layout.addWidget(self._custom_unit_combo)
 
         hoop_size_vlayout.addWidget(self._hoop_1_25_radio)
         hoop_size_vlayout.addWidget(self._hoop_25_1_radio)
@@ -320,10 +338,12 @@ class PreferenceDialog(QDialog):
         elif self._hoop_10_6_radio.isChecked():
             hoop_size = (10, 6)
         elif self._hoop_custom_radio.isChecked():
-            hoop_size = (
-                self._custom_size_x_spinbox.value(),
-                self._custom_size_y_spinbox.value(),
-            )
+            val_x = self._custom_size_x_spinbox.value()
+            val_y = self._custom_size_y_spinbox.value()
+            if self._custom_unit_combo.currentIndex() == 1:  # mm
+                val_x /= 25.4
+                val_y /= 25.4
+            hoop_size = (val_x, val_y)
         hoop_visible = self._visibility_checkbox.isChecked()
         self._settings.set_hoop_size(hoop_size)
         self._settings.set_hoop_visible(hoop_visible)
@@ -378,6 +398,47 @@ class PreferenceDialog(QDialog):
         if color.isValid():
             self._colors[color_type]["color"] = color
             self._update_color_label(color_type)
+
+    @Slot(int)
+    def _on_custom_unit_changed(self, index: int):
+        self._custom_size_x_spinbox.blockSignals(True)
+        self._custom_size_y_spinbox.blockSignals(True)
+
+        val_x = self._custom_size_x_spinbox.value()
+        val_y = self._custom_size_y_spinbox.value()
+
+        if index == 0:  # Switched to Inches
+            val_x /= 25.4
+            val_y /= 25.4
+
+            self._custom_size_x_spinbox.setRange(0.1, 100.0)
+            self._custom_size_x_spinbox.setDecimals(3)
+            self._custom_size_x_spinbox.setSingleStep(0.1)
+            self._custom_size_x_spinbox.setSuffix(" in")
+
+            self._custom_size_y_spinbox.setRange(0.1, 100.0)
+            self._custom_size_y_spinbox.setDecimals(3)
+            self._custom_size_y_spinbox.setSingleStep(0.1)
+            self._custom_size_y_spinbox.setSuffix(" in")
+        else:  # Switched to MM
+            val_x *= 25.4
+            val_y *= 25.4
+
+            self._custom_size_x_spinbox.setRange(1.0, 2540.0)
+            self._custom_size_x_spinbox.setDecimals(1)
+            self._custom_size_x_spinbox.setSingleStep(1.0)
+            self._custom_size_x_spinbox.setSuffix(" mm")
+
+            self._custom_size_y_spinbox.setRange(1.0, 2540.0)
+            self._custom_size_y_spinbox.setDecimals(1)
+            self._custom_size_y_spinbox.setSingleStep(1.0)
+            self._custom_size_y_spinbox.setSuffix(" mm")
+
+        self._custom_size_x_spinbox.setValue(val_x)
+        self._custom_size_y_spinbox.setValue(val_y)
+
+        self._custom_size_x_spinbox.blockSignals(False)
+        self._custom_size_y_spinbox.blockSignals(False)
 
 
 if __name__ == "__main__":
