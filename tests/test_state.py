@@ -8,7 +8,10 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../src"))
 from PySide6.QtGui import QColor, QImage
 
 from layer import Layer
+from partition import Partition
+from shape import Rect
 from state import State
+from state_properties import StatePropertyFlags
 
 
 class TestState(unittest.TestCase):
@@ -57,6 +60,31 @@ class TestState(unittest.TestCase):
         self.state.selected_layer_uuid = None
         self.assertIsNone(self.state.selected_layer)
 
+    def test_selected_layer_uuid_signal(self):
+        self.state.add_layer(self.layer)
+
+        signal_received = []
+
+        def on_property_changed(flag, properties):
+            signal_received.append((flag, properties))
+
+        self.state.state_property_changed.connect(on_property_changed)
+
+        # Change selection (should not emit if it was already selected)
+        self.state.selected_layer_uuid = self.layer.uuid
+        self.assertEqual(len(signal_received), 0)
+
+        # Deselect (should emit)
+        self.state.selected_layer_uuid = None
+        self.assertEqual(len(signal_received), 1)
+        self.assertEqual(signal_received[0][0], StatePropertyFlags.SELECTED_LAYER_UUID)
+
+        # Select again (should emit)
+        signal_received.clear()
+        self.state.selected_layer_uuid = self.layer.uuid
+        self.assertEqual(len(signal_received), 1)
+        self.assertEqual(signal_received[0][0], StatePropertyFlags.SELECTED_LAYER_UUID)
+
     def test_reorder_layers(self):
         layer1 = self.layer
         layer2 = Layer(QImage(10, 10, QImage.Format_ARGB32))
@@ -89,14 +117,39 @@ class TestState(unittest.TestCase):
         self.assertEqual(new_state.layers[0].name, "Test Layer")
 
     def test_undo_stack(self):
-        # Verify undo stack exists
-        self.assertIsNotNone(self.state.undo_stack)
-        # Adding a layer usually pushes a command if done via logic that uses commands,
-        # but State.add_layer methods themselves might not push to stack depending on implementation?
-        # Checking implementation: State.add_layer just modifies list and emits signal.
-        # Commands are usually separate classes that CALL state methods.
-        # So here we just verify the state has an undo stack property.
-        pass
+        # 1. Test Add Layer Undo/Redo
+        self.assertEqual(len(self.state.layers), 0)
+        self.state.add_layer(self.layer)
+        self.assertEqual(len(self.state.layers), 1)
+
+        self.state.undo_stack.undo()
+        self.assertEqual(len(self.state.layers), 0)
+
+        self.state.undo_stack.redo()
+        self.assertEqual(len(self.state.layers), 1)
+        self.assertEqual(self.state.layers[0], self.layer)
+
+        # 2. Test Update Layer Image/Partitions (Flipping) Undo/Redo
+        # Setup initial partition
+        initial_partition = Partition([Rect(0, 0)], "Initial", "#FF0000")
+        self.layer.partitions = {"part1": initial_partition}
+
+        # Flip (simulate)
+        new_image, new_partitions = self.layer.flipped_image_and_partitions(True, False)
+
+        # Apply via state
+        self.state.update_layer_image_and_partitions(self.layer, new_image, new_partitions)
+
+        # Verify applied (width is 10, so 10-1-0 = 9)
+        self.assertEqual(self.layer.partitions["part1"].route[0], Rect(9, 0))
+
+        # Undo
+        self.state.undo_stack.undo()
+        self.assertEqual(self.layer.partitions["part1"].route[0], Rect(0, 0))
+
+        # Redo
+        self.state.undo_stack.redo()
+        self.assertEqual(self.layer.partitions["part1"].route[0], Rect(9, 0))
 
 
 if __name__ == "__main__":

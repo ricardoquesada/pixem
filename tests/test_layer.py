@@ -116,6 +116,47 @@ class TestLayer(unittest.TestCase):
         self.assertIsNotNone(props.pixel_size)
         self.assertIsNotNone(props.position)
 
+    def test_flipped_image_and_partitions(self):
+        from partition import Partition
+        from shape import Path, Point, Rect
+
+        # Setup a small image 10x10
+        img = QImage(10, 10, QImage.Format_ARGB32)
+        layer = Layer(img)
+
+        # Add a partition with a Rect and a Path
+        rect = Rect(2, 3)
+        path = Path([Point(1, 1), Point(2, 2)])
+        partition = Partition([rect, path], "Part1", "#FF0000")
+        layer.partitions = {"part1_uuid": partition}
+
+        # Flip horizontal
+        flipped_img, flipped_parts = layer.flipped_image_and_partitions(True, False)
+
+        self.assertEqual(flipped_img.width(), 10)
+        self.assertIn("part1_uuid", flipped_parts)
+
+        flipped_part = flipped_parts["part1_uuid"]
+        self.assertEqual(len(flipped_part.route), 2)
+
+        # Rect(2,3) flipped horiz (width=10) -> Rect(10 - 1 - 2, 3) = Rect(7, 3)
+        self.assertEqual(flipped_part.route[0], Rect(7, 3))
+
+        # Path([Point(1,1), Point(2,2)]) flipped horiz -> Path([Point(10-1, 1), Point(10-2, 2)])
+        self.assertEqual(flipped_part.route[1], Path([Point(9, 1), Point(8, 2)]))
+
+        # Verify original layer was NOT mutated
+        self.assertEqual(layer.partitions["part1_uuid"].route[0], Rect(2, 3))
+        self.assertEqual(layer.partitions["part1_uuid"].route[1], Path([Point(1, 1), Point(2, 2)]))
+
+        # Flip vertical
+        flipped_img_v, flipped_parts_v = layer.flipped_image_and_partitions(False, True)
+        flipped_part_v = flipped_parts_v["part1_uuid"]
+        # Rect(2,3) flipped vert (height=10) -> Rect(2, 10 - 1 - 3) = Rect(2, 6)
+        self.assertEqual(flipped_part_v.route[0], Rect(2, 6))
+        # Path([Point(1,1), Point(2,2)]) flipped vert -> Path([Point(1, 9), Point(2, 8)])
+        self.assertEqual(flipped_part_v.route[1], Path([Point(1, 9), Point(2, 8)]))
+
 
 if __name__ == "__main__":
     unittest.main()

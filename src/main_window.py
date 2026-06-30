@@ -356,6 +356,14 @@ class MainWindow(QMainWindow):
 
         layer_menu.addAction(self._edit_layer_pixels_action)
 
+        self._flip_horizontal_action = QAction(self.tr("Flip Horizontal"), self)
+        self._flip_horizontal_action.triggered.connect(self._on_layer_flip_horizontal)
+        layer_menu.addAction(self._flip_horizontal_action)
+
+        self._flip_vertical_action = QAction(self.tr("Flip Vertical"), self)
+        self._flip_vertical_action.triggered.connect(self._on_layer_flip_vertical)
+        layer_menu.addAction(self._flip_vertical_action)
+
         layer_menu.addSeparator()
         aligns = [
             (
@@ -735,6 +743,8 @@ class MainWindow(QMainWindow):
         layer_selected = enabled and self._layer_list.currentItem() is not None
         self._property_editor.setEnabled(layer_selected)
         self._embroidery_params_editor.setEnabled(layer_selected)
+        self._flip_horizontal_action.setEnabled(layer_selected)
+        self._flip_vertical_action.setEnabled(layer_selected)
 
         # Only enable Edit Pixels if an ImageLayer is selected
         is_image_layer = False
@@ -1309,6 +1319,26 @@ class MainWindow(QMainWindow):
             layer = self.state.selected_layer
             if layer:
                 self.state.duplicate_layer(layer)
+
+    @Slot()
+    def _on_layer_flip_horizontal(self) -> None:
+        """Flips the selected layer horizontally."""
+        if self.state is None:
+            return
+        layer = self.state.selected_layer
+        if layer:
+            new_image, new_partitions = layer.flipped_image_and_partitions(True, False)
+            self.state.update_layer_image_and_partitions(layer, new_image, new_partitions)
+
+    @Slot()
+    def _on_layer_flip_vertical(self) -> None:
+        """Flips the selected layer vertically."""
+        if self.state is None:
+            return
+        layer = self.state.selected_layer
+        if layer:
+            new_image, new_partitions = layer.flipped_image_and_partitions(False, True)
+            self.state.update_layer_image_and_partitions(layer, new_image, new_partitions)
 
     @Slot()
     def _on_layer_fit_to_hoop(self) -> None:

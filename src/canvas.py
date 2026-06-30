@@ -3,6 +3,7 @@
 
 """The main canvas widget for the application."""
 
+import copy
 import logging
 from enum import IntEnum, auto
 
@@ -11,7 +12,7 @@ try:
 except ImportError:
     from typing_extensions import override
 
-from PySide6.QtCore import QPointF, QRectF, QSize, Qt, Signal, Slot
+from PySide6.QtCore import QPointF, QRectF, QSize, QSizeF, Qt, Signal, Slot
 from PySide6.QtGui import (
     QColor,
     QImage,
@@ -22,6 +23,7 @@ from PySide6.QtGui import (
     QPainterPath,
     QPaintEvent,
     QPen,
+    QTransform,
     QWheelEvent,
 )
 from PySide6.QtWidgets import QScrollArea, QWidget
@@ -56,11 +58,21 @@ class Canvas(QWidget):
         MOVE = auto()
         DRAWING = auto()
 
+    class HandleType(IntEnum):
+        NONE = 0
+        TOP_LEFT = 1
+        TOP_RIGHT = 2
+        BOTTOM_LEFT = 3
+        BOTTOM_RIGHT = 4
+        ROTATION = 5
+
     class ModeStatus(IntEnum):
         """The status of the current mode."""
 
         IDLE = auto()
         MOVING = auto()
+        SCALING = auto()
+        ROTATING = auto()
 
     def __init__(self, state: State | None):
         """
@@ -94,6 +106,12 @@ class Canvas(QWidget):
 
         self._mouse_start_coords = QPointF(0.0, 0.0)
         self._mouse_delta = QPointF(0.0, 0.0)
+        self._scale_preview = QSizeF(1.0, 1.0)
+        self._position_preview_delta = QPointF(0.0, 0.0)
+        self._rotation_preview = 0.0
+        self._active_handle = Canvas.HandleType.NONE
+        self._cached_handle_color = QColor(preferences.get_canvas_handle_color_name())
+
         self._mode = Canvas.Mode.MOVE
         self._mode_status = Canvas.ModeStatus.IDLE
 
@@ -107,6 +125,7 @@ class Canvas(QWidget):
             self._on_canvas_color_background_changed
         )
         preferences.canvas_hoop_color_changed.connect(self._on_hoop_color_changed)
+        preferences.canvas_handle_color_changed.connect(self._on_handle_color_changed)
         preferences.hoop_visible_changed.connect(self._on_hoop_visible_changed)
         preferences.hoop_size_changed.connect(self._on_hoop_size_changed)
 
@@ -158,17 +177,43 @@ class Canvas(QWidget):
             self._state.zoom_factor * DEFAULT_SCALE_FACTOR,
         )
 
+        # Get selected layer preview properties
+        selected_layer = self._state.selected_layer
+        sel_offset = None
+        sel_pixel_size = None
+        sel_rotation = None
+        if selected_layer:
+            sel_offset = selected_layer.position
+            sel_pixel_size = selected_layer.pixel_size
+            sel_rotation = selected_layer.rotation
+            if self._mode_status == Canvas.ModeStatus.MOVING:
+                sel_offset = selected_layer.position + self._mouse_delta
+            elif self._mode_status == Canvas.ModeStatus.SCALING:
+                sel_offset = selected_layer.position + self._position_preview_delta
+                sel_pixel_size = QSizeF(
+                    selected_layer.pixel_size.width() * self._scale_preview.width(),
+                    selected_layer.pixel_size.height() * self._scale_preview.height(),
+                )
+            elif self._mode_status == Canvas.ModeStatus.ROTATING:
+                sel_rotation = selected_layer.rotation + self._rotation_preview
+
         # 1. Draw the layers. Use the cached image to draw them
         for i, layer in enumerate(self._state.layers):
-            offset = layer.position
-            if self._state.selected_layer and layer.uuid == self._state.selected_layer.uuid:
-                offset = layer.position + self._mouse_delta
+            if selected_layer and layer.uuid == selected_layer.uuid:
+                offset = sel_offset
+                pixel_size = sel_pixel_size
+                rotation = sel_rotation
+            else:
+                offset = layer.position
+                pixel_size = layer.pixel_size
+                rotation = layer.rotation
+
             if layer.visible:
                 painter.save()
                 painter.setOpacity(layer.opacity)
                 # Scale the image based on pixel size
-                scaled_x = layer.image.width() * layer.pixel_size.width()
-                scaled_y = layer.image.height() * layer.pixel_size.height()
+                scaled_x = layer.image.width() * pixel_size.width()
+                scaled_y = layer.image.height() * pixel_size.height()
                 transformed_image = layer.image.scaled(
                     round(scaled_x),
                     round(scaled_y),
@@ -176,28 +221,17 @@ class Canvas(QWidget):
                     Qt.TransformationMode.FastTransformation,
                 )
                 painter.translate(scaled_x / 2 + offset.x(), scaled_y / 2 + offset.y())
-                painter.rotate(layer.rotation)
+                painter.rotate(rotation)
                 painter.translate(
                     -(scaled_x / 2 + offset.x()),
                     -(scaled_y / 2 + offset.y()),
                 )
                 painter.drawImage(offset, transformed_image)
-
-                # Draw rect around it
-                if (
-                    self._mode_status == Canvas.ModeStatus.MOVING
-                    and self._state.selected_layer == layer
-                ):
-                    brush = painter.brush()
-                    # FIXME: Move color to preferences
-                    brush.setColor(QColor(0, 0, 255, 16))  # Red, semi-transparent fill
-                    brush.setStyle(Qt.BrushStyle.SolidPattern)  # Solid fill
-                    painter.setBrush(brush)
-                    painter.setPen(QPen(Qt.GlobalColor.lightGray, 0.5, Qt.PenStyle.DashLine))
-                    rect = QRectF(offset.x(), offset.y(), scaled_x, scaled_y)
-                    painter.drawRect(rect)
-
                 painter.restore()
+
+                # Draw handles if selected
+                if selected_layer and layer.uuid == selected_layer.uuid:
+                    self._draw_layer_handles(painter, offset, pixel_size, rotation)
 
         # 2. Draw selected partition pixels
         layer = self._state.selected_layer
@@ -205,10 +239,10 @@ class Canvas(QWidget):
             layer is not None
             and layer.selected_partition_uuid is not None
             and layer.visible
-            and self._mode_status != Canvas.ModeStatus.MOVING
+            and self._mode_status == Canvas.ModeStatus.IDLE
             and show_selected_partition
         ):
-            offset = layer.position + self._mouse_delta
+            offset = layer.position
             painter.save()
             # Scale the image based on pixel size
             scaled_x = layer.image.width() * layer.pixel_size.width()
@@ -337,6 +371,17 @@ class Canvas(QWidget):
         self._cached_hoop_color = QColor(color)
         self.update()
 
+    @Slot(str)
+    def _on_handle_color_changed(self, color: str):
+        """
+        Slot for when the canvas handle color preference changes.
+
+        Args:
+            color: The new color as a hex string.
+        """
+        self._cached_handle_color = QColor(color)
+        self.update()
+
     @Slot(bool)
     def _on_hoop_visible_changed(self, visible: bool):
         """
@@ -398,6 +443,18 @@ class Canvas(QWidget):
         elif key == Qt.Key.Key_Minus:
             self.zoom_out()
             event.accept()
+        elif key == Qt.Key.Key_H:
+            layer = self._state.selected_layer
+            if layer:
+                new_image, new_partitions = layer.flipped_image_and_partitions(True, False)
+                self._state.update_layer_image_and_partitions(layer, new_image, new_partitions)
+            event.accept()
+        elif key == Qt.Key.Key_V:
+            layer = self._state.selected_layer
+            if layer:
+                new_image, new_partitions = layer.flipped_image_and_partitions(False, True)
+                self._state.update_layer_image_and_partitions(layer, new_image, new_partitions)
+            event.accept()
         else:
             super().keyPressEvent(event)
 
@@ -425,6 +482,91 @@ class Canvas(QWidget):
             # Pass to parent (QScrollArea) for scrolling
             super().wheelEvent(event)
 
+    def _get_layer_handles(self, layer: Layer) -> dict[HandleType, QPointF]:
+        """Calculates the positions of the handles in canvas coordinates."""
+        scale = self._state.zoom_factor * DEFAULT_SCALE_FACTOR
+        orig_w = layer.image.width() * layer.pixel_size.width()
+        orig_h = layer.image.height() * layer.pixel_size.height()
+        rect = QRectF(layer.position.x(), layer.position.y(), orig_w, orig_h)
+
+        transform = QTransform()
+        transform.translate(rect.center().x(), rect.center().y())
+        transform.rotate(layer.rotation)
+        transform.translate(-rect.center().x(), -rect.center().y())
+
+        handles = {
+            Canvas.HandleType.TOP_LEFT: transform.map(rect.topLeft()),
+            Canvas.HandleType.TOP_RIGHT: transform.map(rect.topRight()),
+            Canvas.HandleType.BOTTOM_LEFT: transform.map(rect.bottomLeft()),
+            Canvas.HandleType.BOTTOM_RIGHT: transform.map(rect.bottomRight()),
+        }
+
+        # Rotation handle: extend from top-center
+        rotation_extension_canvas = 20 / scale
+        local_rot_point = QPointF(rect.center().x(), rect.top() - rotation_extension_canvas)
+        handles[Canvas.HandleType.ROTATION] = transform.map(local_rot_point)
+
+        return handles
+
+    def _draw_layer_handles(
+        self, painter: QPainter, position: QPointF, pixel_size: QSizeF, rotation: float
+    ):
+        """Draws the bounding box and interactive handles for the selected layer."""
+        scale = self._state.zoom_factor * DEFAULT_SCALE_FACTOR
+        handle_size_canvas = 8 / scale
+
+        layer = self._state.selected_layer
+        if not layer:
+            return
+
+        orig_w = layer.image.width() * pixel_size.width()
+        orig_h = layer.image.height() * pixel_size.height()
+        rect = QRectF(position.x(), position.y(), orig_w, orig_h)
+
+        transform = QTransform()
+        transform.translate(rect.center().x(), rect.center().y())
+        transform.rotate(rotation)
+        transform.translate(-rect.center().x(), -rect.center().y())
+
+        pts = [
+            transform.map(rect.topLeft()),
+            transform.map(rect.topRight()),
+            transform.map(rect.bottomRight()),
+            transform.map(rect.bottomLeft()),
+        ]
+
+        painter.save()
+
+        # Draw bounding box
+        painter.setPen(QPen(self._cached_handle_color, 1 / scale, Qt.PenStyle.DashLine))
+        painter.setBrush(Qt.BrushStyle.NoBrush)
+        painter.drawPolygon(pts)
+
+        # Draw rotation line
+        top_center = (pts[0] + pts[1]) / 2
+        rotation_extension_canvas = 20 / scale
+        local_rot_point = QPointF(rect.center().x(), rect.top() - rotation_extension_canvas)
+        rot_point = transform.map(local_rot_point)
+        painter.drawLine(top_center, rot_point)
+
+        # Draw scale handles (squares)
+        painter.setPen(QPen(self._cached_handle_color, 1 / scale, Qt.PenStyle.SolidLine))
+        painter.setBrush(self._cached_handle_color)
+        for pt in pts:
+            painter.drawRect(
+                QRectF(
+                    pt.x() - handle_size_canvas / 2,
+                    pt.y() - handle_size_canvas / 2,
+                    handle_size_canvas,
+                    handle_size_canvas,
+                )
+            )
+
+        # Draw rotation handle (circle)
+        painter.drawEllipse(rot_point, handle_size_canvas / 2, handle_size_canvas / 2)
+
+        painter.restore()
+
     def _get_layer_at_position(self, pos: QPointF) -> Layer | None:
         """
         Finds the visible layer at the given canvas widget position.
@@ -451,7 +593,7 @@ class Canvas(QWidget):
     @override
     def mousePressEvent(self, event: QMouseEvent):
         """
-        Handles mouse press events for panning and layer selection.
+        Handles mouse press events for panning, layer selection, and handle interaction.
 
         Args:
             event: The mouse event.
@@ -471,10 +613,42 @@ class Canvas(QWidget):
         if event.button() != Qt.LeftButton:
             event.ignore()
             return
-        event.accept()
 
+        scale = self._state.zoom_factor * DEFAULT_SCALE_FACTOR
+        pos_canvas = event.position() / scale
+
+        # Check handles of selected layer first
+        selected_layer = self._state.selected_layer
+        if selected_layer:
+            handles = self._get_layer_handles(selected_layer)
+            for handle_type, pt in handles.items():
+                dist = (pt - pos_canvas).manhattanLength() * scale  # distance in pixels
+                if dist < 8:  # 8 pixels tolerance
+                    event.accept()
+                    self._active_handle = handle_type
+                    self._mouse_start_coords = event.position()
+                    if handle_type == Canvas.HandleType.ROTATION:
+                        self._mode_status = Canvas.ModeStatus.ROTATING
+                        self._start_rotation = selected_layer.rotation
+                    else:
+                        self._mode_status = Canvas.ModeStatus.SCALING
+                        self._start_pixel_size = selected_layer.pixel_size
+                        self._start_position = selected_layer.position
+                        # Determine anchor (opposite corner)
+                        anchor_map = {
+                            Canvas.HandleType.TOP_LEFT: Canvas.HandleType.BOTTOM_RIGHT,
+                            Canvas.HandleType.TOP_RIGHT: Canvas.HandleType.BOTTOM_LEFT,
+                            Canvas.HandleType.BOTTOM_LEFT: Canvas.HandleType.TOP_RIGHT,
+                            Canvas.HandleType.BOTTOM_RIGHT: Canvas.HandleType.TOP_LEFT,
+                        }
+                        self._scale_anchor_type = anchor_map[handle_type]
+                        self._global_anchor = handles[self._scale_anchor_type]
+                    return
+
+        # If no handle hit, check if we hit any layer
         layer = self._get_layer_at_position(event.position())
         if layer:
+            event.accept()
             self._mouse_start_coords = event.position()
             self._mode_status = Canvas.ModeStatus.MOVING
             if layer.uuid != self._state.selected_layer_uuid:
@@ -484,7 +658,7 @@ class Canvas(QWidget):
     @override
     def mouseMoveEvent(self, event: QMouseEvent):
         """
-        Handles mouse move events for panning and moving layers.
+        Handles mouse move events for panning, moving, scaling, and rotating layers.
 
         Args:
             event: The mouse event.
@@ -511,19 +685,117 @@ class Canvas(QWidget):
         if self._mode != Canvas.Mode.MOVE:
             event.ignore()
             return
-        if self._mode_status != Canvas.ModeStatus.MOVING:
-            event.ignore()
-            return
-        event.accept()
-        delta = event.position() - self._mouse_start_coords
-        scale_factor = self._state.zoom_factor * DEFAULT_SCALE_FACTOR
-        self._mouse_delta = QPointF(delta.x() / scale_factor, delta.y() / scale_factor)
-        self.update()
+
+        scale = self._state.zoom_factor * DEFAULT_SCALE_FACTOR
+
+        if self._mode_status == Canvas.ModeStatus.MOVING:
+            event.accept()
+            delta = event.position() - self._mouse_start_coords
+            self._mouse_delta = QPointF(delta.x() / scale, delta.y() / scale)
+            self.update()
+
+        elif self._mode_status == Canvas.ModeStatus.ROTATING:
+            event.accept()
+            layer = self._state.selected_layer
+            if not layer:
+                return
+
+            # Calculate center in canvas coordinates
+            orig_w = layer.image.width() * layer.pixel_size.width()
+            orig_h = layer.image.height() * layer.pixel_size.height()
+            rect = QRectF(layer.position.x(), layer.position.y(), orig_w, orig_h)
+            center = rect.center()
+
+            start_pos_canvas = self._mouse_start_coords / scale
+            curr_pos_canvas = event.position() / scale
+
+            v_start = start_pos_canvas - center
+            v_curr = curr_pos_canvas - center
+
+            import math
+
+            angle_start = math.atan2(v_start.y(), v_start.x()) * 180 / math.pi
+            angle_curr = math.atan2(v_curr.y(), v_curr.x()) * 180 / math.pi
+
+            delta_angle = angle_curr - angle_start
+            new_rotation = self._start_rotation + delta_angle
+
+            if event.modifiers() & Qt.KeyboardModifier.ShiftModifier:
+                # Snap to 15 degrees
+                new_rotation = round(new_rotation / 15) * 15
+
+            self._rotation_preview = new_rotation - layer.rotation
+            self.update()
+
+        elif self._mode_status == Canvas.ModeStatus.SCALING:
+            event.accept()
+            layer = self._state.selected_layer
+            if not layer:
+                return
+
+            orig_w = layer.image.width() * layer.pixel_size.width()
+            orig_h = layer.image.height() * layer.pixel_size.height()
+            rect = QRectF(layer.position.x(), layer.position.y(), orig_w, orig_h)
+
+            transform = QTransform()
+            transform.translate(rect.center().x(), rect.center().y())
+            transform.rotate(layer.rotation)
+            transform.translate(-rect.center().x(), -rect.center().y())
+
+            inverse_transform, invertible = transform.inverted()
+            if not invertible:
+                return
+
+            curr_pos_canvas = event.position() / scale
+            local_mouse = inverse_transform.map(curr_pos_canvas)
+            local_anchor = inverse_transform.map(self._global_anchor)
+
+            # New local width and height
+            new_w = abs(local_mouse.x() - local_anchor.x())
+            new_h = abs(local_mouse.y() - local_anchor.y())
+
+            # Prevent zero size
+            new_w = max(1.0, new_w)
+            new_h = max(1.0, new_h)
+
+            if event.modifiers() & Qt.KeyboardModifier.ShiftModifier:
+                # Lock aspect ratio
+                orig_ratio = orig_w / orig_h
+                if new_w / new_h > orig_ratio:
+                    new_w = new_h * orig_ratio
+                else:
+                    new_h = new_w / orig_ratio
+
+            # Scale preview multipliers
+            self._scale_preview = QSizeF(new_w / orig_w, new_h / orig_h)
+
+            # Calculate new position to keep anchor fixed
+            new_center_local = QPointF(new_w / 2, new_h / 2)
+
+            local_anchor_relative = QPointF(0, 0)
+            if self._scale_anchor_type == Canvas.HandleType.BOTTOM_RIGHT:
+                local_anchor_relative = QPointF(new_w, new_h)
+            elif self._scale_anchor_type == Canvas.HandleType.BOTTOM_LEFT:
+                local_anchor_relative = QPointF(0, new_h)
+            elif self._scale_anchor_type == Canvas.HandleType.TOP_RIGHT:
+                local_anchor_relative = QPointF(new_w, 0)
+            elif self._scale_anchor_type == Canvas.HandleType.TOP_LEFT:
+                local_anchor_relative = QPointF(0, 0)
+
+            v_anchor_local_new = local_anchor_relative - new_center_local
+
+            rot_transform = QTransform().rotate(layer.rotation)
+            v_anchor_global_new = rot_transform.map(v_anchor_local_new)
+
+            new_position = self._global_anchor - v_anchor_global_new - new_center_local
+            self._position_preview_delta = new_position - layer.position
+
+            self.update()
 
     @override
     def mouseReleaseEvent(self, event: QMouseEvent):
         """
-        Handles mouse release events to finalize panning or moving layers.
+        Handles mouse release events to finalize transformations (move, scale, rotate).
 
         Args:
             event: The mouse event.
@@ -540,7 +812,7 @@ class Canvas(QWidget):
         if self._mode != Canvas.Mode.MOVE:
             event.ignore()
             return
-        if self._mode_status != Canvas.ModeStatus.MOVING:
+        if self._mode_status == Canvas.ModeStatus.IDLE:
             event.ignore()
             return
         if event.button() != Qt.LeftButton:
@@ -548,16 +820,54 @@ class Canvas(QWidget):
             return
         event.accept()
 
-        self._mode_status = Canvas.ModeStatus.IDLE
-        delta = event.position() - self._mouse_start_coords
-        scale_factor = self._state.zoom_factor * DEFAULT_SCALE_FACTOR
-        orig_pos = self._state.selected_layer.position
-        new_pos = QPointF(
-            orig_pos.x() + delta.x() / scale_factor, orig_pos.y() + delta.y() / scale_factor
-        )
-        self.position_changed.emit(new_pos)
+        layer = self._state.selected_layer
+        if not layer:
+            self._mode_status = Canvas.ModeStatus.IDLE
+            return
+
+        if self._mode_status == Canvas.ModeStatus.MOVING:
+            self._mode_status = Canvas.ModeStatus.IDLE
+            delta = event.position() - self._mouse_start_coords
+            scale_factor = self._state.zoom_factor * DEFAULT_SCALE_FACTOR
+            orig_pos = layer.position
+            new_pos = QPointF(
+                orig_pos.x() + delta.x() / scale_factor, orig_pos.y() + delta.y() / scale_factor
+            )
+            self.position_changed.emit(new_pos)
+
+        elif self._mode_status == Canvas.ModeStatus.ROTATING:
+            self._mode_status = Canvas.ModeStatus.IDLE
+            new_rotation = int(layer.rotation + self._rotation_preview) % 360
+            if new_rotation < 0:
+                new_rotation += 360
+
+            self._rotation_preview = 0.0
+
+            props = copy.deepcopy(layer.properties)
+            props.rotation = new_rotation
+            self._state.set_layer_properties(layer, props)
+
+        elif self._mode_status == Canvas.ModeStatus.SCALING:
+            self._mode_status = Canvas.ModeStatus.IDLE
+
+            new_pixel_size = (
+                layer.pixel_size.width() * self._scale_preview.width(),
+                layer.pixel_size.height() * self._scale_preview.height(),
+            )
+            new_position = layer.position + self._position_preview_delta
+
+            self._scale_preview = QSizeF(1.0, 1.0)
+            self._position_preview_delta = QPointF(0.0, 0.0)
+
+            props = copy.deepcopy(layer.properties)
+            props.pixel_size = new_pixel_size
+            props.position = (new_position.x(), new_position.y())
+            self._state.set_layer_properties(layer, props)
+
+        self._active_handle = Canvas.HandleType.NONE
         self._mouse_start_coords = QPointF(0.0, 0.0)
         self._mouse_delta = QPointF(0.0, 0.0)
+        self.update()
 
     @override
     def mouseDoubleClickEvent(self, event: QMouseEvent):
@@ -616,6 +926,9 @@ class Canvas(QWidget):
     #
     def on_preferences_updated(self):
         """Updates the preference cache."""
+        prefs = get_global_preferences()
+        self._cached_handle_color = QColor(prefs.get_canvas_handle_color_name())
+
         if self._state:
             self._cached_hoop_size = self._state.hoop_size
             self._cached_hoop_visible = self._state.hoop_visible
@@ -623,7 +936,6 @@ class Canvas(QWidget):
             self._cached_canvas_background_color = QColor(self._state.canvas_background_color)
             self._cached_partition_background_color = QColor(self._state.partition_background_color)
         else:
-            prefs = get_global_preferences()
             self._cached_hoop_visible = prefs.get_hoop_visible()
             self._cached_hoop_size = prefs.get_hoop_size()
             self._cached_hoop_color = QColor(prefs.get_hoop_color_name())

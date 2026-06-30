@@ -14,6 +14,7 @@ from PySide6.QtGui import QColor, QImage, QTransform
 import image_utils
 from image_parser import ImageParser
 from partition import Partition
+from shape import Path, Point, Rect
 
 logger = logging.getLogger(__name__)
 
@@ -296,6 +297,38 @@ class Layer:
                 new_pos = (old_pos[0], (hoop_size[1] * INCHES_TO_MM - rot_h - diff_h))
 
         return new_pos
+
+    def flipped_image_and_partitions(
+        self, horizontal: bool, vertical: bool
+    ) -> tuple[QImage, dict[str, Partition]]:
+        """
+        Returns a flipped version of the layer's image and its partitions.
+        Does not mutate the layer itself.
+        """
+        flipped_image = self._image.mirrored(horizontal, vertical)
+        width = self._image.width()
+        height = self._image.height()
+
+        flipped_partitions = {}
+        for uuid_str, partition in self._partitions.items():
+            new_route = []
+            for shape in partition.route:
+                if isinstance(shape, Rect):
+                    new_x = width - 1 - shape.x if horizontal else shape.x
+                    new_y = height - 1 - shape.y if vertical else shape.y
+                    new_route.append(Rect(new_x, new_y))
+                elif isinstance(shape, Path):
+                    new_points = []
+                    for p in shape.path:
+                        new_px = width - p.x if horizontal else p.x
+                        new_py = height - p.y if vertical else p.y
+                        new_points.append(Point(new_px, new_py))
+                    new_route.append(Path(new_points))
+
+            new_partition = Partition(new_route, partition.name, partition.color)
+            flipped_partitions[uuid_str] = new_partition
+
+        return flipped_image, flipped_partitions
 
     def clone(self) -> "Layer":
         # Create a new instance using the constructor

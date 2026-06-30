@@ -38,6 +38,7 @@ class ColorType(IntEnum):
     PARTITION_BACKGROUND = auto()
     CANVAS_BACKGROUND = auto()
     HOOP_FOREGROUND = auto()
+    CANVAS_HANDLES = auto()
 
 
 class PreferenceDialog(QDialog):
@@ -56,6 +57,7 @@ class PreferenceDialog(QDialog):
             ColorType.PARTITION_BACKGROUND: {},
             ColorType.CANVAS_BACKGROUND: {},
             ColorType.HOOP_FOREGROUND: {},
+            ColorType.CANVAS_HANDLES: {},
         }
         self._colors[ColorType.PARTITION_FOREGROUND]["color"] = QColor(
             self._settings.get_partition_foreground_color_name()
@@ -68,6 +70,9 @@ class PreferenceDialog(QDialog):
         )
         self._colors[ColorType.HOOP_FOREGROUND]["color"] = QColor(
             self._settings.get_hoop_color_name()
+        )
+        self._colors[ColorType.CANVAS_HANDLES]["color"] = QColor(
+            get_global_preferences().get_canvas_handle_color_name()
         )
 
         if self._is_global:
@@ -151,6 +156,21 @@ class PreferenceDialog(QDialog):
         self._update_color_label(ColorType.CANVAS_BACKGROUND)
 
         canvas_color_vlayout.addLayout(canvas_color_hlayout)
+
+        if self._is_global:
+            canvas_handle_color_hlayout = QHBoxLayout()
+            label = QLabel(self.tr("Handle color"))
+            button = QPushButton()
+            button.clicked.connect(
+                functools.partial(self._on_choose_color, ColorType.CANVAS_HANDLES)
+            )
+            canvas_handle_color_hlayout.addWidget(label)
+            canvas_handle_color_hlayout.addWidget(button)
+            self._colors[ColorType.CANVAS_HANDLES]["label"] = label
+            self._colors[ColorType.CANVAS_HANDLES]["button"] = button
+            self._update_color_label(ColorType.CANVAS_HANDLES)
+            canvas_color_vlayout.addLayout(canvas_handle_color_hlayout)
+
         canvas_color_group.setLayout(canvas_color_vlayout)
 
         # Partition Properties
@@ -289,6 +309,10 @@ class PreferenceDialog(QDialog):
         self._settings.set_hoop_color_name(
             self._colors[ColorType.HOOP_FOREGROUND]["color"].name(QColor.HexArgb)
         )
+        if self._is_global:
+            get_global_preferences().set_canvas_handle_color_name(
+                self._colors[ColorType.CANVAS_HANDLES]["color"].name(QColor.HexArgb)
+            )
 
         if self._is_global:
             self._settings.set_delete_point_enabled(self._delete_point_checkbox.isChecked())

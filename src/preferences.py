@@ -16,6 +16,7 @@ class Preferences(QObject):
     partition_background_color_changed = Signal(str)
     canvas_background_color_changed = Signal(str)
     canvas_hoop_color_changed = Signal(str)
+    canvas_handle_color_changed = Signal(str)
     hoop_visible_changed = Signal(bool)
     hoop_size_changed = Signal(tuple)
 
@@ -25,6 +26,10 @@ class Preferences(QObject):
         self._recent_files = []
 
         self._load_recent_files()
+
+        # Migration: Correct transparent handle color if it was saved
+        if self.get_canvas_handle_color_name() == "#007acdff":
+            self.set_canvas_handle_color_name("#ff007acd")
 
     def get_window_geometry(self) -> typing.Any:
         return self._settings.value("main_window/window_geometry", defaultValue=None)
@@ -149,6 +154,15 @@ class Preferences(QObject):
         if current != color:
             self._settings.setValue("canvas/background_color", color)
             self.canvas_background_color_changed.emit(color)
+
+    def get_canvas_handle_color_name(self) -> str:
+        return str(self._settings.value("canvas/handle_color", defaultValue="#ff007acd"))
+
+    def set_canvas_handle_color_name(self, color: str):
+        current = self.get_canvas_handle_color_name()
+        if current != color:
+            self._settings.setValue("canvas/handle_color", color)
+            self.canvas_handle_color_changed.emit(color)
 
     def set_delete_point_enabled(self, enabled: bool) -> None:
         self._settings.setValue("partition/delete_point_enabled", enabled)

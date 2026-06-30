@@ -365,14 +365,22 @@ class State(QObject):
     @selected_layer_uuid.setter
     def selected_layer_uuid(self, uuid: str | None):
         if uuid is None:
-            self._properties.selected_layer_uuid = uuid
+            if self._properties.selected_layer_uuid is not None:
+                self._properties.selected_layer_uuid = uuid
+                self.state_property_changed.emit(
+                    StatePropertyFlags.SELECTED_LAYER_UUID, self.properties
+                )
             return
         if uuid not in self._layers:
             logger.error(
                 f"Failed to change selected_layer_uuid. Layer UUID '{uuid}' not found in state layers: {self._layers}"
             )
             return
-        self._properties.selected_layer_uuid = uuid
+        if self._properties.selected_layer_uuid != uuid:
+            self._properties.selected_layer_uuid = uuid
+            self.state_property_changed.emit(
+                StatePropertyFlags.SELECTED_LAYER_UUID, self.properties
+            )
 
     def _set_layers(self, layers: list[Layer]) -> None:
         self._layers = {}
@@ -500,7 +508,7 @@ class State(QObject):
 
     def _add_layer(self, layer: Layer) -> None:
         self._layers[layer.uuid] = layer
-        self._properties.selected_layer_uuid = layer.uuid
+        self.selected_layer_uuid = layer.uuid
         self.layer_added.emit(layer)
 
     def _delete_layer(self, layer: Layer) -> None:
@@ -509,9 +517,9 @@ class State(QObject):
 
             # if there are no elements left, idx = -1
             if len(self._layers) > 0:
-                self._properties.selected_layer_uuid = list(self._layers.keys())[-1]
+                self.selected_layer_uuid = list(self._layers.keys())[-1]
             else:
-                self._properties.selected_layer_uuid = None
+                self.selected_layer_uuid = None
 
             self.layer_removed.emit(layer)
         except ValueError:
