@@ -31,10 +31,11 @@ For each partition:
    * **Priority 2: Minimize Path Length**. Among routes with the same (minimum) number of jump stitches, choose the one with the shortest total length (both the pixel-to-pixel traversal and the connection paths).
 
 3. **Traversal within a component**:
-   * Order the pixels (`rect` shapes) in a continuous sequence (e.g., using a snake-like traversal or nearest-neighbor) to minimize stitching distance.
+   * Build a graph of adjacent pixels from the image returned by `pixem_get_layer_image`.
+   * Order the pixels (`rect` shapes) in a continuous sequence of adjacent pixels (including diagonal adjacencies) to form a continuous path.
+   * **Rule**: Do NOT use `pixem_find_auto_path` for pixels within the same connected component. They must be traversed directly as adjacent `rect` shapes.
 4. **Connecting disconnected components**:
-   * To connect two disconnected clusters of the same color, do not use a straight line that crosses other colors.
-   * Instead, use the **`pixem_find_auto_path`** tool:
+   * Only use the **`pixem_find_auto_path`** tool to connect separate, disconnected components:
      ```json
      pixem_find_auto_path(
        layer_uuid="...",

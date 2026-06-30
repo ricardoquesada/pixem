@@ -5,7 +5,7 @@ import copy
 import logging
 from enum import IntEnum, auto
 
-from PySide6.QtGui import QUndoCommand
+from PySide6.QtGui import QImage, QUndoCommand
 
 from layer import Layer, LayerProperties, TextLayer
 from partition import Partition
@@ -240,6 +240,34 @@ class UpdateLayerPartitionsCommand(QUndoCommand):
 
     def redo(self) -> None:
         self._state._update_layer_partitions(self._layer, self._new_partitions)
+
+
+class UpdateLayerImageCommand(QUndoCommand):
+    def __init__(
+        self,
+        state,
+        layer: Layer,
+        new_image: QImage,
+        new_partitions: dict[str, Partition],
+        parent: QUndoCommand | None,
+    ):
+        super().__init__(f"Edit Layer Pixels: {layer.name}", parent)
+        self._state = state
+        self._layer = layer
+        self._new_image = new_image.copy()
+        self._old_image = layer.image.copy()
+        self._new_partitions = copy.copy(new_partitions)
+        self._old_partitions = copy.copy(layer.partitions)
+
+    def undo(self) -> None:
+        self._state._update_layer_image_and_partitions(
+            self._layer, self._old_image, self._old_partitions
+        )
+
+    def redo(self) -> None:
+        self._state._update_layer_image_and_partitions(
+            self._layer, self._new_image, self._new_partitions
+        )
 
 
 class DeletePartitionCommand(QUndoCommand):

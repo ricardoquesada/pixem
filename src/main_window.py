@@ -65,6 +65,7 @@ from image_utils import create_icon_from_svg
 from layer import EmbroideryParameters, ImageLayer, Layer, LayerAlign, LayerProperties, TextLayer
 from partition import Partition
 from partition_dialog import PartitionDialog
+from pixel_editor_dialog import PixelEditorDialog
 from preference_dialog import PreferenceDialog
 from preferences import get_global_preferences
 from state import State
@@ -121,6 +122,7 @@ class MainWindow(QMainWindow):
         self._undo_group = QUndoGroup(self)
         self._connected_doc = None
         self._active_workers = set()
+        self._last_stack_indexes = {}
         self._setup_ui()
 
         self._save_default_settings()
@@ -266,13 +268,9 @@ class MainWindow(QMainWindow):
         edit_menu.addAction(self._canvas_mode_move_action)
 
         icon = create_icon_from_svg(":/icons/svg/actions/draw-freehand-symbolic.svg")
-        self._canvas_mode_drawing_action = QAction(icon, self.tr("Drawing Mode"), self)
-        self._canvas_mode_drawing_action.setCheckable(True)
-        self._canvas_mode_drawing_action.setChecked(False)
-        self._canvas_mode_drawing_action.triggered.connect(self._on_canvas_mode_drawing)
-        edit_menu.addAction(self._canvas_mode_drawing_action)
-        # FIXME: Enable "Drawing" mode
-        self._canvas_mode_drawing_action.setEnabled(False)
+        self._edit_layer_pixels_action = QAction(icon, self.tr("Edit Layer Pixels"), self)
+        self._edit_layer_pixels_action.triggered.connect(self._on_edit_layer_pixels)
+        edit_menu.addAction(self._edit_layer_pixels_action)
 
         edit_menu.addSeparator()
 
@@ -446,7 +444,7 @@ class MainWindow(QMainWindow):
         self._toolbar.addSeparator()
 
         self._toolbar.addAction(self._canvas_mode_move_action)
-        self._toolbar.addAction(self._canvas_mode_drawing_action)
+        self._toolbar.addAction(self._edit_layer_pixels_action)
         self._toolbar.addSeparator()
 
         # Add Align actions
@@ -737,6 +735,13 @@ class MainWindow(QMainWindow):
         self._property_editor.setEnabled(layer_selected)
         self._embroidery_params_editor.setEnabled(layer_selected)
 
+        # Only enable Edit Pixels if an ImageLayer is selected
+        is_image_layer = False
+        if layer_selected and self.state:
+            layer = self.state.selected_layer
+            is_image_layer = isinstance(layer, ImageLayer)
+        self._edit_layer_pixels_action.setEnabled(is_image_layer)
+
     def _load_settings(self):
         """Loads window geometry and state from global preferences."""
         prefs = get_global_preferences()
@@ -1002,6 +1007,8 @@ class MainWindow(QMainWindow):
                     or color_name != layer.color_name
                 ):
                     self.state.update_text_layer(layer, text, font_name, color_name)
+        elif isinstance(layer, ImageLayer):
+            self._edit_layer_pixels(layer)
 
     #
     # pyside6 events
@@ -1870,17 +1877,33 @@ class MainWindow(QMainWindow):
     def _on_canvas_mode_move(self):
         """Switches the canvas to 'Move' mode."""
         self._canvas_mode_move_action.setChecked(True)
-        self._canvas_mode_drawing_action.setChecked(False)
         if self.canvas:
             self.canvas.mode = Canvas.Mode.MOVE
 
+    def _edit_layer_pixels(self, layer: ImageLayer):
+        dialog = PixelEditorDialog(layer.image, self)
+        if dialog.exec() == QDialog.Accepted:
+            new_image = dialog.get_image()
+            if new_image != layer.image:
+                temp_layer = ImageLayer(new_image)
+
+                def on_parsing_finished(parsed_layer):
+                    self.state.update_layer_image_and_partitions(
+                        layer, new_image, parsed_layer.partitions
+                    )
+
+                self._parse_layer_asynchronously(
+                    temp_layer, QColor(self.state.canvas_background_color), on_parsing_finished
+                )
+
     @Slot()
-    def _on_canvas_mode_drawing(self):
-        """Switches the canvas to 'Drawing' mode."""
-        self._canvas_mode_move_action.setChecked(False)
-        self._canvas_mode_drawing_action.setChecked(True)
-        if self.canvas:
-            self.canvas.mode = Canvas.Mode.DRAWING
+    def _on_edit_layer_pixels(self):
+        """Slot to edit the pixels of the selected image layer."""
+        if self.state is None:
+            return
+        layer = self.state.selected_layer
+        if isinstance(layer, ImageLayer):
+            self._edit_layer_pixels(layer)
 
     @property
     def active_document(self) -> Document | None:
@@ -1907,6 +1930,7 @@ class MainWindow(QMainWindow):
 
         # Add undo stack to group
         self._undo_group.addStack(doc.state.undo_stack)
+        doc.state.undo_stack.indexChanged.connect(self._on_undo_stack_index_changed)
 
         return doc
 
@@ -2485,6 +2509,30 @@ class MainWindow(QMainWindow):
             future.set_result({"success": True})
         except Exception as e:
             future.set_exception(e)
+
+    @Slot(int)
+    def _on_undo_stack_index_changed(self, index: int):
+        from PySide6.QtGui import QUndoStack
+
+        stack = self.sender()
+        if not isinstance(stack, QUndoStack):
+            return
+
+        last_index = self._last_stack_indexes.get(stack, 0)
+        self._last_stack_indexes[stack] = index
+
+        # Only show if it's the active stack
+        if stack != self._undo_group.activeStack():
+            return
+
+        if index > last_index:
+            command = stack.command(index - 1)
+            if command:
+                self.statusBar().showMessage(command.text(), 5000)
+        elif index < last_index:
+            command = stack.command(index)
+            if command:
+                self.statusBar().showMessage(self.tr("Undone: ") + command.text(), 5000)
 
     @Slot(dict, Future)
     def _on_mcp_set_project_properties(self, props: dict, future: Future):

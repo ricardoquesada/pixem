@@ -20,6 +20,7 @@ from undo_commands import (
     AddLayerCommand,
     DeleteLayerCommand,
     DeletePartitionCommand,
+    UpdateLayerImageCommand,
     UpdateLayerNameCommand,
     UpdateLayerOpacityCommand,
     UpdateLayerPartitionsCommand,
@@ -332,6 +333,16 @@ class State(QObject):
             UpdateTextLayerCommand(self, layer, text, font_name, color_name, None)
         )
 
+    def update_layer_image_and_partitions(
+        self, layer: Layer, new_image: QImage, new_partitions: dict[str, Partition]
+    ):
+        if layer.uuid not in self._layers:
+            logger.error(
+                f"Cannot update layer image/partitions. Layer {layer.name} does not belong to this state"
+            )
+            return
+        self._undo_stack.push(UpdateLayerImageCommand(self, layer, new_image, new_partitions, None))
+
     @property
     def undo_stack(self) -> QUndoStack:
         return self._undo_stack
@@ -587,3 +598,15 @@ class State(QObject):
             return
         self._layers[new_layer.uuid] = new_layer
         self.layer_pixels_changed.emit(new_layer)
+
+    def _update_layer_image_and_partitions(
+        self, layer: Layer, image: QImage, partitions: dict[str, Partition]
+    ):
+        if layer.uuid not in self._layers:
+            logger.error(
+                f"Cannot update layer image/partitions. Layer {layer.name} does not belong to this state"
+            )
+            return
+        layer.image = image
+        layer.partitions = partitions
+        self.layer_pixels_changed.emit(layer)

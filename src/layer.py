@@ -136,6 +136,10 @@ class Layer:
     def image(self) -> QImage:
         return self._image
 
+    @image.setter
+    def image(self, value: QImage):
+        self._image = value
+
     @property
     def properties(self) -> LayerProperties:
         return self._properties

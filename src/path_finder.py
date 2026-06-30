@@ -73,6 +73,13 @@ class PathFinder:
         difference of adjacent pixels. Otherwise, all edges have a weight of 1.
         """
 
+        # Use a tuple key to cache both weighted and unweighted graphs
+        graph_key = (color, use_weights)
+        if graph_key in self._vertex_graph:
+            return self._vertex_graph[graph_key]
+
+        weight_cache = {}
+
         def is_solid(px: int, py: int) -> bool:
             if 0 <= px < self._width and 0 <= py < self._height:
                 return self._image_matrix[px][py] != -1
@@ -89,16 +96,16 @@ class PathFinder:
             if px_color_val == -1:
                 return sys.maxsize
 
+            if px_color_val in weight_cache:
+                return weight_cache[px_color_val]
+
             color1 = Color(f"#{color:06x}")
             color2 = Color(f"#{px_color_val:06x}")
             delta_e = color1.delta_e(color2, method="2000")
             w = 1 + 0.1 * (delta_e**2)
-            return int(w)
-
-        # Use a tuple key to cache both weighted and unweighted graphs
-        graph_key = (color, use_weights)
-        if graph_key in self._vertex_graph:
-            return self._vertex_graph[graph_key]
+            weight_val = int(w)
+            weight_cache[px_color_val] = weight_val
+            return weight_val
 
         G = nx.Graph()
         w_vertex, h_vertex = self._width + 1, self._height + 1

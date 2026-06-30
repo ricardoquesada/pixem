@@ -9,10 +9,16 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../src"))
 from PySide6.QtGui import QColor, QImage
 
 from layer import Layer, LayerProperties
+from partition import Partition
 from partition_dialog import UpdateShapesCommand
 from shape import Rect
 from state import State
-from undo_commands import AddLayerCommand, DeleteLayerCommand, UpdateLayerPropertiesCommand
+from undo_commands import (
+    AddLayerCommand,
+    DeleteLayerCommand,
+    UpdateLayerImageCommand,
+    UpdateLayerPropertiesCommand,
+)
 
 
 class TestUndoCommands(unittest.TestCase):
@@ -74,6 +80,26 @@ class TestUndoCommands(unittest.TestCase):
 
         cmd.redo()
         self.assertEqual(self.layer.name, "Renamed Layer")
+
+    def test_update_layer_image_command(self):
+        self.state.add_layer(self.layer)
+
+        new_image = QImage(5, 5, QImage.Format_ARGB32)
+        new_image.fill(QColor("blue"))
+
+        new_partitions = {"part1": Partition([])}
+
+        cmd = UpdateLayerImageCommand(self.state, self.layer, new_image, new_partitions, None)
+
+        cmd.redo()
+        self.assertEqual(self.layer.image.width(), 5)
+        self.assertEqual(self.layer.image.pixelColor(0, 0), QColor("blue"))
+        self.assertEqual(self.layer.partitions, new_partitions)
+
+        cmd.undo()
+        self.assertEqual(self.layer.image.width(), 10)
+        self.assertEqual(self.layer.image.pixelColor(0, 0), QColor("red"))
+        self.assertEqual(self.layer.partitions, {})
 
 
 class TestPartitionDialogUndo(unittest.TestCase):
