@@ -51,6 +51,7 @@ class Canvas(QWidget):
     position_changed = Signal(QPointF)
     layer_selection_changed = Signal(str)
     layer_double_clicked = Signal(str)
+    cursor_position_changed = Signal(object, object, object, object)
 
     class Mode(IntEnum):
         """The operating mode of the canvas."""
@@ -83,6 +84,7 @@ class Canvas(QWidget):
         """
         super().__init__()
         self._state = state
+        self.setMouseTracking(True)
 
         preferences = get_global_preferences()
         if self._state is None:
@@ -111,6 +113,8 @@ class Canvas(QWidget):
         self._rotation_preview = 0.0
         self._active_handle = Canvas.HandleType.NONE
         self._cached_handle_color = QColor(preferences.get_canvas_handle_color_name())
+        self._pan_last_pos = None
+        self._space_held = False
 
         self._cached_grid_visible = preferences.get_grid_visible()
         self._cached_grid_size = preferences.get_grid_size_mm()
@@ -155,6 +159,56 @@ class Canvas(QWidget):
         if self._state:
             self._state.zoom_factor = 1
             self.recalculate_fixed_size()
+
+    def zoom_fit(self):
+        """Fits the canvas zoom to the parent viewport size."""
+        if not self._state:
+            return
+
+        # Find the parent QScrollArea viewport
+        scroll_area = self
+        while scroll_area and not isinstance(scroll_area, QScrollArea):
+            scroll_area = scroll_area.parent()
+
+        if not scroll_area:
+            return
+
+        viewport_w = scroll_area.viewport().width()
+        viewport_h = scroll_area.viewport().height()
+
+        # Unzoomed dimensions
+        max_w = self._cached_hoop_size[0] * INCHES_TO_MM
+        max_h = self._cached_hoop_size[1] * INCHES_TO_MM
+        margin = 5
+
+        for layer in self._state.layers:
+            orig_w = layer.image.width() * layer.pixel_size.width()
+            orig_h = layer.image.height() * layer.pixel_size.height()
+            rot_w, rot_h = image_utils.rotated_rectangle_dimensions(orig_w, orig_h, layer.rotation)
+            diff_w = (orig_w - rot_w) / 2
+            diff_h = (orig_h - rot_h) / 2
+            w = layer.position.x() - diff_w + rot_w
+            h = layer.position.y() - diff_h + rot_h
+            if w > max_w:
+                max_w = w
+            if h > max_h:
+                max_h = h
+
+        unzoomed_pixel_w = (max_w + margin) * DEFAULT_SCALE_FACTOR
+        unzoomed_pixel_h = (max_h + margin) * DEFAULT_SCALE_FACTOR
+
+        # Let's add a small padding (e.g. 20 pixels) so it doesn't touch the borders
+        padding = 20
+        target_w = max(10, viewport_w - padding)
+        target_h = max(10, viewport_h - padding)
+
+        ratio_w = target_w / unzoomed_pixel_w
+        ratio_h = target_h / unzoomed_pixel_h
+        target_zoom = min(ratio_w, ratio_h)
+
+        # Clamp the zoom factor to reasonable limits (e.g., between 0.1 and 4.0)
+        self._state.zoom_factor = max(0.1, min(4.0, target_zoom))
+        self.recalculate_fixed_size()
 
     def _paint_to_qimage(
         self,
@@ -521,8 +575,37 @@ class Canvas(QWidget):
                 new_image, new_partitions = layer.flipped_image_and_partitions(False, True)
                 self._state.update_layer_image_and_partitions(layer, new_image, new_partitions)
             event.accept()
+        elif key == Qt.Key.Key_Space:
+            if not event.isAutoRepeat():
+                self._space_held = True
+                self.setCursor(Qt.CursorShape.OpenHandCursor)
+            event.accept()
         else:
             super().keyPressEvent(event)
+
+    @override
+    def keyReleaseEvent(self, event: QKeyEvent):
+        """
+        Handles key release events.
+        """
+        if not self._state:
+            event.ignore()
+            return
+
+        if event.key() == Qt.Key.Key_Space:
+            if not event.isAutoRepeat():
+                self._space_held = False
+                self.unsetCursor()
+            event.accept()
+        else:
+            super().keyReleaseEvent(event)
+
+    @override
+    def focusOutEvent(self, event):
+        """Resets the spacebar panning state when focus is lost."""
+        self._space_held = False
+        self.unsetCursor()
+        super().focusOutEvent(event)
 
     @override
     def wheelEvent(self, event: QWheelEvent):
@@ -850,6 +933,12 @@ class Canvas(QWidget):
             event.accept()
             return
 
+        if event.button() == Qt.MouseButton.LeftButton and getattr(self, "_space_held", False):
+            self._pan_last_pos = event.position()
+            self.setCursor(Qt.CursorShape.ClosedHandCursor)
+            event.accept()
+            return
+
         if not self._state or not self._state.layers:
             event.ignore()
             return
@@ -909,7 +998,41 @@ class Canvas(QWidget):
         Args:
             event: The mouse event.
         """
-        if event.buttons() & Qt.MouseButton.MiddleButton and self._pan_last_pos is not None:
+        if self._state:
+            scale = self._state.zoom_factor * DEFAULT_SCALE_FACTOR
+            pos_canvas = event.position() / scale
+            x_mm = pos_canvas.x()
+            y_mm = pos_canvas.y()
+
+            col, row = None, None
+            selected_layer = self._state.selected_layer
+            if selected_layer:
+                orig_w = selected_layer.image.width() * selected_layer.pixel_size.width()
+                orig_h = selected_layer.image.height() * selected_layer.pixel_size.height()
+                rect = QRectF(
+                    selected_layer.position.x(), selected_layer.position.y(), orig_w, orig_h
+                )
+
+                transform = QTransform()
+                transform.translate(rect.center().x(), rect.center().y())
+                transform.rotate(selected_layer.rotation)
+                transform.translate(-rect.center().x(), -rect.center().y())
+
+                inverse_transform, invertible = transform.inverted()
+                if invertible:
+                    local_pos = inverse_transform.map(pos_canvas)
+                    rel_x = local_pos.x() - selected_layer.position.x()
+                    rel_y = local_pos.y() - selected_layer.position.y()
+                    if 0 <= rel_x < orig_w and 0 <= rel_y < orig_h:
+                        col = int(rel_x / selected_layer.pixel_size.width())
+                        row = int(rel_y / selected_layer.pixel_size.height())
+
+            self.cursor_position_changed.emit(x_mm, y_mm, col, row)
+
+        is_panning = (event.buttons() & Qt.MouseButton.MiddleButton) or (
+            (event.buttons() & Qt.MouseButton.LeftButton) and getattr(self, "_space_held", False)
+        )
+        if is_panning and self._pan_last_pos is not None:
             # Find the parent QScrollArea to control its scrollbars
             scroll_area = self
             while scroll_area and not isinstance(scroll_area, QScrollArea):
@@ -1060,9 +1183,16 @@ class Canvas(QWidget):
         Args:
             event: The mouse event.
         """
-        if event.button() == Qt.MouseButton.MiddleButton:
+        if event.button() == Qt.MouseButton.MiddleButton or (
+            event.button() == Qt.MouseButton.LeftButton
+            and self._pan_last_pos is not None
+            and getattr(self, "_space_held", False)
+        ):
             self._pan_last_pos = None
-            self.unsetCursor()
+            if getattr(self, "_space_held", False):
+                self.setCursor(Qt.CursorShape.OpenHandCursor)
+            else:
+                self.unsetCursor()
             event.accept()
             return
 
@@ -1141,6 +1271,12 @@ class Canvas(QWidget):
             event.accept()
         else:
             event.ignore()
+
+    @override
+    def leaveEvent(self, event):
+        """Clears the cursor position display when the mouse leaves the canvas."""
+        self.cursor_position_changed.emit(None, None, None, None)
+        super().leaveEvent(event)
 
     @override
     def sizeHint(self) -> QSize:

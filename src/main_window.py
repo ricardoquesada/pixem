@@ -27,6 +27,7 @@ from PySide6.QtGui import (
     QIcon,
     QImage,
     QKeySequence,
+    QPixmap,
     QUndoGroup,
 )
 from PySide6.QtWidgets import (
@@ -305,6 +306,13 @@ class MainWindow(QMainWindow):
         self._zoom_reset_action.triggered.connect(self._on_zoom_reset)
         self._view_menu.addAction(self._zoom_reset_action)
 
+        self._zoom_fit_action = QAction(
+            QIcon.fromTheme("zoom-fit-best"), self.tr("Zoom to Fit"), self
+        )
+        self._zoom_fit_action.setShortcut(QKeySequence("Ctrl+9"))
+        self._zoom_fit_action.triggered.connect(self._on_zoom_fit)
+        self._view_menu.addAction(self._zoom_fit_action)
+
         self._view_menu.addSeparator()
         # The rest of the "View" actions are added once the docks are finished
 
@@ -507,6 +515,7 @@ class MainWindow(QMainWindow):
 
         self._toolbar.addAction(self._zoom_in_action)
         self._toolbar.addAction(self._zoom_out_action)
+        self._toolbar.addAction(self._zoom_fit_action)
         self._toolbar.addSeparator()
         self._toolbar.addAction(self._show_grid_action)
 
@@ -713,6 +722,9 @@ class MainWindow(QMainWindow):
         self._statusbar.addPermanentWidget(self._total_colors_label)
         self._statusbar.addPermanentWidget(self._total_pixels_label)
 
+        self._cursor_position_label = QLabel()
+        self._statusbar.addWidget(self._cursor_position_label)
+
     def _update_statusbar(self):
         """Updates the status bar with current project statistics."""
         colors = set()
@@ -768,6 +780,7 @@ class MainWindow(QMainWindow):
         self._zoom_in_action.setEnabled(enabled)
         self._zoom_out_action.setEnabled(enabled)
         self._zoom_reset_action.setEnabled(enabled)
+        self._zoom_fit_action.setEnabled(enabled)
 
         for action in self._align_actions.values():
             action.setEnabled(enabled)
@@ -912,6 +925,7 @@ class MainWindow(QMainWindow):
         canvas.position_changed.connect(self._on_canvas_position_changed)
         canvas.layer_selection_changed.connect(self._on_canvas_layer_selection_changed)
         canvas.layer_double_clicked.connect(self._on_canvas_layer_double_clicked)
+        canvas.cursor_position_changed.connect(self._on_canvas_cursor_position_changed)
 
     def _disconnect_document_signals(self, doc: Document):
         """Disconnects signals from the document."""
@@ -934,6 +948,7 @@ class MainWindow(QMainWindow):
             canvas.position_changed.disconnect(self._on_canvas_position_changed)
             canvas.layer_selection_changed.disconnect(self._on_canvas_layer_selection_changed)
             canvas.layer_double_clicked.disconnect(self._on_canvas_layer_double_clicked)
+            canvas.cursor_position_changed.disconnect(self._on_canvas_cursor_position_changed)
         except (RuntimeError, TypeError, ValueError):
             pass
 
@@ -945,6 +960,25 @@ class MainWindow(QMainWindow):
             layer: The layer to add.
         """
         self.state.add_layer(layer)
+
+    def _update_layer_list_item_icon(self, item: QListWidgetItem, layer: Layer):
+        """Updates the icon of a QListWidgetItem based on the layer's image."""
+        if layer.image:
+            thumb_size = 24
+            thumb_img = layer.image.scaled(
+                thumb_size,
+                thumb_size,
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation,
+            )
+            item.setIcon(QIcon(QPixmap.fromImage(thumb_img)))
+
+    def _create_layer_list_item(self, layer: Layer) -> QListWidgetItem:
+        """Creates a QListWidgetItem for a layer, including its thumbnail icon."""
+        item = QListWidgetItem(layer.name)
+        item.setData(Qt.UserRole, layer.uuid)
+        self._update_layer_list_item_icon(item, layer)
+        return item
 
     def _populate_partitions(self, layer: Layer):
         """
@@ -970,6 +1004,12 @@ class MainWindow(QMainWindow):
         for i, (partition_key, partition) in enumerate(layer.partitions.items()):
             item = QListWidgetItem(partition.name)
             item.setData(Qt.UserRole, partition_key)
+
+            # Create a solid color icon swatch
+            pixmap = QPixmap(16, 16)
+            pixmap.fill(QColor(partition.color))
+            item.setIcon(QIcon(pixmap))
+
             self._partition_list.addItem(item)
             if layer.selected_partition_uuid == partition_key:
                 selected_partition_idx = i
@@ -1473,6 +1513,12 @@ class MainWindow(QMainWindow):
             self.canvas.zoom_reset()
 
     @Slot()
+    def _on_zoom_fit(self):
+        """Fits the canvas zoom to the viewport."""
+        if self.canvas and self.state:
+            self.canvas.zoom_fit()
+
+    @Slot()
     def _on_layer_current_item_changed(
         self, current: QListWidgetItem, previous: QListWidgetItem
     ) -> None:
@@ -1771,6 +1817,19 @@ class MainWindow(QMainWindow):
                 self._position_y_spinbox.setValue(position.y())
                 self._position_x_spinbox.setValue(position.x())
 
+    @Slot(object, object, object, object)
+    def _on_canvas_cursor_position_changed(
+        self, x_mm: float | None, y_mm: float | None, col: int | None, row: int | None
+    ):
+        """Updates the status bar with the current cursor position."""
+        if x_mm is None or y_mm is None:
+            self._cursor_position_label.setText("")
+            return
+        text = f"X: {x_mm:.1f} mm, Y: {y_mm:.1f} mm"
+        if col is not None and row is not None:
+            text += f" (Col: {col}, Row: {row})"
+        self._cursor_position_label.setText(text)
+
     @Slot(str)
     def _on_canvas_layer_selection_changed(self, layer_uuid: str):
         """
@@ -1875,8 +1934,7 @@ class MainWindow(QMainWindow):
         Args:
             layer: The newly added layer.
         """
-        item = QListWidgetItem(layer.name)
-        item.setData(Qt.UserRole, layer.uuid)
+        item = self._create_layer_list_item(layer)
 
         with block_signals(self._layer_list):
             self._layer_list.addItem(item)
@@ -1885,6 +1943,12 @@ class MainWindow(QMainWindow):
             for partition_key, partition in layer.partitions.items():
                 item = QListWidgetItem(partition.name)
                 item.setData(Qt.UserRole, partition_key)
+
+                # Create a solid color icon swatch
+                pixmap = QPixmap(16, 16)
+                pixmap.fill(QColor(partition.color))
+                item.setIcon(QIcon(pixmap))
+
                 self._partition_list.addItem(item)
 
         # Order matters: first layer, then partition
@@ -1957,8 +2021,7 @@ class MainWindow(QMainWindow):
         with block_signals(self._layer_list):
             self._layer_list.clear()
             for layer in self.state.layers:
-                item = QListWidgetItem(layer.name)
-                item.setData(Qt.UserRole, layer.uuid)
+                item = self._create_layer_list_item(layer)
                 self._layer_list.addItem(item)
                 if layer.uuid == selected_uuid:
                     item.setSelected(True)
@@ -1990,6 +2053,12 @@ class MainWindow(QMainWindow):
         Args:
             layer: The layer whose pixels have changed.
         """
+        for i in range(self._layer_list.count()):
+            item = self._layer_list.item(i)
+            if item.data(Qt.UserRole) == layer.uuid:
+                self._update_layer_list_item_icon(item, layer)
+                break
+
         item = self._layer_list.currentItem()
         if item and item.data(Qt.UserRole) == layer.uuid:
             self._populate_partitions(layer)
@@ -2134,8 +2203,7 @@ class MainWindow(QMainWindow):
             selected_layer = self.state.selected_layer
             with block_signals(self._layer_list):
                 for layer in self.state.layers:
-                    item = QListWidgetItem(layer.name)
-                    item.setData(Qt.UserRole, layer.uuid)
+                    item = self._create_layer_list_item(layer)
                     self._layer_list.addItem(item)
                     if selected_layer and layer.uuid == selected_layer.uuid:
                         self._layer_list.setCurrentItem(item)

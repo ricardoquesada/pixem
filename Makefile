@@ -1,5 +1,7 @@
 SHELL := /bin/bash
 
+.PHONY: all run dist icon resources lupdate lrelease venv format lint tests clean purge help
+
 all: help
 
 run:
