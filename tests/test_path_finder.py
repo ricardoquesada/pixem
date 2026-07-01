@@ -141,6 +141,35 @@ class TestPathFinder(unittest.TestCase):
 
         self.assertEqual(refined, [(2, 1), (3, 1)])
 
+    def test_optimize_route_single_contiguous(self):
+        from shape import Rect
+
+        # A simple contiguous horizontal line of 3 pixels
+        rects = [Rect(1, 1), Rect(2, 1), Rect(3, 1)]
+        optimized = self.pf.optimize_route(self.color_int, rects)
+
+        # Verify that it returns exactly 3 Rect shapes in order (1,1)->(2,1)->(3,1)
+        self.assertEqual(len(optimized), 3)
+        self.assertTrue(all(isinstance(s, Rect) for s in optimized))
+        self.assertEqual(optimized[0].x, 1)
+        self.assertEqual(optimized[1].x, 2)
+        self.assertEqual(optimized[2].x, 3)
+
+    def test_optimize_route_two_islands(self):
+        from shape import Path, Rect
+
+        # Two separate blocks of pixels: (1,1) and (3,1) with a gap at (2,1)
+        rects = [Rect(1, 1), Rect(3, 1)]
+        optimized = self.pf.optimize_route(self.color_int, rects)
+
+        # Should contain Rect(1,1), a Path connecting them, and Rect(3,1)
+        self.assertEqual(len(optimized), 3)
+        self.assertIsInstance(optimized[0], Rect)
+        self.assertEqual((optimized[0].x, optimized[0].y), (1, 1))
+        self.assertIsInstance(optimized[1], Path)
+        self.assertIsInstance(optimized[2], Rect)
+        self.assertEqual((optimized[2].x, optimized[2].y), (3, 1))
+
 
 if __name__ == "__main__":
     unittest.main()

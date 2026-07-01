@@ -995,6 +995,17 @@ class PartitionDialog(QDialog):
         self._action_show_grid.toggled.connect(self._on_action_show_grid)
         toolbar.addAction(self._action_show_grid)
 
+        # Optimize Route Action
+        self._action_optimize = QAction(
+            create_icon_from_svg(":/icons/svg/actions/simplify-symbolic.svg", ICON_SIZE),
+            self.tr("Optimize Route"),
+            self,
+        )
+        self._action_optimize.setShortcut(QKeySequence("O"))
+        self._action_optimize.setToolTip(self.tr("Optimize Stitch Route (O)"))
+        self._action_optimize.triggered.connect(self._on_action_optimize)
+        toolbar.addAction(self._action_optimize)
+
         toolbar.addSeparator()
 
         undo_action = self._undo_stack.createUndoAction(self, self.tr("Undo"))
@@ -1141,6 +1152,61 @@ class PartitionDialog(QDialog):
     @Slot()
     def _on_action_show_grid(self, checked):
         self._image_widget.set_show_grid(checked)
+
+    @Slot()
+    def _on_action_optimize(self):
+        """Optimize the stitch route for the selected shapes (or all shapes if selection is empty)."""
+        old_original = list(self._image_widget._original_shapes)
+        old_selected = list(self._image_widget._selected_shapes)
+
+        # Determine target shapes for optimization
+        if old_selected:
+            target_shapes = old_selected
+            try:
+                insert_index = min(old_original.index(s) for s in old_selected if s in old_original)
+            except ValueError:
+                insert_index = 0
+        else:
+            target_shapes = old_original
+            insert_index = 0
+
+        # Filter only Rect shapes from the target
+        rects = [s for s in target_shapes if isinstance(s, Rect)]
+        if not rects:
+            logger.info("No pixels (Rect shapes) selected for optimization.")
+            return
+
+        # Run optimization
+        color = self._image_widget._partition_color
+        new_sub_route = self._image_widget._path_finder.optimize_route(color, rects)
+
+        # Build new original list
+        new_original = list(old_original)
+        if old_selected:
+            # Remove all selected shapes from original shapes list
+            for s in old_selected:
+                if s in new_original:
+                    new_original.remove(s)
+            # Insert the new optimized sub-route at the insertion point
+            for i, shape in enumerate(new_sub_route):
+                new_original.insert(insert_index + i, shape)
+
+            # As answer A3 requested: Select all shapes in the new optimized route
+            new_selected = list(new_sub_route)
+        else:
+            new_original = new_sub_route
+            new_selected = list(new_sub_route)
+
+        if new_original != old_original:
+            command = UpdateShapesCommand(
+                self,
+                self.tr("Optimize Route"),
+                old_selected,
+                old_original,
+                new_selected,
+                new_original,
+            )
+            self._undo_stack.push(command)
 
     @Slot()
     def _on_rows_moved(self, parent, start, end, destination):
