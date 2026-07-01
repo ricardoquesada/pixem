@@ -25,6 +25,20 @@ class TestCanvasSnapping(unittest.TestCase):
         cls.app = QApplication.instance() or QApplication([])
 
     def setUp(self):
+        # Configure preferences for testing
+        self.prefs = get_global_preferences()
+        self.original_grid_size = self.prefs.get_grid_size_mm()
+        self.original_snap_grid = self.prefs.get_snap_to_grid()
+        self.original_snap_hoop = self.prefs.get_snap_to_hoop()
+        self.original_snap_layers = self.prefs.get_snap_to_layers()
+        self.original_hoop_size = self.prefs.get_hoop_size()
+
+        self.prefs.set_hoop_size((4.0, 4.0))
+        self.prefs.set_grid_size_mm(10.0)
+        self.prefs.set_snap_to_grid(True)
+        self.prefs.set_snap_to_hoop(True)
+        self.prefs.set_snap_to_layers(True)
+
         self.state = State()
         self.canvas = Canvas(self.state)
 
@@ -37,12 +51,12 @@ class TestCanvasSnapping(unittest.TestCase):
 
         self.state.add_layer(self.layer1)
 
-        # Configure preferences for testing
-        self.prefs = get_global_preferences()
-        self.prefs.set_grid_size_mm(10.0)
-        self.prefs.set_snap_to_grid(True)
-        self.prefs.set_snap_to_hoop(True)
-        self.prefs.set_snap_to_layers(True)
+    def tearDown(self):
+        self.prefs.set_grid_size_mm(self.original_grid_size)
+        self.prefs.set_snap_to_grid(self.original_snap_grid)
+        self.prefs.set_snap_to_hoop(self.original_snap_hoop)
+        self.prefs.set_snap_to_layers(self.original_snap_layers)
+        self.prefs.set_hoop_size(self.original_hoop_size)
 
     def test_snap_point_to_grid(self):
         self.prefs.set_snap_to_grid(True)
