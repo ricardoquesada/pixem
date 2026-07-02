@@ -8,7 +8,7 @@ run:
 	pyside6-project run
 
 dist: resources icon
-	pyinstaller --clean --noconfirm pixem.spec
+	pyinstaller --clean --noconfirm --onefile --windowed --icon=src/res/Pixem.icns --name pixem src/main.py
 
 icon:
 	mkdir -p src/res/Pixem.iconset
@@ -25,7 +25,7 @@ icon:
 	iconutil -c icns src/res/Pixem.iconset -o src/res/Pixem.icns
 	rm -rf src/res/Pixem.iconset
 
-resources:
+resources: lrelease
 	pyside6-rcc src/res/resources.qrc -o src/res/rc_resources.py
 
 lupdate:

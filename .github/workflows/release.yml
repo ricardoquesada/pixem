@@ -46,14 +46,23 @@ jobs:
       - name: Generate Resources
         run: pyside6-rcc src/res/resources.qrc -o src/res/rc_resources.py
 
+      - name: Generate Windows Icon
+        if: matrix.os == 'windows-latest'
+        run: |
+          python -c "from PIL import Image; img = Image.open('src/res/logo512.png'); img.save('src/res/logo.ico', format='ICO', sizes=[(16, 16), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)])"
+
+      - name: Build with PyInstaller (Windows)
+        if: matrix.os == 'windows-latest'
+        run: pyinstaller --clean --onefile --windowed --icon=src/res/logo.ico --name pixem src/main.py
+
+      - name: Build with PyInstaller (macOS)
+        if: matrix.os == 'macos-latest'
+        run: pyinstaller --clean --onefile --windowed --icon=src/res/Pixem.icns --name pixem src/main.py
+
       - name: Build with PyInstaller (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: pyinstaller --clean --onedir --windowed --name pixem src/main.py
 
-      - name: Build with PyInstaller (Windows/macOS)
-        if: matrix.os != 'ubuntu-latest'
-        # Only use --windowed (noconsole) for GUI apps
-        run: pyinstaller --clean --onefile --windowed --name pixem src/main.py
 
       # Packaging
       - name: Package (Linux AppImage)
